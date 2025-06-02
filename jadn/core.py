@@ -16,7 +16,8 @@ class JADN:
     # Defer loading METASCHEMA until after the class has been created
 
     def __init__(self):
-        self.schema = None
+        self.meta = None
+        self.types = None
         self.source = None
         return
 
@@ -27,7 +28,9 @@ class JADN:
         json_data = json.loads(jadn_str)
         with open('data/jadn_v2.0_schema.json') as f:   # Check JSON structure using JSON Schema
             validate(instance=json_data, schema=json.load(f))
-        self.schema = _check(_load(json_data))    # Load and validate logical schema
+        sc = _check(_load(json_data))    # Load and validate logical schema
+        self.meta = sc['meta']
+        self.types = sc['types']
         self.source = None
 
     def load(self, fp: TextIO) -> None:
@@ -47,7 +50,7 @@ class JADN:
         """
         Return a schema instance as a string containing JADN data in JSON format
         """
-        scc = {'meta': self.schema['meta'], 'types': copy.deepcopy(self.schema['types'])}
+        scc = {'meta': self.meta, 'types': copy.deepcopy(self.types)}
         return _pprint(_dump(scc), strip=strip)
 
     def dump(self, fp: TextIO, strip: bool = True) -> None:
@@ -206,5 +209,6 @@ if __name__ == '__main__':
     jd = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
         jd.load(fp)
-    print(f'\nLogical: {jd.schema}')        # Internal (logical) schema value
+    sc = {'meta': jd.meta, 'types': jd.types}
+    print(f'\nLogical: {sc}')               # Internal (logical) schema value
     print(f'JSON Format:\n{jd.dumps()}')    # External (lexical) schema value
