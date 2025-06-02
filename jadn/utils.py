@@ -7,7 +7,7 @@ import copy
 import re
 
 from functools import reduce
-from typing import Any, NoReturn, Union
+from typing import Any, Union
 from .definitions import (
     TypeName, CoreType, TypeOptions, Fields, ItemDesc, FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, OPTION_ID, OPTION_TYPES, MAX_DEFAULT, MAX_UNLIMITED,

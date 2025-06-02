@@ -6,7 +6,7 @@ from numbers import Number
 from typing import TextIO, Any
 
 # ========================================================
-# JADN static values and methods
+# JADN schema class static values and methods
 # ========================================================
 
 class JADN:
@@ -93,7 +93,7 @@ def _load(json_data: dict) -> dict:
 
 def _load_tagstrings(tstrings: list[str]) -> dict[str, str]:
     """
-    Convert JSON-serialized TypeOptions and FieldOptions to dicts
+    Convert JSON-serialized TypeOptions and FieldOptions list of strings to dict
     """
     def opt(s: str) -> tuple[str, str]:
         return s if s[0] in JADN.F else JADN.OPTS[ord(s[:1])][0], '' if s[:1] in JADN.F else s[1:]
@@ -118,7 +118,7 @@ def _dump(json_data: dict) -> dict:
 
 def _dump_tagstrings(opts: dict[str, str]) -> list[str]:
     """
-    Convert TypeOptions and FieldOptions dicts to JSON-serialized strings
+    Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
     def strs(k: str, v: str) -> str:
         return chr(JADN.OPTX[k]) + v if k in JADN.OPTX else k
@@ -127,7 +127,7 @@ def _dump_tagstrings(opts: dict[str, str]) -> list[str]:
 
 def _check(schema: dict) -> dict:
     """
-    Validate logical schema
+    Validate logical schema against JADN metaschema
     """
     return schema
 
