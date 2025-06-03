@@ -1,9 +1,12 @@
 import copy
 import json
-from definitions import TYPE_OPTIONS, FIELD_OPTIONS, CoreType, TypeOptions, Fields, FieldOptions
+from definitions import TYPE_OPTIONS, FIELD_OPTIONS, CoreType, TypeOptions, Fields, FieldOptions, FieldType
 from jsonschema import validate
 from numbers import Number
 from typing import TextIO, Any
+
+from jadn.definitions import PYTHON_TYPES
+
 
 # ========================================================
 # JADN schema class static values and methods
@@ -83,21 +86,23 @@ def _load(json_data: dict) -> dict:
     fdef = [None, None, None, [], '']  # [FieldId, FieldName, FieldType, FieldOptions, FieldDesc]
     for td in json_data['types']:
         td += tdef[len(td):len(tdef)]
-        td[TypeOptions] = _load_tagstrings(td[TypeOptions])
+        td[TypeOptions] = _load_tagstrings(td[TypeOptions], td[CoreType])
         for fd in td[Fields]:
             if td[CoreType] in {'Array', 'Map', 'Record', 'Choice'}:
                 fd += fdef[len(fd):len(fdef)]
-                fd[FieldOptions] = _load_tagstrings(fd[FieldOptions])
+                fd[FieldOptions] = _load_tagstrings(fd[FieldOptions], fd[FieldType])
     return json_data
 
 
-def _load_tagstrings(tstrings: list[str]) -> dict[str, str]:
+def _load_tagstrings(tstrings: list[str], ct: str) -> dict[str, str]:
     """
     Convert JSON-serialized TypeOptions and FieldOptions list of strings to dict
     """
-    def opt(s: str) -> tuple[str, str]:
-        return s if s[0] in JADN.F else JADN.OPTS[ord(s[:1])][0], '' if s[:1] in JADN.F else s[1:]
-    return dict(opt(s) for s in tstrings)
+    def opt(s: str, ct: str) -> tuple[str, str]:
+        t = JADN.OPTS[ord(s[0])]
+        f = PYTHON_TYPES[ct if t[1] is None else t[1]]
+        return s if s[0] in JADN.F else t[0], '' if s[0] in JADN.F else f(s[1:])
+    return dict(opt(s, ct) for s in tstrings)
 
 
 def _dump(json_data: dict) -> dict:
@@ -109,20 +114,22 @@ def _dump(json_data: dict) -> dict:
     :return: {meta, types} in serialized format
     """
     for td in json_data['types']:
-        td[TypeOptions] = _dump_tagstrings(td[TypeOptions])
+        td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
         if td[CoreType] in {'Array', 'Map', 'Record', 'Choice'}:
             for fd in td[Fields]:
-                fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions])
+                fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
     return _strip_trailing_defaults(json_data)
 
 
-def _dump_tagstrings(opts: dict[str, str]) -> list[str]:
+def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     """
     Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
-    def strs(k: str, v: str) -> str:
-        return chr(JADN.OPTX[k]) + v if k in JADN.OPTX else k
-    return [strs(k, v) for k, v in opts.items()]
+    def strs(k: str, v: str, ct: str) -> str:
+        t = k if k[0] in JADN.F else JADN.OPTS[JADN.OPTX[k]]
+        f = PYTHON_TYPES[ct if t[1] is None else t[1]]
+        return chr(JADN.OPTX[k]) + str(v) if k in JADN.OPTX else k
+    return [strs(k, v, ct) for k, v in opts.items()]
 
 
 def _check(schema: dict) -> dict:
@@ -194,15 +201,16 @@ if __name__ == '__main__':
     Diagnostics
     """
 
-    j = JADN()      # Initialize OPTX (reverse option index)
-    print('OPTS:', len(j.OPTS), j.OPTS)
-    print('OPTX:', len(j.OPTX), j.OPTX)
+    j = JADN()      # Initialize OPTX (reverse option index) from OPTS (option definitions)
+    # print('OPTS:', len(j.OPTS), j.OPTS)   # Option {id: (name, type)}
+    # print('OPTX:', len(j.OPTX), j.OPTX)   # Option {name: id}
 
-    opts_s = ['[0', ']-1', 'q', '/ipv4', '/d3']
+    # Test tagged-string encoding
+    opts_s = ['#Pasta', '[0', 'y2', 'u42', 'q', '/ipv4', '/d3']
     print(f'\nStored opts: {opts_s}')
-    opts_d = _load_tagstrings(opts_s)
+    opts_d = _load_tagstrings(opts_s, 'Integer')
     print(f'Loaded opts: {opts_d}')
-    opts_s2 = _dump_tagstrings(opts_d)
+    opts_s2 = _dump_tagstrings(opts_d, 'Integer')
     print(f'Dumped opts: {opts_s2}')
     assert opts_s2 == opts_s
 

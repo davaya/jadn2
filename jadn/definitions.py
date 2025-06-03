@@ -86,40 +86,48 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
 #   The tables list the unicode codepoint of the ID and the corresponding Name and value type.
 
 TYPE_OPTIONS = {        # Option ID: (name, value type, canonical order) # ASCII ID
-    0x3d: ('id', lambda x: True),         # '=', Enumerated type and Choice/Map/Record keys are ID not Name
-    0x2a: ('vtype', lambda x: x),         # '*', Value type for ArrayOf and MapOf
-    0x2b: ('ktype', lambda x: x),         # '+', Key type for MapOf
-    0x23: ('enum', lambda x: x),          # '#', enumeration derived from Array/Choice/Map/Record type
-    0x3e: ('pointer', lambda x: x),       # '>', enumeration of pointers derived from Array/Choice/Map/Record type
-    0x2f: ('format', lambda x: x),        # '/', semantic validation keyword, may affect serialization
-    0x25: ('pattern', lambda x: x),       # '%', regular expression that a string must match
-    0x77: ('minExclusive', None),         # 'w', minimum numeric/string value, excluding bound
-    0x78: ('maxExclusive', None),         # 'x', maximum numeric/string value, excluding bound
-    0x79: ('minInclusive', None),         # 'y', minimum numeric/string value
-    0x7a: ('maxInclusive', None),         # 'z', maximum numeric/string value
-    0x7b: ('minLength', int),             # '{', minimum byte or text string length, collection item count
-    0x7d: ('maxLength', int),             # '}', maximum byte or text string length, collection item count
-    0x71: ('unique', lambda x: True),     # 'q', ArrayOf instance must not contain duplicates
-    0x73: ('set', lambda x: True),        # 's', ArrayOf instance is unordered and unique (set)
-    0x62: ('unordered', lambda x: True),  # 'b', ArrayOf instance is unordered and not unique (bag)
-    0x6f: ('sequence', lambda x: True),   # 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
-    0x43: ('combine', lambda x: x),       # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
-    0x61: ('abstract', lambda x: True),   # 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', lambda x: x),     # 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', lambda x: x),       # 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', lambda x: True),      # 'f', Inheritance: final - cannot have subtype
-    0x75: ('default', lambda x: x),       # 'u', Default value
-    0x76: ('const', lambda x: x),         # 'v', Constant value
+    0x3d: ('id', 'Boolean'),            # '=', Enumerated type and Choice/Map/Record keys are ID not Name
+    0x2a: ('vtype', 'String'),          # '*', Value type for ArrayOf and MapOf
+    0x2b: ('ktype', 'String'),          # '+', Key type for MapOf
+    0x23: ('enum', 'String'),           # '#', enumeration derived from Array/Choice/Map/Record type
+    0x3e: ('pointer', 'String'),        # '>', enumeration of pointers derived from Array/Choice/Map/Record type
+    0x2f: ('format', 'String'),         # '/', semantic validation keyword, may affect serialization
+    0x25: ('pattern', 'String'),        # '%', regular expression that a string must match
+    0x77: ('minExclusive', None),       # 'w', minimum numeric/string value, excluding bound
+    0x78: ('maxExclusive', None),       # 'x', maximum numeric/string value, excluding bound
+    0x79: ('minInclusive', None),       # 'y', minimum numeric/string value
+    0x7a: ('maxInclusive', None),       # 'z', maximum numeric/string value
+    0x7b: ('minLength', 'Integer'),     # '{', minimum byte or text string length, collection item count
+    0x7d: ('maxLength', 'Integer'),     # '}', maximum byte or text string length, collection item count
+    0x71: ('unique', 'Boolean'),        # 'q', ArrayOf instance must not contain duplicates
+    0x73: ('set', 'Boolean'),           # 's', ArrayOf instance is unordered and unique (set)
+    0x62: ('unordered', 'Boolean'),     # 'b', ArrayOf instance is unordered and not unique (bag)
+    0x6f: ('sequence', 'Boolean'),      # 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
+    0x43: ('combine', 'String'),        # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
+    0x61: ('abstract', 'Boolean'),      # 'a', Inheritance: abstract, non-instantiatable
+    0x72: ('restricts', 'String'),      # 'r', Inheritance: restriction - subset of referenced type
+    0x65: ('extends', 'String'),        # 'e', Inheritance: extension - superset of referenced type
+    0x66: ('final', 'Boolean'),         # 'f', Inheritance: final - cannot have subtype
+    0x75: ('default', None),            # 'u', Default value
+    0x76: ('const', None),              # 'v', Constant value
 }
 
 FIELD_OPTIONS = {
-    0x5b: ('minOccurs', int),             # '[', min cardinality, default = 1, 0 = field is optional
-    0x5d: ('maxOccurs', int),             # ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagid', int),                 # '&', field that specifies the type of this field
-    0x3c: ('dir', lambda x: True),        # '<', pointer enumeration treats field as a collection
-    0x4b: ('key', lambda x: True),        # 'K', field is the primary key for TypeName
-    0x4c: ('link', lambda x: True),       # 'L', field is a link (foreign key) to an instance of FieldType
-    0x4e: ('not', lambda x: True)         # 'N', field is not an instance of FieldType
+    0x5b: ('minOccurs', 'Integer'),     # '[', min cardinality, default = 1, 0 = field is optional
+    0x5d: ('maxOccurs', 'Integer'),     # ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
+    0x26: ('tagid', 'Integer'),         # '&', field that specifies the type of this field
+    0x3c: ('dir', 'String'),            # '<', pointer enumeration treats field as a collection
+    0x4b: ('key', 'Boolean'),           # 'K', field is the primary key for TypeName
+    0x4c: ('link', 'Boolean'),          # 'L', field is a link (foreign key) to an instance of FieldType
+    0x4e: ('not', 'Boolean')            # 'N', field is not an instance of FieldType
+}
+
+PYTHON_TYPES = {
+    'Binary': bytes,
+    'Boolean': bool,
+    'Integer': int,
+    'Number': float,
+    'String': str,
 }
 
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
