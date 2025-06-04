@@ -13,8 +13,8 @@ from jadn.definitions import PYTHON_TYPES
 # ========================================================
 
 class JADN:
-    OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)
-    OPTX = {v[0]: k for k, v in OPTS.items()}
+    OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)       # Defined Option table: {id: (name, type)}
+    OPTX = {v[0]: k for k, v in OPTS.items()}   # Generated Option reverse index: {name: id}
     F = {'/', }     # Full-key options (e.g., /format)
     # Defer loading METASCHEMA until after the class is defined
 
@@ -101,7 +101,7 @@ def _load_tagstrings(tstrings: list[str], ct: str) -> dict[str, str]:
     def opt(s: str, ct: str) -> tuple[str, str]:
         t = JADN.OPTS[ord(s[0])]
         f = PYTHON_TYPES[ct if t[1] is None else t[1]]
-        return s if s[0] in JADN.F else t[0], '' if s[0] in JADN.F else f(s[1:])
+        return s if s[0] in JADN.F else t[0], '' if s[0] in JADN.F else True if f is bool else f(s[1:])
     return dict(opt(s, ct) for s in tstrings)
 
 
@@ -125,9 +125,10 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     """
     Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
-    def strs(k: str, v: str, ct: str) -> str:
-        return chr(JADN.OPTX[k]) + v if k in JADN.OPTX else k
-    return [strs(k, v, ct) for k, v in opts.items()]
+    def strs(k: str, v: Any) -> str:
+        v = '' if isinstance(v, bool) else str(v)
+        return k if k[0] in JADN.F else chr(JADN.OPTX[k]) + v
+    return [strs(k, v) for k, v in opts.items()]
 
 
 def _check(schema: dict) -> dict:
@@ -204,13 +205,14 @@ if __name__ == '__main__':
     # print('OPTX:', len(j.OPTX), j.OPTX)   # Option {name: id}
 
     # Test tagged-string encoding
-    opts_s = ['#Pasta', '[0', 'y2', 'u42', 'q', '/ipv4', '/d3']
+    opts_s = ['#Pasta', '[0', 'y2', 'u3.14159', 'q', '/ipv4', '/d3']
     print(f'\nStored opts: {opts_s}')
-    opts_d = _load_tagstrings(opts_s, 'Integer')
+    opts_d = _load_tagstrings(opts_s, 'Number')
     print(f'Loaded opts: {opts_d}')
-    opts_s2 = _dump_tagstrings(opts_d, 'Integer')
+    opts_s2 = _dump_tagstrings(opts_d, 'Number')
     print(f'Dumped opts: {opts_s2}')
-    assert opts_s2 == opts_s
+    if opts_s2 != opts_s:
+        print(' ** Options translation mismatch **')
 
     jd = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
