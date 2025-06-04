@@ -16,7 +16,7 @@ class JADN:
     OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)
     OPTX = {v[0]: k for k, v in OPTS.items()}
     F = {'/', }     # Full-key options (e.g., /format)
-    # Defer loading METASCHEMA until after the class has been created
+    # Defer loading METASCHEMA until after the class is defined
 
     def __init__(self):
         self.meta = None
@@ -126,9 +126,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
     def strs(k: str, v: str, ct: str) -> str:
-        t = k if k[0] in JADN.F else JADN.OPTS[JADN.OPTX[k]]
-        f = PYTHON_TYPES[ct if t[1] is None else t[1]]
-        return chr(JADN.OPTX[k]) + str(v) if k in JADN.OPTX else k
+        return chr(JADN.OPTX[k]) + v if k in JADN.OPTX else k
     return [strs(k, v, ct) for k, v in opts.items()]
 
 
