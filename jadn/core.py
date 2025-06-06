@@ -1,6 +1,6 @@
 import copy
 import json
-from definitions import TYPE_OPTIONS, FIELD_OPTIONS, CoreType, TypeOptions, Fields, FieldOptions, FieldType
+from jadn.definitions import TYPE_OPTIONS, FIELD_OPTIONS, CoreType, TypeOptions, Fields, FieldOptions, FieldType
 from jsonschema import validate
 from numbers import Number
 from typing import TextIO, Any
@@ -191,7 +191,7 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 # Load METASCHEMA class variable now that JADN exists
 # =========================================================
 
-with open('data/jadn_v2.0_schema.jadn') as f:
+with open(__package__ + '/data/jadn_v2.0_schema.jadn') as f:
     JADN.METASCHEMA = _load(json.load(f))
 
 

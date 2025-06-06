@@ -8,16 +8,17 @@ import re
 
 from functools import reduce
 from typing import Any, Union
-from .definitions import (
-    TypeName, CoreType, TypeOptions, Fields, ItemDesc, FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
-    DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, OPTION_ID, OPTION_TYPES, MAX_DEFAULT, MAX_UNLIMITED,
-    is_builtin, has_fields, TypeDefinition,
-    EnumFieldDefinition, GenFieldDefinition
+from core import JADN
+from definitions import (
+    TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
+    FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
+    DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
+    is_builtin, has_fields
 )
 
 
 # Handle errors
-def raise_error(*s) -> NoReturn:
+def raise_error(*s) -> None:
     raise ValueError(*s)
 
 
@@ -96,9 +97,9 @@ def build_deps(schema: dict[str, list]) -> dict[str, list[str]]:
     """
     def get_refs(tdef: list) -> list[str]:  # Return all type references from a type definition
         # Options whose value is/has a type name: strip option id
-        oids = [OPTION_ID['ktype'], OPTION_ID['vtype'], OPTION_ID['extends'], OPTION_ID['restricts']]
+        oids = [JADN.OPTX['ktype'], JADN.OPTX['vtype'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
         # Options that enumerate fields: keep option id
-        oids2 = [OPTION_ID['enum'], OPTION_ID['pointer']]
+        oids2 = [JADN.OPTX['enum'], JADN.OPTX['pointer']]
         refs = [to[1:] for to in tdef[TypeOptions] if to[0] in oids and not is_builtin(to[1:])]
         refs += ([to[1:] for to in tdef[TypeOptions] if to[0] in oids2])
         if has_fields(tdef[CoreType]):  # Ignore Enumerated
@@ -135,89 +136,17 @@ def topo_sort(deps: dict[str, list[str]], roots: list[str]) -> list[str]:
     return out
 
 
-def get_optx(opts: list[OPTION_TYPES], oname: str) -> Union[OPTION_TYPES, None]:
-    if n := [i for i, x in enumerate(opts) if x[0] == OPTION_ID[oname]]:
-        return n[0]
-    return None
-
-
-def del_opt(opts: list[OPTION_TYPES], oname: str) -> None:
-    if n := [i for i, x in enumerate(opts) if x[0] == OPTION_ID[oname]]:
-        del opts[n[0]]
-
-
-def topts_s2d(olist: Union[list[OPTION_TYPES], tuple[OPTION_TYPES, ...]], typename: str = None) -> dict:
-    """
-    Convert list of type definition option strings to options dictionary
-    """
-    ptype = {'Binary': bytes, 'Boolean': bool, 'Integer': int, 'Number': float, 'String': str}.get(typename, None)
-    assert isinstance(olist, (list, tuple)), f'{olist} is not a list'
-    topts = {o for o in olist if ord(o[0]) in TYPE_OPTIONS}
-    if uopts := {*olist} - topts:
-        raise_error(f"Unknown type options: {','.join(uopts)}")
-    opts = {}
-    for o in topts:
-        k, v, _ = TYPE_OPTIONS[ord(o[0])]
-        t = v if v else ptype
-        if t is None:
-            raise_error(f"Invalid type option for {typename}: {k}={o[1:]}")
-        opts[k] = t(o[1:])
-    return opts
-
-
-def ftopts_s2d(olist: Union[list[OPTION_TYPES], tuple[OPTION_TYPES, ...]], typename: str = None) -> tuple[dict, dict]:
-    """
-    Convert list of field definition option strings to options dictionary
-    returns - FieldOptions, TypeOptions
-    """
-    assert isinstance(olist, (list, tuple)), f'{olist} is not a list'
-    fopts = {}
-    topts = {}
-    for o in olist:
-        try:
-            k, v, _ = FIELD_OPTIONS[ord(o[0])]
-            fopts[k] = v(o[1:])
-        except KeyError:
-            topts.update(topts_s2d([o], typename))
-    return fopts, topts
-
-
-def opts_d2s(to: dict) -> list[str]:
-    rtn: list[str] = []
-    for k, v in to.items():
-        try:
-            rtn.append(f"{OPTION_ID[k]}{'' if v is True else str(v)}")
-        except KeyError:
-            raise_error(f'Unknown option tag {k}')
-    return rtn
-
-
-def opts_sort(olist: Union[list[OPTION_TYPES], tuple[OPTION_TYPES, ...]]) -> None:
-    """
-    Sort JADN option list into canonical order
-    """
-    def opt_order(o):
-        try:
-            k = FIELD_OPTIONS[ord(o)][2]
-        except KeyError:
-            k = TYPE_OPTIONS[ord(o)][2]
-        return k
-
-    olist.sort(key=lambda x: opt_order(x[0]))
-
-
 def canonicalize(schema: dict) -> dict:
-    def can_opts(olist: list[OPTION_TYPES], coretype: str):
-        opts_sort(olist)                # Sort options into canonical order (for comparisons)
-        fo, to = ftopts_s2d(olist, coretype)      # Remove default size and multiplicity options
-        if 'minLength' in to and to['minLength'] == 0:
-            del_opt(olist, 'minLength')
-        if 'maxLength' in to and to['maxLength'] == MAX_DEFAULT:
-            del_opt(olist, 'maxLength')
-        if 'minOccurs' in fo and fo['minOccurs'] == 1:
-            del_opt(olist, 'minOccurs')
-        if 'maxOccurs' in fo and fo['maxOccurs'] == 1:
-            del_opt(olist, 'maxOccurs')
+    def can_opts(opts: dict[str, Any], coretype: str):
+    # Remove default size and multiplicity options
+        if opts.get('minLength') == 0:
+            del opts['minlength']
+        if opts.get('maxLength') == MAX_DEFAULT:
+            del opts['maxLength']
+        if opts.get('minOccurs') == 1:
+            del opts['minOccurs']
+        if opts.get('maxOccurs') == 1:
+            del opts['maxOccurs']
         # if coretype == 'Number':           # TODO: fix corner case input = 2.000
         #     minf = get_optx(olist, 'minf')
         #     if minf is not None and '.' not in olist[minf]:
@@ -257,7 +186,7 @@ def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
         m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: nsid:Name$qualifier
         if m1 is None:
             raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-        return OPTION_ID[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
+        return JADN.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
 
     topts = {}
     fo = []
@@ -274,7 +203,7 @@ def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
         raise_error(f'TypeString2JADN: "{typestring}" does not match pattern {pattern}')
     tname = m.group(1)
     if tname[0] == '!':
-        fo += [OPTION_ID['not']]
+        fo += [JADN.OPTX['not']]
         tname = tname[1:]
     topts.update({'id': True} if m.group(2) else {})
     if m.group(3):                      # (ktype, vtype), Enum(), Pointer(), Choice() options
@@ -332,9 +261,9 @@ def jadn2typestr(tname: str, topts: list[OPTION_TYPES]) -> str:
     """
     # Handle ktype/vtype containing Enum options
     def _kvstr(optv: str) -> str:
-        if optv[0] == OPTION_ID['enum']:
+        if optv[0] == JADN.OPTX['enum']:
             return f'Enum[{optv[1:]}]'
-        if optv[0] == OPTION_ID['pointer']:
+        if optv[0] == JADN.OPTX['pointer']:
             return f'Pointer[{optv[1:]}]'
         return optv
 
@@ -463,7 +392,7 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
             fo.update({'minOccurs': -1, 'maxOccurs': -1})
         fo.update(fopts_s2d(fopts))
         # if fopts:
-        #     assert len(fopts) == 1 and fopts[0][0] == OPTION_ID['tagid']    # Update if additional field options defined
+        #     assert len(fopts) == 1 and fopts[0][0] == JADN.OPTX['tagid']    # Update if additional field options defined
         #     fo.update({'tagid': fopts[0][1:]})      # if field name, MUST update to id after all fields have been read
     if fdesc:
         m = re.match(r'^(?:\s*\/\/)?\s*(.*)$', fdesc)

@@ -1,15 +1,12 @@
 """
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
-from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, FieldID, FieldName
-from jadn.definitions import FieldType, FieldOptions, FieldDesc, ItemID, ItemValue, ItemDesc
-from jadn.core import JADN
 from lxml import etree as ET
 
 
-def xasd_dumps(sc: JADN):
+def xasd_dumps(self):
     xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-    if meta := sc.meta:
+    if meta := self.meta:
         xasd += '  <Metadata\n'
         xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
         for k, v in meta.items():
@@ -30,7 +27,7 @@ def xasd_dumps(sc: JADN):
                 xasd += f'{4 * " "}</{k.capitalize()}>\n'
     xasd += '  </Metadata>\n'
     xasd += '  <Types>\n'
-    for td in sc.types:
+    for td in self.types:
         (ln, end) = ('\n', '    ') if td[Fields] else ('', '')
         xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{td[TypeOptions]}>{td[TypeDesc]}{ln}'
         for f in td[Fields]:
@@ -45,9 +42,9 @@ def xasd_dumps(sc: JADN):
     return xasd
 
 
-def xasd_dump(schema: JADN, fp: str):
+def xasd_dump(self, fp: str):
     with open(fp, 'w', encoding='utf8') as f:
-        f.write(xasd_dumps(schema))
+        f.write(xasd_dumps(self))
 
 
 def get_meta(el: ET.Element) -> dict:
@@ -92,3 +89,17 @@ def xasd_load(file_path: str) -> dict[str, dict | list]:
                 types.append(get_type(el))
 
     return {'meta': meta, 'types': types}
+
+
+if __name__ == '__main__':
+    import sys
+    sys.path.append('../jadn')
+    from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, FieldID, FieldName
+    from jadn.definitions import FieldType, FieldOptions, FieldDesc, ItemID, ItemValue, ItemDesc
+    from jadn.core import JADN
+
+    JADN.xasd_dump = xasd_dump
+    sc = JADN()
+    with open('data/jadn_v2.0_schema.jadn', 'r') as fp:
+        sc.load(fp)
+    sc.xasd_dump()
