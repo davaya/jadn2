@@ -1,0 +1,1 @@
+from jadn.core import JADN   # Allow applications to import jadn.JADN instead of jadn.core.JADN

@@ -1,12 +1,6 @@
 import argparse
 import os
-from jadn.core import JADN
 import jadn
-from jadn.core import JADN
-from jadn.convert import jidl, xasd
-from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields
-from jadn.definitions import ItemID, ItemValue, ItemDesc
-from jadn.definitions import FieldID, FieldName, FieldType, FieldOptions, FieldDesc
 
 OUTPUT_DIR = 'Out'
 
@@ -17,16 +11,16 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
     """
     # print(f'Installed JADN version: {jadn.__version__}\n')
     os.makedirs(output_dir, exist_ok=True)
-    sc = JADN()
+    sc = jadn.JADN()
 
     def convert(path: str, infile: str):
         fn, ext = os.path.splitext(infile)
         if ext in ('.jadn', '.jidl', '.xasd'):
             with open(os.path.join(path, infile)) as fp:
-                schema = {
+                {
                     '.jadn': sc.load,
-                    '.jidl': jidl_load,
-                    '.xasd': xasd_load
+                    '.jidl': sc.jidl_load,
+                    '.xasd': sc.xasd_load
                 }[ext](fp)
 
             print(os.path.join(path, infile))

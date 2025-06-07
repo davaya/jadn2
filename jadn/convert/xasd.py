@@ -1,50 +1,68 @@
 """
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
+from typing import TextIO
 from lxml import etree as ET
 
+class XASD:
+    def xasd_loads(self, doc: str) -> dict[str, dict | list]:
+        tree = ET.parse(doc)
+        root = tree.getroot()
+        assert root.tag == 'Schema'
+        assert len(root) == 2
+        meta = {}
+        types = []
+        for element in root:
+            if element.tag == 'Metadata':
+                meta = get_meta(element)
+            elif element.tag == 'Types':
+                for el in element:
+                    types.append(get_type(el))
+        return {'meta': meta, 'types': types}
 
-def xasd_dumps(self):
-    xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-    if meta := self.meta:
-        xasd += '  <Metadata\n'
-        xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
-        for k, v in meta.items():
-            if k == 'roots':
-                xasd += f'{4 * " "}<{k.capitalize()}>\n'
-                for v in meta[k]:
-                    xasd += f'{6 * " "}<TypeName>{v}</TypeName>\n'
-                xasd += f'{4 * " "}</{k.capitalize()}>\n'
-            elif k == 'namespaces':
-                xasd += f'{4 * " "}<{k.capitalize()}>\n'
-                for v in meta[k]:
-                    xasd += f'{6 * " "}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
-                xasd += f'{4 * " "}</{k.capitalize()}>\n'
-            elif k == 'config':
-                xasd += f'{4 * " "}<{k.capitalize()}>\n'
-                for k2, v in meta[k].items():
-                    xasd += f'{6 * " "}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
-                xasd += f'{4 * " "}</{k.capitalize()}>\n'
-    xasd += '  </Metadata>\n'
-    xasd += '  <Types>\n'
-    for td in self.types:
-        (ln, end) = ('\n', '    ') if td[Fields] else ('', '')
-        xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{td[TypeOptions]}>{td[TypeDesc]}{ln}'
-        for f in td[Fields]:
-            if td[CoreType] == 'Enumerated':
-                xasd += f'{6*" "}<Item id="{f[ItemID]}" value="{f[ItemValue]}">{f[ItemDesc]}</Item>\n'
-            else:
-                fopts = f[FieldOptions]
-                xasd += f'{6*" "}<Field id="{f[FieldID]}" name="{f[FieldName]}" type="{f[FieldType]}"{fopts}>{f[FieldDesc]}</Field>\n'
-        xasd += f'{end}</Type>\n'
-    xasd += '  </Types>\n'
-    xasd += '</Schema>\n'
-    return xasd
+    def xasd_load(self, fp: TextIO) -> dict:
+        return self.xasd_loads(fp.read())
 
+    def xasd_dumps(self, schema: dict) -> str:
+        xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
+        if meta := schema['meta']:
+            xasd += '  <Metadata\n'
+            xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
+            for k, v in meta.items():
+                if k == 'roots':
+                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    for v in meta[k]:
+                        xasd += f'{6 * " "}<TypeName>{v}</TypeName>\n'
+                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
+                elif k == 'namespaces':
+                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    for v in meta[k]:
+                        xasd += f'{6 * " "}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
+                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
+                elif k == 'config':
+                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    for k2, v in meta[k].items():
+                        xasd += f'{6 * " "}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
+                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
+        xasd += '  </Metadata>\n'
+        xasd += '  <Types>\n'
+        for td in schema['types']:
+            (ln, end) = ('\n', '    ') if td[Fields] else ('', '')
+            xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{td[TypeOptions]}>{td[TypeDesc]}{ln}'
+            for f in td[Fields]:
+                if td[CoreType] == 'Enumerated':
+                    xasd += f'{6*" "}<Item id="{f[ItemID]}" value="{f[ItemValue]}">{f[ItemDesc]}</Item>\n'
+                else:
+                    fopts = f[FieldOptions]
+                    xasd += f'{6*" "}<Field id="{f[FieldID]}" name="{f[FieldName]}" type="{f[FieldType]}"{fopts}>{f[FieldDesc]}</Field>\n'
+            xasd += f'{end}</Type>\n'
+        xasd += '  </Types>\n'
+        xasd += '</Schema>\n'
+        return xasd
 
-def xasd_dump(self, fp: str):
-    with open(fp, 'w', encoding='utf8') as f:
-        f.write(xasd_dumps(self))
+    def xasd_dump(self, schema: dict, fp: str) -> None:
+        with open(fp, 'w', encoding='utf8') as f:
+            f.write(self.xasd_dumps(schema))
 
 
 def get_meta(el: ET.Element) -> dict:
@@ -74,32 +92,6 @@ def get_type(e: ET.Element) -> list:
     return type
 
 
-def xasd_load(file_path: str) -> dict[str, dict | list]:
-    tree = ET.parse(file_path)
-    root = tree.getroot()
-    assert root.tag == 'Schema'
-    assert len(root) == 2
-    meta = {}
-    types = []
-    for element in root:
-        if element.tag == 'Metadata':
-            meta = get_meta(element)
-        elif element.tag == 'Types':
-            for el in element:
-                types.append(get_type(el))
-
-    return {'meta': meta, 'types': types}
-
-
 if __name__ == '__main__':
-    import sys
-    sys.path.append('../jadn')
     from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, FieldID, FieldName
     from jadn.definitions import FieldType, FieldOptions, FieldDesc, ItemID, ItemValue, ItemDesc
-    from jadn.core import JADN
-
-    JADN.xasd_dump = xasd_dump
-    sc = JADN()
-    with open('data/jadn_v2.0_schema.jadn', 'r') as fp:
-        sc.load(fp)
-    sc.xasd_dump()

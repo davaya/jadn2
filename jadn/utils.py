@@ -8,8 +8,7 @@ import re
 
 from functools import reduce
 from typing import Any, Union
-from core import JADN
-from definitions import (
+from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
@@ -96,17 +95,21 @@ def build_deps(schema: dict[str, list]) -> dict[str, list[str]]:
     and no roots indicate a dependency cycle.
     """
     def get_refs(tdef: list) -> list[str]:  # Return all type references from a type definition
+        """
         # Options whose value is/has a type name: strip option id
         oids = [JADN.OPTX['ktype'], JADN.OPTX['vtype'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
         # Options that enumerate fields: keep option id
         oids2 = [JADN.OPTX['enum'], JADN.OPTX['pointer']]
         refs = [to[1:] for to in tdef[TypeOptions] if to[0] in oids and not is_builtin(to[1:])]
         refs += ([to[1:] for to in tdef[TypeOptions] if to[0] in oids2])
+        """
+
+        ropts = {'ktype', 'vtype', 'extends', 'restricts', 'enum', 'pointer'}     # reference options
+        refs = [v for k, v in tdef[TypeOptions].items() if k in ropts and not is_builtin(v)]
         if has_fields(tdef[CoreType]):  # Ignore Enumerated
             for f in tdef[Fields]:
                 if not is_builtin(f[FieldType]):
-                    # Add reference to type name
-                    refs.append(f[FieldType])
+                    refs.append(f[FieldType])       # Add reference to type name
                 # Get refs from type opts in field (extension)
                 refs += get_refs(['', f[FieldType], f[FieldOptions], ''])
         return refs
@@ -147,13 +150,6 @@ def canonicalize(schema: dict) -> dict:
             del opts['minOccurs']
         if opts.get('maxOccurs') == 1:
             del opts['maxOccurs']
-        # if coretype == 'Number':           # TODO: fix corner case input = 2.000
-        #     minf = get_optx(olist, 'minf')
-        #     if minf is not None and '.' not in olist[minf]:
-        #         olist[minf] += '.0'
-        #     maxf = get_optx(olist, 'maxf')
-        #     if maxf is not None and '.' not in olist[maxf]:
-        #         olist[maxf] += '.0'
 
     cschema = copy.deepcopy(schema)     # don't modify original
     for td in cschema['types']:
@@ -164,14 +160,13 @@ def canonicalize(schema: dict) -> dict:
     return cschema
 
 
-def cleanup_tagid(fields: list[list]) -> list[list]:
+def cleanup_tagid(fields: dict) -> dict:
     """
     If type definition contains a TagId option, replace field name with id
     """
     for f in fields:
         if len(f) > FieldOptions:
-            tx = get_optx(f[FieldOptions], 'tagid')
-            if tx is not None:
+            if tx := f[FieldOptions].get('tagid') is not None:
                 to = f[FieldOptions][tx]
                 try:
                     int(to[1:])                 # Check if already a Field Id

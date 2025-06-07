@@ -115,96 +115,99 @@
 
     ["FieldID", "Integer", ["y0"]],
 
+    ["FieldOptions", "Map", [], "", [
+      [ 91, "minOccurs", "Integer", ["y0"]],
+      [ 93, "maxOccurs", "Integer", ["y-2"]],
+      [ 38, "tagId", "Integer"],
+      [ 75, "key", "Boolean"],
+      [ 76, "link", "Boolean"],
+      [ 78, "not", "Boolean"]
+    ]],
+
     ["BinaryOpts", "Map", [], "", [
-      [1, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [2, "minLength", "Integer", ["[0"]],
-      [3, "maxLength", "Integer", ["[0"]]
+      [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [123, "minLength", "Integer", ["[0"]],
+      [125, "maxLength", "Integer", ["[0"]]
     ]],
 
     ["BooleanOpts", "Map", [], "", [
     ]],
 
     ["IntegerOpts", "Map", [], "", [
-      [1, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [2, "minInclusive", "Integer", ["[0"]],
-      [3, "maxInclusive", "Integer", ["[0"]],
-      [4, "minExclusive", "Integer", ["[0"]],
-      [5, "maxExclusive", "Integer", ["[0"]]
+      [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [121, "minInclusive", "Integer", ["[0"]],
+      [122, "maxInclusive", "Integer", ["[0"]],
+      [119, "minExclusive", "Integer", ["[0"]],
+      [120, "maxExclusive", "Integer", ["[0"]]
     ]],
 
     ["NumberOpts", "Map", [], "", [
-      [1, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [2, "minInclusive", "Number", ["[0"]],
-      [3, "maxInclusive", "Number", ["[0"]],
-      [4, "minExclusive", "Number", ["[0"]],
-      [5, "maxExclusive", "Number", ["[0"]]
+      [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [121, "minInclusive", "Number", ["[0"]],
+      [122, "maxInclusive", "Number", ["[0"]],
+      [119, "minExclusive", "Number", ["[0"]],
+      [120, "maxExclusive", "Number", ["[0"]]
     ]],
 
     ["StringOpts", "Map", [], "", [
-      [1, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [2, "minInclusive", "String", ["[0"]],
-      [3, "maxInclusive", "String", ["[0"]],
-      [4, "minExclusive", "String", ["[0"]],
-      [5, "maxExclusive", "String", ["[0"]],
-      [6, "pattern", "String", ["/regex", "[0"]],
-      [7, "minLength", "Integer", ["y0", "[0"]],
-      [8, "maxLength", "Integer", ["y0", "[0"]]
+      [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [121, "minInclusive", "String", ["[0"]],
+      [122, "maxInclusive", "String", ["[0"]],
+      [119, "minExclusive", "String", ["[0"]],
+      [120, "maxExclusive", "String", ["[0"]],
+      [ 37, "pattern", "String", ["/regex", "[0"]],
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]]
     ]],
 
     ["EnumeratedOpts", "Map", [], "", [
-      [1, "id", "Boolean", ["[0"]],
-      [2, "enum", "TypeRef", ["[0"]],
-      [3, "pointer", "TypeRef", ["[0"]]
+      [ 61, "id", "Boolean", ["[0"]],
+      [ 35, "enum", "TypeRef", ["[0"]],
+      [ 62, "pointer", "TypeRef", ["[0"]]
     ]],
 
     ["ChoiceOpts", "Map", [], "", [
-      [1, "id", "Boolean", ["[0"]],
-      [2, "combine", "Combine", ["[0"]]
+      [ 61, "id", "Boolean", ["[0"]],
+      [ 67, "combine", "String", ["[0", "{1", "}1"]]
     ]],
 
     ["ArrayOpts", "Map", [], "", [
-      [1, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [2, "minLength", "Integer", ["y0", "[0"]],
-      [3, "maxLength", "Integer", ["y0", "[0"]]
+      [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]]
     ]],
 
     ["ArrayOfOpts", "Map", [], "", [
-      [1, "vtype", "TypeRef"],
-      [2, "minLength", "Integer", ["y0", "[0"]],
-      [3, "maxLength", "Integer", ["y0", "[0"]],
-      [4, "unique", "Boolean", ["[0"]],
-      [5, "set", "Boolean", ["[0"]],
-      [6, "unordered", "Boolean", ["[0"]]
+      [ 42, "vtype", "TypeRef"],
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]],
+      [113, "unique", "Boolean", ["[0"]],
+      [115, "set", "Boolean", ["[0"]],
+      [ 98, "unordered", "Boolean", ["[0"]]
     ]],
 
     ["MapOpts", "Map", [], "", [
-      [1, "id", "Boolean", ["[0"]],
-      [2, "minLength", "Integer", ["y0", "[0"]],
-      [3, "maxLength", "Integer", ["y0", "[0"]],
-      [4, "sequence", "Boolean", ["[0"]]
+      [ 61, "id", "Boolean", ["[0"]],
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]],
+      [111, "sequence", "Boolean", ["[0"]]
     ]],
 
     ["MapOfOpts", "Map", [], "", [
-      [1, "ktype", "TypeRef"],
-      [2, "vtype", "TypeRef"],
-      [3, "minLength", "Integer", ["y0", "[0"]],
-      [4, "maxLength", "Integer", ["y0", "[0"]],
-      [5, "sequence", "Boolean", ["[0"]]
+      [ 43, "ktype", "TypeRef"],
+      [ 42, "vtype", "TypeRef"],
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]],
+      [111, "sequence", "Boolean", ["[0"]]
     ]],
 
     ["RecordOpts", "Map", [], "", [
-      [2, "minLength", "Integer", ["y0", "[0"]],
-      [3, "maxLength", "Integer", ["y0", "[0"]],
-      [4, "sequence", "Boolean", ["[0"]]
+      [123, "minLength", "Integer", ["y0", "[0"]],
+      [125, "maxLength", "Integer", ["y0", "[0"]],
+      [111, "sequence", "Boolean", ["[0"]]
     ]],
 
     ["Format", "String", ["%^/[a-zA-Z0-9]{1,16}+$"]],
-
-    ["Combine", "Enumerated", [], "", [
-      [1, "CO", "anyOf"],
-      [2, "CA", "allOf"],
-      [3, "CX", "oneOf"]
-    ]],
 
     ["Description", "String"]
   ]

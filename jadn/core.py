@@ -1,21 +1,24 @@
 import copy
 import json
-from jadn.definitions import TYPE_OPTIONS, FIELD_OPTIONS, CoreType, TypeOptions, Fields, FieldOptions, FieldType
+import os
+from jadn.definitions import (TYPE_OPTIONS, FIELD_OPTIONS, TypeName, CoreType, TypeOptions,
+                         Fields, FieldID, FieldName, FieldType, FieldOptions, PYTHON_TYPES)
+from jadn.convert.jidl import JIDL
+from jadn.convert.xasd import XASD
 from jsonschema import validate
 from numbers import Number
 from typing import TextIO, Any
-
-from jadn.definitions import PYTHON_TYPES
 
 
 # ========================================================
 # JADN schema class static values and methods
 # ========================================================
 
-class JADN:
+class JADN(JIDL, XASD):
     OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)       # Defined Option table: {id: (name, type)}
     OPTX = {v[0]: k for k, v in OPTS.items()}   # Generated Option reverse index: {name: id}
-    F = {'/', }     # Full-key options (e.g., /format)
+    BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
+    data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
     # Defer loading METASCHEMA until after the class is defined
 
     def __init__(self):
@@ -24,17 +27,24 @@ class JADN:
         self.source = None
         return
 
+    def validate(self) -> None:
+        """
+        Validate logical schema instance against JADN metaschema
+        """
+        pass
+
     def loads(self, jadn_str: str) -> None:
         """
         Load a schema instance from a string in JSON format
         """
         json_data = json.loads(jadn_str)
-        with open('data/jadn_v2.0_schema.json') as f:   # Check JSON structure using JSON Schema
+        with open('data/jadn_v2.0_schema.json') as f:   # Check JSON data structure using JSON Schema
             validate(instance=json_data, schema=json.load(f))
-        sc = _check(_load(json_data))    # Load and validate logical schema
+        sc = _load(json_data)   # Load logical schema from JSON data
         self.meta = sc['meta']
         self.types = sc['types']
         self.source = None
+        self.validate()
 
     def load(self, fp: TextIO) -> None:
         """
@@ -42,9 +52,9 @@ class JADN:
         :param fp: a TextIO reference to an open file
 
         Example:
-            jd = JADN()
+            pkg = JADN()
             with open('file.jadn', 'r', encoding='utf-8') as fp:
-                jd.load(fp)
+                pkg.load(fp)
         """
         self.loads(fp.read())
         self.source = fp
@@ -63,10 +73,9 @@ class JADN:
         :param fp: a TextIO reference to an open file
         :param strip: Bool, if True do not store empty trailing fields, default=True
 
-        Example:
-            jd = a JADN schema instance from a previous load in any format
+        Example: pkg: a JADN schema instance from a previous load in any format
             with open('file.jadn', 'w', encoding='utf-8') as fp:
-                jd.dump(fp)
+                pkg.dump(fp)
         """
         fp.write(self.dumps(strip=strip))
 
@@ -101,7 +110,7 @@ def _load_tagstrings(tstrings: list[str], ct: str) -> dict[str, str]:
     def opt(s: str, ct: str) -> tuple[str, str]:
         t = JADN.OPTS[ord(s[0])]
         f = PYTHON_TYPES[ct if t[1] is None else t[1]]
-        return s if s[0] in JADN.F else t[0], '' if s[0] in JADN.F else True if f is bool else f(s[1:])
+        return s if s[0] in JADN.BOOL_OPTS else t[0], '' if s[0] in JADN.BOOL_OPTS else True if f is bool else f(s[1:])
     return dict(opt(s, ct) for s in tstrings)
 
 
@@ -127,15 +136,8 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     """
     def strs(k: str, v: Any) -> str:
         v = '' if isinstance(v, bool) else str(v)
-        return k if k[0] in JADN.F else chr(JADN.OPTX[k]) + v
+        return k if k[0] in JADN.BOOL_OPTS else chr(JADN.OPTX[k]) + v
     return [strs(k, v) for k, v in opts.items()]
-
-
-def _check(schema: dict) -> dict:
-    """
-    Validate logical schema against JADN metaschema
-    """
-    return schema
 
 
 def _strip_trailing_defaults(schema: dict) -> dict:
@@ -188,35 +190,41 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
     return '???'
 
 # =========================================================
-# Load METASCHEMA class variable now that JADN exists
+# Load METASCHEMA class variable now that the JADN class exists
 # =========================================================
-
-with open(__package__ + '/data/jadn_v2.0_schema.jadn') as f:
+with open(os.path.join(JADN.data_dir, 'jadn_v2.0_schema.jadn')) as f:
     JADN.METASCHEMA = _load(json.load(f))
 
 
+# =========================================================
+# Diagnostics
+# =========================================================
 if __name__ == '__main__':
-    """
-    Diagnostics
-    """
-
-    j = JADN()      # Initialize OPTX (reverse option index) from OPTS (option definitions)
+    # Initialize OPTX (reverse option index) from OPTS (option definitions)
+    j = JADN()
     # print('OPTS:', len(j.OPTS), j.OPTS)   # Option {id: (name, type)}
     # print('OPTX:', len(j.OPTX), j.OPTX)   # Option {name: id}
 
-    # Test tagged-string encoding
-    opts_s = ['#Pasta', '[0', 'y2', 'u3.14159', 'q', '/ipv4', '/d3']
-    print(f'\nStored opts: {opts_s}')
+    # Verify that Metaschema option IDs agree with definitions
+    for td in JADN.METASCHEMA['types']:
+        for fd in td[Fields]:
+            if fd[FieldName] in JADN.OPTX:
+                if (a := fd[FieldID]) != (b := JADN.OPTX[fd[FieldName]]):
+                    print(f'{td[TypeName]}.{fd[FieldName]}: {a} != {b}')
+
+    # Test tagged-string serialization
+    opts_s = ['#Pasta', '[0', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3']
+    print(f'\nInput opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'Number')
-    print(f'Loaded opts: {opts_d}')
+    print(f'Logical opts: {opts_d}')
     opts_s2 = _dump_tagstrings(opts_d, 'Number')
     print(f'Dumped opts: {opts_s2}')
     if opts_s2 != opts_s:
-        print(' ** Options translation mismatch **')
+        print(' ** Translation mismatch **')
 
-    jd = JADN()
+    pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
-        jd.load(fp)
-    sc = {'meta': jd.meta, 'types': jd.types}
-    print(f'\nLogical: {sc}')               # Internal (logical) schema value
-    print(f'JSON Format:\n{jd.dumps()}')    # External (lexical) schema value
+        pkg.load(fp)
+    sc = {'meta': pkg.meta, 'types': pkg.types}
+    print(f'\nSchema - Logical value:\n{sc}')               # Internal (logical) schema value
+    print(f'\nSchema - JSON value:\n{pkg.dumps()}')    # External (lexical) schema value
