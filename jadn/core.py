@@ -2,9 +2,9 @@ import copy
 import json
 import os
 from jadn.definitions import (TYPE_OPTIONS, FIELD_OPTIONS, TypeName, CoreType, TypeOptions,
-                         Fields, FieldID, FieldName, FieldType, FieldOptions, PYTHON_TYPES)
+                         Fields, FieldID, FieldName, FieldType, FieldOptions, PYTHON_TYPES, DEFS)
 from jadn.convert.jidl import JIDL
-from jadn.convert.xasd import XASD
+# from jadn.convert.xasd import XASD
 from jsonschema import validate
 from numbers import Number
 from typing import TextIO, Any
@@ -14,9 +14,9 @@ from typing import TextIO, Any
 # JADN schema class static values and methods
 # ========================================================
 
-class JADN(JIDL, XASD):
-    OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)       # Defined Option table: {id: (name, type)}
-    OPTX = {v[0]: k for k, v in OPTS.items()}   # Generated Option reverse index: {name: id}
+class JADN(JIDL):
+    OPTS = DEFS.OPTS
+    OPTX = DEFS.OPTX
     BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
     data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
     # Defer loading METASCHEMA until after the class is defined
@@ -38,7 +38,7 @@ class JADN(JIDL, XASD):
         Load a schema instance from a string in JSON format
         """
         json_data = json.loads(jadn_str)
-        with open('data/jadn_v2.0_schema.json') as f:   # Check JSON data structure using JSON Schema
+        with open(os.path.join(self.data_dir, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure using JSON Schema
             validate(instance=json_data, schema=json.load(f))
         sc = _load(json_data)   # Load logical schema from JSON data
         self.meta = sc['meta']
@@ -59,17 +59,18 @@ class JADN(JIDL, XASD):
         self.loads(fp.read())
         self.source = fp
 
-    def dumps(self, strip: bool = True) -> str:
+    def dumps(self, schema: dict, strip: bool = True) -> str:
         """
         Return a schema instance as a string containing JADN data in JSON format
         """
-        scc = {'meta': self.meta, 'types': copy.deepcopy(self.types)}
+        scc = {'meta': schema['meta'], 'types': copy.deepcopy(schema['types'])}
         return _pprint(_dump(scc), strip=strip)
 
-    def dump(self, fp: TextIO, strip: bool = True) -> None:
+    def dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
         """
         Store a schema instance in a file-like object containing JADN data in JSON format
 
+        :param schema: logical schema value
         :param fp: a TextIO reference to an open file
         :param strip: Bool, if True do not store empty trailing fields, default=True
 
@@ -77,7 +78,7 @@ class JADN(JIDL, XASD):
             with open('file.jadn', 'w', encoding='utf-8') as fp:
                 pkg.dump(fp)
         """
-        fp.write(self.dumps(strip=strip))
+        fp.write(self.dumps(schema, strip=strip))
 
 # ========================================================
 # Private support functions

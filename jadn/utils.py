@@ -12,7 +12,7 @@ from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
-    is_builtin, has_fields
+    is_builtin, has_fields, DEFS
 )
 
 
@@ -176,15 +176,15 @@ def cleanup_tagid(fields: dict) -> dict:
     return fields
 
 
-def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
+def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
     def parseopt(optstr: str) -> str:
         m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: nsid:Name$qualifier
         if m1 is None:
             raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-        return JADN.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
+        return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
 
     topts = {}
-    fo = []
+    fopts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
     p_id = r'(#?)'                                  # 2 'id'
     p_func = r'(?:\(([^)]+)\))?'                    # 3 'ktype', 'vtype', 'enum', 'pointer', 'tagid'
@@ -197,8 +197,8 @@ def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
     if m is None:
         raise_error(f'TypeString2JADN: "{typestring}" does not match pattern {pattern}')
     tname = m.group(1)
-    if tname[0] == '!':
-        fo += [JADN.OPTX['not']]
+    if tname[0] == '!':     # TODO: this is a field option
+        fopts += {'not': True}
         tname = tname[1:]
     topts.update({'id': True} if m.group(2) else {})
     if m.group(3):                      # (ktype, vtype), Enum(), Pointer(), Choice() options
@@ -211,8 +211,8 @@ def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
         elif tname == 'Choice':
             topts.update({'combine': {'anyOf': 'O', 'allOf': 'A', 'oneOf': 'X'}[opts[0]]})
         else:
-            topts.update(topts_s2d([opts[0]]) if ord(opts[0][0]) in TYPE_OPTIONS else {})
-            fo += [opts[0]] if ord(opts[0][0]) in FIELD_OPTIONS else []         # TagId option
+            topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
+            fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
     if rest := m.group(4):
         # Matches     group(3) = [   group(7) = ]   group(8) = rest
         # [x,y] rest  group(4) = x   group(6) = y
@@ -247,18 +247,18 @@ def typestr2jadn(typestring: str) -> tuple[str, list[str], list]:
             topts.update({opt: True})
         for opt in re.findall(p_attr, rest):
             topts.update({opt[0]: opt[1]})
-    return tname, opts_d2s(topts), fo
+    return tname, topts, fopts
 
 
-def jadn2typestr(tname: str, topts: list[OPTION_TYPES]) -> str:
+def jadn2typestr(tname: str, topts: dict) -> str:
     """
     Convert typename and options to string
     """
     # Handle ktype/vtype containing Enum options
     def _kvstr(optv: str) -> str:
-        if optv[0] == JADN.OPTX['enum']:
+        if optv[0] == DEFS.OPTX['enum']:
             return f'Enum[{optv[1:]}]'
-        if optv[0] == JADN.OPTX['pointer']:
+        if optv[0] == DEFS.OPTX['pointer']:
             return f'Pointer[{optv[1:]}]'
         return optv
 
@@ -280,7 +280,7 @@ def jadn2typestr(tname: str, topts: list[OPTION_TYPES]) -> str:
         hi = ops.pop('maxInclusive', ops.pop('maxExclusive', '*'))
         return f'={lc}{lo}, {hi}{hc}' if lo != '*' or hi != '*' else ''
 
-    opts = topts_s2d(topts, tname)
+    opts = copy.deepcopy(topts)
     txt = '#' if opts.pop('id', None) else ''   # SIDE EFFECT: remove known options from opts.
     if tname in ('ArrayOf', 'MapOf'):
         txt += f"({_kvstr(opts.pop('ktype'))}, " if tname == 'MapOf' else '('
@@ -304,8 +304,12 @@ def jadn2typestr(tname: str, topts: list[OPTION_TYPES]) -> str:
     if v := _lrange(opts):
         txt += v
 
-    if v := opts.pop('format', None):
-        txt += f' /{v}'
+    pops = []
+    for v in opts:
+        if v[0] in ('/', ):     # Formats
+            pops.append(v)
+            txt += f' {v}'
+    [opts.pop(v) for v in pops]
 
     for opt in ('unique', 'set', 'unordered', 'sequence', 'abstract', 'final'):
         if o := opts.pop(opt, None):
@@ -314,6 +318,9 @@ def jadn2typestr(tname: str, topts: list[OPTION_TYPES]) -> str:
     for opt in ('extends', 'restricts'):
         if o := opts.pop(opt, None):
             txt += f" {opt}({o})"
+
+    for opt in ('minOccurs', 'maxOccurs', 'tagid'):
+        opts.pop(opt, None)     # Handled by caller
 
     return f"{tname}{txt}{f' ?{opts}?' if opts else ''}"  # Flag unrecognized options
 
@@ -327,11 +334,11 @@ def multiplicity_str(opts: dict) -> str:
 
 def id_type(td: list) -> bool:    # True if FieldName is a label in description
     return (td[CoreType] == 'Array'
-            or get_optx(td[TypeOptions], 'id') is not None
-            or get_optx(td[TypeOptions], 'combine') is not None)
+        or td[TypeOptions].get('id', False)
+        or td[TypeOptions].get('combine', False))
 
 
-def jadn2fielddef(fdef: list, tdef: list) -> tuple[str, str, str, str]:
+def jadn2fielddef(fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     idtype = id_type(tdef)
     fname = '' if idtype else fdef[FieldName]
     fdesc = f'{fdef[FieldName]}:: ' if idtype else ''
@@ -341,16 +348,16 @@ def jadn2fielddef(fdef: list, tdef: list) -> tuple[str, str, str, str]:
     fmult = ''
 
     if not is_enum:
-        fo, fto = ftopts_s2d(fdef[FieldOptions], fdef[FieldType])
-        fname += '/' if 'dir' in fo else ''
+        fto = fdef[FieldOptions]       # ?
+        fname += '/' if 'dir' in fto else ''
         tf = ''
-        if tagid := fo.get('tagid', None):
+        if tagid := fto.get('tagid', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == tagid][0]
             tf = f'(TagId[{tf if tf else tagid}])'
-        ft = jadn2typestr(f'{fdef[FieldType]}{tf}', opts_d2s(fto))
-        fnot = '!' if 'not' in fo else ''
-        ftyperef = f'Key({ft})' if 'key' in fo else f'Link({ft})' if 'link' in fo else fnot + ft
-        fmult = multiplicity_str(fo)
+        ft = jadn2typestr(f'{fdef[FieldType]}{tf}', fto)
+        fnot = '!' if 'not' in fto else ''
+        ftyperef = f'Key({ft})' if 'key' in fto else f'Link({ft})' if 'link' in fto else fnot + ft
+        fmult = multiplicity_str(fto)
     return fname, ftyperef, fmult, fdesc
 
 
@@ -370,7 +377,7 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
             fstr = m.group(2)
         ftyperef, topts, fopts = typestr2jadn(fstr)
         # Field is one of: enum#, enum, field#, field
-        fo.update(topts_s2d(topts, ftyperef))                   # Copy type options (if any) into field options (JADN extension)
+        fo.update(topts)                   # Copy type options (if any) into field options (JADN extension)
         if fname.endswith('/'):
             fo.update({'dir': True})
             fname = fname.rstrip('/')
@@ -385,7 +392,7 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
             fo.update({'maxOccurs': maxOccurs} if maxOccurs != 1 else {})
         elif fmult:
             fo.update({'minOccurs': -1, 'maxOccurs': -1})
-        fo.update(fopts_s2d(fopts))
+        fo.update(fopts)
         # if fopts:
         #     assert len(fopts) == 1 and fopts[0][0] == JADN.OPTX['tagid']    # Update if additional field options defined
         #     fo.update({'tagid': fopts[0][1:]})      # if field name, MUST update to id after all fields have been read
@@ -396,7 +403,7 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
             if m := re.match(r'^([^:]+)::\s*(.*)$', fdesc):
                 fname = m.group(1)
                 fdesc = m.group(2)
-    return [fid, fname, ftyperef, opts_d2s(fo), fdesc] if ftyperef else [fid, fname, fdesc]
+    return [fid, fname, ftyperef, fo, fdesc] if ftyperef else [fid, fname, fdesc]
 
 
 def get_config(schema: dict) -> dict:
@@ -407,7 +414,7 @@ def get_config(schema: dict) -> dict:
     config.update({'$TypeRef': fr'^({ns}(?<=.):)?{tn}$'})   # Non-empty prefix before ':'
     return config
 
-
+"""
 # Schema conversion for object-like use
 def object_types(types: list[list]) -> list[TypeDefinition]:
     rtn_types: list[TypeDefinition] = []
@@ -443,3 +450,4 @@ def list_get_default(lst: list, idx: int, default: Any = None) -> Any:
         return lst[idx]
     except IndexError:
         return default
+"""

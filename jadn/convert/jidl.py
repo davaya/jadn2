@@ -9,7 +9,6 @@ from typing import TextIO, Union
 from ..definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
-from jadn.core import check
 
 # JIDL -> JADN Type regexes
 p_tname = r'\s*(\S+)'                   # Type Name
@@ -49,7 +48,7 @@ class JIDL:
             w.update(style)   # Override any specified column widths
 
         text = ''
-        meta = schema['meta'] if 'meta' in schema else {}
+        meta = schema.get('meta', {})
         mlist = [k for k in META_ORDER if k in meta]
         for k in mlist + list(set(meta) - set(mlist)):              # Display meta elements in fixed order
             text += f'{k:>{w["meta"]}}: {json.dumps(meta[k])}\n'    # TODO: wrap to page width, continuation-line parser
@@ -78,9 +77,8 @@ class JIDL:
                 text += etrunc(f'{fs:{wf}}{fdesc}'.rstrip(), w['page']) + '\n'
         return text
 
-    def jidl_dump(self, schema: dict, fname: Union[bytes, str, int], source='', style=None) -> None:
-        with open(fname, 'w', encoding='utf8') as f:
-            f.write(self.jidl_dumps(schema, style))
+    def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+        fp.write(self.jidl_dumps(schema, style))
 
     def jidl_loads(self, doc: str) -> dict:
         meta = {}

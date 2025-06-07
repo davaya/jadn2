@@ -16,24 +16,25 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
     def convert(path: str, infile: str):
         fn, ext = os.path.splitext(infile)
         if ext in ('.jadn', '.jidl', '.xasd'):
-            with open(os.path.join(path, infile)) as fp:
+            with open(os.path.join(path, infile), 'r') as fp:
                 {
                     '.jadn': sc.load,
                     '.jidl': sc.jidl_load,
-                    '.xasd': sc.xasd_load
+                    # '.xasd': sc.xasd_load
                 }[ext](fp)
 
             print(os.path.join(path, infile))
-            print('\n'.join([f'{k:>15}: {v}' for k, v in analyze(check(schema)).items()]))
+            # print('\n'.join([f'{k:>15}: {v}' for k, v in analyze(check(schema)).items()]))
 
             if fmt in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
-                {
-                    'jadn': dump,
-                    'jidl': jidl_dump,
-                    'xasd': xasd_dump,
-                    'md': markdown_dump,
-                    'dot': diagram_dump
-                }[fmt](schema, os.path.join(OUTPUT_DIR, f'{fn}.{fmt}'))
+                with open(os.path.join(OUTPUT_DIR, f'{fn}.{fmt}'), 'w', encoding='utf8') as fp:
+                    {
+                        'jadn': sc.dump,
+                        'jidl': sc.jidl_dump,
+                        # 'xasd': sc.xasd_dump,
+                        # 'md': markdown_dump,
+                        # 'dot': diagram_dump
+                    }[fmt]({'meta': sc.meta, 'types': sc.types}, fp)
 
     if os.path.isfile(input):
         path, file = os.path.split(input)
