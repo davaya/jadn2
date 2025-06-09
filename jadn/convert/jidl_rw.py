@@ -4,8 +4,7 @@ Translate JADN to JADN Interface Definition Language
 import json
 import re
 
-from datetime import datetime
-from typing import TextIO, Union
+from typing import TextIO
 from ..definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
@@ -86,7 +85,7 @@ class JIDL:
         fields = None
         for line in doc.splitlines():
             if line:
-                t, v = line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
+                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
                 if t == 'F':
                     fields.append(v)
                 elif fields:
@@ -97,14 +96,14 @@ class JIDL:
                 elif t == 'T':
                     types.append(v)
                     fields = types[-1][Fields]
-        return check({'meta': meta, 'types': types} if meta else {'types': types})
+        return {'meta': meta, 'types': types}
 
     def jidl_load(self, fp: TextIO) -> dict:
         return self.jidl_loads(fp.read())
 
 
 # Convert JIDL to JADN
-def line2jadn(line: str, tdef: list) -> tuple[str, list]:
+def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
     if line.split('//', maxsplit=1)[0].strip():
         p_meta = r'^\s*([-\w]+):\s*(.+?)\s*$'
         if m := re.match(p_meta, line):

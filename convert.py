@@ -19,7 +19,7 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
         if ext in ('.jadn', '.jidl', '.xasd'):
             with open(os.path.join(path, infile), 'r') as fp:
                 {
-                    '.jadn': sc.load,
+                    '.jadn': sc.json_load,
                     '.jidl': sc.jidl_load,
                     '.xasd': sc.xasd_load
                 }[ext](fp)
@@ -32,7 +32,7 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
             if fmt in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
                 with open(os.path.join(OUTPUT_DIR, f'{fn}.{fmt}'), 'w', encoding='utf8') as fp:
                     {
-                        'jadn': sc.dump,
+                        'jadn': sc.json_dump,
                         'jidl': sc.jidl_dump,
                         'xasd': sc.xasd_dump,
                         # 'md': markdown_dump,

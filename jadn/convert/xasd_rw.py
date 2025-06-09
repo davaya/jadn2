@@ -2,8 +2,6 @@
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
 from typing import TextIO
-from xml.dom.minidom import Element
-
 from lxml import etree as ET
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
                               FieldID, FieldName, FieldType, FieldDesc, FieldOptions)
@@ -17,10 +15,10 @@ class XASD:
         types = []
         for element in root:
             if element.tag == 'Metadata':
-                meta = get_meta(element)
+                meta = _get_meta(element)
             elif element.tag == 'Types':
                 for el in element:
-                    types.append(get_type(el))
+                    types.append(_get_type(el))
         return {'meta': meta, 'types': types}
 
     def xasd_load(self, fp: TextIO) -> dict:
@@ -71,7 +69,7 @@ class XASD:
         fp.write(self.xasd_dumps(schema))
 
 
-def get_meta(el: ET.Element) -> dict:
+def _get_meta(el: ET.Element) -> dict:
     meta = {k: v for k, v in el.items()}
     for e in el:
         if e.tag == 'Roots':
@@ -82,7 +80,7 @@ def get_meta(el: ET.Element) -> dict:
             meta['config'] = {'$' + v.tag: v.text for v in e}
     return meta
 
-def get_type(e: ET.Element) -> list:
+def _get_type(e: ET.Element) -> list:
     def gettext(el: ET.Element) -> str:
         return el.text.strip() if el.text is not None else ''
 
