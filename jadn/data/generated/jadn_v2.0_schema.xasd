@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema>
+  <Metadata
+    title="JADN Metaschema"
+    package="http://oasis-open.org/openc2/jadn/v2.0/schema"
+    description="Syntax of a JSON Abstract Data Notation (JADN) package."
+    license="CC-BY-4.0">
+    <Roots>
+      <TypeName>Schema</TypeName>
+    </Roots>
+    <Config>
+      <FieldName>^[$A-Za-z][_A-Za-z0-9]{0,63}$</FieldName>
+    </Config>
+  </Metadata>
+  <Types>
+    <Type name="Schema" type="Record">Definition of a JADN package
+      <Field id="1" name="meta" type="Metadata" minOccurs="0">Information about this package</Field>
+      <Field id="2" name="types" type="Type" minOccurs="1" maxOccurs="-1" unique="True">Types defined in this package</Field>
+    </Type>
+    <Type name="Metadata" type="Map">Information about this package
+      <Field id="1" name="package" type="Namespace">Unique name/version of this package</Field>
+      <Field id="2" name="version" type="String" minLength="1" minOccurs="0">Incrementing version within package</Field>
+      <Field id="3" name="title" type="String" minLength="1" minOccurs="0">Title</Field>
+      <Field id="4" name="description" type="String" minLength="1" minOccurs="0">Description</Field>
+      <Field id="5" name="comment" type="String" minLength="1" minOccurs="0">Comment</Field>
+      <Field id="6" name="copyright" type="String" minLength="1" minOccurs="0">Copyright notice</Field>
+      <Field id="7" name="license" type="String" minLength="1" minOccurs="0">SPDX licenseId of this package</Field>
+      <Field id="8" name="namespaces" type="PrefixNs" minOccurs="0" maxOccurs="-1" unique="True">Referenced packages</Field>
+      <Field id="9" name="roots" type="TypeName" minOccurs="0" maxOccurs="-1" unique="True">Roots of the type tree(s) in this package</Field>
+      <Field id="10" name="config" type="Config" minOccurs="0">Configuration variables</Field>
+      <Field id="11" name="jadn_version" type="Namespace" minOccurs="0">JADN Metaschema package</Field>
+    </Type>
+    <Type name="PrefixNs" type="Array">Prefix corresponding to a namespace IRI
+      <Field id="1" name="prefix" type="NSID">Namespace prefix string</Field>
+      <Field id="2" name="namespace" type="Namespace">Namespace IRI</Field>
+    </Type>
+    <Type name="Config" type="Map" minLength="1">Config vars override JADN defaults
+      <Field id="1" name="$MaxBinary" type="Integer" minInclusive="1" minOccurs="0">Package max octets, default = 255</Field>
+      <Field id="2" name="$MaxString" type="Integer" minInclusive="1" minOccurs="0">Package max characters, default = 255</Field>
+      <Field id="3" name="$MaxElements" type="Integer" minInclusive="1" minOccurs="0">Package max items/properties, default = 255</Field>
+      <Field id="4" name="$Sys" type="String" minLength="1" maxLength="1" minOccurs="0">System character for TypeName, default = '.'</Field>
+      <Field id="5" name="$TypeName" type="String" _regex="" minOccurs="0">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
+      <Field id="6" name="$FieldName" type="String" _regex="" minOccurs="0">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
+      <Field id="7" name="$NSID" type="String" _regex="" minOccurs="0">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
+    </Type>
+    <Type name="Namespace" type="String" _uri="">Unique name of a package</Type>
+    <Type name="NSID" type="String" pattern="$NSID">Namespace prefix matching $NSID</Type>
+    <Type name="TypeName" type="String" pattern="$TypeName">Name of a logical type</Type>
+    <Type name="FieldName" type="String" pattern="$FieldName">Name of a field in a structured type</Type>
+    <Type name="TypeRef" type="String">Reference to a type, matching ($NSID ':')? $TypeName</Type>
+    <Type name="Type" type="Array">
+      <Field id="1" name="type_name" type="TypeName"></Field>
+      <Field id="2" name="core_type" type="Enumerated" enum="JADN-Type"></Field>
+      <Field id="3" name="type_options" type="TypeOptions" tagid="2"></Field>
+      <Field id="4" name="type_description" type="Description" minOccurs="0"></Field>
+      <Field id="5" name="fields" type="JADN-Type" tagid="2" minOccurs="0"></Field>
+    </Type>
+    <Type name="JADN-Type" type="Choice">
+      <Field id="1" name="Binary" type="Empty"></Field>
+      <Field id="2" name="Boolean" type="Empty"></Field>
+      <Field id="3" name="Integer" type="Empty"></Field>
+      <Field id="4" name="Number" type="Empty"></Field>
+      <Field id="5" name="String" type="Empty"></Field>
+      <Field id="6" name="Enumerated" type="Items"></Field>
+      <Field id="7" name="Choice" type="Fields"></Field>
+      <Field id="8" name="Array" type="Fields"></Field>
+      <Field id="9" name="ArrayOf" type="Empty"></Field>
+      <Field id="10" name="Map" type="Fields"></Field>
+      <Field id="11" name="MapOf" type="Empty"></Field>
+      <Field id="12" name="Record" type="Fields"></Field>
+    </Type>
+    <Type name="TypeOptions" type="Choice">
+      <Field id="1" name="Binary" type="BinaryOpts"></Field>
+      <Field id="2" name="Boolean" type="BooleanOpts"></Field>
+      <Field id="3" name="Integer" type="IntegerOpts"></Field>
+      <Field id="4" name="Number" type="NumberOpts"></Field>
+      <Field id="5" name="String" type="StringOpts"></Field>
+      <Field id="6" name="Enumerated" type="EnumeratedOpts"></Field>
+      <Field id="7" name="Choice" type="ChoiceOpts"></Field>
+      <Field id="8" name="Array" type="ArrayOpts"></Field>
+      <Field id="9" name="ArrayOf" type="ArrayOfOpts"></Field>
+      <Field id="10" name="Map" type="MapOpts"></Field>
+      <Field id="11" name="MapOf" type="MapOfOpts"></Field>
+      <Field id="12" name="Record" type="RecordOpts"></Field>
+    </Type>
+    <Type name="Empty" type="Array" maxLength="0"></Type>
+    <Type name="Items" type="ArrayOf" vtype="Item"></Type>
+    <Type name="Fields" type="ArrayOf" vtype="Field"></Type>
+    <Type name="Item" type="Array">
+      <Field id="1" name="item_id" type="FieldID"></Field>
+      <Field id="2" name="item_value" type="String" minOccurs="0"></Field>
+      <Field id="3" name="item_description" type="Description" minOccurs="0"></Field>
+    </Type>
+    <Type name="Field" type="Array">
+      <Field id="1" name="field_id" type="FieldID"></Field>
+      <Field id="2" name="field_name" type="FieldName"></Field>
+      <Field id="3" name="field_type" type="TypeRef"></Field>
+      <Field id="4" name="field_options" type="TypeOptions" tagid="3" minOccurs="0"></Field>
+      <Field id="5" name="field_description" type="Description" minOccurs="0"></Field>
+    </Type>
+    <Type name="FieldID" type="Integer" minInclusive="0"></Type>
+    <Type name="FieldOptions" type="Map">
+      <Field id="91" name="minOccurs" type="Integer" minInclusive="0"></Field>
+      <Field id="93" name="maxOccurs" type="Integer" minInclusive="-2"></Field>
+      <Field id="38" name="tagId" type="Integer"></Field>
+      <Field id="75" name="key" type="Boolean"></Field>
+      <Field id="76" name="link" type="Boolean"></Field>
+      <Field id="78" name="not" type="Boolean"></Field>
+    </Type>
+    <Type name="BinaryOpts" type="Map">
+      <Field id="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field id="123" name="minLength" type="Integer" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minOccurs="0"></Field>
+    </Type>
+    <Type name="BooleanOpts" type="Map"></Type>
+    <Type name="IntegerOpts" type="Map">
+      <Field id="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field id="121" name="minInclusive" type="Integer" minOccurs="0"></Field>
+      <Field id="122" name="maxInclusive" type="Integer" minOccurs="0"></Field>
+      <Field id="119" name="minExclusive" type="Integer" minOccurs="0"></Field>
+      <Field id="120" name="maxExclusive" type="Integer" minOccurs="0"></Field>
+    </Type>
+    <Type name="NumberOpts" type="Map">
+      <Field id="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field id="121" name="minInclusive" type="Number" minOccurs="0"></Field>
+      <Field id="122" name="maxInclusive" type="Number" minOccurs="0"></Field>
+      <Field id="119" name="minExclusive" type="Number" minOccurs="0"></Field>
+      <Field id="120" name="maxExclusive" type="Number" minOccurs="0"></Field>
+    </Type>
+    <Type name="StringOpts" type="Map">
+      <Field id="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field id="121" name="minInclusive" type="String" minOccurs="0"></Field>
+      <Field id="122" name="maxInclusive" type="String" minOccurs="0"></Field>
+      <Field id="119" name="minExclusive" type="String" minOccurs="0"></Field>
+      <Field id="120" name="maxExclusive" type="String" minOccurs="0"></Field>
+      <Field id="37" name="pattern" type="String" _regex="" minOccurs="0"></Field>
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+    </Type>
+    <Type name="EnumeratedOpts" type="Map">
+      <Field id="61" name="id" type="Boolean" minOccurs="0"></Field>
+      <Field id="35" name="enum" type="TypeRef" minOccurs="0"></Field>
+      <Field id="62" name="pointer" type="TypeRef" minOccurs="0"></Field>
+    </Type>
+    <Type name="ChoiceOpts" type="Map">
+      <Field id="61" name="id" type="Boolean" minOccurs="0"></Field>
+      <Field id="67" name="combine" type="String" minOccurs="0" minLength="1" maxLength="1"></Field>
+    </Type>
+    <Type name="ArrayOpts" type="Map">
+      <Field id="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+    </Type>
+    <Type name="ArrayOfOpts" type="Map">
+      <Field id="42" name="vtype" type="TypeRef"></Field>
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="113" name="unique" type="Boolean" minOccurs="0"></Field>
+      <Field id="115" name="set" type="Boolean" minOccurs="0"></Field>
+      <Field id="98" name="unordered" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="MapOpts" type="Map">
+      <Field id="61" name="id" type="Boolean" minOccurs="0"></Field>
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="111" name="sequence" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="MapOfOpts" type="Map">
+      <Field id="43" name="ktype" type="TypeRef"></Field>
+      <Field id="42" name="vtype" type="TypeRef"></Field>
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="111" name="sequence" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="RecordOpts" type="Map">
+      <Field id="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field id="111" name="sequence" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="Format" type="String" pattern="^/[a-zA-Z0-9]{1,16}+$"></Type>
+    <Type name="Description" type="String"></Type>
+  </Types>
+</Schema>

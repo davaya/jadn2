@@ -130,8 +130,7 @@
       [125, "maxLength", "Integer", ["[0"]]
     ]],
 
-    ["BooleanOpts", "Map", [], "", [
-    ]],
+    ["BooleanOpts", "Map"],
 
     ["IntegerOpts", "Map", [], "", [
       [ 47, "format", "ArrayOf", ["*Format", "q", "[0"]],

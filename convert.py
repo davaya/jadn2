@@ -1,6 +1,7 @@
 import argparse
 import os
 import jadn
+from jadn.utils import raise_error
 
 OUTPUT_DIR = 'Out'
 
@@ -20,10 +21,12 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
                 {
                     '.jadn': sc.load,
                     '.jidl': sc.jidl_load,
-                    # '.xasd': sc.xasd_load
+                    '.xasd': sc.xasd_load
                 }[ext](fp)
 
             print(os.path.join(path, infile))
+            if sc.types is None:
+                raise_error(f'{fp.name}: load failed')
             # print('\n'.join([f'{k:>15}: {v}' for k, v in analyze(check(schema)).items()]))
 
             if fmt in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
@@ -31,7 +34,7 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
                     {
                         'jadn': sc.dump,
                         'jidl': sc.jidl_dump,
-                        # 'xasd': sc.xasd_dump,
+                        'xasd': sc.xasd_dump,
                         # 'md': markdown_dump,
                         # 'dot': diagram_dump
                     }[fmt]({'meta': sc.meta, 'types': sc.types}, fp)

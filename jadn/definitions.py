@@ -248,6 +248,11 @@ EXTENSIONS = {
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
+#===============================================
+# Pre-computed constant class variables
+#===============================================
 class DEFS:
     OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)       # Defined Option table: {id: (name, type)}
     OPTX = {v[0]: k for k, v in OPTS.items()}   # Generated Option reverse index: {name: id}
+    BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
+    DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')

@@ -177,11 +177,13 @@ def cleanup_tagid(fields: dict) -> dict:
 
 
 def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
-    def parseopt(optstr: str) -> str:
+    def parseopt(optstr: str) -> dict:
         m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: nsid:Name$qualifier
         if m1 is None:
             raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-        return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
+        assert (opt := m1.group(1).lower()) in DEFS.OPTX
+        return {opt: m1.group(2)}
+        # return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
 
     topts = {}
     fopts = {}
@@ -413,41 +415,3 @@ def get_config(schema: dict) -> dict:
     tn = config.get('$TypeName', '').lstrip('^').rstrip('$')
     config.update({'$TypeRef': fr'^({ns}(?<=.):)?{tn}$'})   # Non-empty prefix before ':'
     return config
-
-"""
-# Schema conversion for object-like use
-def object_types(types: list[list]) -> list[TypeDefinition]:
-    rtn_types: list[TypeDefinition] = []
-    for t in types:
-        t = TypeDefinition(*t)
-        if t.CoreType == 'Enumerated':
-            t.Fields = [EnumFieldDefinition(*f) for f in t.Fields]
-        else:
-            t.Fields = [GenFieldDefinition(*f) for f in t.Fields]
-        rtn_types.append(t)
-    return rtn_types
-
-
-def object_type_schema(schema: dict) -> dict:
-    sc = copy.deepcopy(schema)
-    sc['types'] = object_types(sc['types'])
-    return sc
-
-
-def list_types(types: list[TypeDefinition]) -> list[list]:
-    return [[*t[:-1], [list(f) for f in t.Fields]] for t in types]
-
-
-def list_type_schema(schema: dict) -> dict:
-    sc = copy.deepcopy(schema)
-    sc['types'] = list_types(sc['types'])
-    return sc
-
-
-# General Utilities
-def list_get_default(lst: list, idx: int, default: Any = None) -> Any:
-    try:
-        return lst[idx]
-    except IndexError:
-        return default
-"""

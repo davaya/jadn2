@@ -30,7 +30,7 @@ class JIDL:
             'id': 4,        # Width of Field Id column
             'name': 16,     # Width of Field Name column
             'type': 35,     # Width of Field Type column
-            'desc': None,   # Fixed-position descriptions - overrides type-dependent default if specified
+            'desc': 50,     # Fixed-position descriptions - overrides type-dependent default if not None
             'page': None    # Truncate to specified page width if specified
         }
 
@@ -120,7 +120,7 @@ def line2jadn(line: str, tdef: list) -> tuple[str, list]:
         p_type = fr'^{p_tname}{p_assign}{p_tstr}$'
         if m := re.match(p_type, line):
             btype, topts, fo = typestr2jadn(m.group(2))
-            assert fo == []  # field options MUST not be included in typedefs
+            assert fo == {}  # field options MUST not be included in typedefs
             newtype = [m.group(1), btype, topts, desc, []]
             return 'T', newtype
 

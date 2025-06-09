@@ -4,7 +4,7 @@ import os
 from jadn.definitions import (TYPE_OPTIONS, FIELD_OPTIONS, TypeName, CoreType, TypeOptions,
                          Fields, FieldID, FieldName, FieldType, FieldOptions, PYTHON_TYPES, DEFS)
 from jadn.convert.jidl import JIDL
-# from jadn.convert.xasd import XASD
+from jadn.convert.xasd import XASD
 from jsonschema import validate
 from numbers import Number
 from typing import TextIO, Any
@@ -14,11 +14,13 @@ from typing import TextIO, Any
 # JADN schema class static values and methods
 # ========================================================
 
-class JADN(JIDL):
-    OPTS = DEFS.OPTS
-    OPTX = DEFS.OPTX
-    BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
-    data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+class JADN(JIDL, XASD):     # Add methods
+
+    # Copy class variables from DEFS (definitions.py)
+    for k, v in DEFS.__dict__.items():
+        if not k.startswith('__'):
+            locals()[k] = v
+
     # Defer loading METASCHEMA until after the class is defined
 
     def __init__(self):
@@ -38,7 +40,7 @@ class JADN(JIDL):
         Load a schema instance from a string in JSON format
         """
         json_data = json.loads(jadn_str)
-        with open(os.path.join(self.data_dir, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure using JSON Schema
+        with open(os.path.join(self.DATA_DIR, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure using JSON Schema
             validate(instance=json_data, schema=json.load(f))
         sc = _load(json_data)   # Load logical schema from JSON data
         self.meta = sc['meta']
@@ -193,7 +195,7 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 # =========================================================
 # Load METASCHEMA class variable now that the JADN class exists
 # =========================================================
-with open(os.path.join(JADN.data_dir, 'jadn_v2.0_schema.jadn')) as f:
+with open(os.path.join(JADN.DATA_DIR, 'jadn_v2.0_schema.jadn')) as f:
     JADN.METASCHEMA = _load(json.load(f))
 
 

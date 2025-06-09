@@ -2,14 +2,17 @@
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
 from typing import TextIO
+from xml.dom.minidom import Element
+
 from lxml import etree as ET
+from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
+                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions)
 
 class XASD:
-    def xasd_loads(self, doc: str) -> dict[str, dict | list]:
-        tree = ET.parse(doc)
+    def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
+        tree = ET.parse(fp)
         root = tree.getroot()
         assert root.tag == 'Schema'
-        assert len(root) == 2
         meta = {}
         types = []
         for element in root:
@@ -21,9 +24,12 @@ class XASD:
         return {'meta': meta, 'types': types}
 
     def xasd_load(self, fp: TextIO) -> dict:
-        return self.xasd_loads(fp.read())
+        return self.xasd_loads(fp)
 
     def xasd_dumps(self, schema: dict) -> str:
+        def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
+            return k.replace('/', '_')
+
         xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
         if meta := schema['meta']:
             xasd += '  <Metadata\n'
@@ -48,21 +54,21 @@ class XASD:
         xasd += '  <Types>\n'
         for td in schema['types']:
             (ln, end) = ('\n', '    ') if td[Fields] else ('', '')
-            xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{td[TypeOptions]}>{td[TypeDesc]}{ln}'
-            for f in td[Fields]:
+            to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
+            xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
+            for fd in td[Fields]:
                 if td[CoreType] == 'Enumerated':
-                    xasd += f'{6*" "}<Item id="{f[ItemID]}" value="{f[ItemValue]}">{f[ItemDesc]}</Item>\n'
+                    xasd += f'{6*" "}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
                 else:
-                    fopts = f[FieldOptions]
-                    xasd += f'{6*" "}<Field id="{f[FieldID]}" name="{f[FieldName]}" type="{f[FieldType]}"{fopts}>{f[FieldDesc]}</Field>\n'
+                    fo = ''.join([f' {aname(k)}="{v}"' for k, v in fd[FieldOptions].items()])
+                    xasd += f'{6*" "}<Field id="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
             xasd += f'{end}</Type>\n'
         xasd += '  </Types>\n'
         xasd += '</Schema>\n'
         return xasd
 
-    def xasd_dump(self, schema: dict, fp: str) -> None:
-        with open(fp, 'w', encoding='utf8') as f:
-            f.write(self.xasd_dumps(schema))
+    def xasd_dump(self, schema: dict, fp: TextIO) -> None:
+        fp.write(self.xasd_dumps(schema))
 
 
 def get_meta(el: ET.Element) -> dict:
@@ -77,6 +83,9 @@ def get_meta(el: ET.Element) -> dict:
     return meta
 
 def get_type(e: ET.Element) -> list:
+    def gettext(el: ET.Element) -> str:
+        return el.text.strip() if el.text is not None else ''
+
     assert e.tag == 'Type'
     at = {k: v for k, v in e.items()}
     fields = []
@@ -84,14 +93,13 @@ def get_type(e: ET.Element) -> list:
         assert f.tag == 'Field'
         fa = {k: v for k, v in f.items()}
         if f.tag == 'Field':
-            fields.append([int(fa.pop('id')), fa.pop('name'), fa.pop('type'), fa, f.text.strip()])
+            fields.append([int(fa.pop('id')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
         elif f.tag == 'Item':
-            fields.append([int(fa.pop('id')), fa.pop('value'), f.text.strip()])
+            fields.append([int(fa.pop('id')), fa.pop('value'), gettext(f)])
 
-    type = [at.pop('name'), at.pop('type'), at, e.text.strip(), fields]
+    type = [at.pop('name'), at.pop('type'), at, gettext(e), fields]
     return type
 
 
 if __name__ == '__main__':
-    from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, FieldID, FieldName
-    from jadn.definitions import FieldType, FieldOptions, FieldDesc, ItemID, ItemValue, ItemDesc
+    pass
