@@ -176,13 +176,13 @@ def cleanup_tagid(fields: dict) -> dict:
     return fields
 
 
-def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
-    def parseopt(optstr: str) -> dict:
-        m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: nsid:Name$qualifier
+def typestr2jadn(typestring: str) -> tuple:
+    def parseopt(optstr: str) -> tuple:
+        m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
         if m1 is None:
             raise_error(f'TypeString2JADN: unexpected function: {optstr}')
         assert (opt := m1.group(1).lower()) in DEFS.OPTX
-        return {opt: m1.group(2)}
+        return (opt, m1.group(2))
         # return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
 
     topts = {}
@@ -190,7 +190,7 @@ def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
     p_id = r'(#?)'                                  # 2 'id'
     p_func = r'(?:\(([^)]+)\))?'                    # 3 'ktype', 'vtype', 'enum', 'pointer', 'tagid'
-    p_lengthpat = r'\{(.*)\}'                        # 4 'minLength', 'maxLength', 'pattern'
+    p_lengthpat = r'\{(.*)\}'                       # 4 'minLength', 'maxLength', 'pattern'
     p_format = r'\s+\/(\w[-\w]*)'                   # 5 'format'
     p_flag = r'\s+(unique|set|unordered|sequence|abstract|final)'    # 6 rest: flags
     p_attr = r'\s+(restricts|extends)\((.+)\)'      # 6 rest: TODO: parse extends/restricts separately for better error
@@ -203,7 +203,7 @@ def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
         fopts += {'not': True}
         tname = tname[1:]
     topts.update({'id': True} if m.group(2) else {})
-    if m.group(3):                      # (ktype, vtype), Enum(), Pointer(), Choice() options
+    if m.group(3):                      # Parens: (ktype, vtype), enum(), pointer(), tagid(), choice() options
         opts = [parseopt(x) for x in m.group(3).split(',', maxsplit=1)]
         assert len(opts) == (2 if tname == 'MapOf' else 1)  # TODO: raise proper error message
         if tname == 'MapOf':
@@ -211,7 +211,7 @@ def typestr2jadn(typestring: str) -> tuple[str, dict, dict]:
         elif tname == 'ArrayOf':
             topts.update({'vtype': opts[0]})
         elif tname == 'Choice':
-            topts.update({'combine': {'anyOf': 'O', 'allOf': 'A', 'oneOf': 'X'}[opts[0]]})
+            topts.update({'combine': opts[0]})
         else:
             topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
             fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
@@ -415,3 +415,37 @@ def get_config(schema: dict) -> dict:
     tn = config.get('$TypeName', '').lstrip('^').rstrip('$')
     config.update({'$TypeRef': fr'^({ns}(?<=.):)?{tn}$'})   # Non-empty prefix before ':'
     return config
+
+if __name__ == '__main__':
+    def parseopt(optstr: str) -> tuple:
+        m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
+        if m1 is None:
+            raise_error(f'TypeString2JADN: unexpected function: {optstr}')
+        if opt := m1.group(1).lower() not in DEFS.OPTX:
+            print(f'Not an option: {opt}: {m1.group(2)}')
+        return (opt, m1.group(2))
+
+    for k, v in [
+        ('MapOf', 'Abc, Def'),
+        ('MapOf', 'Enum[ABC], Enum[DEF]'),
+        ('ArrayOf', 'Efg'),
+        ('ArrayOf', 'Pointer[EFG]'),
+        # ('tagId', 'field2'),
+        ('Choice', 'anyOf')
+    ]:
+        tname = k
+        mg3 = v
+        topts = {}
+        fopts = {}
+        opts = [parseopt(x) for x in mg3.split(',', maxsplit=1)]
+        assert len(opts) == (2 if tname == 'MapOf' else 1)  # TODO: raise proper error message
+        if tname == 'MapOf':
+            topts.update({'ktype': opts[0], 'vtype': opts[1]})
+        elif tname == 'ArrayOf':
+            topts.update({'vtype': opts[0]})
+        elif tname == 'Choice':
+            topts.update({'combine': opts[0]})
+        else:
+            topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
+            fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
+        print(f'{k:>10}> {v} = {topts} / {fopts}')

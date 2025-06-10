@@ -5,7 +5,7 @@ import json
 import re
 
 from typing import TextIO
-from ..definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
+from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
 
@@ -32,6 +32,28 @@ class JIDL:
             'desc': 50,     # Fixed-position descriptions - overrides type-dependent default if not None
             'page': None    # Truncate to specified page width if specified
         }
+
+    def jidl_loads(self, doc: str) -> dict:
+        meta = {}
+        types = []
+        fields = None
+        for line in doc.splitlines():
+            if line:
+                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
+                if t == 'F':
+                    fields.append(v)
+                elif fields:
+                    cleanup_tagid(fields)
+                    fields = None
+                if t == 'I':
+                    meta.update({v[0]: json.loads(v[1])})
+                elif t == 'T':
+                    types.append(v)
+                    fields = types[-1][Fields]
+        return {'meta': meta, 'types': types}
+
+    def jidl_load(self, fp: TextIO) -> dict:
+        return self.jidl_loads(fp.read())
 
     def jidl_dumps(self, schema: dict, style: dict = None) -> str:
         """
@@ -79,28 +101,9 @@ class JIDL:
     def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
         fp.write(self.jidl_dumps(schema, style))
 
-    def jidl_loads(self, doc: str) -> dict:
-        meta = {}
-        types = []
-        fields = None
-        for line in doc.splitlines():
-            if line:
-                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
-                if t == 'F':
-                    fields.append(v)
-                elif fields:
-                    cleanup_tagid(fields)
-                    fields = None
-                if t == 'I':
-                    meta.update({v[0]: json.loads(v[1])})
-                elif t == 'T':
-                    types.append(v)
-                    fields = types[-1][Fields]
-        return {'meta': meta, 'types': types}
-
-    def jidl_load(self, fp: TextIO) -> dict:
-        return self.jidl_loads(fp.read())
-
+# ========================================================
+# Support functions
+# ========================================================
 
 # Convert JIDL to JADN
 def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
@@ -140,6 +143,12 @@ def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
 
     return '', []
 
+
+# =========================================================
+# Diagnostics
+# =========================================================
+if __name__ == '__main__':
+    pass
 
 """
 __all__ = [

@@ -69,6 +69,10 @@ class XASD:
         fp.write(self.xasd_dumps(schema))
 
 
+# ========================================================
+# Support functions
+# ========================================================
+
 def _get_meta(el: ET.Element) -> dict:
     meta = {k: v for k, v in el.items()}
     for e in el:
@@ -104,5 +108,8 @@ def _get_type(e: ET.Element) -> list:
     return type
 
 
+# =========================================================
+# Diagnostics
+# =========================================================
 if __name__ == '__main__':
     pass

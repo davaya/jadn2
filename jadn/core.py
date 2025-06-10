@@ -60,5 +60,5 @@ if __name__ == '__main__':
     with open('data/jadn_v2.0_schema.jadn') as fp:
         pkg.load(fp)
     sc = {'meta': pkg.meta, 'types': pkg.types}
-    print(f'\nSchema - Logical value:\n{sc}')               # Internal (logical) schema value
-    print(f'\nSchema - JSON value:\n{pkg.dumps()}')    # External (lexical) schema value
+    print(f'\nSchema - Logical value:\n{sc}')           # Internal (logical) schema value
+    print(f'\nSchema - JSON value:\n{pkg.dumps()}')     # External (lexical) schema value

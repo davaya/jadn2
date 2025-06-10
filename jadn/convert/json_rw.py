@@ -62,7 +62,7 @@ class JSON:
                 while fd and fd[-1] == fdef[len(fd) - 1]:
                     fd.pop()
             tdef = [None, None, [], '', []]
-            while td and td[-1] == tdef[len(td) - 1]:
+            while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
                 td.pop()
         return _pprint(scc, strip=strip)
 
