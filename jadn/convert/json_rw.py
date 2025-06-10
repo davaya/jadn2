@@ -56,14 +56,14 @@ class JSON:
 
         for td in scc['types']:
             td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
-            tdef = [None, None, [], '', []]
-            while td and td[-1] == tdef[len(td) - 1]:
-                td.pop()
             for fd in td[Fields]:
                 fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
                 fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
                 while fd and fd[-1] == fdef[len(fd) - 1]:
                     fd.pop()
+            tdef = [None, None, [], '', []]
+            while td and td[-1] == tdef[len(td) - 1]:
+                td.pop()
         return _pprint(scc, strip=strip)
 
     def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:

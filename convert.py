@@ -18,16 +18,13 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
         fn, ext = os.path.splitext(infile)
         if ext in ('.jadn', '.jidl', '.xasd'):
             with open(os.path.join(path, infile), 'r') as fp:
-                {
+                schema = {
                     '.jadn': sc.json_load,
                     '.jidl': sc.jidl_load,
                     '.xasd': sc.xasd_load
                 }[ext](fp)
 
-            print(os.path.join(path, infile))
-            if sc.types is None:
-                raise_error(f'{fp.name}: load failed')
-            # print('\n'.join([f'{k:>15}: {v}' for k, v in analyze(check(schema)).items()]))
+            print(fp.name)
 
             if fmt in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
                 with open(os.path.join(OUTPUT_DIR, f'{fn}.{fmt}'), 'w', encoding='utf8') as fp:
@@ -37,7 +34,7 @@ def main(input: str, output_dir: str, fmt: str, recursive: bool) -> None:
                         'xasd': sc.xasd_dump,
                         # 'md': markdown_dump,
                         # 'dot': diagram_dump
-                    }[fmt]({'meta': sc.meta, 'types': sc.types}, fp)
+                    }[fmt](schema, fp)
 
     if os.path.isfile(input):
         path, file = os.path.split(input)

@@ -1,10 +1,10 @@
 """
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
-from typing import TextIO
+from typing import TextIO, Union
 from lxml import etree as ET
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
-                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions)
+                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES, DEFS)
 
 class XASD:
     def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
@@ -81,15 +81,20 @@ def _get_meta(el: ET.Element) -> dict:
     return meta
 
 def _get_type(e: ET.Element) -> list:
+    def aname(k: str) -> str:   # un-mangle XML attribute name to /format
+        return k.replace('_', '/')
+
+    def atype(k: str, v: str) -> Union[bool, int, float, str]:
+        return PYTHON_TYPES[DEFS.OPTS[DEFS.OPTX[k]][1]](v) if k in DEFS.OPTX else v
+
     def gettext(el: ET.Element) -> str:
         return el.text.strip() if el.text is not None else ''
 
     assert e.tag == 'Type'
-    at = {k: v for k, v in e.items()}
+    at = {aname(k): atype(k, v) for k, v in e.items()}
     fields = []
     for f in e:
-        assert f.tag == 'Field'
-        fa = {k: v for k, v in f.items()}
+        fa = {aname(k): atype(k, v) for k, v in f.items()}
         if f.tag == 'Field':
             fields.append([int(fa.pop('id')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
         elif f.tag == 'Item':
