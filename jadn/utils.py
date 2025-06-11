@@ -176,15 +176,17 @@ def cleanup_tagid(fields: dict) -> dict:
     return fields
 
 
-def typestr2jadn(typestring: str) -> tuple:
-    def parseopt(optstr: str) -> tuple:
-        m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
-        if m1 is None:
-            raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-        assert (opt := m1.group(1).lower()) in DEFS.OPTX
-        return (opt, m1.group(2))
-        # return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
+def parseopt(optstr: str) -> tuple:
+    m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
+    if m1 is None:
+        raise_error(f'TypeString2JADN: unexpected function: {optstr}')
+    # assert (opt := m1.group(1).lower()) in DEFS.OPTX
+    opt = m1.group(1).lower()
+    return (opt, m1.group(2))
+    # return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
 
+
+def typestr2jadn(typestring: str) -> tuple:
     topts = {}
     fopts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
@@ -416,18 +418,17 @@ def get_config(schema: dict) -> dict:
     config.update({'$TypeRef': fr'^({ns}(?<=.):)?{tn}$'})   # Non-empty prefix before ':'
     return config
 
+
+# =========================================================
+# Diagnostics
+# =========================================================
 if __name__ == '__main__':
-    def parseopt(optstr: str) -> tuple:
-        m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
-        if m1 is None:
-            raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-        if opt := m1.group(1).lower() not in DEFS.OPTX:
-            print(f'Not an option: {opt}: {m1.group(2)}')
-        return (opt, m1.group(2))
 
     for k, v in [
         ('MapOf', 'Abc, Def'),
         ('MapOf', 'Enum[ABC], Enum[DEF]'),
+        ('MapOf', 'Ghi, Enum[JKL)'),
+        ('MapOf', 'Enum[MNO], Pqr'),
         ('ArrayOf', 'Efg'),
         ('ArrayOf', 'Pointer[EFG]'),
         # ('tagId', 'field2'),
@@ -448,4 +449,5 @@ if __name__ == '__main__':
         else:
             topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
             fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
-        print(f'{k:>10}> {v} = {topts} / {fopts}')
+
+        print(f'{k:>10}> {topts} / {fopts}')
