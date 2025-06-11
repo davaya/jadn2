@@ -56,7 +56,7 @@ class JSON:
 
         for td in scc['types']:
             td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
-            for fd in td[Fields]:
+            for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
                 fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
                 fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
                 while fd and fd[-1] == fdef[len(fd) - 1]:
@@ -103,7 +103,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     def strs(k: str, v: Any) -> str:
         v = '' if isinstance(v, bool) else str(v)
         return k if k[0] in DEFS.BOOL_OPTS else chr(DEFS.OPTX[k]) + v
-    return [strs(k, v) for k, v in opts.items()]
+    return [strs(k, v) for k, v in sorted(opts.items(), key=lambda k: DEFS.OPTO[k[0]] if k[0][0] not in DEFS.BOOL_OPTS else 99)]     # Sort JSON options list
 
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:

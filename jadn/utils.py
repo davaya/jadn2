@@ -166,13 +166,11 @@ def cleanup_tagid(fields: dict) -> dict:
     """
     for f in fields:
         if len(f) > FieldOptions:
-            if tx := f[FieldOptions].get('tagid') is not None:
-                to = f[FieldOptions][tx]
+            if t := f[FieldOptions].get('tagid', ''):
                 try:
-                    int(to[1:])                 # Check if already a Field Id
-                except ValueError:              # Look up Id corresponding to Field Name
-                    fx = {x[FieldName]: x[FieldID] for x in fields}
-                    f[FieldOptions][tx] = to[0] + str(fx[to[1:]])
+                    int(t)          # Check if it is already a FieldID
+                except ValueError:
+                    f[FieldOptions]['tagid'] = {f[FieldName]: f[FieldID] for f in fields}[t]
     return fields
 
 
@@ -180,10 +178,7 @@ def parseopt(optstr: str) -> tuple:
     m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
     if m1 is None:
         raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-    # assert (opt := m1.group(1).lower()) in DEFS.OPTX
-    opt = m1.group(1).lower()
-    return (opt, m1.group(2))
-    # return DEFS.OPTX[m1.group(1).lower()] + m1.group(2) if m1.group(2) else m1.group(1)
+    return m1.group(1) if m1.group(2) is None else {m1.group(1).lower(): m1.group(2)}
 
 
 def typestr2jadn(typestring: str) -> tuple:
@@ -215,8 +210,9 @@ def typestr2jadn(typestring: str) -> tuple:
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
         else:
-            topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
-            fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
+            op = DEFS.OPTX[[k for k in opts[0]][0]]
+            topts.update(opts[0] if op in TYPE_OPTIONS else {})
+            fopts.update(opts[0] if op in FIELD_OPTIONS else {})
     if rest := m.group(4):
         # Matches     group(3) = [   group(7) = ]   group(8) = rest
         # [x,y] rest  group(4) = x   group(6) = y
@@ -427,12 +423,11 @@ if __name__ == '__main__':
     for k, v in [
         ('MapOf', 'Abc, Def'),
         ('MapOf', 'Enum[ABC], Enum[DEF]'),
-        ('MapOf', 'Ghi, Enum[JKL)'),
-        ('MapOf', 'Enum[MNO], Pqr'),
+        ('MapOf', 'Ghi, Enum[JKL]'),
+        ('MapOf', 'Enum[GHI], Jkl'),
         ('ArrayOf', 'Efg'),
         ('ArrayOf', 'Pointer[EFG]'),
-        # ('tagId', 'field2'),
-        ('Choice', 'anyOf')
+        ('Choice', 'anyOf'),
     ]:
         tname = k
         mg3 = v
@@ -450,4 +445,4 @@ if __name__ == '__main__':
             topts.update({opts[0]:'?'} if opts[0] in TYPE_OPTIONS else {})  # ?
             fopts += [opts[0]] if opts[0] in FIELD_OPTIONS else []          # ?TagId option
 
-        print(f'{k:>10}> {topts} / {fopts}')
+        print(f'{k:>10}> {topts}')
