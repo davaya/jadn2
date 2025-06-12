@@ -28,40 +28,41 @@ class XASD:
         def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
             return k.replace('/', '_')
 
+        sp = '  '   # Indentation space per level
         xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
         if meta := schema['meta']:
-            xasd += '  <Metadata\n'
+            xasd += f'{sp}<Metadata\n'
             xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
             for k, v in meta.items():
                 if k == 'roots':
-                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    xasd += f'{2*sp}<{k.capitalize()}>\n'
                     for v in meta[k]:
-                        xasd += f'{6 * " "}<TypeName>{v}</TypeName>\n'
-                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
+                        xasd += f'{3*sp}<TypeName>{v}</TypeName>\n'
+                    xasd += f'{2*sp}</{k.capitalize()}>\n'
                 elif k == 'namespaces':
-                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    xasd += f'{2*sp}<{k.capitalize()}>\n'
                     for v in meta[k]:
-                        xasd += f'{6 * " "}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
-                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
+                        xasd += f'{3*sp}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
+                    xasd += f'{2*sp}</{k.capitalize()}>\n'
                 elif k == 'config':
-                    xasd += f'{4 * " "}<{k.capitalize()}>\n'
+                    xasd += f'{2*sp}<{k.capitalize()}>\n'
                     for k2, v in meta[k].items():
-                        xasd += f'{6 * " "}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
-                    xasd += f'{4 * " "}</{k.capitalize()}>\n'
-        xasd += '  </Metadata>\n'
-        xasd += '  <Types>\n'
+                        xasd += f'{3*sp}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
+                    xasd += f'{2*sp}</{k.capitalize()}>\n'
+        xasd += f'{sp}</Metadata>\n'
+        xasd += f'{sp}<Types>\n'
         for td in schema['types']:
-            (ln, end) = ('\n', '    ') if td[Fields] else ('', '')
+            (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
             to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
-            xasd += f'{4*" "}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
+            xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
             for fd in td[Fields]:
                 if td[CoreType] == 'Enumerated':
-                    xasd += f'{6*" "}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
+                    xasd += f'{3*sp}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
                 else:
                     fo = ''.join([f' {aname(k)}="{v}"' for k, v in fd[FieldOptions].items()])
-                    xasd += f'{6*" "}<Field id="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
+                    xasd += f'{3*sp}<Field fid="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
             xasd += f'{end}</Type>\n'
-        xasd += '  </Types>\n'
+        xasd += f'{sp}</Types>\n'
         xasd += '</Schema>\n'
         return xasd
 
@@ -84,25 +85,29 @@ def _get_meta(el: ET.Element) -> dict:
             meta['config'] = {'$' + v.tag: v.text for v in e}
     return meta
 
+
 def _get_type(e: ET.Element) -> list:
     def aname(k: str) -> str:   # un-mangle XML attribute name to /format
         return k.replace('_', '/')
 
-    def atype(k: str, v: str) -> Union[bool, int, float, str]:
-        return PYTHON_TYPES[DEFS.OPTS[DEFS.OPTX[k]][1]](v) if k in DEFS.OPTX else v
+    def atype(k: str, v: str, t: str) -> Union[bool, int, float, str]:
+        if k not in DEFS.OPTX:
+            return v
+        atype = x[1] if (x := DEFS.OPTS[DEFS.OPTX[k]]) else t
+        return PYTHON_TYPES[atype if atype else t](v)
 
     def gettext(el: ET.Element) -> str:
         return el.text.strip() if el.text is not None else ''
 
     assert e.tag == 'Type'
-    at = {aname(k): atype(k, v) for k, v in e.items()}
+    at = {aname(k): atype(k, v, e.get('type', '')) for k, v in e.items()}
     fields = []
     for f in e:
-        fa = {aname(k): atype(k, v) for k, v in f.items()}
+        fa = {aname(k): atype(k, v, f.get('type', '')) for k, v in f.items()}
         if f.tag == 'Field':
-            fields.append([int(fa.pop('id')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
+            fields.append([int(fa.pop('fid')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
         elif f.tag == 'Item':
-            fields.append([int(fa.pop('id')), fa.pop('value'), gettext(f)])
+            fields.append([int(fa.pop('fid')), fa.pop('value'), gettext(f)])
 
     type = [at.pop('name'), at.pop('type'), at, gettext(e), fields]
     return type

@@ -48,7 +48,7 @@ TypeRef = String                                   // Reference to a type, match
 Type = Array
    1  TypeName                                     // type_name::
    2  Enumerated(Enum[JADN-Type])                  // core_type::
-   3  TypeOptions(TagId[core_type])                // type_options::
+   3  TypeOptions(TagId[core_type]) optional       // type_options::
    4  Description optional                         // type_description::
    5  JADN-Type(TagId[core_type]) optional         // fields::
 
@@ -101,12 +101,12 @@ Field = Array
 FieldID = Integer=[0, *]
 
 FieldOptions = Map
-  91 minOccurs        Integer=[0, *]
-  93 maxOccurs        Integer=[-2, *]
-  38 tagId            Integer
-  75 key              Boolean
-  76 link             Boolean
-  78 not              Boolean
+  91 minOccurs        Integer=[0, *] optional
+  93 maxOccurs        Integer=[-2, *] optional
+  38 tagId            Integer optional
+  75 key              Boolean optional
+  76 link             Boolean optional
+  78 not              Boolean optional
 
 BinaryOpts = Map
   47 format           ArrayOf(Format) unique optional

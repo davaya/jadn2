@@ -1,2 +1,3 @@
 # jadn2
-CLI support for JADN information models
+CLI library for JADN information models
+
