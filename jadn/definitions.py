@@ -106,22 +106,24 @@ TYPE_OPTIONS = {        # Option ID: (name, value type, canonical order) # ASCII
     0x73: ('set', 'Boolean', 16),           # 's', ArrayOf instance is unordered and unique (set)
     0x62: ('unordered', 'Boolean', 17),     # 'b', ArrayOf instance is unordered and not unique (bag)
     0x6f: ('sequence', 'Boolean', 18),      # 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
-    0x43: ('combine', 'String', 19),        # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
-    0x2f: ('format', 'String', 20),         # '/', semantic validation keyword, may affect serialization
-    0x61: ('abstract', 'Boolean', 21),      # 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', 'String', 22),      # 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', 'String', 23),        # 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', 'Boolean', 24),         # 'f', Inheritance: final - cannot have subtype
+    0x30: ('nillable', 'Boolean', 19),      # '0', Instance may have no value, represented by nil, null, None, etc.
+    0x43: ('combine', 'String', 20),        # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
+    0x2f: ('format', 'String', 21),         # '/', semantic validation keyword, may affect serialization
+    0x61: ('abstract', 'Boolean', 22),      # 'a', Inheritance: abstract, non-instantiatable
+    0x72: ('restricts', 'String', 23),      # 'r', Inheritance: restriction - subset of referenced type
+    0x65: ('extends', 'String', 24),        # 'e', Inheritance: extension - superset of referenced type
+    0x66: ('final', 'Boolean', 25),         # 'f', Inheritance: final - cannot have subtype
+    0x41: ('attr', 'Boolean', 26)           # 'A', field may be serialized as an attribute of an element
 }
 
 FIELD_OPTIONS = {
-    0x5b: ('minOccurs', 'Integer', 25),     # '[', min cardinality, default = 1, 0 = field is optional
-    0x5d: ('maxOccurs', 'Integer', 26),     # ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagid', 'Integer', 27),         # '&', field that specifies the type of this field
-    0x3c: ('dir', 'String', 28),            # '<', pointer enumeration treats field as a collection
-    0x4b: ('key', 'Boolean', 29),           # 'K', field is the primary key for TypeName
-    0x4c: ('link', 'Boolean', 30),          # 'L', field is a link (foreign key) to an instance of FieldType
-    0x4e: ('not', 'Boolean', 31)            # 'N', field is not an instance of FieldType
+    0x5b: ('minOccurs', 'Integer', 27),     # '[', min cardinality, default = 1, 0 = field is optional
+    0x5d: ('maxOccurs', 'Integer', 28),     # ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
+    0x26: ('tagid', 'Integer', 29),         # '&', field that specifies the type of this field
+    0x3c: ('dir', 'String', 30),            # '<', pointer enumeration treats field as a collection
+    0x4b: ('key', 'Boolean', 31),           # 'K', field is the primary key for TypeName
+    0x4c: ('link', 'Boolean', 32),          # 'L', field is a link (foreign key) to an instance of FieldType
+    0x4e: ('not', 'Boolean', 33),           # 'N', field is not an instance of FieldType
 }
 
 PYTHON_TYPES = {
