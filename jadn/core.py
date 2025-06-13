@@ -36,18 +36,19 @@ class JADN(JSON, JIDL, XASD):     # Add methods
 # =========================================================
 # Load METASCHEMA class variable now that the JADN class exists
 # =========================================================
-with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn')) as fp:
-    # JADN.METASCHEMA = JADN.json_loads(JSON, json.load(fp))
-    JADN.METASCHEMA = {}
+with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
+    JADN.METASCHEMA = JADN().json_load(fp)  # Load using temporary instance
+
 
 # =========================================================
 # Diagnostics
 # =========================================================
 if __name__ == '__main__':
     # Initialize OPTX (reverse option index) from OPTS (option definitions)
-    j = JADN()
+    # j = JADN()
     # print('OPTS:', len(j.OPTS), j.OPTS)   # Option {id: (name, type)}
     # print('OPTX:', len(j.OPTX), j.OPTX)   # Option {name: id}
+    # print('OPTO:', len(j.OPTO), j.OPTO)   # Option sort order
 
     # Verify that Metaschema option IDs agree with definitions
     for td in JADN.METASCHEMA['types']:
@@ -58,7 +59,6 @@ if __name__ == '__main__':
 
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
-        pkg.load(fp)
-    sc = {'meta': pkg.meta, 'types': pkg.types}
-    print(f'\nSchema - Logical value:\n{sc}')           # Internal (logical) schema value
-    print(f'\nSchema - JSON value:\n{pkg.dumps()}')     # External (lexical) schema value
+        sc = pkg.json_load(fp)
+    print(f'\nIM Schema - Logical value:\n{sc}')                   # Internal (logical) schema value
+    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(sc)}')      # External (lexical) schema value

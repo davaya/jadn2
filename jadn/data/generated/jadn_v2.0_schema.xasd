@@ -39,9 +39,9 @@
       <Field fid="2" name="$MaxString" type="Integer" minInclusive="1" minOccurs="0">Package max characters, default = 255</Field>
       <Field fid="3" name="$MaxElements" type="Integer" minInclusive="1" minOccurs="0">Package max items/properties, default = 255</Field>
       <Field fid="4" name="$Sys" type="String" minLength="1" maxLength="1" minOccurs="0">System character for TypeName, default = '.'</Field>
-      <Field fid="5" name="$TypeName" type="String" minOccurs="0" _regex="">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
-      <Field fid="6" name="$FieldName" type="String" minOccurs="0" _regex="">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
-      <Field fid="7" name="$NSID" type="String" minOccurs="0" _regex="">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
+      <Field fid="5" name="$TypeName" type="String" _regex="" minOccurs="0">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
+      <Field fid="6" name="$FieldName" type="String" _regex="" minOccurs="0">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
+      <Field fid="7" name="$NSID" type="String" _regex="" minOccurs="0">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
     </Type>
     <Type name="Namespace" type="String" _uri="">Unique name of a package</Type>
     <Type name="NSID" type="String" pattern="$NSID">Namespace prefix matching $NSID</Type>
@@ -133,7 +133,7 @@
       <Field fid="122" name="maxInclusive" type="String" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="String" minOccurs="0"></Field>
       <Field fid="120" name="maxExclusive" type="String" minOccurs="0"></Field>
-      <Field fid="37" name="pattern" type="String" minOccurs="0" _regex=""></Field>
+      <Field fid="37" name="pattern" type="String" _regex="" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
     </Type>

@@ -1,7 +1,6 @@
 import argparse
 import os
 import jadn
-from jadn.utils import raise_error
 
 OUTPUT_DIR = 'Out'
 

@@ -93,25 +93,25 @@ TYPE_OPTIONS = {        # Option ID: (name, value type, canonical order) # ASCII
     0x2b: ('ktype', 'String', 3),           # '+', Key type for MapOf
     0x23: ('enum', 'String', 4),            # '#', enumeration derived from Array/Choice/Map/Record type
     0x3e: ('pointer', 'String', 5),         # '>', enumeration of pointers derived from Array/Choice/Map/Record type
-    0x2f: ('format', 'String', 6),          # '/', semantic validation keyword, may affect serialization
-    0x25: ('pattern', 'String', 7),         # '%', regular expression that a string must match
-    0x77: ('minExclusive', None, 8),        # 'w', minimum numeric/string value, excluding bound
-    0x78: ('maxExclusive', None, 9),        # 'x', maximum numeric/string value, excluding bound
-    0x79: ('minInclusive', None, 10),       # 'y', minimum numeric/string value
-    0x7a: ('maxInclusive', None, 11),       # 'z', maximum numeric/string value
-    0x7b: ('minLength', 'Integer', 12),     # '{', minimum byte or text string length, collection item count
-    0x7d: ('maxLength', 'Integer', 13),     # '}', maximum byte or text string length, collection item count
-    0x71: ('unique', 'Boolean', 14),        # 'q', ArrayOf instance must not contain duplicates
-    0x73: ('set', 'Boolean', 15),           # 's', ArrayOf instance is unordered and unique (set)
-    0x62: ('unordered', 'Boolean', 16),     # 'b', ArrayOf instance is unordered and not unique (bag)
-    0x6f: ('sequence', 'Boolean', 17),      # 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
-    0x43: ('combine', 'String', 18),        # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
-    0x61: ('abstract', 'Boolean', 19),      # 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', 'String', 20),      # 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', 'String', 21),        # 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', 'Boolean', 22),         # 'f', Inheritance: final - cannot have subtype
-    0x75: ('default', None, 23),            # 'u', Default value
-    0x76: ('const', None, 24),              # 'v', Constant value
+    0x25: ('pattern', 'String', 6),         # '%', regular expression that a string must match
+    0x77: ('minExclusive', None, 7),        # 'w', minimum numeric/string value, excluding bound
+    0x78: ('maxExclusive', None, 8),        # 'x', maximum numeric/string value, excluding bound
+    0x79: ('minInclusive', None, 9),        # 'y', minimum numeric/string value
+    0x7a: ('maxInclusive', None, 10),       # 'z', maximum numeric/string value
+    0x75: ('default', None, 11),            # 'u', Default value
+    0x76: ('const', None, 12),              # 'v', Constant value
+    0x7b: ('minLength', 'Integer', 13),     # '{', minimum byte or text string length, collection item count
+    0x7d: ('maxLength', 'Integer', 14),     # '}', maximum byte or text string length, collection item count
+    0x71: ('unique', 'Boolean', 15),        # 'q', ArrayOf instance must not contain duplicates
+    0x73: ('set', 'Boolean', 16),           # 's', ArrayOf instance is unordered and unique (set)
+    0x62: ('unordered', 'Boolean', 17),     # 'b', ArrayOf instance is unordered and not unique (bag)
+    0x6f: ('sequence', 'Boolean', 18),      # 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
+    0x43: ('combine', 'String', 19),        # 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
+    0x2f: ('format', 'String', 20),         # '/', semantic validation keyword, may affect serialization
+    0x61: ('abstract', 'Boolean', 21),      # 'a', Inheritance: abstract, non-instantiatable
+    0x72: ('restricts', 'String', 22),      # 'r', Inheritance: restriction - subset of referenced type
+    0x65: ('extends', 'String', 23),        # 'e', Inheritance: extension - superset of referenced type
+    0x66: ('final', 'Boolean', 24),         # 'f', Inheritance: final - cannot have subtype
 }
 
 FIELD_OPTIONS = {
@@ -257,3 +257,4 @@ class DEFS:
     OPTO = {v[0]: v[2] for k, v in OPTS.items()}    # Generated canonical option sort order {name: order}
     BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
     DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+    METASCHEMA = {}

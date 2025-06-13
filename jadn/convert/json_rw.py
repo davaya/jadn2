@@ -64,7 +64,7 @@ class JSON:
             tdef = [None, None, [], '', []]
             while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
                 td.pop()
-        return _pprint(scc, strip=strip)
+        return _pprint(scc, strip=strip) + '\n'
 
     def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
         """
@@ -103,7 +103,8 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     def strs(k: str, v: Any) -> str:
         v = '' if isinstance(v, bool) else str(v)
         return k if k[0] in DEFS.BOOL_OPTS else chr(DEFS.OPTX[k]) + v
-    return [strs(k, v) for k, v in sorted(opts.items(), key=lambda k: DEFS.OPTO[k[0]] if k[0][0] not in DEFS.BOOL_OPTS else 99)]     # Sort JSON options list
+    return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
+            key=lambda k: DEFS.OPTO[k[0]] if k[0][0] not in DEFS.BOOL_OPTS else DEFS.OPTO['format'])]
 
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
@@ -143,11 +144,11 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 # =========================================================
 if __name__ == '__main__':
     # Test tagged-string serialization
-    opts_s = ['#Pasta', '[0', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3']
-    print(f'\nInput opts: {opts_s}')
+    opts_s = ['=', '#Pasta', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3', '[0']
+    print(f'\n  Input opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'Number')
     print(f'Logical opts: {opts_d}')
     opts_s2 = _dump_tagstrings(opts_d, 'Number')
-    print(f'Dumped opts: {opts_s2}')
+    print(f' Dumped opts: {opts_s2}')
     if opts_s2 != opts_s:
         print(' ** Translation mismatch **')
