@@ -107,27 +107,47 @@
       <Field fid="76" name="link" type="Boolean" minOccurs="0"></Field>
       <Field fid="78" name="not" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="BinaryOpts" type="Map">
+    <Type name="AllOpts" type="Map">
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
+      <Field fid="97" name="abstract" type="Boolean" minOccurs="0"></Field>
+      <Field fid="101" name="extends" type="TypeRef" minOccurs="0"></Field>
+      <Field fid="114" name="restricts" type="TypeRef" minOccurs="0"></Field>
+      <Field fid="102" name="final" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="BinaryOpts" type="Map" extends="AllOpts">
       <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minOccurs="0"></Field>
+      <Field fid="117" name="default" type="Binary" minOccurs="0"></Field>
+      <Field fid="118" name="const" type="Binary" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="BooleanOpts" type="Map"></Type>
-    <Type name="IntegerOpts" type="Map">
+    <Type name="BooleanOpts" type="Map" extends="AllOpts">
+      <Field fid="117" name="default" type="Boolean" minOccurs="0"></Field>
+      <Field fid="118" name="const" type="Boolean" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+    </Type>
+    <Type name="IntegerOpts" type="Map" extends="AllOpts">
       <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="120" name="maxExclusive" type="Integer" minOccurs="0"></Field>
+      <Field fid="117" name="default" type="Integer" minOccurs="0"></Field>
+      <Field fid="118" name="const" type="Integer" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="NumberOpts" type="Map">
+    <Type name="NumberOpts" type="Map" extends="AllOpts">
       <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="Number" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="Number" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="Number" minOccurs="0"></Field>
       <Field fid="120" name="maxExclusive" type="Number" minOccurs="0"></Field>
+      <Field fid="117" name="default" type="Number" minOccurs="0"></Field>
+      <Field fid="118" name="const" type="Number" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="StringOpts" type="Map">
+    <Type name="StringOpts" type="Map" extends="AllOpts">
       <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="String" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="String" minOccurs="0"></Field>
@@ -136,22 +156,26 @@
       <Field fid="37" name="pattern" type="String" _regex="" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field fid="117" name="default" type="String" minOccurs="0"></Field>
+      <Field fid="118" name="const" type="String" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="EnumeratedOpts" type="Map">
+    <Type name="EnumeratedOpts" type="Map" extends="AllOpts">
       <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
       <Field fid="35" name="enum" type="TypeRef" minOccurs="0"></Field>
       <Field fid="62" name="pointer" type="TypeRef" minOccurs="0"></Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="ChoiceOpts" type="Map">
+    <Type name="ChoiceOpts" type="Map" extends="AllOpts">
       <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
       <Field fid="67" name="combine" type="String" minLength="1" maxLength="1" minOccurs="0"></Field>
     </Type>
-    <Type name="ArrayOpts" type="Map">
+    <Type name="ArrayOpts" type="Map" extends="AllOpts">
       <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
     </Type>
-    <Type name="ArrayOfOpts" type="Map">
+    <Type name="ArrayOfOpts" type="Map" extends="AllOpts">
       <Field fid="42" name="vtype" type="TypeRef"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
@@ -159,20 +183,20 @@
       <Field fid="115" name="set" type="Boolean" minOccurs="0"></Field>
       <Field fid="98" name="unordered" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="MapOpts" type="Map">
+    <Type name="MapOpts" type="Map" extends="AllOpts">
       <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="MapOfOpts" type="Map">
+    <Type name="MapOfOpts" type="Map" extends="AllOpts">
       <Field fid="43" name="ktype" type="TypeRef"></Field>
       <Field fid="42" name="vtype" type="TypeRef"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="RecordOpts" type="Map">
+    <Type name="RecordOpts" type="Map" extends="AllOpts">
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>

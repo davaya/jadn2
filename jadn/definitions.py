@@ -81,13 +81,13 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
     return FIELD_LENGTH[t] == 5 if is_builtin(t) else False
 
 
-# Option Tags/Keys
-#   JADN TypeOptions and FieldOptions contain a list of strings, each of which is an option.
-#   The first character of an option string is the type ID; the remaining characters are the value.
-#   The option string is converted into a Name: Value pair before use.
-#   The tables list the unicode codepoint of the ID and the corresponding Name and value type.
+# Option "tagged-string" serialization:
+#   JADN type definitions have TypeOptions and FieldOptions, each of which is a Map of key:value pairs
+#   In JSON serialization, options are represented as a List of ID-value strings where the first character
+#   of the string is the Unicode codepoint (ID) of its key; the remaining characters are its value.
+#   Option tables list the ID: (key name, value type, canonical sort order) of each option:
 
-TYPE_OPTIONS = {        # Option ID: (name, value type, canonical order) # ASCII ID
+TYPE_OPTIONS = {
     0x3d: ('id', 'Boolean', 1),             # '=', Enumerated type and Choice/Map/Record keys are ID not Name
     0x2a: ('vtype', 'String', 2),           # '*', Value type for ArrayOf and MapOf
     0x2b: ('ktype', 'String', 3),           # '+', Key type for MapOf
@@ -126,7 +126,7 @@ FIELD_OPTIONS = {
     0x4e: ('not', 'Boolean', 33),           # 'N', field is not an instance of FieldType
 }
 
-PYTHON_TYPES = {
+PYTHON_TYPES = {            # Programming language types used to hold instances of IM types
     'Binary': bytes,
     'Boolean': bool,
     'Integer': int,
@@ -152,16 +152,16 @@ REQUIRED_TYPE_OPTIONS = {
     'Record': [],
 }
 
-ALLOWED_TYPE_OPTIONS_ALL = ['const', 'default', 'abstract', 'extends', 'restricts', 'final']
+ALLOWED_TYPE_OPTIONS_ALL = ['const', 'default', 'nillable', 'abstract', 'extends', 'restricts', 'final']
 
 ALLOWED_TYPE_OPTIONS = {
-    'Binary': ['format', 'minLength', 'maxLength'],
-    'Boolean': [],
-    'Integer': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive'],
-    'Number': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive'],
+    'Binary': ['format', 'minLength', 'maxLength', 'attr'],
+    'Boolean': ['attr'],
+    'Integer': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
+    'Number': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
     'String': ['format', 'pattern', 'minLength', 'maxLength',
-               'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive'],
-    'Enumerated': ['id', 'enum', 'pointer'],
+               'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
+    'Enumerated': ['id', 'enum', 'pointer', 'attr'],
     'Choice': ['id', 'combine'],
     'Array': ['format', 'minLength', 'maxLength'],
     'ArrayOf': ['vtype', 'minLength', 'maxLength', 'unique', 'set', 'unordered'],
@@ -259,4 +259,3 @@ class DEFS:
     OPTO = {v[0]: v[2] for k, v in OPTS.items()}    # Generated canonical option sort order {name: order}
     BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
     DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-    METASCHEMA = {}

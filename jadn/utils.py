@@ -420,7 +420,7 @@ def get_config(schema: dict) -> dict:
 # =========================================================
 if __name__ == '__main__':
 
-    for k, v in [
+    for k, v in [   # Test 'parsopt' conversion of typestring to logical schema
         ('MapOf', 'Abc, Def'),
         ('MapOf', 'Enum[ABC], Enum[DEF]'),
         ('MapOf', 'Ghi, Enum[JKL]'),
@@ -430,11 +430,11 @@ if __name__ == '__main__':
         ('Choice', 'anyOf'),
     ]:
         tname = k
-        mg3 = v
+        m_group3 = v
         topts = {}
         fopts = {}
-        opts = [parseopt(x) for x in mg3.split(',', maxsplit=1)]
-        assert len(opts) == (2 if tname == 'MapOf' else 1)  # TODO: raise proper error message
+        opts = [parseopt(x) for x in m_group3.split(',', maxsplit=1)]
+        assert len(opts) == (2 if tname == 'MapOf' else 1)
         if tname == 'MapOf':
             topts.update({'ktype': opts[0], 'vtype': opts[1]})
         elif tname == 'ArrayOf':

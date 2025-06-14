@@ -1,7 +1,8 @@
 import copy
 import json
 import os
-from jadn.definitions import TypeName, Fields, FieldID, FieldName,DEFS
+from jadn.definitions import (TypeName, Fields, FieldID, FieldName, FieldType,
+                              ALLOWED_TYPE_OPTIONS, ALLOWED_TYPE_OPTIONS_ALL, DEFS)
 from jadn.convert.json_rw import JSON
 from jadn.convert.jidl_rw import JIDL
 from jadn.convert.xasd_rw import XASD
@@ -56,6 +57,17 @@ if __name__ == '__main__':
             if fd[FieldName] in DEFS.OPTX:
                 if (a := fd[FieldID]) != (b := DEFS.OPTX[fd[FieldName]]):
                     print(f'{td[TypeName]}.{fd[FieldName]}: {a} != {b}')
+
+    tdx = {t[TypeName]: t for t in JADN.METASCHEMA['types']}
+    for to in tdx['TypeOptions'][Fields]:
+        td = tdx[to[FieldType]]
+        ato = ALLOWED_TYPE_OPTIONS[to[FieldName]]
+        atm = [f[FieldName] for f in td[Fields]]
+        if set(ato) != set(atm):
+            print(f'Option mismatch: {td[TypeName]}: {ato} != {atm}')
+        for f in td[Fields]:
+            if (fm := f[FieldName]) != (fd := DEFS.OPTS[f[FieldID]][0]):
+                print(f'Option mismatch: {td[TypeName]}: {fm} != {fd}')
 
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:

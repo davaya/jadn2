@@ -108,28 +108,47 @@ FieldOptions = Map
   76 link             Boolean optional
   78 not              Boolean optional
 
-BinaryOpts = Map
+AllOpts = Map
+  48 nillable         Boolean optional
+  97 abstract         Boolean optional
+ 101 extends          TypeRef optional
+ 114 restricts        TypeRef optional
+ 102 final            Boolean optional
+
+BinaryOpts = Map extends(AllOpts)
   47 format           ArrayOf(Format) unique optional
  123 minLength        Integer optional
  125 maxLength        Integer optional
+ 117 default          Binary optional
+ 118 const            Binary optional
+  65 attr             Boolean optional
 
-BooleanOpts = Map
+BooleanOpts = Map extends(AllOpts)
+ 117 default          Boolean optional
+ 118 const            Boolean optional
+  65 attr             Boolean optional
 
-IntegerOpts = Map
+IntegerOpts = Map extends(AllOpts)
   47 format           ArrayOf(Format) unique optional
  121 minInclusive     Integer optional
  122 maxInclusive     Integer optional
  119 minExclusive     Integer optional
  120 maxExclusive     Integer optional
+ 117 default          Integer optional
+ 118 const            Integer optional
+  65 attr             Boolean optional
 
-NumberOpts = Map
+NumberOpts = Map extends(AllOpts)
   47 format           ArrayOf(Format) unique optional
  121 minInclusive     Number optional
  122 maxInclusive     Number optional
  119 minExclusive     Number optional
  120 maxExclusive     Number optional
+ 117 default          Number optional
+ 118 const            Number optional
+  65 attr             Boolean optional
 
-StringOpts = Map
+StringOpts = Map extends(AllOpts)
   47 format           ArrayOf(Format) unique optional
  121 minInclusive     String optional
  122 maxInclusive     String optional
@@ -138,22 +157,26 @@ StringOpts = Map
   37 pattern          String /regex optional
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
+ 117 default          String optional
+ 118 const            String optional
+  65 attr             Boolean optional
 
-EnumeratedOpts = Map
+EnumeratedOpts = Map extends(AllOpts)
   61 id               Boolean optional
   35 enum             TypeRef optional
   62 pointer          TypeRef optional
+  65 attr             Boolean optional
 
-ChoiceOpts = Map
+ChoiceOpts = Map extends(AllOpts)
   61 id               Boolean optional
   67 combine          String{1..1} optional
 
-ArrayOpts = Map
+ArrayOpts = Map extends(AllOpts)
   47 format           ArrayOf(Format) unique optional
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
 
-ArrayOfOpts = Map
+ArrayOfOpts = Map extends(AllOpts)
   42 vtype            TypeRef
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
@@ -161,20 +184,20 @@ ArrayOfOpts = Map
  115 set              Boolean optional
   98 unordered        Boolean optional
 
-MapOpts = Map
+MapOpts = Map extends(AllOpts)
   61 id               Boolean optional
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
 
-MapOfOpts = Map
+MapOfOpts = Map extends(AllOpts)
   43 ktype            TypeRef
   42 vtype            TypeRef
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
 
-RecordOpts = Map
+RecordOpts = Map extends(AllOpts)
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
