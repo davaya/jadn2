@@ -193,7 +193,7 @@ FORMAT_JS_VALIDATE = {      # Semantic validation formats defined by JSON Schema
     'regex': 'String'
 }
 
-FORMAT_VALIDATE = {         # Semantic validation formats defined by JADN
+FORMAT_VALIDATE = {         # Semantic validation formats for information instances
     'email': 'String',          # Use this instead of jsonschema
     'hostname': 'String',       # Use this instead of jsonschema
     'eui': 'Binary',            # IEEE Extended Unique Identifier, 48 bits or 64 bits
@@ -219,7 +219,6 @@ FORMAT_SERIALIZE = {        # Data representation formats for one or more serial
     'b': 'Binary',              # Base64url - RFC 4648 Section 5 (default text representation of Binary type)
     'x': 'Binary',              # Hex - base16 - lowercase out, case-folding in
     'X': 'Binary',              # Hex - RFC 4648 Section 8 - uppercase only
-    'datetime-ms': 'Integer',       # remove
     'i#': 'Integer',            # n-bit signed integer, n should be 8*2^N (8, 16, 32, 64, ...)
     'u#': 'Integer',            # n-bit field or unsigned integer
     'd#': 'Integer',            # n-digit fixed precision integer scale = 10^n (1=deci, 2=centi, 3=milli, ...)

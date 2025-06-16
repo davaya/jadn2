@@ -1,3 +1,5 @@
-# jadn2
-CLI library for JADN information models
+# JADN CLI applications
+
+## 1. jadn-convert
+Convert JADN schemas between data formats
 

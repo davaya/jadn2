@@ -12,9 +12,9 @@ from jadn.convert.xasd_rw import XASD
 # JADN schema class static values and methods
 # ========================================================
 
-class JADN(JSON, JIDL, XASD):     # Add methods
+class JADN(JSON, JIDL, XASD):     # Add format conversion methods
 
-    # Copy class variables from DEFS (definitions.py)
+    # Load constants from DEFS (definitions.py) into class variables
     for k, v in DEFS.__dict__.items():
         if not k.startswith('__'):
             locals()[k] = v
@@ -22,14 +22,13 @@ class JADN(JSON, JIDL, XASD):     # Add methods
     # Defer loading METASCHEMA until after the class is defined
 
     def __init__(self):
-        self.meta = None
-        self.types = None
+        self.schema = None
         self.source = None
         return
 
     def validate(self) -> None:
         """
-        Validate logical schema instance against JADN metaschema
+        Validate a logical schema instance against JADN metaschema
         """
         pass
 
@@ -38,7 +37,7 @@ class JADN(JSON, JIDL, XASD):     # Add methods
 # Load METASCHEMA class variable now that the JADN class exists
 # =========================================================
 with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-    JADN.METASCHEMA = JADN().json_load(fp)  # Load using temporary instance
+    JADN.METASCHEMA = JADN().json_load(fp)  # Load from JSON format using a temporary instance
 
 
 # =========================================================
@@ -58,6 +57,7 @@ if __name__ == '__main__':
                 if (a := fd[FieldID]) != (b := DEFS.OPTX[fd[FieldName]]):
                     print(f'{td[TypeName]}.{fd[FieldName]}: {a} != {b}')
 
+    # Verify Metaschema's allowed options by type
     tdx = {t[TypeName]: t for t in JADN.METASCHEMA['types']}
     for to in tdx['TypeOptions'][Fields]:
         td = tdx[to[FieldType]]
@@ -69,6 +69,7 @@ if __name__ == '__main__':
             if (fm := f[FieldName]) != (fd := DEFS.OPTS[f[FieldID]][0]):
                 print(f'Option mismatch: {td[TypeName]}: {fm} != {fd}')
 
+    # Print internal (program variable) and external (JSON) schema for comparison
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
         sc = pkg.json_load(fp)
