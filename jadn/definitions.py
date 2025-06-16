@@ -152,15 +152,15 @@ REQUIRED_TYPE_OPTIONS = {
     'Record': [],
 }
 
-ALLOWED_TYPE_OPTIONS_ALL = ['const', 'default', 'nillable', 'abstract', 'extends', 'restricts', 'final']
+ALLOWED_TYPE_OPTIONS_ALL = ['nillable', 'abstract', 'extends', 'restricts', 'final']
 
 ALLOWED_TYPE_OPTIONS = {
-    'Binary': ['format', 'minLength', 'maxLength', 'attr'],
-    'Boolean': ['attr'],
-    'Integer': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
-    'Number': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
+    'Binary': ['format', 'minLength', 'maxLength', 'default', 'const', 'attr'],
+    'Boolean': ['default', 'const', 'attr'],
+    'Integer': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'default', 'const', 'attr'],
+    'Number': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'default', 'const', 'attr'],
     'String': ['format', 'pattern', 'minLength', 'maxLength',
-               'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'attr'],
+               'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive', 'default', 'const', 'attr'],
     'Enumerated': ['id', 'enum', 'pointer', 'attr'],
     'Choice': ['id', 'combine'],
     'Array': ['format', 'minLength', 'maxLength'],

@@ -6,68 +6,75 @@ from lxml import etree as ET
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
                               FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES, DEFS)
 
-class XASD:
-    def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
-        tree = ET.parse(fp)
-        root = tree.getroot()
-        assert root.tag == 'Schema'
-        meta = {}
-        types = []
-        for element in root:
-            if element.tag == 'Metadata':
-                meta = _get_meta(element)
-            elif element.tag == 'Types':
-                for el in element:
-                    types.append(_get_type(el))
-        return {'meta': meta, 'types': types}
 
-    def xasd_load(self, fp: TextIO) -> dict:
-        return self.xasd_loads(fp)
+def xasd_style(self) -> dict:
+    return {}
 
-    def xasd_dumps(self, schema: dict) -> str:
-        def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
-            return k.replace('/', '_')
 
-        sp = '  '   # Indentation space per level
-        xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-        if meta := schema['meta']:
-            xasd += f'{sp}<Metadata\n'
-            xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
-            for k, v in meta.items():
-                if k == 'roots':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
-                    for v in meta[k]:
-                        xasd += f'{3*sp}<TypeName>{v}</TypeName>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
-                elif k == 'namespaces':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
-                    for v in meta[k]:
-                        xasd += f'{3*sp}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
-                elif k == 'config':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
-                    for k2, v in meta[k].items():
-                        xasd += f'{3*sp}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
-        xasd += f'{sp}</Metadata>\n'
-        xasd += f'{sp}<Types>\n'
-        for td in schema['types']:
-            (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
-            to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
-            xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
-            for fd in td[Fields]:
-                if td[CoreType] == 'Enumerated':
-                    xasd += f'{3*sp}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
-                else:
-                    fo = ''.join([f' {aname(k)}="{v}"' for k, v in fd[FieldOptions].items()])
-                    xasd += f'{3*sp}<Field fid="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
-            xasd += f'{end}</Type>\n'
-        xasd += f'{sp}</Types>\n'
-        xasd += '</Schema>\n'
-        return xasd
+def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
+    tree = ET.parse(fp)
+    root = tree.getroot()
+    assert root.tag == 'Schema'
+    meta = {}
+    types = []
+    for element in root:
+        if element.tag == 'Metadata':
+            meta = _get_meta(element)
+        elif element.tag == 'Types':
+            for el in element:
+                types.append(_get_type(el))
+    return {'meta': meta, 'types': types}
 
-    def xasd_dump(self, schema: dict, fp: TextIO) -> None:
-        fp.write(self.xasd_dumps(schema))
+
+def xasd_load(self, fp: TextIO) -> dict:
+    return self.xasd_loads(fp)
+
+
+def xasd_dumps(self, schema: dict) -> str:
+    def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
+        return k.replace('/', '_')
+
+    sp = '  '   # Indentation space per level
+    xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
+    if meta := schema['meta']:
+        xasd += f'{sp}<Metadata\n'
+        xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
+        for k, v in meta.items():
+            if k == 'roots':
+                xasd += f'{2*sp}<{k.capitalize()}>\n'
+                for v in meta[k]:
+                    xasd += f'{3*sp}<TypeName>{v}</TypeName>\n'
+                xasd += f'{2*sp}</{k.capitalize()}>\n'
+            elif k == 'namespaces':
+                xasd += f'{2*sp}<{k.capitalize()}>\n'
+                for v in meta[k]:
+                    xasd += f'{3*sp}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
+                xasd += f'{2*sp}</{k.capitalize()}>\n'
+            elif k == 'config':
+                xasd += f'{2*sp}<{k.capitalize()}>\n'
+                for k2, v in meta[k].items():
+                    xasd += f'{3*sp}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
+                xasd += f'{2*sp}</{k.capitalize()}>\n'
+    xasd += f'{sp}</Metadata>\n'
+    xasd += f'{sp}<Types>\n'
+    for td in schema['types']:
+        (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
+        to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
+        xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
+        for fd in td[Fields]:
+            if td[CoreType] == 'Enumerated':
+                xasd += f'{3*sp}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
+            else:
+                fo = ''.join([f' {aname(k)}="{v}"' for k, v in fd[FieldOptions].items()])
+                xasd += f'{3*sp}<Field fid="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
+        xasd += f'{end}</Type>\n'
+    xasd += f'{sp}</Types>\n'
+    xasd += '</Schema>\n'
+    return xasd
+
+
+def xasd_dump(self, schema: dict, fp: TextIO) -> None:
+    fp.write(self.xasd_dumps(schema))
 
 
 # ========================================================
@@ -118,3 +125,11 @@ def _get_type(e: ET.Element) -> list:
 # =========================================================
 if __name__ == '__main__':
     pass
+
+__all__ = [
+    'xasd_dump',
+    'xasd_dumps',
+    'xasd_load',
+    'xasd_loads',
+    'xasd_style'
+]

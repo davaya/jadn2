@@ -21,85 +21,84 @@ p_fstr = r'\s*(.*?)'  # Field definition or Enum value
 p_range = r'\s*(?:\[([.*\w]+)\]|(optional))?'  # Multiplicity
 
 
-class JIDL:
-    def jidl_style(self) -> dict:
-        # Return default column positions
-        return {
-            'meta': 12,     # Width of meta name column
-            'id': 4,        # Width of Field Id column
-            'name': 16,     # Width of Field Name column
-            'type': 35,     # Width of Field Type column
-            'desc': 50,     # Fixed-position descriptions - overrides type-dependent default if not None
-            'page': None    # Truncate to specified page width if specified
-        }
+def jidl_style(self) -> dict:
+    # Return default column positions
+    return {
+        'meta': 12,     # Width of meta name column
+        'id': 4,        # Width of Field Id column
+        'name': 16,     # Width of Field Name column
+        'type': 35,     # Width of Field Type column
+        'desc': 50,     # Fixed-position descriptions - overrides type-dependent default if not None
+        'page': None    # Truncate to specified page width if specified
+    }
 
-    def jidl_loads(self, doc: str) -> dict:
-        meta = {}
-        types = []
-        fields = None
-        for line in doc.splitlines():
-            if line:
-                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
-                if t == 'F':
-                    fields.append(v)
-                elif fields:
-                    cleanup_tagid(fields)
-                    fields = None
-                if t == 'I':
-                    meta.update({v[0]: json.loads(v[1])})
-                elif t == 'T':
-                    types.append(v)
-                    fields = types[-1][Fields]
-        return {'meta': meta, 'types': types}
+def jidl_loads(self, doc: str) -> dict:
+    meta = {}
+    types = []
+    fields = None
+    for line in doc.splitlines():
+        if line:
+            t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
+            if t == 'F':
+                fields.append(v)
+            elif fields:
+                cleanup_tagid(fields)
+                fields = None
+            if t == 'I':
+                meta.update({v[0]: json.loads(v[1])})
+            elif t == 'T':
+                types.append(v)
+                fields = types[-1][Fields]
+    return {'meta': meta, 'types': types}
 
-    def jidl_load(self, fp: TextIO) -> dict:
-        return self.jidl_loads(fp.read())
+def jidl_load(self, fp: TextIO) -> dict:
+    return self.jidl_loads(fp.read())
 
-    def jidl_dumps(self, schema: dict, style: dict = None) -> str:
-        """
-        Convert JADN schema to JADN-IDL
+def jidl_dumps(self, schema: dict, style: dict = None) -> str:
+    """
+    Convert JADN schema to JADN-IDL
 
-        :param dict schema: JADN schema
-        :param dict style: Override default column widths if specified
-        :return: JADN-IDL text
-        :rtype: str
-        """
-        w = self.jidl_style()
-        if style:
-            w.update(style)   # Override any specified column widths
+    :param dict schema: JADN schema
+    :param dict style: Override default column widths if specified
+    :return: JADN-IDL text
+    :rtype: str
+    """
+    w = self.jidl_style()
+    if style:
+        w.update(style)   # Override any specified column widths
 
-        text = ''
-        meta = schema.get('meta', {})
-        mlist = [k for k in META_ORDER if k in meta]
-        for k in mlist + list(set(meta) - set(mlist)):              # Display meta elements in fixed order
-            text += f'{k:>{w["meta"]}}: {json.dumps(meta[k])}\n'    # TODO: wrap to page width, continuation-line parser
+    text = ''
+    meta = schema.get('meta', {})
+    mlist = [k for k in META_ORDER if k in meta]
+    for k in mlist + list(set(meta) - set(mlist)):              # Display meta elements in fixed order
+        text += f'{k:>{w["meta"]}}: {json.dumps(meta[k])}\n'    # TODO: wrap to page width, continuation-line parser
 
-        wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
-        for td in schema['types']:
-            tdef = f'{td[TypeName]} = {jadn2typestr(td[CoreType], td[TypeOptions])}'
-            tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
-            text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
-            idt = id_type(td)
-            for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
-                fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
-                if td[CoreType] == 'Enumerated':
-                    fdesc = ' // ' + fdesc if fdesc else ''
-                    fs = f'{fd[ItemID]:>{w["id"]}} {fname}'
-                    wf = w['id'] + w['name'] + 2
-                else:
-                    fdef += '' if fmult == '1' \
-                        else ' optional' if fmult == '0..1' \
-                        else ' [' + fmult + ']'
-                    fdesc = ' // ' + fdesc if fdesc else ''
-                    wn = 0 if idt else w['name']
-                    fs = f'{fd[FieldID]:>{w["id"]}} {fname:<{wn}} {fdef}'
-                    wf = w['id'] + w['type'] if idt else wt
-                wf = w['desc'] if w['desc'] else wf
-                text += etrunc(f'{fs:{wf}}{fdesc}'.rstrip(), w['page']) + '\n'
-        return text
+    wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
+    for td in schema['types']:
+        tdef = f'{td[TypeName]} = {jadn2typestr(td[CoreType], td[TypeOptions])}'
+        tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
+        text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
+        idt = id_type(td)
+        for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
+            fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
+            if td[CoreType] == 'Enumerated':
+                fdesc = ' // ' + fdesc if fdesc else ''
+                fs = f'{fd[ItemID]:>{w["id"]}} {fname}'
+                wf = w['id'] + w['name'] + 2
+            else:
+                fdef += '' if fmult == '1' \
+                    else ' optional' if fmult == '0..1' \
+                    else ' [' + fmult + ']'
+                fdesc = ' // ' + fdesc if fdesc else ''
+                wn = 0 if idt else w['name']
+                fs = f'{fd[FieldID]:>{w["id"]}} {fname:<{wn}} {fdef}'
+                wf = w['id'] + w['type'] if idt else wt
+            wf = w['desc'] if w['desc'] else wf
+            text += etrunc(f'{fs:{wf}}{fdesc}'.rstrip(), w['page']) + '\n'
+    return text
 
-    def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
-        fp.write(self.jidl_dumps(schema, style))
+def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+    fp.write(self.jidl_dumps(schema, style))
 
 # ========================================================
 # Support functions
@@ -150,7 +149,7 @@ def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
 if __name__ == '__main__':
     pass
 
-"""
+
 __all__ = [
     'jidl_dump',
     'jidl_dumps',
@@ -158,4 +157,3 @@ __all__ = [
     'jidl_loads',
     'jidl_style'
 ]
-"""

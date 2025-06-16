@@ -1,9 +1,13 @@
 import argparse
-import jadn
 import sys
 import os
+from jadn import JADN, add_methods
+from jadn.convert import jidl_rw, xasd_rw
 
 OUTPUT_DIR = None
+
+add_methods(jidl_rw)
+add_methods(xasd_rw)
 
 
 def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
@@ -12,9 +16,9 @@ def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
     """
     def _dump(schema, fp):
         {
-            'jadn': sc.json_dump,
-            'jidl': sc.jidl_dump,
-            'xasd': sc.xasd_dump,
+            'jadn': pkg.json_dump,
+            'jidl': pkg.jidl_dump,
+            'xasd': pkg.xasd_dump,
             # 'md': markdown_dump,
             # 'dot': diagram_dump
         }[format](schema, fp)
@@ -22,7 +26,7 @@ def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
     # print(f'Installed JADN version: {jadn.__version__}\n')
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-    sc = jadn.JADN()
+    pkg = JADN()
 
     def convert(path: str, infile: str):
         if output_dir:
@@ -31,9 +35,9 @@ def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
         if ext in ('.jadn', '.jidl', '.xasd'):
             with open(os.path.join(path, infile), 'r') as fp:
                 schema = {
-                    '.jadn': sc.json_load,
-                    '.jidl': sc.jidl_load,
-                    '.xasd': sc.xasd_load
+                    '.jadn': pkg.json_load,
+                    '.jidl': pkg.jidl_load,
+                    '.xasd': pkg.xasd_load
                 }[ext](fp)
 
             if format in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
@@ -42,6 +46,9 @@ def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
                         _dump(schema, fp)
                 else:
                     _dump(schema, sys.stdout)
+            else:
+                print(f'Unknown output format "{format}"')
+                sys.exit(2)
 
     if os.path.isdir(input):
         for path, dirs, files in os.walk(input):

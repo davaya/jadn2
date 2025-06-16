@@ -8,77 +8,76 @@ from typing import TextIO, Any
 from jsonschema import validate
 
 
-class JSON:
-    def json_style(self) -> dict:
-        return {}
+def json_style(self) -> dict:
+    return {}
 
-    def json_loads(self, json_str: str) -> dict:
-        """
-        Load a logical JADN schema from a JSON string.
+def json_loads(self, json_str: str) -> dict:
+    """
+    Load a logical JADN schema from a JSON string.
 
-        For each type definition, fill in defaults and convert options from list of tagged strings to dict.
+    For each type definition, fill in defaults and convert options from list of tagged strings to dict.
 
-        :param json_str: {meta, types} in serialized format
-        :return: {meta, types} in logical format
-        """
-        schema = json.loads(json_str)
-        with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure
-            validate(instance=schema, schema=json.load(f))
+    :param json_str: {meta, types} in serialized format
+    :return: {meta, types} in logical format
+    """
+    schema = json.loads(json_str)
+    with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure
+        validate(instance=schema, schema=json.load(f))
 
-        tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
-        for td in schema['types']:
-            td += tdef[len(td):len(tdef)]
-            td[TypeOptions] = _load_tagstrings(td[TypeOptions], td[CoreType])
-            for fd in td[Fields]:
-                fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
-                fd += fdef[len(fd):len(fdef)]
-                if td[CoreType] != 'Enumerated':
-                    fd[FieldOptions] = _load_tagstrings(fd[FieldOptions], fd[FieldType])
-        return schema
+    tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
+    for td in schema['types']:
+        td += tdef[len(td):len(tdef)]
+        td[TypeOptions] = _load_tagstrings(td[TypeOptions], td[CoreType])
+        for fd in td[Fields]:
+            fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
+            fd += fdef[len(fd):len(fdef)]
+            if td[CoreType] != 'Enumerated':
+                fd[FieldOptions] = _load_tagstrings(fd[FieldOptions], fd[FieldType])
+    return schema
 
-    def json_load(self, fp: TextIO) -> dict:
-        """
-        Load a schema instance from a file-like object containing JADN data in JSON format
-        :param fp: a TextIO reference to an open file
+def json_load(self, fp: TextIO) -> dict:
+    """
+    Load a schema instance from a file-like object containing JADN data in JSON format
+    :param fp: a TextIO reference to an open file
 
-        Example:
-            pkg = JADN()
-            with open('file.jadn', 'r', encoding='utf-8') as fp:
-                pkg.load(fp)
-        """
-        return self.json_loads(fp.read())
+    Example:
+        pkg = JADN()
+        with open('file.jadn', 'r', encoding='utf-8') as fp:
+            pkg.load(fp)
+    """
+    return self.json_loads(fp.read())
 
-    def json_dumps(self, schema: dict, strip: bool = True) -> str:
-        """
-        Return a schema instance as a string containing JADN data in JSON format
-        """
-        scc = {'meta': schema['meta'], 'types': deepcopy(schema['types'])}
+def json_dumps(self, schema: dict, strip: bool = True) -> str:
+    """
+    Return a schema instance as a string containing JADN data in JSON format
+    """
+    scc = {'meta': schema['meta'], 'types': deepcopy(schema['types'])}
 
-        for td in scc['types']:
-            td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
-            for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
-                fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
-                fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
-                while fd and fd[-1] == fdef[len(fd) - 1]:
-                    fd.pop()
-            tdef = [None, None, [], '', []]
-            while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
-                td.pop()
-        return _pprint(scc, strip=strip) + '\n'
+    for td in scc['types']:
+        td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
+        for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
+            fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
+            fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
+            while fd and fd[-1] == fdef[len(fd) - 1]:
+                fd.pop()
+        tdef = [None, None, [], '', []]
+        while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
+            td.pop()
+    return _pprint(scc, strip=strip) + '\n'
 
-    def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
-        """
-        Store a schema instance in a file-like object containing JADN data in JSON format
+def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
+    """
+    Store a schema instance in a file-like object containing JADN data in JSON format
 
-        :param schema: logical schema value
-        :param fp: a TextIO reference to an open file
-        :param strip: Bool, if True do not store empty trailing fields, default=True
+    :param schema: logical schema value
+    :param fp: a TextIO reference to an open file
+    :param strip: Bool, if True do not store empty trailing fields, default=True
 
-        Example: pkg: a JADN schema instance from a previous load in any format
-            with open('file.jadn', 'w', encoding='utf-8') as fp:
-                pkg.dump(fp)
-        """
-        fp.write(self.json_dumps(schema, strip=strip))
+    Example: pkg: a JADN schema instance from a previous load in any format
+        with open('file.jadn', 'w', encoding='utf-8') as fp:
+            pkg.dump(fp)
+    """
+    fp.write(self.json_dumps(schema, strip=strip))
 
 
 # ========================================================
@@ -152,3 +151,11 @@ if __name__ == '__main__':
     print(f' Dumped opts: {opts_s2}')
     if opts_s2 != opts_s:
         print(' ** Translation mismatch **')
+
+__all__ = [
+    'json_dump',
+    'json_dumps',
+    'json_load',
+    'json_loads',
+    'json_style'
+]

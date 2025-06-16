@@ -1,18 +1,13 @@
-import copy
-import json
 import os
-from jadn.definitions import (TypeName, Fields, FieldID, FieldName, FieldType,
-                              ALLOWED_TYPE_OPTIONS, ALLOWED_TYPE_OPTIONS_ALL, DEFS)
-from jadn.convert.json_rw import JSON
-from jadn.convert.jidl_rw import JIDL
-from jadn.convert.xasd_rw import XASD
-
+from jadn.definitions import DEFS
+from jadn.convert import json_rw
+from types import ModuleType
 
 # ========================================================
-# JADN schema class static values and methods
+# JADN schema core class
 # ========================================================
 
-class JADN(JSON, JIDL, XASD):     # Add format conversion methods
+class JADN():
 
     # Load constants from DEFS (definitions.py) into class variables
     for k, v in DEFS.__dict__.items():
@@ -33,9 +28,16 @@ class JADN(JSON, JIDL, XASD):     # Add format conversion methods
         pass
 
 
+# Dynamically add methods listed in module's __all__ to JADN class
+def add_methods(mod: ModuleType) -> None:
+    for f in mod.__all__:
+        setattr(JADN, f, getattr(mod, f))
+
+
 # =========================================================
 # Load METASCHEMA class variable now that the JADN class exists
 # =========================================================
+add_methods(json_rw)    # Register JSON loader to read metaschema
 with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
     JADN.METASCHEMA = JADN().json_load(fp)  # Load from JSON format using a temporary instance
 
@@ -43,6 +45,8 @@ with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8')
 # =========================================================
 # Diagnostics
 # =========================================================
+from jadn.definitions import TypeName, Fields, FieldID, FieldName, FieldType, ALLOWED_TYPE_OPTIONS
+
 if __name__ == '__main__':
     # Initialize OPTX (reverse option index) from OPTS (option definitions)
     # j = JADN()
