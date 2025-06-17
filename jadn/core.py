@@ -76,6 +76,6 @@ if __name__ == '__main__':
     # Print internal (program variable) and external (JSON) schema for comparison
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
-        sc = pkg.json_load(fp)
-    print(f'\nIM Schema - Logical value:\n{sc}')                   # Internal (logical) schema value
-    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(sc)}')      # External (lexical) schema value
+        schema = pkg.json_load(fp)
+    print(f'\nIM Schema - Logical value:\n{schema}')                   # Internal (logical) schema value
+    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(schema)}')      # External (lexical) schema value

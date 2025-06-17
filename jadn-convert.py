@@ -2,64 +2,94 @@ import argparse
 import sys
 import os
 from jadn import JADN, add_methods
-from jadn.convert import jidl_rw, xasd_rw
-
-OUTPUT_DIR = None
+from jadn.convert import jidl_rw, xasd_rw, md_w, erd_w
+from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw
 
 add_methods(jidl_rw)
 add_methods(xasd_rw)
+add_methods(md_w)
+add_methods(erd_w)
+add_methods(jschema_rw)
+add_methods(xsd_rw)
+add_methods(cddl_rw)
+add_methods(proto_rw)
+
+
+def convert(pkg: JADN, format: str, path: str, infile: str, outdir: str) -> None:
+
+    _load = {
+        '.jadn': pkg.json_load,
+        '.jidl': pkg.jidl_load,
+        '.xasd': pkg.xasd_load,
+        '.jschema': pkg.jschema_load,
+        '.xsd': pkg.xsd_load,
+        '.cddl': pkg.cddl_load,
+        '.proto': pkg.proto_load
+    }
+
+    _dump = {
+        'jadn': pkg.json_dump,
+        'jidl': pkg.jidl_dump,
+        'xasd': pkg.xasd_dump,
+        'md':   pkg.md_dump,
+        'erd':  pkg.erd_dump,
+        'jschema': pkg.jschema_dump,
+        'xsd':  pkg.xsd_dump,
+        'cddl': pkg.cddl_dump,
+        'proto': pkg.proto_dump
+    }
+
+    if outdir:
+        print(infile)  # Don't print if destination is stdout
+
+    # Read lexical value into information value
+    fn, ext = os.path.splitext(infile)
+    if ext in (_load):
+        with open(os.path.join(path, infile), 'r') as fp:
+            schema = _load[ext](fp)
+
+    # Validate information value against IM
+    pkg.validate()
+
+    # Serialize information value to lexical value
+    if format in _dump:
+        if outdir:
+            with open(os.path.join(outdir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
+                _dump[format](schema, fp)
+        else:
+            _dump[format](schema, sys.stdout)
+    else:
+        print(f'Unknown output format "{format}"')
+        sys.exit(2)
 
 
 def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
     """
-    Translate schema between JADN and equivalent formats
+    Convert JADN schema among multiple formats
+
+    Convert to or from equivalent formats
+    Convert to presentation formats
+    Translate JADN abstract schema to or from concrete schema languages
     """
-    def _dump(schema, fp):
-        {
-            'jadn': pkg.json_dump,
-            'jidl': pkg.jidl_dump,
-            'xasd': pkg.xasd_dump,
-            # 'md': markdown_dump,
-            # 'dot': diagram_dump
-        }[format](schema, fp)
 
     # print(f'Installed JADN version: {jadn.__version__}\n')
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
     pkg = JADN()
 
-    def convert(path: str, infile: str):
-        if output_dir:
-            print(infile)
-        fn, ext = os.path.splitext(infile)
-        if ext in ('.jadn', '.jidl', '.xasd'):
-            with open(os.path.join(path, infile), 'r') as fp:
-                schema = {
-                    '.jadn': pkg.json_load,
-                    '.jidl': pkg.jidl_load,
-                    '.xasd': pkg.xasd_load
-                }[ext](fp)
-
-            if format in ('jadn', 'jidl', 'xasd', 'md', 'dot'):
-                if output_dir:
-                    with open(os.path.join(output_dir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
-                        _dump(schema, fp)
-                else:
-                    _dump(schema, sys.stdout)
-            else:
-                print(f'Unknown output format "{format}"')
-                sys.exit(2)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     if os.path.isdir(input):
+        # If input is directory, process all files, including contained directories if recursive=True
         for path, dirs, files in os.walk(input):
             if not recursive:
                 dirs.clear()
             for file in files:
-                convert(path, file)
+                convert(pkg, format, path, file, output_dir)
     else:
+        # Otherwise process the named input file
         path, file = os.path.split(input)
         try:
-            convert(path, file)
+            convert(pkg, format, path, file, output_dir)
         except FileNotFoundError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
@@ -73,7 +103,7 @@ if __name__ == '__main__':
                         help='output format')
     parser.add_argument('-r', action='store_true', help='recursive directory search')
     parser.add_argument('schema')
-    parser.add_argument('output', nargs='?', default=OUTPUT_DIR)
+    parser.add_argument('output', nargs='?', default=None)
     args = parser.parse_args()
     if args.output:
         print(args)     # Don't print info if output on stdout

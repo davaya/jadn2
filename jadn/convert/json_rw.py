@@ -144,7 +144,7 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 if __name__ == '__main__':
     # Test tagged-string serialization
     opts_s = ['=', '#Pasta', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
-    print(f'\n  Input opts: {opts_s}')
+    print(f'\n Loaded opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'Number')
     print(f'Logical opts: {opts_d}')
     opts_s2 = _dump_tagstrings(opts_d, 'Number')

@@ -1,5 +1,5 @@
 """
-Translate JADN to JADN Interface Definition Language
+Convert JADN to/from JADN Interface Definition Language (JIDL)
 """
 import json
 import re
@@ -32,6 +32,7 @@ def jidl_style(self) -> dict:
         'page': None    # Truncate to specified page width if specified
     }
 
+
 def jidl_loads(self, doc: str) -> dict:
     meta = {}
     types = []
@@ -51,8 +52,10 @@ def jidl_loads(self, doc: str) -> dict:
                 fields = types[-1][Fields]
     return {'meta': meta, 'types': types}
 
+
 def jidl_load(self, fp: TextIO) -> dict:
     return self.jidl_loads(fp.read())
+
 
 def jidl_dumps(self, schema: dict, style: dict = None) -> str:
     """
@@ -96,6 +99,7 @@ def jidl_dumps(self, schema: dict, style: dict = None) -> str:
             wf = w['desc'] if w['desc'] else wf
             text += etrunc(f'{fs:{wf}}{fdesc}'.rstrip(), w['page']) + '\n'
     return text
+
 
 def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
     fp.write(self.jidl_dumps(schema, style))
