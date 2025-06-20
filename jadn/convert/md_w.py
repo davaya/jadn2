@@ -20,7 +20,7 @@ def md_dumps(self, style: dict = None) -> str:
     exit(1)
 
 
-def md_dump(self, fp: TextIO, source='', style=None) -> None:
+def md_dump(self, fp: TextIO, style: dict = None) -> None:
     fp.write(self.md_dumps(style))
 
 

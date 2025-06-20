@@ -13,7 +13,7 @@ def jschema_style(self) -> dict:
 
 
 def jschema_loads(self, doc: str) -> None:
-    print('jschema load not implemented')
+    print('JSON Schema translation not implemented')
     exit(1)
 
 
@@ -25,11 +25,11 @@ def jschema_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from jschema
     """
-    print('jschema dump not implemented')
+    print('JSON Schema translation not implemented')
     exit(1)
 
 
-def jschema_dump(self, fp: TextIO, style=None) -> None:
+def jschema_dump(self, fp: TextIO, style: dict = None) -> None:
     fp.write(self.jschema_dumps(style))
 
 

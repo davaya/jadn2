@@ -176,7 +176,7 @@ def erd_dumps(self, style: dict) -> str:
     return text + edges + fmt['end']
 
 
-def erd_dump(self, fp: TextIO, style: dict) -> None:
+def erd_dump(self, fp: TextIO, style: dict = None) -> None:
     fp.write(self.erd_dumps(style) + '\n')
 
 

@@ -29,8 +29,8 @@ def xeto_dumps(self, style: dict = None) -> str:
     exit(1)
 
 
-def xeto_dump(self, fp: TextIO, style=None) -> None:
-    fp.write(self.xeto_dumps(self.schema, style))
+def xeto_dump(self, fp: TextIO, style: dict = None) -> None:
+    fp.write(self.xeto_dumps(style))
 
 
 __all__ = [

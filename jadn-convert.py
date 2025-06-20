@@ -64,7 +64,7 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
     ext = ext.lstrip('.')
     if ext in (_load):
         with open(os.path.join(path, infile), 'r') as fp:
-            schema = _load[ext](fp)
+            _load[ext](fp)
 
     # Validate information value against IM
     pkg.validate()
@@ -74,9 +74,9 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
     if format in _dump:
         if outdir:
             with open(os.path.join(outdir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
-                _dump[format](schema, fp, style)
+                _dump[format](fp, style)
         else:
-            _dump[format](schema, sys.stdout, style)
+            _dump[format](sys.stdout, style)
     else:
         print(f'Unknown output format "{format}"')
         sys.exit(2)

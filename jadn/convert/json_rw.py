@@ -9,7 +9,9 @@ from jsonschema import validate
 
 
 def json_style(self) -> dict:
-    return {}
+    return {
+        'strip': True
+    }
 
 
 def json_loads(self, json_str: str) -> None:
@@ -50,7 +52,7 @@ def json_load(self, fp: TextIO) -> None:
     self.json_loads(fp.read())
 
 
-def json_dumps(self, strip: bool = True) -> str:
+def json_dumps(self, style: dict = None) -> None:
     """
     Return a schema instance as a string containing JADN data in JSON format
     """
@@ -66,10 +68,10 @@ def json_dumps(self, strip: bool = True) -> str:
         tdef = [None, None, [], '', []]
         while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
             td.pop()
-    return _pprint(schema_copy, strip=strip) + '\n'
+    return _pprint(schema_copy, strip=style.get('strip', True)) + '\n'
 
 
-def json_dump(self, fp: TextIO, strip: bool = True) -> None:
+def json_dump(self, fp: TextIO, style: dict = None) -> None:
     """
     Store a schema instance in a file-like object containing JADN data in JSON format
 
@@ -81,7 +83,7 @@ def json_dump(self, fp: TextIO, strip: bool = True) -> None:
         with open('file.jadn', 'w', encoding='utf-8') as fp:
             pkg.dump(fp)
     """
-    fp.write(self.json_dumps(self.schema, strip=strip))
+    fp.write(self.json_dumps(style))
 
 
 # ========================================================

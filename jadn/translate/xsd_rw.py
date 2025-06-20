@@ -29,8 +29,8 @@ def xsd_dumps(self, style: dict = None) -> str:
     exit(1)
 
 
-def xsd_dump(self, fp: TextIO, style=None) -> None:
-    fp.write(self.xsd_dumps(self.schema, style))
+def xsd_dump(self, fp: TextIO, style: dict = None) -> None:
+    fp.write(self.xsd_dumps(style))
 
 
 __all__ = [

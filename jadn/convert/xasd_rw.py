@@ -30,13 +30,13 @@ def xasd_load(self, fp: TextIO) -> None:
     self.xasd_loads(fp)
 
 
-def xasd_dumps(self, schema: dict) -> str:
+def xasd_dumps(self, style: dict = None) -> str:
     def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
         return k.replace('/', '_')
 
     sp = '  '   # Indentation space per level
     xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-    if meta := schema['meta']:
+    if meta := self.schema['meta']:
         xasd += f'{sp}<Metadata\n'
         xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
         for k, v in meta.items():
@@ -57,7 +57,7 @@ def xasd_dumps(self, schema: dict) -> str:
                 xasd += f'{2*sp}</{k.capitalize()}>\n'
     xasd += f'{sp}</Metadata>\n'
     xasd += f'{sp}<Types>\n'
-    for td in schema['types']:
+    for td in self.schema['types']:
         (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
         to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
         xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
@@ -73,8 +73,8 @@ def xasd_dumps(self, schema: dict) -> str:
     return xasd
 
 
-def xasd_dump(self, schema: dict, fp: TextIO) -> None:
-    fp.write(self.xasd_dumps(schema))
+def xasd_dump(self, fp: TextIO, style: dict = None) -> None:
+    fp.write(self.xasd_dumps(style))
 
 
 # ========================================================

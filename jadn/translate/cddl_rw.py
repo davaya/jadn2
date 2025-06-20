@@ -29,8 +29,8 @@ def cddl_dumps(self, style: dict = None) -> str:
     exit(1)
 
 
-def cddl_dump(self, fp: TextIO, style=None) -> None:
-    fp.write(self.cddl_dumps(self.schema, style))
+def cddl_dump(self, fp: TextIO, style: dict = None) -> None:
+    fp.write(self.cddl_dumps(style))
 
 
 __all__ = [
