@@ -36,10 +36,12 @@ def add_methods(mod: ModuleType) -> None:
 
 # =========================================================
 # Load METASCHEMA class variable now that the JADN class exists
+# TODO: figure out why this loads twice
 # =========================================================
 add_methods(json_rw)    # Register JSON loader to read metaschema
 with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-    JADN.METASCHEMA = JADN().json_load(fp)  # Load from JSON format using a temporary instance
+    (tmp := JADN()).json_load(fp)
+    JADN.METASCHEMA = tmp.schema  # Load from JSON format using a temporary instance
 
 
 # =========================================================
@@ -75,6 +77,6 @@ if __name__ == '__main__':
     # Print internal (program variable) and external (JSON) schema for comparison
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
-        schema = pkg.json_load(fp)
-    print(f'\nIM Schema - Logical value:\n{schema}')                   # Internal (logical) schema value
-    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(schema)}')      # External (lexical) schema value
+        pkg.json_load(fp)
+    print(f'\nIM Schema - Logical value:\n{pkg.schema}')                   # Internal (logical) schema value
+    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(pkg.schema)}')      # External (lexical) schema value

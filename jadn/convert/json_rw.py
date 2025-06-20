@@ -47,7 +47,7 @@ def json_load(self, fp: TextIO) -> None:
         with open('file.jadn', 'r', encoding='utf-8') as fp:
             pkg.load(fp)
     """
-    return self.json_loads(fp.read())
+    self.json_loads(fp.read())
 
 
 def json_dumps(self, strip: bool = True) -> str:
