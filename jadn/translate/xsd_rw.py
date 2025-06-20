@@ -29,7 +29,7 @@ def xsd_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def xsd_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+def xsd_dump(self, schema: dict, fp: TextIO, style=None) -> None:
     fp.write(self.xsd_dumps(schema, style))
 
 

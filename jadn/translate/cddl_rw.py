@@ -29,7 +29,7 @@ def cddl_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def cddl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+def cddl_dump(self, schema: dict, fp: TextIO, style=None) -> None:
     fp.write(self.cddl_dumps(schema, style))
 
 

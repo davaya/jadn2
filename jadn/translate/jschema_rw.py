@@ -29,7 +29,7 @@ def jschema_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def jschema_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+def jschema_dump(self, schema: dict, fp: TextIO, style=None) -> None:
     fp.write(self.jschema_dumps(schema, style))
 
 

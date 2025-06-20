@@ -29,7 +29,7 @@ def proto_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def proto_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+def proto_dump(self, schema: dict, fp: TextIO, style=None) -> None:
     fp.write(self.proto_dumps(schema, style))
 
 

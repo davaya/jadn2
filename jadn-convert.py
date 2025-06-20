@@ -2,8 +2,9 @@ import argparse
 import sys
 import os
 from jadn import JADN, add_methods
+from jadn.config import style_args
 from jadn.convert import jidl_rw, xasd_rw, md_w, erd_w
-from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw
+from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw
 
 add_methods(jidl_rw)
 add_methods(xasd_rw)
@@ -13,18 +14,33 @@ add_methods(jschema_rw)
 add_methods(xsd_rw)
 add_methods(cddl_rw)
 add_methods(proto_rw)
+add_methods(xeto_rw)
 
 
-def convert(pkg: JADN, format: str, path: str, infile: str, outdir: str) -> None:
+def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
 
     _load = {
-        '.jadn': pkg.json_load,
-        '.jidl': pkg.jidl_load,
-        '.xasd': pkg.xasd_load,
-        '.jschema': pkg.jschema_load,
-        '.xsd': pkg.xsd_load,
-        '.cddl': pkg.cddl_load,
-        '.proto': pkg.proto_load
+        'jadn': pkg.json_load,
+        'jidl': pkg.jidl_load,
+        'xasd': pkg.xasd_load,
+        'jschema': pkg.jschema_load,
+        'xsd': pkg.xsd_load,
+        'cddl': pkg.cddl_load,
+        'proto': pkg.proto_load,
+        'xeto': pkg.xeto_load,
+    }
+
+    _style = {
+        'jadn': pkg.json_style,
+        'jidl': pkg.jidl_style,
+        'xasd': pkg.xasd_style,
+        'md':   pkg.md_style,
+        'erd':  pkg.erd_style,
+        'jschema': pkg.jschema_style,
+        'xsd':  pkg.xsd_style,
+        'cddl': pkg.cddl_style,
+        'proto': pkg.proto_style,
+        'xeto': pkg.xeto_style,
     }
 
     _dump = {
@@ -36,7 +52,8 @@ def convert(pkg: JADN, format: str, path: str, infile: str, outdir: str) -> None
         'jschema': pkg.jschema_dump,
         'xsd':  pkg.xsd_dump,
         'cddl': pkg.cddl_dump,
-        'proto': pkg.proto_dump
+        'proto': pkg.proto_dump,
+        'xeto': pkg.xeto_dump,
     }
 
     if outdir:
@@ -44,6 +61,7 @@ def convert(pkg: JADN, format: str, path: str, infile: str, outdir: str) -> None
 
     # Read lexical value into information value
     fn, ext = os.path.splitext(infile)
+    ext = ext.lstrip('.')
     if ext in (_load):
         with open(os.path.join(path, infile), 'r') as fp:
             schema = _load[ext](fp)
@@ -52,18 +70,19 @@ def convert(pkg: JADN, format: str, path: str, infile: str, outdir: str) -> None
     pkg.validate()
 
     # Serialize information value to lexical value
+    style = style_args(pkg, format, style)      # combine style from args with format defaults
     if format in _dump:
         if outdir:
             with open(os.path.join(outdir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
-                _dump[format](schema, fp)
+                _dump[format](schema, fp, style)
         else:
-            _dump[format](schema, sys.stdout)
+            _dump[format](schema, sys.stdout, style)
     else:
         print(f'Unknown output format "{format}"')
         sys.exit(2)
 
 
-def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
+def main(input: str, output_dir: str, format: str, style: str, recursive: bool) -> None:
     """
     Convert JADN schema among multiple formats
 
@@ -84,12 +103,12 @@ def main(input: str, output_dir: str, format: str, recursive: bool) -> None:
             if not recursive:
                 dirs.clear()
             for file in files:
-                convert(pkg, format, path, file, output_dir)
+                convert(pkg, format, style, path, file, output_dir)
     else:
         # Otherwise process the named input file
         path, file = os.path.split(input)
         try:
-            convert(pkg, format, path, file, output_dir)
+            convert(pkg, format, style, path, file, output_dir)
         except FileNotFoundError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
@@ -102,9 +121,10 @@ if __name__ == '__main__':
     parser.add_argument('-f', metavar='format', default='jadn',
                         help='output format')
     parser.add_argument('-r', action='store_true', help='recursive directory search')
+    parser.add_argument('--style', default='', help='serialization style options')
     parser.add_argument('schema')
     parser.add_argument('output', nargs='?', default=None)
     args = parser.parse_args()
     if args.output:
         print(args)     # Don't print info if output on stdout
-    main(args.schema, args.output, args.f, args.r)
+    main(args.schema, args.output, args.f, args.style, args.r)

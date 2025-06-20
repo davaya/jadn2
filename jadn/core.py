@@ -48,11 +48,10 @@ with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8')
 from jadn.definitions import TypeName, Fields, FieldID, FieldName, FieldType, ALLOWED_TYPE_OPTIONS
 
 if __name__ == '__main__':
-    # Initialize OPTX (reverse option index) from OPTS (option definitions)
-    # j = JADN()
-    # print('OPTS:', len(j.OPTS), j.OPTS)   # Option {id: (name, type)}
-    # print('OPTX:', len(j.OPTX), j.OPTX)   # Option {name: id}
-    # print('OPTO:', len(j.OPTO), j.OPTO)   # Option sort order
+    # Print class constants generated from definitions.py
+    # print('OPTS:', len(JADN.OPTS), JADN.OPTS)   # Option {id: (name, type)}
+    # print('OPTX:', len(JADN.OPTX), JADN.OPTX)   # Option {name: id}
+    # print('OPTO:', len(JADN.OPTO), JADN.OPTO)   # Option sort order
 
     # Verify that Metaschema option IDs agree with definitions
     for td in JADN.METASCHEMA['types']:

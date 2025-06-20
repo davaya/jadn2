@@ -101,7 +101,7 @@ def jidl_dumps(self, schema: dict, style: dict = None) -> str:
     return text
 
 
-def jidl_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
+def jidl_dump(self, schema: dict, fp: TextIO, style=None) -> None:
     fp.write(self.jidl_dumps(schema, style))
 
 # ========================================================

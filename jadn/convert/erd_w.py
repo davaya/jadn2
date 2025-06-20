@@ -2,10 +2,10 @@ import re
 from typing import TextIO
 from jadn.definitions import (PRIMITIVE_TYPES, TypeName, CoreType, TypeOptions, Fields,
                               FieldID, FieldName, FieldType, FieldOptions)
-from jadn.utils import jadn2fielddef
+from jadn.utils import jadn2typestr, jadn2fielddef, multiplicity_str
 
 """
-Convert JADN abstract schema to Entity Relationship Diagrams
+Convert JADN schema to Entity Relationship Diagrams
 """
 
 
@@ -36,7 +36,7 @@ def erd_style(self) -> dict:
         }
     }
 
-def erd_dumps(self, style: dict) -> str:
+def erd_dumps(self, schema: dict, style: dict) -> str:
     """
     Convert JADN schema to Entity Relationship Diagram source file
     """
@@ -99,10 +99,10 @@ def erd_dumps(self, style: dict) -> str:
         """
         Return graph edges from type options in selected diagram format
         """
-        topts = topts_s2d(td[TypeOptions])
+        topts = td[TypeOptions]
         k, v = topts.get('ktype', None), topts.get('vtype', None)
-        edge = edge_field(td, [0, 'key', k, [], '']) if k else ''
-        edge += edge_field(td, [0, 'value', v, [], '']) if v else ''
+        edge = edge_field(td, [0, 'key', k, {}, '']) if k else ''
+        edge += edge_field(td, [0, 'value', v, {}, '']) if v else ''
         return edge
 
     def edge_field(td, fd) -> str:
@@ -116,9 +116,9 @@ def erd_dumps(self, style: dict) -> str:
         # nodes and s are available in caller scope
         if td[CoreType] == 'Enumerated':
             return ''
-        fopts, ftopts = ftopts_s2d(fd[FieldOptions], fd[FieldType])
-        fieldtype = ftopts['vtype'] if fd[FieldType] in {'ArrayOf', 'MapOf'} else fd[FieldType]
-        if fieldtype in nodes:
+        fopts = fd[FieldOptions]
+        fieldtype = fopts['vtype'] if fd[FieldType] in {'ArrayOf', 'MapOf'} else fd[FieldType]
+        if fieldtype in nodes:      # TODO: include ktype
             mult_f = multiplicity_str(fopts)
             mult_r = '1'
             if s['format'] == 'plantuml':
@@ -134,7 +134,7 @@ def erd_dumps(self, style: dict) -> str:
                 return f'  n{nodes[td[TypeName]]} -> n{nodes[fieldtype]}{edge_label}\n'
         return ''
 
-    s = erd_style()
+    s = erd_style(self)
     s.update(style)
     assert s['format'] in {'plantuml', 'graphviz'}
     assert s['detail'] in {'conceptual', 'logical', 'information'}
@@ -176,9 +176,8 @@ def erd_dumps(self, style: dict) -> str:
     return text + edges + fmt['end']
 
 
-def erd_dump(schema: dict, fname: str, source: str = '', style: dict = {}) -> None:
-    with open(fname, 'w') as f:
-        f.write(diagram_dumps(schema, style) + '\n')
+def erd_dump(self, schema: dict, fp: TextIO, style: dict) -> None:
+    fp.write(self.erd_dumps(schema, style) + '\n')
 
 
 # Wrap typenames at word boundaries to minimize node width, using a max of "lines" lines.
