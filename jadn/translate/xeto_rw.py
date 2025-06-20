@@ -12,16 +12,16 @@ def xeto_style(self) -> dict:
     }
 
 
-def xeto_loads(self, doc: str) -> dict:
+def xeto_loads(self, doc: str) -> None:
     print('Xeto load not implemented')
     exit(1)
 
 
-def xeto_load(self, fp: TextIO) -> dict:
+def xeto_load(self, fp: TextIO) -> None:
     return self.xeto_loads(fp.read())
 
 
-def xeto_dumps(self, schema: dict, style: dict = None) -> str:
+def xeto_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from Xeto
     """
@@ -29,8 +29,8 @@ def xeto_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def xeto_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.xeto_dumps(schema, style))
+def xeto_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.xeto_dumps(self.schema, style))
 
 
 __all__ = [

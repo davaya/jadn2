@@ -12,16 +12,16 @@ def jschema_style(self) -> dict:
     }
 
 
-def jschema_loads(self, doc: str) -> dict:
+def jschema_loads(self, doc: str) -> None:
     print('jschema load not implemented')
     exit(1)
 
 
-def jschema_load(self, fp: TextIO) -> dict:
-    return self.jschema_loads(fp.read())
+def jschema_load(self, fp: TextIO) -> None:
+    self.jschema_loads(fp.read())
 
 
-def jschema_dumps(self, schema: dict, style: dict = None) -> str:
+def jschema_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from jschema
     """
@@ -29,8 +29,8 @@ def jschema_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def jschema_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.jschema_dumps(schema, style))
+def jschema_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.jschema_dumps(style))
 
 
 __all__ = [

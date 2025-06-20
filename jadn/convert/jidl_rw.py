@@ -33,7 +33,7 @@ def jidl_style(self) -> dict:
     }
 
 
-def jidl_loads(self, doc: str) -> dict:
+def jidl_loads(self, doc: str) -> None:
     meta = {}
     types = []
     fields = None
@@ -50,14 +50,14 @@ def jidl_loads(self, doc: str) -> dict:
             elif t == 'T':
                 types.append(v)
                 fields = types[-1][Fields]
-    return {'meta': meta, 'types': types}
+    self.schema = {'meta': meta, 'types': types}
 
 
-def jidl_load(self, fp: TextIO) -> dict:
-    return self.jidl_loads(fp.read())
+def jidl_load(self, fp: TextIO) -> None:
+    self.jidl_loads(fp.read())
 
 
-def jidl_dumps(self, schema: dict, style: dict = None) -> str:
+def jidl_dumps(self, style: dict = None) -> str:
     """
     Convert JADN schema to JADN-IDL
 
@@ -71,13 +71,13 @@ def jidl_dumps(self, schema: dict, style: dict = None) -> str:
         w.update(style)   # Override any specified column widths
 
     text = ''
-    meta = schema.get('meta', {})
+    meta = self.schema.get('meta', {})
     mlist = [k for k in META_ORDER if k in meta]
     for k in mlist + list(set(meta) - set(mlist)):              # Display meta elements in fixed order
         text += f'{k:>{w["meta"]}}: {json.dumps(meta[k])}\n'    # TODO: wrap to page width, continuation-line parser
 
     wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
-    for td in schema['types']:
+    for td in self.schema['types']:
         tdef = f'{td[TypeName]} = {jadn2typestr(td[CoreType], td[TypeOptions])}'
         tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
         text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
@@ -101,8 +101,9 @@ def jidl_dumps(self, schema: dict, style: dict = None) -> str:
     return text
 
 
-def jidl_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.jidl_dumps(schema, style))
+def jidl_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.jidl_dumps(style))
+
 
 # ========================================================
 # Support functions

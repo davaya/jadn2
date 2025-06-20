@@ -12,16 +12,16 @@ def xsd_style(self) -> dict:
     }
 
 
-def xsd_loads(self, doc: str) -> dict:
+def xsd_loads(self, doc: str) -> None:
     print('xsd load not implemented')
     exit(1)
 
 
-def xsd_load(self, fp: TextIO) -> dict:
-    return self.xsd_loads(fp.read())
+def xsd_load(self, fp: TextIO) -> None:
+    self.xsd_loads(fp.read())
 
 
-def xsd_dumps(self, schema: dict, style: dict = None) -> str:
+def xsd_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from xsd
     """
@@ -29,8 +29,8 @@ def xsd_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def xsd_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.xsd_dumps(schema, style))
+def xsd_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.xsd_dumps(self.schema, style))
 
 
 __all__ = [

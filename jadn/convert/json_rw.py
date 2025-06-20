@@ -11,7 +11,8 @@ from jsonschema import validate
 def json_style(self) -> dict:
     return {}
 
-def json_loads(self, json_str: str) -> dict:
+
+def json_loads(self, json_str: str) -> None:
     """
     Load a logical JADN schema from a JSON string.
 
@@ -33,9 +34,10 @@ def json_loads(self, json_str: str) -> dict:
             fd += fdef[len(fd):len(fdef)]
             if td[CoreType] != 'Enumerated':
                 fd[FieldOptions] = _load_tagstrings(fd[FieldOptions], fd[FieldType])
-    return schema
+    self.schema = schema
 
-def json_load(self, fp: TextIO) -> dict:
+
+def json_load(self, fp: TextIO) -> None:
     """
     Load a schema instance from a file-like object containing JADN data in JSON format
     :param fp: a TextIO reference to an open file
@@ -47,13 +49,14 @@ def json_load(self, fp: TextIO) -> dict:
     """
     return self.json_loads(fp.read())
 
-def json_dumps(self, schema: dict, strip: bool = True) -> str:
+
+def json_dumps(self, strip: bool = True) -> str:
     """
     Return a schema instance as a string containing JADN data in JSON format
     """
-    scc = {'meta': schema['meta'], 'types': deepcopy(schema['types'])}
+    schema_copy = {'meta': self.schema['meta'], 'types': deepcopy(self.schema['types'])}
 
-    for td in scc['types']:
+    for td in schema_copy['types']:
         td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
         for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
             fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
@@ -63,9 +66,10 @@ def json_dumps(self, schema: dict, strip: bool = True) -> str:
         tdef = [None, None, [], '', []]
         while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
             td.pop()
-    return _pprint(scc, strip=strip) + '\n'
+    return _pprint(schema_copy, strip=strip) + '\n'
 
-def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
+
+def json_dump(self, fp: TextIO, strip: bool = True) -> None:
     """
     Store a schema instance in a file-like object containing JADN data in JSON format
 
@@ -77,7 +81,7 @@ def json_dump(self, schema: dict, fp: TextIO, strip: bool = True) -> None:
         with open('file.jadn', 'w', encoding='utf-8') as fp:
             pkg.dump(fp)
     """
-    fp.write(self.json_dumps(schema, strip=strip))
+    fp.write(self.json_dumps(self.schema, strip=strip))
 
 
 # ========================================================

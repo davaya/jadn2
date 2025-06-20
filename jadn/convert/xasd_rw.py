@@ -11,7 +11,7 @@ def xasd_style(self) -> dict:
     return {}
 
 
-def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
+def xasd_loads(self, fp: TextIO) -> None:
     tree = ET.parse(fp)
     root = tree.getroot()
     assert root.tag == 'Schema'
@@ -23,11 +23,11 @@ def xasd_loads(self, fp: TextIO) -> dict[str, dict | list]:
         elif element.tag == 'Types':
             for el in element:
                 types.append(_get_type(el))
-    return {'meta': meta, 'types': types}
+    self.schema = {'meta': meta, 'types': types}
 
 
-def xasd_load(self, fp: TextIO) -> dict:
-    return self.xasd_loads(fp)
+def xasd_load(self, fp: TextIO) -> None:
+    self.xasd_loads(fp)
 
 
 def xasd_dumps(self, schema: dict) -> str:

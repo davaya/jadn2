@@ -12,16 +12,16 @@ def proto_style(self) -> dict:
     }
 
 
-def proto_loads(self, doc: str) -> dict:
+def proto_loads(self, doc: str) -> None:
     print('proto load not implemented')
     exit(1)
 
 
-def proto_load(self, fp: TextIO) -> dict:
+def proto_load(self, fp: TextIO) -> None:
     return self.proto_loads(fp.read())
 
 
-def proto_dumps(self, schema: dict, style: dict = None) -> str:
+def proto_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from proto
     """
@@ -29,8 +29,8 @@ def proto_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def proto_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.proto_dumps(schema, style))
+def proto_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.proto_dumps(self.schema, style))
 
 
 __all__ = [

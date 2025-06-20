@@ -36,7 +36,7 @@ def erd_style(self) -> dict:
         }
     }
 
-def erd_dumps(self, schema: dict, style: dict) -> str:
+def erd_dumps(self, style: dict) -> str:
     """
     Convert JADN schema to Entity Relationship Diagram source file
     """
@@ -154,14 +154,14 @@ def erd_dumps(self, schema: dict, style: dict) -> str:
     }[s['format']]
 
     text = ''
-    for k, v in schema.get('meta', {}).items():
+    for k, v in self.schema.get('meta', {}).items():
         text += f"{fmt['comment']} {k}: {v}\n"
     text += f"\n{fmt['start']}\n  " + '\n  '.join(fmt['header']) + '\n\n'
 
     hide_types = [] if s['attributes'] else (*PRIMITIVE_TYPES, 'Enumerated')
-    nodes = {tdef[TypeName]: k for k, tdef in enumerate(schema['types']) if tdef[CoreType] not in hide_types}
+    nodes = {tdef[TypeName]: k for k, tdef in enumerate(self.schema['types']) if tdef[CoreType] not in hide_types}
     edges = ''
-    for td in schema['types']:
+    for td in self.schema['types']:
         if (td[TypeName]) in nodes:
             bt = f' : {jadn2typestr(td[CoreType], td[TypeOptions])}' if s['detail'] == 'information' else ''
             if td[CoreType] in PRIMITIVE_TYPES:
@@ -176,8 +176,8 @@ def erd_dumps(self, schema: dict, style: dict) -> str:
     return text + edges + fmt['end']
 
 
-def erd_dump(self, schema: dict, fp: TextIO, style: dict) -> None:
-    fp.write(self.erd_dumps(schema, style) + '\n')
+def erd_dump(self, fp: TextIO, style: dict) -> None:
+    fp.write(self.erd_dumps(style) + '\n')
 
 
 # Wrap typenames at word boundaries to minimize node width, using a max of "lines" lines.

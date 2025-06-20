@@ -12,16 +12,16 @@ def cddl_style(self) -> dict:
     }
 
 
-def cddl_loads(self, doc: str) -> dict:
+def cddl_loads(self, doc: str) -> None:
     print('CDDL load not implemented')
     exit(1)
 
 
-def cddl_load(self, fp: TextIO) -> dict:
+def cddl_load(self, fp: TextIO) -> None:
     return self.cddl_loads(fp.read())
 
 
-def cddl_dumps(self, schema: dict, style: dict = None) -> str:
+def cddl_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to/from CDDL
     """
@@ -29,8 +29,8 @@ def cddl_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def cddl_dump(self, schema: dict, fp: TextIO, style=None) -> None:
-    fp.write(self.cddl_dumps(schema, style))
+def cddl_dump(self, fp: TextIO, style=None) -> None:
+    fp.write(self.cddl_dumps(self.schema, style))
 
 
 __all__ = [

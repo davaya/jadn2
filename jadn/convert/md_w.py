@@ -12,7 +12,7 @@ def md_style(self) -> dict:
     }
 
 
-def md_dumps(self, schema: dict, style: dict = None) -> str:
+def md_dumps(self, style: dict = None) -> str:
     """
     Convert JADN schema to JADN-IDL
     """
@@ -20,8 +20,8 @@ def md_dumps(self, schema: dict, style: dict = None) -> str:
     exit(1)
 
 
-def md_dump(self, schema: dict, fp: TextIO, source='', style=None) -> None:
-    fp.write(self.md_dumps(schema, style))
+def md_dump(self, fp: TextIO, source='', style=None) -> None:
+    fp.write(self.md_dumps(style))
 
 
 __all__ = [
