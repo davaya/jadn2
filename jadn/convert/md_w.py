@@ -25,7 +25,7 @@ def md_dump(self, fp: TextIO, style: dict = None) -> None:
 
 
 __all__ = [
-    'md_dump',
+    'md_style',
     'md_dumps',
-    'md_style'
+    'md_dump',
 ]

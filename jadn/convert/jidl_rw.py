@@ -156,9 +156,9 @@ if __name__ == '__main__':
 
 
 __all__ = [
-    'jidl_dump',
-    'jidl_dumps',
-    'jidl_load',
+    'jidl_style',
     'jidl_loads',
-    'jidl_style'
+    'jidl_load',
+    'jidl_dumps',
+    'jidl_dump',
 ]

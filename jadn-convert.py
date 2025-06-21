@@ -16,6 +16,8 @@ add_methods(cddl_rw)
 add_methods(proto_rw)
 add_methods(xeto_rw)
 
+CONFIG = 'jadn_config.json'
+
 
 def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
 
@@ -28,19 +30,6 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
         'cddl': pkg.cddl_load,
         'proto': pkg.proto_load,
         'xeto': pkg.xeto_load,
-    }
-
-    _style = {
-        'jadn': pkg.json_style,
-        'jidl': pkg.jidl_style,
-        'xasd': pkg.xasd_style,
-        'md':   pkg.md_style,
-        'erd':  pkg.erd_style,
-        'jschema': pkg.jschema_style,
-        'xsd':  pkg.xsd_style,
-        'cddl': pkg.cddl_style,
-        'proto': pkg.proto_style,
-        'xeto': pkg.xeto_style,
     }
 
     _dump = {
@@ -70,7 +59,7 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
     pkg.validate()
 
     # Serialize information value to lexical value
-    style = style_args(pkg, format, style)      # combine style from args with format defaults
+    style = style_args(pkg, format, style, CONFIG)      # combine style from args with format defaults
     if format in _dump:
         if outdir:
             with open(os.path.join(outdir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
@@ -109,7 +98,7 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
         path, file = os.path.split(input)
         try:
             convert(pkg, format, style, path, file, output_dir)
-        except FileNotFoundError as e:
+        except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)
 

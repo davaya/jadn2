@@ -12,7 +12,7 @@ Convert JADN schema to Entity Relationship Diagrams
 def erd_style(self) -> dict:
     # Return diagram appearance options
     return {
-        'format': 'plantuml',       # diagram format: graphviz, plantuml
+        'graph': 'plantuml',        # diagram language: graphviz, plantuml
         'detail': 'conceptual',     # Level of detail: conceptual, logical, information
         'links': True,              # Show link edges (dashed)
         'link_horizontal': True,    # Use e-w links vs. n-s containers
@@ -42,7 +42,7 @@ def erd_dumps(self, style: dict) -> str:
     """
     def node_leaf(td, bt) -> str:
         """
-        Return Leaf Type Definition in selected diagram format
+        Return Leaf Type Definition in selected diagram language
         """
         # nodes and s are available in caller scope
         tn = td[TypeName]
@@ -50,11 +50,11 @@ def erd_dumps(self, style: dict) -> str:
             'graphviz': f'n{nodes[tn]} [label=<<b>{tn}{bt}</b>>, '
                         f'shape=ellipse, style=filled, fillcolor={s["attr_color"]}]\n\n',
             'plantuml': f'class "{tn}{bt}" as n{nodes[tn]}\n'
-        }[s['format']]
+        }[s['graph']]
 
     def node_start(td, bt) -> str:
         """
-        Return start of Compound Type Definition in selected diagram format
+        Return start of Compound Type Definition in selected diagram language
         """
         # nodes and s are available in caller scope
         tn = td[TypeName]
@@ -64,11 +64,11 @@ def erd_dumps(self, style: dict) -> str:
             'plantuml': f'class "{tn}{bt}" as n{nodes[tn]}\n',
             'graphviz': f'n{nodes[tn]} [{color}label=<<table cellborder="0" cellpadding="1" cellspacing="0">\n'
                         f'<tr><td cellpadding="4"><b>  {tn}{bt}  </b></td></tr>{hr}\n'
-        }[s['format']]
+        }[s['graph']]
 
     def node_field(td, fd) -> str:
         """
-        Return Field Definition in selected diagram format
+        Return Field Definition in selected diagram language
         """
         # nodes and s are available in caller scope
         if s['detail'] == 'conceptual':
@@ -76,14 +76,14 @@ def erd_dumps(self, style: dict) -> str:
         elif s['detail'] == 'logical':
             fval = fd[FieldName]
         elif s['detail'] == 'information':
-            fl = '{field} ' if s['format'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
+            fl = '{field} ' if s['language'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
             fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
             fdef += '' if fmult == '1' else ' [' + fmult + ']'
             fval = f'{fd[FieldID]} {fname}' + ('' if td[CoreType] == 'Enumerated' else f' : {fl}{fdef}')
         return {
             'plantuml': f'  n{nodes[td[TypeName]]} : {fval}\n',
             'graphviz': f'  <tr><td align="left">  {fval}  </td></tr>\n'
-        }[s['format']]
+        }[s['graph']]
 
     def node_end() -> str:
         """
@@ -93,11 +93,11 @@ def erd_dumps(self, style: dict) -> str:
         return {
             'plantuml': '\n',
             'graphviz': '</table>>]\n\n'
-        }[s['format']]
+        }[s['graph']]
 
     def edge_type(td) -> str:
         """
-        Return graph edges from type options in selected diagram format
+        Return graph edges from type options in selected diagram language
         """
         topts = td[TypeOptions]
         k, v = topts.get('ktype', None), topts.get('vtype', None)
@@ -107,9 +107,9 @@ def erd_dumps(self, style: dict) -> str:
 
     def edge_field(td, fd) -> str:
         """
-        Return graph edges from fields in selected diagram format
+        Return graph edges from fields in selected diagram language
         """
-        # Normalize edge label for diagram format
+        # Normalize edge label for diagram language
         def ename(edge_label: str) -> str:
             return edge_label.replace('-', '_')
 
@@ -121,12 +121,12 @@ def erd_dumps(self, style: dict) -> str:
         if fieldtype in nodes:      # TODO: include ktype
             mult_f = multiplicity_str(fopts)
             mult_r = '1'
-            if s['format'] == 'plantuml':
+            if s['graph'] == 'plantuml':
                 rel = ('.' if 'link_horizontal' in s else '..') if 'link' in fopts else '--'
                 elabel = ' : ' + fd[FieldName] if s['edge_label'] else ''
                 mult = f'"{mult_r}" {rel}> "{mult_f}"' if s['edge_mult'] else f'{rel}>'
                 return f'  n{nodes[td[TypeName]]} {mult} n{nodes[fieldtype]}{elabel}\n'
-            elif s['format'] == 'graphviz':
+            elif s['graph'] == 'graphviz':
                 edge = [f'label={ename(fd[FieldName])}'] if s['edge_label'] else []
                 edge += ['style="dashed"'] if 'link' in fopts else []
                 edge += [f'headlabel="{mult_f}", taillabel="{mult_r}"'] if s['edge_mult'] else []
@@ -136,8 +136,8 @@ def erd_dumps(self, style: dict) -> str:
 
     s = erd_style(self)
     s.update(style)
-    assert s['format'] in {'plantuml', 'graphviz'}
-    assert s['detail'] in {'conceptual', 'logical', 'information'}
+    assert s['graph'] in {'plantuml', 'graphviz'}, f'Invalid graph language: {s["graph"]}'
+    assert s['detail'] in {'conceptual', 'logical', 'information'}, f'Invalid detail: {s["detail"]}'
     fmt = {
         'plantuml': {
             'comment': "'",
@@ -151,7 +151,7 @@ def erd_dumps(self, style: dict) -> str:
             'end': '}',
             'header': s['header']['graphviz']
         }
-    }[s['format']]
+    }[s['graph']]
 
     text = ''
     for k, v in self.schema.get('meta', {}).items():

@@ -127,9 +127,9 @@ if __name__ == '__main__':
     pass
 
 __all__ = [
-    'xasd_dump',
-    'xasd_dumps',
-    'xasd_load',
+    'xasd_style',
     'xasd_loads',
-    'xasd_style'
+    'xasd_load',
+    'xasd_dumps',
+    'xasd_dump',
 ]

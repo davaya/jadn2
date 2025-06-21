@@ -159,9 +159,9 @@ if __name__ == '__main__':
         print(' ** Translation mismatch **')
 
 __all__ = [
-    'json_dump',
-    'json_dumps',
-    'json_load',
+    'json_style',
     'json_loads',
-    'json_style'
+    'json_load',
+    'json_dumps',
+    'json_dump',
 ]
