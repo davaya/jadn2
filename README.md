@@ -24,7 +24,7 @@ Schema languages are:
     * simplifying shortcuts (syntactic sugar) into core definitions 
     * resolving external references between schema packages
 
-## Usage
+### Usage
 
 ```
 Usage: jadn-convert.py [-h] [-f format] [-r] [--style STYLE] schema [output]
