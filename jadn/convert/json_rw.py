@@ -52,7 +52,7 @@ def json_load(self, fp: TextIO) -> None:
     self.json_loads(fp.read())
 
 
-def json_dumps(self, style: dict = None) -> None:
+def json_dumps(self, style: dict = {}) -> None:
     """
     Return a schema instance as a string containing JADN data in JSON format
     """

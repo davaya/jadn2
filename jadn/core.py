@@ -78,5 +78,5 @@ if __name__ == '__main__':
     pkg = JADN()
     with open('data/jadn_v2.0_schema.jadn') as fp:
         pkg.json_load(fp)
-    print(f'\nIM Schema - Logical value:\n{pkg.schema}')                   # Internal (logical) schema value
-    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps(pkg.schema)}')      # External (lexical) schema value
+    print(f'\nIM Schema - Logical value:\n{pkg.schema}')            # Internal (logical) schema value
+    print(f'\nIM Schema - JSON value:\n{pkg.json_dumps()}')         # External (lexical) schema value
