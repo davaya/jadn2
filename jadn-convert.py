@@ -106,13 +106,13 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description='Convert JADN schemas to a different format.')
+        description='Convert JADN schemas to a specified format.')
     parser.add_argument('-f', metavar='format', default='jadn',
                         help='output format')
     parser.add_argument('-r', action='store_true', help='recursive directory search')
     parser.add_argument('--style', default='', help='serialization style options')
     parser.add_argument('schema')
-    parser.add_argument('output', nargs='?', default=None)
+    parser.add_argument('output_dir', nargs='?', default=None)
     args = parser.parse_args()
     if args.output:
         print(args)     # Don't print info if output on stdout
