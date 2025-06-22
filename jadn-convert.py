@@ -2,7 +2,7 @@ import argparse
 import sys
 import os
 from jadn import JADN, add_methods
-from jadn.config import style_args
+from jadn.config import style_args, style_fname
 from jadn.convert import jidl_rw, xasd_rw, md_w, erd_w
 from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw
 
@@ -62,7 +62,7 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
     style = style_args(pkg, format, style, CONFIG)      # combine style from args with format defaults
     if format in _dump:
         if outdir:
-            with open(os.path.join(outdir, f'{fn}.{format}'), 'w', encoding='utf8') as fp:
+            with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
                 _dump[format](fp, style)
         else:
             _dump[format](sys.stdout, style)

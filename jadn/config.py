@@ -36,10 +36,20 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
             config_opts = json.load(fp).get('style', {}).get(format, {})    # get args from "style" section
     assert not (x := set(config_opts) - set(format_opts)), f'Invalid style options {x} from {fp.name}'
     try:
-        cli_opts = {(x := arg.split(':'))[0].strip(): _fixbool(x[1].strip()) for arg in args.split(',')}
+        cli_opts = {(x := arg.split(':'))[0].strip(): _fixbool(x[1].strip()) for arg in args.split(',') if arg}
     except IndexError:
         assert False, (f'Options for format "{format}"\n' +
             f'Class: {json.dumps(format_opts, indent=2)}\n' +
             (f'Configuration file "{fp.name}": {json.dumps(config_opts, indent=2)}') if config_opts else '')
     assert not (x := set(cli_opts) - set(format_opts)), f'Invalid style options {x}'
     return format_opts | config_opts | cli_opts
+
+
+def style_fname(fname: str, format: str, style: dict) -> str:
+    """
+    Generate output filename based on style options for output format
+    """
+    if format == 'erd':
+        fname += f'_{style["detail"][0]}{"a" if style["attributes"] else ""}'
+        format = {'plantuml': 'puml', 'graphviz': 'dot'}[style['graph']]
+    return f'{fname}.{format}'
