@@ -114,6 +114,6 @@ if __name__ == '__main__':
     parser.add_argument('schema')
     parser.add_argument('output_dir', nargs='?', default=None)
     args = parser.parse_args()
-    if args.output:
+    if args.output_dir:
         print(args)     # Don't print info if output on stdout
-    main(args.schema, args.output, args.f, args.style, args.r)
+    main(args.schema, args.output_dir, args.f, args.style, args.r)
