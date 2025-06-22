@@ -3,12 +3,12 @@ import sys
 import os
 from jadn import JADN, add_methods
 from jadn.config import style_args, style_fname
-from jadn.convert import jidl_rw, xasd_rw, md_w, erd_w
+from jadn.convert import jidl_rw, xasd_rw, md_rw, erd_w
 from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw
 
 add_methods(jidl_rw)
 add_methods(xasd_rw)
-add_methods(md_w)
+add_methods(md_rw)
 add_methods(erd_w)
 add_methods(jschema_rw)
 add_methods(xsd_rw)
@@ -22,9 +22,10 @@ CONFIG = 'jadn_config.json'
 def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
 
     _load = {
-        'jadn': pkg.json_load,
+        'jadn': pkg.jadn_load,
         'jidl': pkg.jidl_load,
         'xasd': pkg.xasd_load,
+        'md':   pkg.md_load,
         'jschema': pkg.jschema_load,
         'xsd': pkg.xsd_load,
         'cddl': pkg.cddl_load,
@@ -33,7 +34,7 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
     }
 
     _dump = {
-        'jadn': pkg.json_dump,
+        'jadn': pkg.jadn_dump,
         'jidl': pkg.jidl_dump,
         'xasd': pkg.xasd_dump,
         'md':   pkg.md_dump,

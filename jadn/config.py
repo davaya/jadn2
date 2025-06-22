@@ -14,7 +14,7 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
     """
 
     _style = {
-        'jadn': pkg.json_style,
+        'jadn': pkg.jadn_style,
         'jidl': pkg.jidl_style,
         'xasd': pkg.xasd_style,
         'md': pkg.md_style,

@@ -37,8 +37,8 @@ def xasd_dumps(self, style: dict = None) -> str:
     sp = '  '   # Indentation space per level
     xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
     if meta := self.schema['meta']:
-        xasd += f'{sp}<Metadata\n'
-        xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
+        xasd += f'{sp}<Metadata>\n'
+        # xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
         for k, v in meta.items():
             if k == 'roots':
                 xasd += f'{2*sp}<{k.capitalize()}>\n'
@@ -55,6 +55,8 @@ def xasd_dumps(self, style: dict = None) -> str:
                 for k2, v in meta[k].items():
                     xasd += f'{3*sp}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
                 xasd += f'{2*sp}</{k.capitalize()}>\n'
+            else:
+                xasd += f'{2*sp}<{k.capitalize()}>{meta[k]}</{k.capitalize()}>\n'
     xasd += f'{sp}</Metadata>\n'
     xasd += f'{sp}<Types>\n'
     for td in self.schema['types']:
@@ -90,6 +92,8 @@ def _get_meta(el: ET.Element) -> dict:
             meta['namespaces'] = [[v.get('prefix'), v.text] for v in e]
         elif e.tag == 'Config':
             meta['config'] = {'$' + v.tag: v.text for v in e}
+        else:
+            meta[e.tag.lower()] = e.text
     return meta
 
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Schema>
-  <Metadata
-    title="JADN Metaschema"
-    package="http://oasis-open.org/openc2/jadn/v2.0/schema"
-    description="Syntax of a JSON Abstract Data Notation (JADN) package."
-    license="CC-BY-4.0">
+  <Metadata>
+    <Title>JADN Metaschema</Title>
+    <Package>http://oasis-open.org/openc2/jadn/v2.0/schema</Package>
+    <Description>Syntax of a JSON Abstract Data Notation (JADN) package.</Description>
+    <License>CC-BY-4.0</License>
     <Roots>
       <TypeName>Schema</TypeName>
     </Roots>

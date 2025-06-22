@@ -8,22 +8,22 @@ from typing import TextIO, Any
 from jsonschema import validate
 
 
-def json_style(self) -> dict:
+def jadn_style(self) -> dict:
     return {
         'strip': True
     }
 
 
-def json_loads(self, json_str: str) -> None:
+def jadn_loads(self, jadn_str: str) -> None:
     """
     Load a logical JADN schema from a JSON string.
 
     For each type definition, fill in defaults and convert options from list of tagged strings to dict.
 
-    :param json_str: {meta, types} in serialized format
+    :param jadn_str: {meta, types} in serialized format
     :return: {meta, types} in logical format
     """
-    schema = json.loads(json_str)
+    schema = json.loads(jadn_str)
     with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.json')) as f:   # Check JSON data structure
         validate(instance=schema, schema=json.load(f))
 
@@ -39,7 +39,7 @@ def json_loads(self, json_str: str) -> None:
     self.schema = schema
 
 
-def json_load(self, fp: TextIO) -> None:
+def jadn_load(self, fp: TextIO) -> None:
     """
     Load a schema instance from a file-like object containing JADN data in JSON format
     :param fp: a TextIO reference to an open file
@@ -49,10 +49,10 @@ def json_load(self, fp: TextIO) -> None:
         with open('file.jadn', 'r', encoding='utf-8') as fp:
             pkg.load(fp)
     """
-    self.json_loads(fp.read())
+    self.jadn_loads(fp.read())
 
 
-def json_dumps(self, style: dict = {}) -> None:
+def jadn_dumps(self, style: dict = {}) -> None:
     """
     Return a schema instance as a string containing JADN data in JSON format
     """
@@ -71,7 +71,7 @@ def json_dumps(self, style: dict = {}) -> None:
     return _pprint(schema_copy, strip=style.get('strip', True)) + '\n'
 
 
-def json_dump(self, fp: TextIO, style: dict = None) -> None:
+def jadn_dump(self, fp: TextIO, style: dict = None) -> None:
     """
     Store a schema instance in a file-like object containing JADN data in JSON format
 
@@ -83,7 +83,7 @@ def json_dump(self, fp: TextIO, style: dict = None) -> None:
         with open('file.jadn', 'w', encoding='utf-8') as fp:
             pkg.dump(fp)
     """
-    fp.write(self.json_dumps(style))
+    fp.write(self.jadn_dumps(style))
 
 
 # ========================================================
@@ -159,9 +159,9 @@ if __name__ == '__main__':
         print(' ** Translation mismatch **')
 
 __all__ = [
-    'json_style',
-    'json_loads',
-    'json_load',
-    'json_dumps',
-    'json_dump',
+    'jadn_style',
+    'jadn_loads',
+    'jadn_load',
+    'jadn_dumps',
+    'jadn_dump',
 ]

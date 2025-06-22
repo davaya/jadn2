@@ -188,7 +188,7 @@ def typestr2jadn(typestring: str) -> tuple:
     p_id = r'(#?)'                                  # 2 'id'
     p_func = r'(?:\(([^)]+)\))?'                    # 3 'ktype', 'vtype', 'enum', 'pointer', 'tagid'
     p_lengthpat = r'\{(.*)\}'                       # 4 'minLength', 'maxLength', 'pattern'
-    p_format = r'\s+\/(\w[-\w]*)'                   # 5 'format'
+    p_format = r'\s+(\/\w[-\w]*)'                   # 5 'format'
     p_flag = r'\s+(unique|set|unordered|sequence|abstract|final)'    # 6 rest: flags
     p_attr = r'\s+(restricts|extends)\((.+)\)'      # 6 rest: TODO: parse extends/restricts separately for better error
     pattern = fr'^{p_name}{p_id}{p_func}(.*?)\s*$'
@@ -241,8 +241,8 @@ def typestr2jadn(typestring: str) -> tuple:
                     topts.update({} if b == '*' else {'maxLength': int(b)})
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
-        for opt in re.findall(p_format, rest):  # TODO: allow multiple formats
-            topts.update({'format': opt})
+        for opt in re.findall(p_format, rest):
+            topts.update({opt: ''})
         for opt in re.findall(p_flag, rest):
             topts.update({opt: True})
         for opt in re.findall(p_attr, rest):
