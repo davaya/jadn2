@@ -250,7 +250,7 @@ META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'com
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
 #===============================================
-# Pre-computed constant class variables
+# Pre-computed constant class variables     # TODO: investigate closure instead of class vars
 #===============================================
 class DEFS:
     OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)           # Defined Option table: {id: (name, type, sort_order)}

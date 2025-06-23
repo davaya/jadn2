@@ -7,7 +7,7 @@ from types import ModuleType
 # JADN schema core class
 # ========================================================
 
-class JADN():
+class JADN:
 
     # Load constants from DEFS (definitions.py) into class variables
     for k, v in DEFS.__dict__.items():
@@ -16,8 +16,8 @@ class JADN():
 
     # Defer loading METASCHEMA until after the class is defined
 
-    def __init__(self):
-        self.schema = None
+    def __init__(self, schema: dict = None):
+        self.schema = schema
         self.source = None
         return
 
