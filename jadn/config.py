@@ -24,6 +24,7 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
         'cddl': pkg.cddl_style,
         'proto': pkg.proto_style,
         'xeto': pkg.xeto_style,
+        'atree': pkg.atree_style,
     }
 
     def _fixbool(v: str) -> str | bool:

@@ -108,7 +108,7 @@ def scandef(tn: str, tv: dict, nt: list, jss: dict, jssx: dict):
 
 
 def define_jadn_type(tn: str, tv: dict, jss: dict, jssx: dict) -> list:
-    omap = {'minItems': 'minLength', 'maxItems': 'maxLength'}
+    omap = {'minItems': 'minLength', 'maxItems': 'maxLength'}   # Map JSON Schema options to JADN options
     topts = {}
     tdesc = tv.get('description', '')
     fields = []
