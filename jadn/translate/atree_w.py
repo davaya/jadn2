@@ -1,6 +1,7 @@
 from asciitree import LeftAligned
 from asciitree.drawing import BoxStyle, BOX_BLANK, BOX_ASCII, BOX_LIGHT, BOX_HEAVY, BOX_DOUBLE
-from jadn.utils import build_deps
+from jadn.definitions import TypeName, CoreType, TypeOptions
+from jadn.utils import build_deps, jadn2typestr
 from typing import TextIO
 
 """
@@ -10,31 +11,73 @@ Translate JADN abstract schema to a tree diagram
 def atree_style(self) -> dict:
     # Return default column positions
     return {
-        'draw': 'light',     # blank, ascii, light, heavy, double
-        'indent': 1,
+        'draw': 'light',    # blank, ascii, light, heavy, double
+        'typedef': False,   # If true, include type definition (without fields)
     }
 
 
 def atree_dumps(self, style: dict = None) -> str:
     """
-    Translate JADN schema to/from CDDL
+    Translate JADN schema to ascii tree diagram
     """
-    omap = {
-        'blank': BoxStyle(gfx=BOX_BLANK, label_space=0, label_format='[{}]', indent=0),
-        'ascii': None,
-        'light': BoxStyle(gfx=BOX_LIGHT),
-        'heavy': BoxStyle(gfx=BOX_HEAVY),
-        'double': BoxStyle(gfx=BOX_DOUBLE)
-    }
-    tr = LeftAligned(draw=omap[style['draw']])
-
-    deps = build_deps(self.schema)
-
-    print(tr(tree))
+    if style['typedef']:
+        tx = {td[TypeName]: jadn2typestr(td[CoreType], td[TypeOptions]) for td in self.schema['types']}
+    tr = tree_style(style['draw'])
+    defs = build_deps(self.schema)  # Get all type definitions and their dependencies
+    refs = set(d for deps in defs.values() for d in deps)   # All referenced types
+    roots = set(defs) - refs        # Unreferenced types
+    tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
+    return tree
 
 
 def atree_dump(self, fp: TextIO, style: dict = None) -> None:
     fp.write(self.atree_dumps(style))
+
+# ========================================================
+# Support functions
+# ========================================================
+
+def build_tree(dependencies: dict[str, list], this: str) -> dict:
+    def bt(dependencies, this):
+        tree = {}
+        if this in dependencies:
+            for dep in dependencies[this]:
+                tree[dep] = bt(dependencies, dep)
+        return tree
+    return {' ' + this: bt(dependencies, this)}
+
+
+def tree_style(style: str) -> LeftAligned:
+    omap = {
+        'blank': BoxStyle(gfx=BOX_BLANK, label_space=0, label_format='[{}]', indent=0),
+        'ascii': BoxStyle(gfx=BOX_ASCII),
+        'light': BoxStyle(gfx=BOX_LIGHT),
+        'heavy': BoxStyle(gfx=BOX_HEAVY),
+        'double': BoxStyle(gfx=BOX_DOUBLE)
+    }
+    return LeftAligned(draw=omap[style])
+
+
+# =========================================================
+# Diagnostics
+# =========================================================
+if __name__ == '__main__':
+
+    dependencies = {
+        'asciitree': ['sometimes', 'just', 'trees', 'in'],
+        'sometimes': ['you'],
+        'you': [],
+        'just': ['want'],
+        'want': ['to', 'draw'],
+        'trees': [],
+        'in': ['your'],
+        'your': ['terminal'],
+        'terminal': []
+    }
+
+    tr = tree_style('double')
+    tree = build_tree(dependencies, 'asciitree')
+    print(tr(tree))
 
 
 __all__ = [
