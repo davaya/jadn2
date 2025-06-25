@@ -19,14 +19,14 @@ add_methods(xeto_rw)
 CONFIG = 'jadn_config.json'
 
 
-def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
+def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
 
     _load = {
         'jadn': pkg.jadn_load,
         'jidl': pkg.jidl_load,
         'xasd': pkg.xasd_load,
         'md':   pkg.md_load,
-        'jschema': pkg.jschema_load,
+        'json': pkg.jschema_load,
         'xsd': pkg.xsd_load,
         'cddl': pkg.cddl_load,
         'proto': pkg.proto_load,
@@ -39,7 +39,7 @@ def convert(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: 
         'xasd': pkg.xasd_dump,
         'md':   pkg.md_dump,
         'erd':  pkg.erd_dump,
-        'jschema': pkg.jschema_dump,
+        'json': pkg.jschema_dump,
         'xsd':  pkg.xsd_dump,
         'cddl': pkg.cddl_dump,
         'proto': pkg.proto_dump,
@@ -93,12 +93,12 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
             if not recursive:
                 dirs.clear()
             for file in files:
-                convert(pkg, format, style, path, file, output_dir)
+                convert_file(pkg, format, style, path, file, output_dir)
     else:
         # Otherwise process the named input file
         path, file = os.path.split(input)
         try:
-            convert(pkg, format, style, path, file, output_dir)
+            convert_file(pkg, format, style, path, file, output_dir)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)

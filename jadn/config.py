@@ -8,9 +8,9 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
     Combine style options from command line options, user defaults file, and format-defined defaults
 
     :param pkg: JADN schema package instance
-    :param format: serialized (lexical) format
-    :param args: arguments from command line
-    :param config: configuration file name containing default arguments
+    :param format: name of serialized (lexical) format
+    :param args: arguments from command line in a double-quoted string
+    :param config: name of JSON configuration file containing default arguments per format
     """
 
     _style = {
@@ -19,7 +19,7 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
         'xasd': pkg.xasd_style,
         'md': pkg.md_style,
         'erd': pkg.erd_style,
-        'jschema': pkg.jschema_style,
+        'json': pkg.jschema_style,
         'xsd': pkg.xsd_style,
         'cddl': pkg.cddl_style,
         'proto': pkg.proto_style,
@@ -38,7 +38,7 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
     try:
         cli_opts = {(x := arg.split(':'))[0].strip(): _fixbool(x[1].strip()) for arg in args.split(',') if arg}
     except IndexError:
-        err = f'Options for format "{format}"\n'
+        err  = f'Options for format "{format}"\n'
         err += f'Class: {json.dumps(format_opts, indent=2)}\n'
         err += f'Configuration file "{config}": {json.dumps(config_opts, indent=2)}' if config_opts else ''
         assert False, err
