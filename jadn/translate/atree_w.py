@@ -11,8 +11,8 @@ Translate JADN abstract schema to a tree diagram
 def atree_style(self) -> dict:
     # Return default column positions
     return {
-        'draw': 'light',    # blank, ascii, light, heavy, double
-        'typedef': False,   # If true, include type definition (without fields)
+        'draw': 'light',            # blank, ascii, light, heavy, double
+        'detail': 'conceptual',     # conceptual (name), logical (name+type), information (name+type+options)
     }
 
 
@@ -20,14 +20,20 @@ def atree_dumps(self, style: dict = None) -> str:
     """
     Translate JADN schema to ascii tree diagram
     """
-    if style['typedef']:
-        tx = {td[TypeName]: jadn2typestr(td[CoreType], td[TypeOptions]) for td in self.schema['types']}
+    def line(t: str, tx: dict[str, list], detail: str) -> str:
+        tree_col, name = t.rsplit(' ', maxsplit=1)
+        jtype = (f'{name}' if detail == 'conceptual' else
+                 f'{name} = {tx[name][CoreType]}' if detail == 'logical' else
+                 f'{name} = {jadn2typestr(tx[name][CoreType], tx[name][TypeOptions])}')
+        return ' '.join((tree_col, jtype))
+
     tr = tree_style(style['draw'])
     defs = build_deps(self.schema)  # Get all type definitions and their dependencies
     refs = set(d for deps in defs.values() for d in deps)   # All referenced types
     roots = set(defs) - refs        # Unreferenced types
     tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
-    return tree
+    tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.schema['types']}
+    return '\n'.join([line(t, tx, style['detail']) for t in tree.split('\n')])
 
 
 def atree_dump(self, fp: TextIO, style: dict = None) -> None:
@@ -66,13 +72,13 @@ if __name__ == '__main__':
     dependencies = {
         'asciitree': ['sometimes', 'just', 'trees', 'in'],
         'sometimes': ['you'],
-        'you': [],
-        'just': ['want'],
-        'want': ['to', 'draw'],
-        'trees': [],
-        'in': ['your'],
-        'your': ['terminal'],
-        'terminal': []
+              'you': [],
+             'just': ['want'],
+             'want': ['to', 'draw'],
+            'trees': [],
+               'in': ['your'],
+             'your': ['terminal'],
+         'terminal': []
     }
 
     tr = tree_style('double')
