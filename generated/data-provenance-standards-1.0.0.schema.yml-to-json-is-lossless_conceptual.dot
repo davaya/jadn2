@@ -1,0 +1,204 @@
+# package: https://dataandtrustalliance.org/data-provenance-standard-1.0.0.schema/
+# jadn_version: http://oasis-open.org/openc2/jadn/v2.0/schema/
+# title: Data Provenance Standard 1.0.0
+# description: The Data Provenance Standard is made up of three groups of metadata elements: Source, Provenance, and Use.
+# roots: ['Root']
+# config: {'$MaxString': 1000, '$TypeName': '^[a-zA-Z][-._A-Za-z0-9]{0,63}$', '$FieldName': '^[$a-z][-_$A-Za-z0-9]{0,63}$'}
+
+digraph G {
+  graph [fontname=Arial, fontsize=12];
+  node [fontname=Arial, fontsize=8, shape=plain, style=filled, fillcolor=lightskyblue1];
+  edge [fontname=Arial, fontsize=7, arrowsize=0.5, labelangle=45.0, labeldistance=0.9];
+  bgcolor="transparent";
+
+n0 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Root  </b></td></tr>
+</table>>]
+
+n1 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Root.provenance  </b></td></tr>
+</table>>]
+
+n2 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Format  </b></td></tr>
+</table>>]
+
+n3 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Generation-method  </b></td></tr>
+</table>>]
+
+n4 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Generation-method-item  </b></td></tr>
+</table>>]
+
+n5 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Root.provenance.generation-period  </b></td></tr>
+</table>>]
+
+n6 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Origin  </b></td></tr>
+</table>>]
+
+n7 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Origin-item  </b></td></tr>
+</table>>]
+
+n8 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Address  </b></td></tr>
+</table>>]
+
+n9 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Origin-geography  </b></td></tr>
+</table>>]
+
+n10 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Origin-geography-item  </b></td></tr>
+</table>>]
+
+n11 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Root.source  </b></td></tr>
+</table>>]
+
+n12 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Issuer  </b></td></tr>
+</table>>]
+
+n13 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Issuer-item  </b></td></tr>
+</table>>]
+
+n14 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Root.use  </b></td></tr>
+</table>>]
+
+n15 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Classification  </b></td></tr>
+</table>>]
+
+n16 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Classification-item  </b></td></tr>
+</table>>]
+
+n17 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Classification-item.regulation  </b></td></tr>
+</table>>]
+
+n18 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Consents  </b></td></tr>
+</table>>]
+
+n19 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Copyright  </b></td></tr>
+</table>>]
+
+n20 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Intended-purpose  </b></td></tr>
+</table>>]
+
+n21 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Intended-purpose-item  </b></td></tr>
+</table>>]
+
+n22 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  License  </b></td></tr>
+</table>>]
+
+n23 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Patent  </b></td></tr>
+</table>>]
+
+n24 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Privacy-enhancing  </b></td></tr>
+</table>>]
+
+n25 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Privacy-enhancing-item  </b></td></tr>
+</table>>]
+
+n26 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Parameters  </b></td></tr>
+</table>>]
+
+n27 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Result  </b></td></tr>
+</table>>]
+
+n28 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Privacy-enhancing-item.tool-category  </b></td></tr>
+</table>>]
+
+n29 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Processing-excluded  </b></td></tr>
+</table>>]
+
+n30 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Processing-excluded-item  </b></td></tr>
+</table>>]
+
+n31 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Processing-included  </b></td></tr>
+</table>>]
+
+n32 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Processing-included-item  </b></td></tr>
+</table>>]
+
+n33 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Storage-allowed  </b></td></tr>
+</table>>]
+
+n34 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Storage-allowed-item  </b></td></tr>
+</table>>]
+
+n35 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Storage-forbidden  </b></td></tr>
+</table>>]
+
+n36 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Storage-forbidden-item  </b></td></tr>
+</table>>]
+
+n37 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Trademark  </b></td></tr>
+</table>>]
+
+  n0 -> n1 [label=provenance, headlabel="1", taillabel="1"]
+  n0 -> n11 [label=source, headlabel="1", taillabel="1"]
+  n0 -> n14 [label=use, headlabel="1", taillabel="1"]
+  n1 -> n2 [label=format, headlabel="0..1", taillabel="1"]
+  n1 -> n3 [label=generation_method, headlabel="1", taillabel="1"]
+  n1 -> n5 [label=generation_period, headlabel="0..1", taillabel="1"]
+  n1 -> n6 [label=origin, headlabel="0..1", taillabel="1"]
+  n1 -> n9 [label=origin_geography, headlabel="1", taillabel="1"]
+  n3 -> n4 [label=value, headlabel="1", taillabel="1"]
+  n6 -> n7 [label=value, headlabel="1", taillabel="1"]
+  n7 -> n8 [label=address, headlabel="0..1", taillabel="1"]
+  n9 -> n10 [label=value, headlabel="1", taillabel="1"]
+  n11 -> n12 [label=issuer, headlabel="1", taillabel="1"]
+  n12 -> n13 [label=value, headlabel="1", taillabel="1"]
+  n13 -> n8 [label=address, headlabel="0..1", taillabel="1"]
+  n14 -> n15 [label=classification, headlabel="0..1", taillabel="1"]
+  n14 -> n18 [label=consents, headlabel="0..1", taillabel="1"]
+  n14 -> n19 [label=copyright, headlabel="0..1", taillabel="1"]
+  n14 -> n20 [label=intended_purpose, headlabel="1", taillabel="1"]
+  n14 -> n22 [label=license, headlabel="0..1", taillabel="1"]
+  n14 -> n23 [label=patent, headlabel="0..1", taillabel="1"]
+  n14 -> n24 [label=privacy_enhancing, headlabel="0..1", taillabel="1"]
+  n14 -> n29 [label=processing_excluded, headlabel="0..1", taillabel="1"]
+  n14 -> n31 [label=processing_included, headlabel="0..1", taillabel="1"]
+  n14 -> n33 [label=storage_allowed, headlabel="0..1", taillabel="1"]
+  n14 -> n35 [label=storage_forbidden, headlabel="0..1", taillabel="1"]
+  n14 -> n37 [label=trademark, headlabel="0..1", taillabel="1"]
+  n15 -> n16 [label=value, headlabel="1", taillabel="1"]
+  n16 -> n17 [label=regulation, headlabel="1", taillabel="1"]
+  n20 -> n21 [label=value, headlabel="1", taillabel="1"]
+  n24 -> n25 [label=value, headlabel="1", taillabel="1"]
+  n25 -> n26 [label=parameters, headlabel="0..1", taillabel="1"]
+  n25 -> n27 [label=result, headlabel="0..1", taillabel="1"]
+  n25 -> n28 [label=tool_category, headlabel="0..1", taillabel="1"]
+  n29 -> n30 [label=value, headlabel="1", taillabel="1"]
+  n31 -> n32 [label=value, headlabel="1", taillabel="1"]
+  n33 -> n34 [label=value, headlabel="1", taillabel="1"]
+  n35 -> n36 [label=value, headlabel="1", taillabel="1"]
+}

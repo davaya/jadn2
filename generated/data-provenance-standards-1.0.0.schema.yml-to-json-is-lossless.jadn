@@ -11,14 +11,12 @@
       "$FieldName": "^[$a-z][-_$A-Za-z0-9]{0,63}$"
     }
   },
-
   "types": [
     ["Root", "Record", [], "The Data Provenance Standard is made up of three groups of metadata elements: Source, Provenance, and Use.", [
       [1, "provenance", "Root.provenance", [], "This describes the provenance of the dataset."],
       [2, "source", "Root.source", [], "This describes a dataset and the source of the dataset."],
       [3, "use", "Root.use", [], "This group describes legal use and restrictions."]
     ]],
-
     ["Root.provenance", "Record", [], "This describes the provenance of the dataset.", [
       [1, "date", "String", [], "The date when the dataset was compiled or created, providing a temporal context for the data."],
       [2, "format", "Format", ["[0"], "Describes the nature of the data within the dataset, such as numerical, textual, or multimedia, helping users understand what kind of information is contained within the file or dataset."],
@@ -30,38 +28,28 @@
       [8, "source", "String", ["[0"], "Identifies where the metadata for any source datasets that contribute to the current dataset can be found, establishing lineage and dependencies. This field establishes lineage."],
       [9, "sub-provenance", "String", ["[0"]]
     ]],
-
-    ["Format", "ArrayOf", ["{0", "*String"], "Describes the nature of the data within the dataset, such as numerical, textual, or multimedia, helping users understand what kind of information is contained within the file or dataset."],
-
-    ["Generation-method", "ArrayOf", ["{1", "*Generation-method-item"], "The methodology or procedures used to collect, generate, or compile the data, giving insight into its reliability and validity."],
-
+    ["Format", "ArrayOf", ["*String", "{0"], "Describes the nature of the data within the dataset, such as numerical, textual, or multimedia, helping users understand what kind of information is contained within the file or dataset."],
+    ["Generation-method", "ArrayOf", ["*Generation-method-item", "{1"], "The methodology or procedures used to collect, generate, or compile the data, giving insight into its reliability and validity."],
     ["Generation-method-item", "Record", [], "", [
       [1, "code", "String"],
       [2, "description", "String", ["[0"]],
       [3, "system", "String", ["[0"]]
     ]],
-
     ["Root.provenance.generation-period", "Record", [], "The span of time during which the data within the dataset was collected or generated, offering insight into the dataset's timeliness and relevance.", [
       [1, "end", "String", ["[0"], "End date/time"],
       [2, "start", "String", ["[0"], "Start date/time"]
     ]],
-
-    ["Origin", "ArrayOf", ["{0", "*Origin-item"], "If the data originates from a different organization than the one who issued the dataset, this field identifies the original source's legal name."],
-
+    ["Origin", "ArrayOf", ["*Origin-item", "{0"], "If the data originates from a different organization than the one who issued the dataset, this field identifies the original source's legal name."],
     ["Origin-item", "Record", [], "", [
       [1, "address", "Address", ["[0"]],
       [2, "name", "String"]
     ]],
-
-    ["Address", "ArrayOf", ["{0", "*String"]],
-
-    ["Origin-geography", "ArrayOf", ["{1", "*Origin-geography-item"], "The geographical location where the data was originally collected, which can be important for compliance with regional laws and understanding the data's context."],
-
+    ["Address", "ArrayOf", ["*String", "{0"]],
+    ["Origin-geography", "ArrayOf", ["*Origin-geography-item", "{1"], "The geographical location where the data was originally collected, which can be important for compliance with regional laws and understanding the data's context."],
     ["Origin-geography-item", "Record", [], "", [
       [1, "country", "String"],
       [2, "state", "String", ["[0"]]
     ]],
-
     ["Root.source", "Record", [], "This describes a dataset and the source of the dataset.", [
       [1, "description", "String", [], "Contains a detailed narrative that explains the contents, scope, and purpose of the dataset. It provides essential contextual information that helps users understand what the data represents, how it was collected, and any limitations or recommended uses."],
       [2, "id", "String", [], "A distinct identifier (such as a UUID) assigned to the dataset's metadata to uniquely distinguish it from others, ensuring no confusion or overlap."],
@@ -70,14 +58,11 @@
       [5, "title", "String", [], "The official name of the dataset, which should be descriptive and help easily identify the dataset's content and purpose."],
       [6, "version", "String", [], "Specifies the version of the schema or standards used to define the metadata for this dataset, ensuring consistency and compatibility over time."]
     ]],
-
-    ["Issuer", "ArrayOf", ["{1", "*Issuer-item"], "The legal entity responsible for creating the dataset, providing accountability and a point of contact for inquiries."],
-
+    ["Issuer", "ArrayOf", ["*Issuer-item", "{1"], "The legal entity responsible for creating the dataset, providing accountability and a point of contact for inquiries."],
     ["Issuer-item", "Record", [], "", [
       [1, "address", "Address", ["[0"]],
       [2, "name", "String"]
     ]],
-
     ["Root.use", "Record", [], "This group describes legal use and restrictions.", [
       [1, "classification", "Classification", ["[0"], "Indicate if the dataset includes data falling into the confidentiality classification. Each classifier must be evaluated as true/false/unknown."],
       [2, "consents", "Consents", ["[0"], "Specifies where consent documentation or agreements related to the data can be found, ensuring legal compliance and regulatory use. This element must be populated when Privacy Consent is appropriate. When populated it points to either one Privacy Consent Policy that all individuals in the dataset agreed to, or one Privacy Policy for each individual in the dataset with that individual's signature."],
@@ -92,84 +77,61 @@
       [11, "storage-forbidden", "Storage-forbidden", ["[0"], "Specifies where the data may not be stored, crucial for compliance with data sovereignty laws."],
       [12, "trademark", "Trademark", ["[0"], "Indicates whether the dataset contains proprietary information that is covered with a Trademark, and the terms of said Trademark."]
     ]],
-
-    ["Classification", "ArrayOf", ["{0", "*Classification-item"], "Indicate if the dataset includes data falling into the confidentiality classification. Each classifier must be evaluated as true/false/unknown."],
-
+    ["Classification", "ArrayOf", ["*Classification-item", "{0"], "Indicate if the dataset includes data falling into the confidentiality classification. Each classifier must be evaluated as true/false/unknown."],
     ["Classification-item", "Record", [], "", [
       [1, "evaluated", "Boolean"],
       [2, "regulation", "Classification-item.regulation"],
       [3, "tool", "String", ["[0"]]
     ]],
-
     ["Classification-item.regulation", "Record", [], "", [
       [1, "code", "String"],
       [2, "description", "String", ["[0"]],
       [3, "system", "String", ["[0"]]
     ]],
-
-    ["Consents", "ArrayOf", ["{0", "*String"], "Specifies where consent documentation or agreements related to the data can be found, ensuring legal compliance and regulatory use. This element must be populated when Privacy Consent is appropriate. When populated it points to either one Privacy Consent Policy that all individuals in the dataset agreed to, or one Privacy Policy for each individual in the dataset with that individual's signature."],
-
-    ["Copyright", "ArrayOf", ["{0", "*String"], "Indicates whether the dataset contains proprietary information that is covered with a Copyright and the terms of said Copyright."],
-
-    ["Intended-purpose", "ArrayOf", ["{1", "*Intended-purpose-item"], "Describes the purpose for which the dataset was created, guiding users on its intended use and potential applications against identified use cases. List all that apply from the Data Use codes that apply. Additional codes can be included with descriptions."],
-
+    ["Consents", "ArrayOf", ["*String", "{0"], "Specifies where consent documentation or agreements related to the data can be found, ensuring legal compliance and regulatory use. This element must be populated when Privacy Consent is appropriate. When populated it points to either one Privacy Consent Policy that all individuals in the dataset agreed to, or one Privacy Policy for each individual in the dataset with that individual's signature."],
+    ["Copyright", "ArrayOf", ["*String", "{0"], "Indicates whether the dataset contains proprietary information that is covered with a Copyright and the terms of said Copyright."],
+    ["Intended-purpose", "ArrayOf", ["*Intended-purpose-item", "{1"], "Describes the purpose for which the dataset was created, guiding users on its intended use and potential applications against identified use cases. List all that apply from the Data Use codes that apply. Additional codes can be included with descriptions."],
     ["Intended-purpose-item", "Record", [], "", [
       [1, "code", "String"],
       [2, "description", "String"],
       [3, "system", "String", ["[0"]]
     ]],
-
-    ["License", "ArrayOf", ["{0", "*String"], "Details the location or point of contact for identifying the terms under which the dataset can be used, including any restrictions or obligations, clarifying legal use and distribution rights. License may be an End User License Agreement (EULA), subject to Data Use Agreement (DUA)."],
-
-    ["Patent", "ArrayOf", ["{0", "*String"], "Indicates whether the dataset contains proprietary information that is covered with a Patent and said Patent number."],
-
-    ["Privacy-enhancing", "ArrayOf", ["{0", "*Privacy-enhancing-item"], "Indicates whether techniques were used to protect personally identifiable information (PII) or sensitive personal information (SPI), highlighting the dataset's privacy considerations."],
-
+    ["License", "ArrayOf", ["*String", "{0"], "Details the location or point of contact for identifying the terms under which the dataset can be used, including any restrictions or obligations, clarifying legal use and distribution rights. License may be an End User License Agreement (EULA), subject to Data Use Agreement (DUA)."],
+    ["Patent", "ArrayOf", ["*String", "{0"], "Indicates whether the dataset contains proprietary information that is covered with a Patent and said Patent number."],
+    ["Privacy-enhancing", "ArrayOf", ["*Privacy-enhancing-item", "{0"], "Indicates whether techniques were used to protect personally identifiable information (PII) or sensitive personal information (SPI), highlighting the dataset's privacy considerations."],
     ["Privacy-enhancing-item", "Record", [], "", [
       [1, "parameters", "Parameters", ["[0"]],
       [2, "result", "Result", ["[0"]],
       [3, "tool-category", "Privacy-enhancing-item.tool-category", ["[0"]],
       [4, "tool-used", "String", ["[0"]]
     ]],
-
-    ["Parameters", "ArrayOf", ["{0", "*String"]],
-
-    ["Result", "ArrayOf", ["{0", "*String"]],
-
+    ["Parameters", "ArrayOf", ["*String", "{0"]],
+    ["Result", "ArrayOf", ["*String", "{0"]],
     ["Privacy-enhancing-item.tool-category", "Record", [], "", [
       [1, "code", "String"],
       [2, "description", "String", ["[0"]],
       [3, "system", "String", ["[0"]]
     ]],
-
-    ["Processing-excluded", "ArrayOf", ["{0", "*Processing-excluded-item"], "Defines the geographical boundaries within which the data cannot be processed, often for legal or regulatory reasons."],
-
+    ["Processing-excluded", "ArrayOf", ["*Processing-excluded-item", "{0"], "Defines the geographical boundaries within which the data cannot be processed, often for legal or regulatory reasons."],
     ["Processing-excluded-item", "Record", [], "", [
       [1, "country", "String"],
       [2, "state", "String", ["[0"]]
     ]],
-
-    ["Processing-included", "ArrayOf", ["{0", "*Processing-included-item"], "Defines the geographical boundaries within which the data can be processed, often for legal or regulatory reasons."],
-
+    ["Processing-included", "ArrayOf", ["*Processing-included-item", "{0"], "Defines the geographical boundaries within which the data can be processed, often for legal or regulatory reasons."],
     ["Processing-included-item", "Record", [], "", [
       [1, "country", "String"],
       [2, "state", "String", ["[0"]]
     ]],
-
-    ["Storage-allowed", "ArrayOf", ["{0", "*Storage-allowed-item"], "Specifies where the data may be stored, crucial for compliance with data sovereignty laws."],
-
+    ["Storage-allowed", "ArrayOf", ["*Storage-allowed-item", "{0"], "Specifies where the data may be stored, crucial for compliance with data sovereignty laws."],
     ["Storage-allowed-item", "Record", [], "", [
       [1, "country", "String"],
       [2, "state", "String", ["[0"]]
     ]],
-
-    ["Storage-forbidden", "ArrayOf", ["{0", "*Storage-forbidden-item"], "Specifies where the data may not be stored, crucial for compliance with data sovereignty laws."],
-
+    ["Storage-forbidden", "ArrayOf", ["*Storage-forbidden-item", "{0"], "Specifies where the data may not be stored, crucial for compliance with data sovereignty laws."],
     ["Storage-forbidden-item", "Record", [], "", [
       [1, "country", "String"],
       [2, "state", "String", ["[0"]]
     ]],
-
-    ["Trademark", "ArrayOf", ["{0", "*String"], "Indicates whether the dataset contains proprietary information that is covered with a Trademark, and the terms of said Trademark."]
+    ["Trademark", "ArrayOf", ["*String", "{0"], "Indicates whether the dataset contains proprietary information that is covered with a Trademark, and the terms of said Trademark."]
   ]
 }
