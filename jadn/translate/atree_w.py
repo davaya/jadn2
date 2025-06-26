@@ -43,25 +43,25 @@ def atree_dump(self, fp: TextIO, style: dict = None) -> None:
 # Support functions
 # ========================================================
 
-def build_tree(dependencies: dict[str, list], this: str) -> dict:
-    def bt(dependencies, this):
+def build_tree(dependencies: dict[str, list], root: str) -> dict:
+    def bt(deps, this):
         tree = {}
-        if this in dependencies:
-            for dep in dependencies[this]:
-                tree[dep] = bt(dependencies, dep)
+        if this in deps:
+            for dep in deps[this]:
+                tree[dep] = bt(deps, dep)
         return tree
-    return {' ' + this: bt(dependencies, this)}
+    return {' ' + root: bt(dependencies, root)}
 
 
 def tree_style(style: str) -> LeftAligned:
-    omap = {
+    smap = {
         'blank': BoxStyle(gfx=BOX_BLANK, label_space=0, label_format='[{}]', indent=0),
         'ascii': BoxStyle(gfx=BOX_ASCII),
         'light': BoxStyle(gfx=BOX_LIGHT),
         'heavy': BoxStyle(gfx=BOX_HEAVY),
         'double': BoxStyle(gfx=BOX_DOUBLE)
     }
-    return LeftAligned(draw=omap[style])
+    return LeftAligned(draw=smap[style])
 
 
 # =========================================================
@@ -81,9 +81,9 @@ if __name__ == '__main__':
          'terminal': []
     }
 
-    tr = tree_style('double')
+    ts = tree_style('double')
     tree = build_tree(dependencies, 'asciitree')
-    print(tr(tree))
+    print(ts(tree))
 
 
 __all__ = [
