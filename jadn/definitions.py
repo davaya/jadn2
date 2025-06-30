@@ -252,10 +252,4 @@ META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'com
 #===============================================
 # Pre-computed constant class variables     # TODO: investigate closure instead of class vars
 #===============================================
-class DEFS:
-    OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)           # Defined Option table: {id: (name, type, sort_order)}
-    OPTX = {v[0]: k for k, v in OPTS.items()}       # Generated Option reverse index: {name: id}
-    OPTO = {v[0]: v[2] for k, v in OPTS.items()}    # Generated canonical option sort order {name: order}
-    BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
-    DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-    METASCHEMA = None       # Placeholder for loading JADN metaschema
+

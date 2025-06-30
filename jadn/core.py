@@ -1,6 +1,7 @@
 import os
-from jadn.definitions import DEFS
+from jadn.definitions import TYPE_OPTIONS, FIELD_OPTIONS
 from jadn.convert import jadn_rw
+from typing import TextIO, BinaryIO
 from types import ModuleType
 
 # ========================================================
@@ -8,18 +9,33 @@ from types import ModuleType
 # ========================================================
 
 class JADN:
-
-    # Load constants from DEFS (definitions.py) into class variables
-    for k, v in DEFS.__dict__.items():
-        if not k.startswith('__'):
-            locals()[k] = v
+    # Precompute constants
+    OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
+    OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
+    OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}
+    BOOL_OPTS = {'/', }  # Full-key Boolean options, present=True (e.g., /format)
+    DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+    METASCHEMA = None  # Placeholder for loading JADN metaschema
 
     # Defer loading METASCHEMA until after the class is defined
 
-    def __init__(self, schema: dict = None):
-        self.schema = schema
-        self.source = None
-        return
+    def __init__(self):
+        self.package = {'': None}
+
+    def style(self) -> dict:
+        return {}
+
+    def loads(self, message: str | bytes) -> None:
+        pass
+
+    def load(self, fp: TextIO | BinaryIO) -> None:
+        self.loads(fp.read())
+
+    def dumps(self, style: dict = {}) -> str | bytes:
+        return ''
+
+    def dump(self, fp: TextIO | BinaryIO, style: dict = {}) -> None:
+        fp.write(self.dumps(style))
 
     def validate(self) -> None:
         """
