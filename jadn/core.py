@@ -20,21 +20,21 @@ class JADN:
     # Defer loading METASCHEMA until after the class is defined
 
     def __init__(self):
-        self.package = {'': None}
+        self.package = {None: {}}   # {package: {source:x, schema:y, ...}}
 
     def style(self) -> dict:
         return {}
 
-    def loads(self, message: str | bytes) -> None:
+    def schema_loads(self, message: str | bytes) -> None:
         pass
 
-    def load(self, fp: TextIO | BinaryIO) -> None:
+    def schema_load(self, fp: TextIO | BinaryIO) -> None:
         self.loads(fp.read())
 
-    def dumps(self, style: dict = {}) -> str | bytes:
+    def schema_dumps(self, style: dict = {}) -> str | bytes:
         return ''
 
-    def dump(self, fp: TextIO | BinaryIO, style: dict = {}) -> None:
+    def schema_dump(self, fp: TextIO | BinaryIO, style: dict = {}) -> None:
         fp.write(self.dumps(style))
 
     def validate(self) -> None:

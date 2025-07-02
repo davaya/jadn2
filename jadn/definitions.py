@@ -249,7 +249,3 @@ EXTENSIONS = {
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
-#===============================================
-# Pre-computed constant class variables     # TODO: investigate closure instead of class vars
-#===============================================
-

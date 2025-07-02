@@ -1,52 +1,13 @@
 import argparse
 import sys
 import os
-from jadn import JADN, add_methods
 from jadn.config import style_args, style_fname
-from jadn.convert import jidl_rw, xasd_rw, md_rw, erd_w
-from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw, atree_w
-
-add_methods(jidl_rw)
-add_methods(xasd_rw)
-add_methods(md_rw)
-add_methods(erd_w)
-add_methods(jschema_rw)
-add_methods(xsd_rw)
-add_methods(cddl_rw)
-add_methods(proto_rw)
-add_methods(xeto_rw)
-add_methods(atree_w)
+from jadn.convert import JIDL, XASD
 
 CONFIG = 'jadn_config.json'
 
 
 def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
-
-    _load = {
-        'jadn': pkg.jadn_load,
-        'jidl': pkg.jidl_load,
-        'xasd': pkg.xasd_load,
-        'md':   pkg.md_load,
-        'json': pkg.jschema_load,
-        'xsd': pkg.xsd_load,
-        'cddl': pkg.cddl_load,
-        'proto': pkg.proto_load,
-        'xeto': pkg.xeto_load,
-    }
-
-    _dump = {
-        'jadn': pkg.jadn_dump,
-        'jidl': pkg.jidl_dump,
-        'xasd': pkg.xasd_dump,
-        'md':   pkg.md_dump,
-        'erd':  pkg.erd_dump,
-        'json': pkg.jschema_dump,
-        'xsd':  pkg.xsd_dump,
-        'cddl': pkg.cddl_dump,
-        'proto': pkg.proto_dump,
-        'xeto': pkg.xeto_dump,
-        'atree': pkg.atree_dump,
-    }
 
     if outdir:
         print(infile)  # Don't print if destination is stdout
