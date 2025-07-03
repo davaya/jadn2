@@ -1,6 +1,6 @@
 import os
 from jadn.definitions import TYPE_OPTIONS, FIELD_OPTIONS
-from jadn.convert import jadn_rw
+# from jadn.convert import JADN
 from typing import TextIO, BinaryIO
 from types import ModuleType
 
@@ -8,7 +8,7 @@ from types import ModuleType
 # JADN schema core class
 # ========================================================
 
-class JADN:
+class JADN_Core:
     # Precompute constants
     OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
     OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
@@ -29,13 +29,13 @@ class JADN:
         pass
 
     def schema_load(self, fp: TextIO | BinaryIO) -> None:
-        self.loads(fp.read())
+        self.schema_loads(fp.read())
 
     def schema_dumps(self, style: dict = {}) -> str | bytes:
         return ''
 
     def schema_dump(self, fp: TextIO | BinaryIO, style: dict = {}) -> None:
-        fp.write(self.dumps(style))
+        fp.write(self.schema_dumps(style))
 
     def validate(self) -> None:
         """
@@ -43,21 +43,13 @@ class JADN:
         """
         pass
 
-
-# Dynamically add methods listed in module's __all__ to JADN class
-def add_methods(mod: ModuleType) -> None:
-    for f in mod.__all__:
-        setattr(JADN, f, getattr(mod, f))
-
-
 # =========================================================
 # Load METASCHEMA class variable now that the JADN class exists
 # TODO: figure out why this loads twice
 # =========================================================
-add_methods(jadn_rw)    # Register JSON loader to read metaschema
-with open(os.path.join(DEFS.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-    (tmp := JADN()).jadn_load(fp)
-    JADN.METASCHEMA = tmp.schema  # Load from JSON format using a temporary instance
+with open(os.path.join(JADN_Core.DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
+    (tmp := JADN_Core()).schema_load(fp)  # convert/jadn_rw
+    JADN_Core.METASCHEMA = tmp.package  # Load from JSON format using a temporary instance
 
 
 # =========================================================

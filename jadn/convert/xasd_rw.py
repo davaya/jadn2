@@ -7,6 +7,7 @@ from jadn import JADN
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
                               FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES)
 
+
 class XASD(JADN):
     def style(self) -> dict:
         return {}

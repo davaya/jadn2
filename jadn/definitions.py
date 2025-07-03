@@ -216,7 +216,7 @@ FORMAT_SERIALIZE = {        # Data representation formats for one or more serial
     'ipv6-addr': 'Binary',      # IPv6 text representation, RFC 4291 Section 2.2
     'ipv4-net': 'Array',        # IPv4 Network Address CIDR text string, RFC 4632 Section 3.1
     'ipv6-net': 'Array',        # IPv6 Network Address CIDR text string, RFC 4291 Section 2.3
-    'b': 'Binary',              # Base64url - RFC 4648 Section 5 (default text representation of Binary type)
+    'b64': 'Binary',            # Base64url - RFC 4648 Section 5 (default text representation of Binary type)
     'x': 'Binary',              # Hex - base16 - lowercase out, case-folding in
     'X': 'Binary',              # Hex - RFC 4648 Section 8 - uppercase only
     'i#': 'Integer',            # n-bit signed integer, n should be 8*2^N (8, 16, 32, 64, ...)
