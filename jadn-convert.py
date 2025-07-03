@@ -2,12 +2,16 @@ import argparse
 import sys
 import os
 from jadn.config import style_args, style_fname
-from jadn.convert import JIDL, XASD
+from jadn import JIDL, XASD
 
 CONFIG = 'jadn_config.json'
 
 
 def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
+    klass = {
+        'jidl': JIDL(),
+        'xasd': XASD()
+    }
 
     if outdir:
         print(infile)  # Don't print if destination is stdout
@@ -15,9 +19,10 @@ def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, out
     # Read lexical value into information value
     fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
-    if ext in (_load):
+    if ext in (klass):
+        pkg = klass[ext]
         with open(os.path.join(path, infile), 'r') as fp:
-            _load[ext](fp)
+            pkg.schema_load(fp)
 
     # Validate information value against IM
     pkg.validate()
@@ -45,7 +50,6 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
     """
 
     # print(f'Installed JADN version: {jadn.__version__}\n')
-    pkg = JADN()
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)

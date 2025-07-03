@@ -1,9 +1,8 @@
 import json
 import os
-from jadn import JADN
 
 
-def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
+def style_args(self, format: str, args: str, config: str = '') -> dict:
     """
     Combine style options from command line options, user defaults file, and format-defined defaults
 
@@ -13,24 +12,10 @@ def style_args(pkg: JADN, format: str, args: str, config: str = '') -> dict:
     :param config: name of JSON configuration file containing default arguments per format
     """
 
-    _style = {
-        'jadn': pkg.jadn_style,
-        'jidl': pkg.jidl_style,
-        'xasd': pkg.xasd_style,
-        'md': pkg.md_style,
-        'erd': pkg.erd_style,
-        'json': pkg.jschema_style,
-        'xsd': pkg.xsd_style,
-        'cddl': pkg.cddl_style,
-        'proto': pkg.proto_style,
-        'xeto': pkg.xeto_style,
-        'atree': pkg.atree_style,
-    }
-
     def _fixbool(v: str) -> str | bool:
         return False if v.lower() == 'false' else True if v.lower() == 'true' else v
 
-    format_opts = _style[format]()
+    format_opts = self.style()
     config_opts = {}
     if os.path.isfile(config):
         with open(config) as fp:
