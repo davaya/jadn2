@@ -1,3 +1,3 @@
-# from core import JADN_Core
+from jadn.core import JADNCore
 
 __version__ = '0.8.0'

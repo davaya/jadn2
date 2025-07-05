@@ -42,6 +42,14 @@ PRIMITIVE_TYPES = (
     'String',
 )
 
+PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
+    'Binary': bytes,
+    'Boolean': bool,
+    'Integer': int,
+    'Number': float,
+    'String': str,
+}
+
 COMPOUND_TYPES = (
     'Array',
     'ArrayOf',          # (value_type): instance is a container but definition has no fields
@@ -126,14 +134,7 @@ FIELD_OPTIONS = {
     0x4e: ('not', 'Boolean', 33),           # 'N', field is not an instance of FieldType
 }
 
-PYTHON_TYPES = {            # Programming language types used to hold instances of IM types
-    'Binary': bytes,
-    'Boolean': bool,
-    'Integer': int,
-    'Number': float,
-    'String': str,
-}
-
+BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
 MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 
@@ -249,3 +250,7 @@ EXTENSIONS = {
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
+# Precomputed constants
+OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
+OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
+OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}

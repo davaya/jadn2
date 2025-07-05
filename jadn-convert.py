@@ -2,15 +2,20 @@ import argparse
 import sys
 import os
 from jadn.config import style_args, style_fname
-from jadn import JIDL, XASD
+from jadn.convert import JADN, JIDL, XASD, MD, ERD
+from jadn.translate import ATREE
 
 CONFIG = 'jadn_config.json'
 
 
-def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
+def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: str) -> None:
     klass = {
+        'jadn': JADN(),
         'jidl': JIDL(),
-        'xasd': XASD()
+        'xasd': XASD(),
+        'md': MD(),
+        'erd': ERD(),
+        'atree': ATREE()
     }
 
     if outdir:
@@ -24,20 +29,20 @@ def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, out
         with open(os.path.join(path, infile), 'r') as fp:
             pkg.schema_load(fp)
 
-    # Validate information value against IM
-    pkg.validate()
+        # Validate information value against IM
+        pkg.validate()
 
-    # Serialize information value to lexical value
-    style = style_args(pkg, format, style, CONFIG)      # combine style from args with format defaults
-    if format in _dump:
-        if outdir:
-            with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
-                _dump[format](fp, style)
+        # Serialize information value to lexical value
+        if format in klass:
+            style = style_args(klass[format], format, style_cmd, CONFIG)    # style from format, config, args
+            if outdir:
+                with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
+                    klass[format].schema_dump(fp, pkg, style)
+            else:
+                klass[format].schema_dump(sys.stdout, pkg, style)
         else:
-            _dump[format](sys.stdout, style)
-    else:
-        print(f'Unknown output format "{format}"')
-        sys.exit(2)
+            print(f'Unknown output format "{format}"')
+            sys.exit(2)
 
 
 def main(input: str, output_dir: str, format: str, style: str, recursive: bool) -> None:
@@ -60,12 +65,12 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
             if not recursive:
                 dirs.clear()
             for file in files:
-                convert_file(pkg, format, style, path, file, output_dir)
+                convert_file(format, style, path, file, output_dir)
     else:
         # Otherwise process the named input file
         path, file = os.path.split(input)
         try:
-            convert_file(pkg, format, style, path, file, output_dir)
+            convert_file(format, style, path, file, output_dir)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)

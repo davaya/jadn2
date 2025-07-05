@@ -1,19 +1,20 @@
 """
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
-from typing import TextIO, Union
+from io import BytesIO
+from typing import Union
 from lxml import etree as ET
-from jadn import JADN
+from jadn import JADNCore
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
-                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES)
+                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES, OPTS, OPTX)
 
 
-class XASD(JADN):
+class XASD(JADNCore):
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, fp: TextIO) -> None:
-        tree = ET.parse(fp)
+    def schema_loads(self, xml_str: str) -> None:
+        tree = ET.parse(BytesIO(xml_str.encode('utf8')))
         root = tree.getroot()
         assert root.tag == 'Schema'
         meta = {}
@@ -24,15 +25,18 @@ class XASD(JADN):
             elif element.tag == 'Types':
                 for el in element:
                     types.append(_get_type(self, el))
-        self.schema = {'meta': meta, 'types': types}
+        self.SCHEMA = {'meta': meta, 'types': types}
 
-    def schema_dumps(self, style: dict = None) -> str:
+    def schema_dumps(self, pkg, style: dict = None) -> str:
+        self.SCHEMA = pkg.SCHEMA
+        self.SOURCE = pkg.SOURCE
+
         def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
             return k.replace('/', '_')
 
         sp = '  '   # Indentation space per level
         xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-        if meta := self.schema['meta']:
+        if meta := self.SCHEMA['meta']:
             xasd += f'{sp}<Metadata>\n'
             # xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
             for k, v in meta.items():
@@ -55,7 +59,7 @@ class XASD(JADN):
                     xasd += f'{2*sp}<{k.capitalize()}>{meta[k]}</{k.capitalize()}>\n'
         xasd += f'{sp}</Metadata>\n'
         xasd += f'{sp}<Types>\n'
-        for td in self.schema['types']:
+        for td in self.SCHEMA['types']:
             (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
             to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
             xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
@@ -93,9 +97,9 @@ def _get_type(self, e: ET.Element) -> list:
         return k.replace('_', '/')
 
     def atype(k: str, v: str, t: str) -> Union[bool, int, float, str]:
-        if k not in self.OPTX:
+        if k not in OPTX:
             return v
-        atype = x[1] if (x := self.OPTS[self.OPTX[k]]) else t
+        atype = x[1] if (x := OPTS[OPTX[k]]) else t
         return PYTHON_TYPES[atype if atype else t](v)
 
     def gettext(el: ET.Element) -> str:

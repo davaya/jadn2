@@ -3,7 +3,7 @@ Convert JADN to/from JADN Interface Definition Language (JIDL)
 """
 import json
 import re
-from jadn import JADN
+from jadn import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
@@ -20,7 +20,7 @@ p_fname = r'\s+(\S+)' # Field Name
 p_fstr = r'\s*(.*?)'  # Field definition or Enum value
 p_range = r'\s*(?:\[([.*\w]+)\]|(optional))?'  # Multiplicity
 
-class JIDL(JADN):
+class JIDL(JADNCore):
     def style(self) -> dict:
         # Return default column positions
         return {
@@ -31,7 +31,6 @@ class JIDL(JADN):
             'desc': 50,     # Fixed-position descriptions - overrides type-dependent default if not None
             'page': None    # Truncate to specified page width if specified
         }
-
 
     def schema_loads(self, doc: str | bytes) -> None:
         meta = {}
@@ -50,9 +49,9 @@ class JIDL(JADN):
                 elif t == 'T':
                     types.append(v)
                     fields = types[-1][Fields]
-        self.schema = {'meta': meta, 'types': types}
+        self.SCHEMA = {'meta': meta, 'types': types}
 
-    def schema_dumps(self, style: dict = {}) -> str:
+    def schema_dumps(self, pkg, style: dict = {}) -> str:
         """
         Convert JADN schema to JADN-IDL
 
@@ -61,18 +60,21 @@ class JIDL(JADN):
         :return: JADN-IDL text
         :rtype: str
         """
+        self.SCHEMA = pkg.SCHEMA
+        self.SOURCE = pkg.SOURCE
+
         w = self.style()
         if style:
             w.update(style)   # Override any specified column widths
 
         text = ''
-        meta = self.schema.get('meta', {})
+        meta = self.SCHEMA.get('meta', {})
         mlist = [k for k in META_ORDER if k in meta]
         for k in mlist + list(set(meta) - set(mlist)):              # Display meta elements in fixed order
             text += f'{k:>{w["meta"]}}: {json.dumps(meta[k])}\n'    # TODO: wrap to page width, continuation-line parser
 
         wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
-        for td in self.schema['types']:
+        for td in self.SCHEMA['types']:
             tdef = f'{td[TypeName]} = {jadn2typestr(td[CoreType], td[TypeOptions])}'
             tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
