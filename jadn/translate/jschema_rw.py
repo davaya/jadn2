@@ -1,75 +1,65 @@
 import json
 import os
+from jadn import JADNCore
 from jadn.definitions import TypeName, is_builtin
 from jadn.utils import raise_error
-from typing import TextIO
 
 """
-Translate JADN abstract schema to JSON schema
+Translate JADN abstract schema to/from JSON schema
 """
 
+class JSCHEMA(JADNCore):
+    def style(self) -> dict:
+        # Return default column positions
+        return {
+            'size': 'verbose',      # verbose: Record -> object, property/enum -> name
+                                    # compact: Record -> array,  property/enum -> name
+                                    # concise: Record -> array,  property/enum -> id
+            'enum': 'enum',         # const: generate oneOf keyword with const for each item
+                                    #  enum: generate an enum keyword containing all items
+                                    # regex: generate a regular expression that matches each item
+            'typenames': 'named',   # name: types are named in $defs
+                                    # anon: types are nested anonymously and repeated
+        }
 
-def jschema_style(self) -> dict:
-    # Return default column positions
-    return {
-        'size': 'verbose',      # verbose: Record -> object, property/enum -> name
-                                # compact: Record -> array,  property/enum -> name
-                                # concise: Record -> array,  property/enum -> id
-        'enum': 'enum',         # const: generate oneOf keyword with const for each item
-                                #  enum: generate an enum keyword containing all items
-                                # regex: generate a regular expression that matches each item
-        'typenames': 'name',    # name: types are named in $defs
-                                # anon: types are nested anonymously and repeated
-    }
+    def schema_loads(self, doc: str) -> None:
+        jss = json.loads(doc)
+        # assert jss['type'] == 'object', f'Unsupported JSON Schema format'
+        defs = jss.get('definitions', jss.get('$defs', {}))
+        jssx = {v.get('$id', k): k for k, v in defs.items()}  # Index from $id to definition
+        types = {typedefname(k, jss): v for k, v in defs.items()}  # Index from type name to definition
+        assert len(types) == len(set(types)), f'Type name collision'
 
+        p = os.path.splitext(pkg := jss.get('$id', ''))
+        meta = {'package': (p[0] + '/' if p[-1] in ('.json', '.xsd', '.html') else pkg)}
+        meta.update({'jadn_version': 'http://oasis-open.org/openc2/jadn/v2.0/schema/'})
+        meta.update({'title': jss['title']} if 'title' in jss else {})
+        meta.update({'description': jss['description']} if 'description' in jss else {})
+        meta.update({'$comment': jss['$comment']} if '$comment' in jss else {})
+        meta.update({'roots': ['Root']})
+        meta.update({'config': {
+            '$MaxString': 1000,
+            '$TypeName': '^[a-zA-Z][-._A-Za-z0-9]{0,63}$',
+            '$FieldName': '^[$a-z][-_$A-Za-z0-9]{0,63}$'}})
 
-def jschema_loads(self, doc: str) -> None:
-    jss = json.loads(doc)
-    # assert jss['type'] == 'object', f'Unsupported JSON Schema format'
-    defs = jss.get('definitions', jss.get('$defs', {}))
-    jssx = {v.get('$id', k): k for k, v in defs.items()}  # Index from $id to definition
-    types = {typedefname(k, jss): v for k, v in defs.items()}  # Index from type name to definition
-    assert len(types) == len(set(types)), f'Type name collision'
+        nt = []  # Walk nested type definition tree to build type list
+        scandef('Root', jss, nt, jss, jssx)
+        for tn, tv in defs.items():
+            scandef(tn, tv, nt, jss, jssx)
 
-    p = os.path.splitext(pkg := jss.get('$id', ''))
-    meta = {'package': (p[0] + '/' if p[-1] in ('.json', '.xsd', '.html') else pkg)}
-    meta.update({'jadn_version': 'http://oasis-open.org/openc2/jadn/v2.0/schema/'})
-    meta.update({'title': jss['title']} if 'title' in jss else {})
-    meta.update({'description': jss['description']} if 'description' in jss else {})
-    meta.update({'$comment': jss['$comment']} if '$comment' in jss else {})
-    meta.update({'roots': ['Root']})
-    meta.update({'config': {
-        '$MaxString': 1000,
-        '$TypeName': '^[a-zA-Z][-._A-Za-z0-9]{0,63}$',
-        '$FieldName': '^[$a-z][-_$A-Za-z0-9]{0,63}$'}})
+        ntypes = []  # Prune identical type definitions
+        for t in nt:
+            if t not in ntypes:  # O(n^2) runtime because type definitions aren't hashable
+                ntypes.append(t)  # Convert to immutable types if it becomes an issue
 
-    nt = []  # Walk nested type definition tree to build type list
-    scandef('Root', jss, nt, jss, jssx)
-    for tn, tv in defs.items():
-        scandef(tn, tv, nt, jss, jssx)
+        self.schema = {'meta': meta, 'types': ntypes}
 
-    ntypes = []  # Prune identical type definitions
-    for t in nt:
-        if t not in ntypes:  # O(n^2) runtime because type definitions aren't hashable
-            ntypes.append(t)  # Convert to immutable types if it becomes an issue
-
-    self.schema = {'meta': meta, 'types': ntypes}
-
-
-def jschema_load(self, fp: TextIO) -> None:
-    self.jschema_loads(fp.read())
-
-
-def jschema_dumps(self, style: dict = None) -> str:
-    """
-    Translate JADN schema to/from jschema
-    """
-    print('JSON Schema translation not implemented')
-    exit(1)
-
-
-def jschema_dump(self, fp: TextIO, style: dict = None) -> None:
-    fp.write(self.jschema_dumps(style))
+    def schema_dumps(self, pkg, style: dict = {}) -> str:
+        """
+        Translate JADN schema to/from jschema
+        """
+        print('JSON Schema dump not implemented')
+        exit(1)
 
 
 # ========================================================
@@ -215,13 +205,3 @@ def maketypename(tn: str, name: str, jss) -> str:
     tn = typedefname(tn, jss)
     name = f'{tn}.{name}' if tn else name.capitalize()      # $Sys = "."
     return name + '1' if is_builtin(name) else name
-
-
-
-__all__ = [
-    'jschema_style',
-    'jschema_loads',
-    'jschema_load',
-    'jschema_dumps',
-    'jschema_dump',
-]

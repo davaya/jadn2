@@ -23,11 +23,15 @@ class ATREE(JADNCore):
         Translate JADN schema to ascii tree diagram
         """
         def line(t: str, tx: dict[str, list], detail: str) -> str:
-            tree_col, name = t.rsplit(' ', maxsplit=1) if ' ' in t else ('', '')
-            jtype = (f'{name}' if detail == 'conceptual' else
-                     f'{name} = {tx[name][CoreType]}' if detail == 'logical' else
-                     f'{name} = {jadn2typestr(tx[name][CoreType], tx[name][TypeOptions])}')
-            return ' '.join((tree_col, jtype))
+            if ' ' in t:
+                tree_col, name = t.rsplit(' ', maxsplit=1)
+                name = name.strip('[]')     # remove 'blank' style decoration
+                tree_col = tree_col.strip('[]')
+                jtype = (f'{name}' if detail == 'conceptual' else
+                         f'{name} = {tx[name][CoreType]}' if detail == 'logical' else
+                         f'{name} = {jadn2typestr(tx[name][CoreType], tx[name][TypeOptions])}')
+                return ' '.join((tree_col, jtype))
+            return ''
 
         self.SCHEMA = pkg.SCHEMA
         self.SOURCE = pkg.SOURCE

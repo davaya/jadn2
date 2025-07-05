@@ -3,7 +3,7 @@ import sys
 import os
 from jadn.config import style_args, style_fname
 from jadn.convert import JADN, JIDL, XASD, MD, ERD
-from jadn.translate import ATREE
+from jadn.translate import ATREE, JSCHEMA, XSD, CDDL, PROTO, XETO
 
 CONFIG = 'jadn_config.json'
 
@@ -15,7 +15,12 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
         'xasd': XASD(),
         'md': MD(),
         'erd': ERD(),
-        'atree': ATREE()
+        'atree': ATREE(),
+        'jschema': JSCHEMA(),
+        'xsd': XSD(),
+        'cddl': CDDL(),
+        'proto': PROTO(),
+        'xeto': XETO(),
     }
 
     if outdir:
