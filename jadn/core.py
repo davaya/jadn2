@@ -123,21 +123,22 @@ class JADNCore:
     SOURCE = None
 
     def __init__(self):
-        self.package = None
         self.validate()     # METASCHEMA
 
     def style(self) -> dict:
         return {}
 
     def schema_loads(self, message: str | bytes) -> None:
-        pass
+        print('Schema load not implemented')
+        exit(1)
 
     def schema_load(self, fp: TextIO | BinaryIO) -> None:
         self.SOURCE = fp.name
         self.schema_loads(fp.read())
 
     def schema_dumps(self, pkg, style: dict = {}) -> str | bytes:
-        return ''
+        print('Schema dump not implemented')
+        exit(1)
 
     def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict = {}) -> None:
         fp.write(self.schema_dumps(pkg, style))

@@ -52,12 +52,14 @@ class JSCHEMA(JADNCore):
             if t not in ntypes:  # O(n^2) runtime because type definitions aren't hashable
                 ntypes.append(t)  # Convert to immutable types if it becomes an issue
 
-        self.schema = {'meta': meta, 'types': ntypes}
+        self.SCHEMA = {'meta': meta, 'types': ntypes}
 
     def schema_dumps(self, pkg, style: dict = {}) -> str:
         """
         Translate JADN schema to/from jschema
         """
+        self.SCHEMA = pkg.SCHEMA
+        self.SOURCE = pkg.SOURCE
         print('JSON Schema dump not implemented')
         exit(1)
 

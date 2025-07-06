@@ -13,5 +13,7 @@ class PROTO(JADNCore):
         exit(1)
 
     def schema_dumps(self, pkg, style: dict = {}) -> str:
+        self.SCHEMA = pkg.SCHEMA
+        self.SOURCE = pkg.SOURCE
         print('Protobuf schema dump not implemented')
         exit(1)

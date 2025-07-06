@@ -10,17 +10,17 @@ CONFIG = 'jadn_config.json'
 
 def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: str) -> None:
     klass = {
-        'jadn': JADN(),
-        'jidl': JIDL(),
-        'xasd': XASD(),
-        'md': MD(),
-        'erd': ERD(),
-        'atree': ATREE(),
-        'jschema': JSCHEMA(),
-        'xsd': XSD(),
-        'cddl': CDDL(),
-        'proto': PROTO(),
-        'xeto': XETO(),
+        'jadn': JADN,
+        'jidl': JIDL,
+        'xasd': XASD,
+        'md': MD,
+        'erd': ERD,
+        'atree': ATREE,
+        'jschema': JSCHEMA,
+        'xsd': XSD,
+        'cddl': CDDL,
+        'proto': PROTO,
+        'xeto': XETO,
     }
 
     if outdir:
@@ -30,7 +30,7 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
     fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
     if ext in (klass):
-        pkg = klass[ext]
+        pkg = klass[ext]()
         with open(os.path.join(path, infile), 'r') as fp:
             pkg.schema_load(fp)
 
@@ -39,15 +39,18 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
 
         # Serialize information value to lexical value
         if format in klass:
-            style = style_args(klass[format], format, style_cmd, CONFIG)    # style from format, config, args
+            style = style_args(klass[format](), format, style_cmd, CONFIG)    # style from format, config, args
             if outdir:
                 with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
-                    klass[format].schema_dump(fp, pkg, style)
+                    klass[format]().schema_dump(fp, pkg, style)
             else:
-                klass[format].schema_dump(sys.stdout, pkg, style)
+                klass[format]().schema_dump(sys.stdout, pkg, style)
         else:
             print(f'Unknown output format "{format}"')
             sys.exit(2)
+    else:
+        print(f'Unknown input format "{format}"')
+        sys.exit(2)
 
 
 def main(input: str, output_dir: str, format: str, style: str, recursive: bool) -> None:

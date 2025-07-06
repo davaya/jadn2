@@ -1,5 +1,5 @@
 import os
-from jadn.core import jadn_schema_loads, jadn_schema_dumps, JADNCore
+from jadn.core import JADNCore, jadn_schema_loads, jadn_schema_dumps
 
 # =========================================================
 # JADN-format methods
@@ -13,7 +13,6 @@ class JADN(JADNCore):
 
     def schema_loads(self, jadn_str: str) -> None:
         schema = jadn_schema_loads(self, jadn_str)
-        self.package = schema.get('meta').get('package', None)
         self.SCHEMA = schema
 
     def schema_dumps(self, pkg, style: dict = {}) -> str:

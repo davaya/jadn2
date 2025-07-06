@@ -13,5 +13,7 @@ class CDDL(JADNCore):
         exit(1)
 
     def schema_dumps(self, pkg, style: dict = {}) -> str:
+        self.SCHEMA = pkg.SCHEMA
+        self.SOURCE = pkg.SOURCE
         print('CDDL dump not implemented')
         exit(1)

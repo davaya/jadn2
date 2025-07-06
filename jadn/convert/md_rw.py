@@ -36,7 +36,7 @@ class MD(JADNCore):
                     fields = types[-1][Fields]
                 elif t:
                     assert t == 'D', f'Unexpected line {t}: "{v}"'
-        self.schema = {'meta': meta, 'types': types}
+        self.SCHEMA = {'meta': meta, 'types': types}
 
     def schema_dumps(self, pkg, style: dict = {}) -> str:
         """
