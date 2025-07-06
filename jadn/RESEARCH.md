@@ -1,6 +1,6 @@
 # Ideas to Explore
 
-* JADN to JSON Schema anonymous style - generate unnamed nested type definitions
+* Translate JADN to JSON Schema anonymous style - generate unnamed nested type definitions
 * Integrate npm graph viewers
 
 * https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-json-flow

@@ -12,7 +12,7 @@ from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
-    is_builtin, has_fields, DEFS
+    is_builtin, has_fields, OPTX
 )
 
 
@@ -210,7 +210,7 @@ def typestr2jadn(typestring: str) -> tuple:
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
         else:
-            op = DEFS.OPTX[[k for k in opts[0]][0]]
+            op = OPTX[[k for k in opts[0]][0]]
             topts.update(opts[0] if op in TYPE_OPTIONS else {})
             fopts.update(opts[0] if op in FIELD_OPTIONS else {})
     if rest := m.group(4):
@@ -256,9 +256,9 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     """
     # Handle ktype/vtype containing Enum options
     def _kvstr(optv: str) -> str:
-        if optv[0] == DEFS.OPTX['enum']:
+        if optv[0] == OPTX['enum']:
             return f'Enum[{optv[1:]}]'
-        if optv[0] == DEFS.OPTX['pointer']:
+        if optv[0] == OPTX['pointer']:
             return f'Pointer[{optv[1:]}]'
         return optv
 

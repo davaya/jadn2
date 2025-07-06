@@ -4,7 +4,6 @@ import os
 from collections import defaultdict
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, FieldType
 from lxml import etree
-from typing import List
 
 # SCHEMA_DIR = os.path.join('Data', 'NIEM', 'niem5.2')
 OUTPUT_DIR = 'Out'
@@ -66,7 +65,7 @@ def maketypename(tn: str, name: str, jss) -> str:
     return name + '1' if jadn.definitions.is_builtin(name) else name
 
 
-def scandef(tn: str, tv: dict, nt: list, jss: dict, jssx: dict):
+def scandef(tn: str, tv: dict, nt: list[list], jss: dict, jssx: dict):
     """
     Process anonymous type definitions, generate pathname, add to list nt
     """

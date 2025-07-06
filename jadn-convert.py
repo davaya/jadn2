@@ -1,51 +1,26 @@
 import argparse
 import sys
 import os
-from jadn import JADN, add_methods
 from jadn.config import style_args, style_fname
-from jadn.convert import jidl_rw, xasd_rw, md_rw, erd_w
-from jadn.translate import jschema_rw, xsd_rw, cddl_rw, proto_rw, xeto_rw, atree_w
-
-add_methods(jidl_rw)
-add_methods(xasd_rw)
-add_methods(md_rw)
-add_methods(erd_w)
-add_methods(jschema_rw)
-add_methods(xsd_rw)
-add_methods(cddl_rw)
-add_methods(proto_rw)
-add_methods(xeto_rw)
-add_methods(atree_w)
+from jadn.convert import JADN, JIDL, XASD, MD, ERD
+from jadn.translate import ATREE, JSCHEMA, XSD, CDDL, PROTO, XETO
 
 CONFIG = 'jadn_config.json'
 
 
-def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, outdir: str) -> None:
-
-    _load = {
-        'jadn': pkg.jadn_load,
-        'jidl': pkg.jidl_load,
-        'xasd': pkg.xasd_load,
-        'md':   pkg.md_load,
-        'json': pkg.jschema_load,
-        'xsd': pkg.xsd_load,
-        'cddl': pkg.cddl_load,
-        'proto': pkg.proto_load,
-        'xeto': pkg.xeto_load,
-    }
-
-    _dump = {
-        'jadn': pkg.jadn_dump,
-        'jidl': pkg.jidl_dump,
-        'xasd': pkg.xasd_dump,
-        'md':   pkg.md_dump,
-        'erd':  pkg.erd_dump,
-        'json': pkg.jschema_dump,
-        'xsd':  pkg.xsd_dump,
-        'cddl': pkg.cddl_dump,
-        'proto': pkg.proto_dump,
-        'xeto': pkg.xeto_dump,
-        'atree': pkg.atree_dump,
+def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: str) -> None:
+    klass = {
+        'jadn': JADN,
+        'jidl': JIDL,
+        'xasd': XASD,
+        'md': MD,
+        'erd': ERD,
+        'atree': ATREE,
+        'jschema': JSCHEMA,
+        'xsd': XSD,
+        'cddl': CDDL,
+        'proto': PROTO,
+        'xeto': XETO,
     }
 
     if outdir:
@@ -54,23 +29,27 @@ def convert_file(pkg: JADN, format: str, style: str, path: str, infile: str, out
     # Read lexical value into information value
     fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
-    if ext in (_load):
+    if ext in (klass):
+        pkg = klass[ext]()
         with open(os.path.join(path, infile), 'r') as fp:
-            _load[ext](fp)
+            pkg.schema_load(fp)
 
-    # Validate information value against IM
-    pkg.validate()
+        # Validate information value against IM
+        pkg.validate()
 
-    # Serialize information value to lexical value
-    style = style_args(pkg, format, style, CONFIG)      # combine style from args with format defaults
-    if format in _dump:
-        if outdir:
-            with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
-                _dump[format](fp, style)
+        # Serialize information value to lexical value
+        if format in klass:
+            style = style_args(klass[format](), format, style_cmd, CONFIG)    # style from format, config, args
+            if outdir:
+                with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
+                    klass[format]().schema_dump(fp, pkg, style)
+            else:
+                klass[format]().schema_dump(sys.stdout, pkg, style)
         else:
-            _dump[format](sys.stdout, style)
+            print(f'Unknown output format "{format}"')
+            sys.exit(2)
     else:
-        print(f'Unknown output format "{format}"')
+        print(f'Unknown input format "{format}"')
         sys.exit(2)
 
 
@@ -84,7 +63,6 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
     """
 
     # print(f'Installed JADN version: {jadn.__version__}\n')
-    pkg = JADN()
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -95,12 +73,12 @@ def main(input: str, output_dir: str, format: str, style: str, recursive: bool) 
             if not recursive:
                 dirs.clear()
             for file in files:
-                convert_file(pkg, format, style, path, file, output_dir)
+                convert_file(format, style, path, file, output_dir)
     else:
         # Otherwise process the named input file
         path, file = os.path.split(input)
         try:
-            convert_file(pkg, format, style, path, file, output_dir)
+            convert_file(format, style, path, file, output_dir)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)

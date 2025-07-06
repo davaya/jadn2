@@ -42,6 +42,14 @@ PRIMITIVE_TYPES = (
     'String',
 )
 
+PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
+    'Binary': bytes,
+    'Boolean': bool,
+    'Integer': int,
+    'Number': float,
+    'String': str,
+}
+
 COMPOUND_TYPES = (
     'Array',
     'ArrayOf',          # (value_type): instance is a container but definition has no fields
@@ -126,14 +134,7 @@ FIELD_OPTIONS = {
     0x4e: ('not', 'Boolean', 33),           # 'N', field is not an instance of FieldType
 }
 
-PYTHON_TYPES = {            # Programming language types used to hold instances of IM types
-    'Binary': bytes,
-    'Boolean': bool,
-    'Integer': int,
-    'Number': float,
-    'String': str,
-}
-
+BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
 MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 
@@ -216,7 +217,7 @@ FORMAT_SERIALIZE = {        # Data representation formats for one or more serial
     'ipv6-addr': 'Binary',      # IPv6 text representation, RFC 4291 Section 2.2
     'ipv4-net': 'Array',        # IPv4 Network Address CIDR text string, RFC 4632 Section 3.1
     'ipv6-net': 'Array',        # IPv6 Network Address CIDR text string, RFC 4291 Section 2.3
-    'b': 'Binary',              # Base64url - RFC 4648 Section 5 (default text representation of Binary type)
+    'b64': 'Binary',            # Base64url - RFC 4648 Section 5 (default text representation of Binary type)
     'x': 'Binary',              # Hex - base16 - lowercase out, case-folding in
     'X': 'Binary',              # Hex - RFC 4648 Section 8 - uppercase only
     'i#': 'Integer',            # n-bit signed integer, n should be 8*2^N (8, 16, 32, 64, ...)
@@ -249,7 +250,7 @@ EXTENSIONS = {
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
-#===============================================
-# Pre-computed constant class variables     # TODO: investigate closure instead of class vars
-#===============================================
-
+# Precomputed constants
+OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
+OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
+OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}
