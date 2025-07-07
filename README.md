@@ -4,7 +4,7 @@
 **jadn-convert.py:** Convert JADN schemas between different forms. The following conversions are supported:
 * **Convert:** Convert a JADN schema package in one data format to the same package in a different format.
 All representations are equivalent, meaning that conversions between data formats are lossless.  
-Schema formats are:
+JADN schema and presentation formats are:
     * **jadn:** JSON data, the authoritative data format for JADN schemas
     * **jidl:** JADN Information Definition Language, a declarative text specification analogous to source code
     * **xasd:** XML Abstract Schema Definition language, an XML data format for JADN schemas

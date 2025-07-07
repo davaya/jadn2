@@ -30,15 +30,15 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
     ext = ext.lstrip('.')
     if (k := klass.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
 
-        # Read literal value into information value
+        # Read schema literal into information value
         pkg = k()
         with open(os.path.join(path, infile), 'r') as fp:
             pkg.schema_load(fp)
 
-        # Validate information value against IM
+        # Validate JADN information value against JADN metaschema
         pkg.validate()
 
-        # Serialize information value to literal value
+        # Serialize information value to schema literal in output format
         if format in klass:
             style = style_args(klass[format](), format, style_cmd, CONFIG)    # style from format, config, args
             if outdir:
