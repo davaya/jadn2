@@ -1,4 +1,3 @@
-from jadn.translate.atree_w import ATREE
 from jadn.translate.jschema_rw import JSCHEMA
 from jadn.translate.xsd_rw import XSD
 from jadn.translate.cddl_rw import CDDL
