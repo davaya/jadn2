@@ -3,7 +3,7 @@
 ## Convert Schemas
 **jadn-convert.py:** Convert JADN schemas between different forms. The following conversions are supported:
 * **Convert:** Convert a JADN schema package in one data format to the same package in a different format.
-All representations are equivalent, meaning that conversions between data formats are lossless.
+All representations are equivalent, meaning that conversions between data formats are lossless.  
 Schema formats are:
     * **jadn:** JSON data, the authoritative data format for JADN schemas
     * **jidl:** JADN Information Definition Language, a declarative text specification analogous to source code
@@ -13,16 +13,15 @@ Schema formats are:
     * **erd:** Entity Relationship Diagram, text source for a graphical representation of a JADN schema.
     Two ERD formats are currently supported: Graphviz (.dot) and PlantUML (.puml)
 * **Translate:** Translate a JADN schema into a different abstract or concrete schema language. Translations
-are lossy to the extent that different languages have different capabilities and concrete schemas define
-a lower level of abstraction than information models,
-but mechanical translation provides a starting point for refinement.
+are lossy to the extent that different languages have different capabilities and concrete schemas are less
+flexible than information models, but mechanical translation provides a starting point for refinement.  
 Schema languages are:
     * **jschema:** JSON Schema
     * **xsd:** XML Schema Definition
     * **cddl:** Concise Data Definition Language, the schema specification for IETF CBOR
     * **proto:** Google Protocol Buffers
     * **xeto:** Extensible Explicitly Typed Objects, a schema language developed for the smart buildings industry
-* **Transform:** Convert a JADN schema into different JADN schema for various purposes, such as:
+* **Transform:** Convert a JADN schema into different JADN schema for various purposes such as:
     * simplifying shortcuts (syntactic sugar) into core definitions 
     * resolving external references between schema packages
 

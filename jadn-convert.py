@@ -16,7 +16,7 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
         'md': MD,
         'erd': ERD,
         'atree': ATREE,
-        'jschema': JSCHEMA,
+        'json': JSCHEMA,
         'xsd': XSD,
         'cddl': CDDL,
         'proto': PROTO,
@@ -26,18 +26,19 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
     if outdir:
         print(infile)  # Don't print if destination is stdout
 
-    # Read lexical value into information value
     fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
-    if ext in (klass):
-        pkg = klass[ext]()
+    if (k := klass.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
+
+        # Read literal value into information value
+        pkg = k()
         with open(os.path.join(path, infile), 'r') as fp:
             pkg.schema_load(fp)
 
         # Validate information value against IM
         pkg.validate()
 
-        # Serialize information value to lexical value
+        # Serialize information value to literal value
         if format in klass:
             style = style_args(klass[format](), format, style_cmd, CONFIG)    # style from format, config, args
             if outdir:
@@ -49,8 +50,7 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
             print(f'Unknown output format "{format}"')
             sys.exit(2)
     else:
-        print(f'Unknown input format "{format}"')
-        sys.exit(2)
+        print(f'Unknown input format "{ext}" -- ignored')
 
 
 def main(input: str, output_dir: str, format: str, style: str, recursive: bool) -> None:
