@@ -2,13 +2,14 @@
 
 ## Convert Schemas
 **jadn-convert.py:** Convert JADN schemas between different forms. The following conversions are supported:
-* **Convert:** Convert a JADN schema package in one data format to the same schema in a different format.
+* **Convert:** Convert a JADN schema package in one data format to the same package in a different format.
 All representations are equivalent, meaning that conversions between data formats are lossless.
 Schema formats are:
     * **jadn:** JSON data, the authoritative data format for JADN schemas
     * **jidl:** JADN Information Definition Language, a declarative text specification analogous to source code
     * **xasd:** XML Abstract Schema Definition language, an XML data format for JADN schemas
     * **md:** Markdown tables, a property table format for including JADN schemas in specification documents
+    * **atree:** ASCII tree diagram showing dependency relationships between types
     * **erd:** Entity Relationship Diagram, text source for a graphical representation of a JADN schema.
     Two ERD formats are currently supported: Graphviz (.dot) and PlantUML (.puml)
 * **Translate:** Translate a JADN schema into a different abstract or concrete schema language. Translations
@@ -42,10 +43,11 @@ options:
   -r             recursive directory search (default: False)
   --style STYLE  serialization style options (default: )
 ```
-Example:
-* `jadn-convert.py -f erd --style "detail: logical, attributes: True" jadn/data/jadn_v2.0_schema.jadn`
+Examples:
+* `jadn-convert.py -f erd --style "detail: information, attributes: True" jadn/data/jadn_v2.0_schema.jadn Out`
+* `jadn-convert.py -f atree --style "detail:logical" jadn/data/jadn_v2.0_schema.jadn`
 
-This example specifies no output folder so the output goes to stdout.
+If output_dir is not specified, output goes to stdout.
 
 Read a JADN `schema` package in the format indicated by its file extension (`.jadn`), convert it to the `erd`
 (entity relationship diagram) format, overriding the default style options `detail` and `attributes`.
@@ -54,10 +56,14 @@ CLI style options are key:value pairs separated by commas and must be enclosed i
 Specifying invalid style options (e.g., `--style ?`) will print out all options applicable to the
 `format` including default values from the format definition and the user's configuration file.
 
-Example user-supplied configuration file `jadn_config.json`:
+Example user-defined configuration file `jadn_config.json`:
 ```json
 {
   "style": {
+    "jidl": {
+      "name": 20,
+      "desc": 55
+    },
     "erd": {
       "graph": "graphviz"
     }
@@ -66,8 +72,11 @@ Example user-supplied configuration file `jadn_config.json`:
 ```
 The top level of the configuration file is a section.
 Under the style section are output formats and the option values specified for each format.
+Only the style section is defined at this time, but additional sections may added later.
 
-Only a style section is defined at this time, but additional sections may be defined to support new capabilities.
+This example sets column widths for JIDL output and the graph format for ERDs. The data format class file
+defines all possible options and their default values.  The configuration file overrides some of those
+values, and the CLI `--style` argument supersedes both.
 
 ## Serialize and Validate Data
 tbsl

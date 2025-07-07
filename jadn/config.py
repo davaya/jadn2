@@ -24,9 +24,9 @@ def style_args(self, format: str, args: str, config: str = '') -> dict:
     try:
         cli_opts = {(x := arg.split(':'))[0].strip(): _fixbool(x[1].strip()) for arg in args.split(',') if arg}
     except IndexError:
-        err  = f'Options for format "{format}"\n'
-        err += f'Class: {json.dumps(format_opts, indent=2)}\n'
-        err += f'Configuration file "{config}": {json.dumps(config_opts, indent=2)}' if config_opts else ''
+        err  = f'Style options for "{format}" format:\n'
+        err += f'  Class: {json.dumps(format_opts, indent=4)}\n'
+        err += f'  Configuration file "{config}": {json.dumps(config_opts, indent=4)}' if config_opts else ''
         assert False, err
     assert not (x := set(cli_opts) - set(format_opts)), f'Invalid style options {x}'
     return format_opts | config_opts | cli_opts
