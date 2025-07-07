@@ -6,7 +6,8 @@
 * **core.py:** The base JADNCore class. This is inherited by others but not instantiated directly.
 * **utils.py:** Miscellaneous utility functions, including translating type definition strings
 to/from JADN values.
-* **config.py:** Functions for managing command-line configuration options
+* **config.py:** Functions for managing command-line configuration options.
+* **data/:** The JSON schema and JADN metaschema used to validate all JADN schemas.
 * **convert/:** Classes that translate the logical (internal) value of a JADN schema to and from a
 literal value of that schema in an external data format. All formats are equivalent,
 meaning that conversions among them are lossless.
@@ -17,7 +18,7 @@ meaning that conversions among them are lossless.
     * **atree:** ASCII tree diagram showing dependency relationships between types
     * **erd:** Entity Relationship Diagram, text source for a graphical representation of a JADN schema.
     Two ERD formats are currently supported: Graphviz (.dot) and PlantUML (.puml)
-* **translate/:** Classes that ranslate a JADN schema into a different abstract or concrete schema language.
+* **translate/:** Classes that translate a JADN schema into a different abstract or concrete schema language.
 Translations are lossy to the extent that different languages have different capabilities and concrete schemas
 are less flexible than information models, but mechanical translation provides a starting point for refinement.  
 Schema languages are:

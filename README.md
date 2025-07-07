@@ -2,11 +2,13 @@
 
 ## Convert Schemas
 
-* Losslessly convert a JADN schema to the same schema in a different data format.
+* Losslessly convert a JADN schema to the same schema in an equivalent data format.
 * Translate a JADN schema to/from a different abstract or concrete schema language.
 * Transform a JADN schema to a different JADN schema for reasons such as
 simplifying shortcuts into core definitions or resolving external references
 between schema packages.
+
+Formats and operations are defined in the [JADN software package](jadn).
 
 **Usage:**
 ```
