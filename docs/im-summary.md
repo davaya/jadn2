@@ -12,7 +12,8 @@ NIST describes an Information Model [[IM]](IM) as:
 
 That covers a broad range of activity, but a primary use of information models is to specify
 the information content of data communicated between processes. An information modeling language
-defines information in a way that is representation-independent both inside and outside a process.
+defines information in a way that is representation-independent both within a process and when
+stored or communicated among processes.
 Consider an example with two different processing environments and two different message formats
 where an information model defines the semantics and constraints of an arbitrary data type "Foo":
 
@@ -36,13 +37,13 @@ Describing how this is accomplished requires some common terminology:
    memory is allocated for it.
 4. **Value:** an instance of a type within a process.
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
-or characters. Two literals that are instances of the same value are equivalent.
+or characters. Two different literals that are instances of the same information value are equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values.
 
-Although class and type are similar, the critical distinction is that objects are dynamic while values
-are static. Classes are a programming languages' mechanisms for implementing variables while types define
-the set of values a variable may have. An IM does not address classes or objects; it specifies only datatypes.
-Information modeling uses [[XSD]](xsd)'s definition verbatim:
+Although class and type appear similar, the critical distinction is that objects are dynamic while values
+are static. Classes are a programming language's mechanisms for implementing variables while types define
+the set of constant values a variable may have. An IM does not address classes or objects; it specifies
+only datatypes as defined by [[XSD]](xsd):
 
 > In this specification, a datatype has three properties:
 > * **value space**, which is a set of values.
@@ -50,6 +51,29 @@ Information modeling uses [[XSD]](xsd)'s definition verbatim:
 > * a small collection of functions, relations, and procedures associated with the datatype.
 > Included are equality and (for some datatypes) order relations on the **value space**,
 > and a **lexical mapping**, which is a mapping from the **lexical space** into the **value space**.
+
+To illustrate the relationship between objects, values and literals, consider the **information** in
+a geographic coordinate:
+
+> "A set of two numbers: a latitude with a value between -90.0 and 90.0 degrees and a longitude with
+> a value between -180.0 and 180.0 degrees."
+
+The semantics of a coordinate is the same across all processing environments with no dependence on
+programming language or coding techniques. A designer uses an information modeling language to
+express coordinate semantics by defining datatypes, for example:
+```
+Coordinate = Record
+    1 latitude     Latitude
+    2 longitude    Longitude
+
+Latitude = Number=[-90.0, 90.0]
+Longitude = Number=[-180.0, 180.0]
+```
+where **Record** and **Number** are datatypes built into the IM language indicating a group of values and
+an atomic value respectively, each with semantics defined by the language. The Coordinate data type specifies
+what values a Coordinate class must support, but not how its objects are implemented or APIs for
+accessing their state.
+
 
 ---------
 
