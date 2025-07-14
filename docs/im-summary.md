@@ -36,9 +36,8 @@ Describing how this is accomplished requires some common terminology:
    memory is allocated for it.
 4. **Value:** an instance of a type within a process.
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
-or characters.
-6. **I/O:** input/output. In the IM context I/O are the processes of converting literals to values
-and vice versa.
+or characters. Two literals that are instances of the same value are equivalent.
+6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values.
 
 Although class and type are similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming languages' mechanisms for implementing variables while types define
