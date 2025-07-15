@@ -10,10 +10,19 @@ NIST describes an Information Model [[IM]](IM) as:
 > An information modeling language is a formal syntax that allows users to capture data
 > semantics and constraints.
 
-That covers a broad range of activity, but a primary use of information models is to specify
-the information content of data communicated between processes. An information modeling language
-defines information in a way that is representation-independent both within a process and when
-stored or communicated among processes.
+This hints at the primary reasons for using an information model:
+
+1. **High Level** - not only is an IM sharable, stable and structured, it is a high level
+specification focused on information **requirements** rather than implementation details.
+This makes an IM suitable for initial conceptual design where details are unknown or distracting,
+down to implementation and deployment where unambiguous specification of details using a formal
+syntax make or break robustness and interoperability.
+2. **Language Independent** - because an IM is requirements focused, a single specification
+applies to all data formats, and a single information value (described below)
+ensures lossless conversion between literal values in any data format.
+
+An information modeling language defines information in a way that is representation-independent
+both within a process and when stored or communicated among processes.
 Consider an example with two different processing environments and two different message formats
 where an information model defines the semantics and constraints of an arbitrary data type "Foo":
 
@@ -37,6 +46,9 @@ Describing how this is accomplished requires some common terminology:
    memory is allocated for it.
 4. **Value:** an instance of a type within a process.
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
+or characters. Two different literals that are instances of the same information value are referred
+to as equivalent.
+6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values.
 or characters. Two different literals that are instances of the same information value are said to
 be equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
@@ -72,7 +84,7 @@ Longitude = Number (-180.0, 180.0]
 ```
 where **Record** and **Number** are datatypes built into an IM language. Record is a group of values and
 Number is an atomic value, each with semantics defined by the IM language and the designer's model.
-The Coordinate data type specifies what values Coordinate objects may have, but not how programming
+The Coordinate data type specifies what values a variable of type Coordinate may have, but not how programming
 language variables are implemented or operated upon, such as computing the distance between two
 coordinates.
 
@@ -111,7 +123,24 @@ Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
 ```
 
 ---------
+Parking lot:
 
+ECMAScript [[ES](#es)]
+4.3.1 Objects - not class-based object-oriented languages like C++, Smalltalk or Java  
+4.4.17 Boolean value, type, object  
+4.4.20 String value, type, object  
+4.4.23 Number value, type, object
+23.1 Array Objects  
+23.2 TypedArray Objects  
+24.1 Map Objects  
+24.2 Set Objects  
+24.3 WeakMap Objects
+24.4 WeakSet Objects
+
+"YAML Schemas" [[YAMLS](#yamls)]
+describes advantages of using the YAML data format and the challenges of validating YAML data
+in various programming languages.
+---------
 <!---
 > In the objected-oriented approach, the fundamental construct is the object, which incorporates both
 > data structures and functions. The building blocks in the O-O model are object classes, attributes,
@@ -146,9 +175,15 @@ to represent it.
 *"Information Modeling: From Design to Implementation"*, Y. Tina Lee, NIST, September 1999,
 https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265
 
+###### [ES]
+*"ECMAScript 2026 Language Specification"*, ECMA International, 15 July 2025, https://tc39.es/ecma262/#sec-set-objects
+
 ###### [XSD]
 *"W3C XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes"*, W3C, 5 April 2012,
 https://www.w3.org/TR/xmlschema11-2/#datatype
+
+###### [YAMLS]
+*"YAML Schemas"*, Codethink, November 2021, https://www.codethink.co.uk/articles/2021/yaml-schemas/
 
 ###### [2]
 "Mastering Classes and Objects", Dev Community,
