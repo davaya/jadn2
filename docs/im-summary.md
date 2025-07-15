@@ -37,13 +37,14 @@ Describing how this is accomplished requires some common terminology:
    memory is allocated for it.
 4. **Value:** an instance of a type within a process.
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
-or characters. Two different literals that are instances of the same information value are equivalent.
-6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values.
+or characters. Two different literals that are instances of the same information value are said to
+be equivalent.
+6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
+parsing input and serializing output in a specified data format.
 
 Although class and type appear similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming language's mechanisms for implementing variables while types define
-the set of constant values a variable may have. An IM does not address classes or objects; it specifies
-only datatypes as defined by [[XSD]](xsd):
+the set of distinct values a variable of a given type may have, as defined in [[XSD]](xsd):
 
 > In this specification, a datatype has three properties:
 > * **value space**, which is a set of values.
@@ -55,8 +56,8 @@ only datatypes as defined by [[XSD]](xsd):
 To illustrate the relationship between objects, values and literals, consider the **information** in
 a geographic coordinate:
 
-> "A set of two numbers: a latitude with a value between -90.0 and 90.0 degrees and a longitude with
-> a value between -180.0 and 180.0 degrees."
+> A set of two numbers: a latitude with a value between -90.0 and 90.0 degrees and a longitude with
+> a value between -180.0 and 180.0 degrees.
 
 The semantics of a coordinate is the same across all processing environments with no dependence on
 programming language or coding techniques. A designer uses an information modeling language to
@@ -66,14 +67,48 @@ Coordinate = Record
     1 latitude     Latitude
     2 longitude    Longitude
 
-Latitude = Number=[-90.0, 90.0]
-Longitude = Number=[-180.0, 180.0]
+Latitude = Number [-90.0, 90.0]
+Longitude = Number (-180.0, 180.0]
 ```
-where **Record** and **Number** are datatypes built into the IM language indicating a group of values and
-an atomic value respectively, each with semantics defined by the language. The Coordinate data type specifies
-what values a Coordinate class must support, but not how its objects are implemented or APIs for
-accessing their state.
+where **Record** and **Number** are datatypes built into an IM language. Record is a group of values and
+Number is an atomic value, each with semantics defined by the IM language and the designer's model.
+The Coordinate data type specifies what values Coordinate objects may have, but not how programming
+language variables are implemented or operated upon, such as computing the distance between two
+coordinates.
 
+A single **value** of type Coordinate (for example 38.8895, -77.0352) is processed using an **object**
+containing two IEEE 754 floating point values somewhere. The content of the object aside from those two
+values is irrelevant from an information modeling perspective. The details of the **lexical mapping**
+used for message I/O are key to ensuring interoperability. The single Coordinate value can be serialized,
+for example, using three different dialects of XML, three dialects of JSON, raw binary, CBOR, and other
+data formats:
+
+```
+XML:
+   <Coordinate latitude="38.8895" longitude="-77.0352"></Coordinate>
+    
+   <Coordinate>
+     <Latitude>38.8895</Latitude>
+     <Longitude>-77.0352</Longitude>
+   </Coordinate
+    
+   <Coordinate>38.8895, -77.0352</Coordinate>
+
+JSON:
+   {"latitude": 38.8895, "longitude": -77.0352}
+    
+   [38.8895, -77.0352]
+    
+   "38.8895, -77.0352"
+
+Binary - 8 bytes, two IEEE 754 floats:
+   421B8ED9 C29A1206
+
+Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
+82                # array(2)
+   FA 421B8ED9    # primitive(1109102297)
+   FA C29A1206    # primitive(3264877062)
+```
 
 ---------
 
