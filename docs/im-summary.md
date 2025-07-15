@@ -92,8 +92,8 @@ A single **value** of type Coordinate (for example 38.8895, -77.0352) is process
 containing two IEEE 754 floating point values somewhere. The content of the object aside from those two
 values is irrelevant from an information modeling perspective. The details of the **lexical mapping**
 used for message I/O are key to ensuring interoperability. The single Coordinate value can be serialized,
-for example, using three different dialects of XML, three dialects of JSON, raw binary, CBOR, and other
-data formats:
+for example, using three different dialects of XML, three dialects of JSON / YAML, raw binary, CBOR, and other
+data formats, and that's ignoring literals using degrees-minutes-seconds format instead of decimal degrees:
 
 ```
 XML:
@@ -113,13 +113,24 @@ JSON:
     
    "38.8895, -77.0352"
 
+YAML:
+   ---
+   latitude: 38.8895
+   longitude: -77.0352
+       
+   ---
+   - 38.8895
+   - -77.0352
+       
+   38.8895, -77.0352
+
 Binary - 8 bytes, two IEEE 754 floats:
    421B8ED9 C29A1206
 
 Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
-82                # array(2)
-   FA 421B8ED9    # primitive(1109102297)
-   FA C29A1206    # primitive(3264877062)
+   82                # array(2)
+      FA 421B8ED9    # primitive(1109102297)
+      FA C29A1206    # primitive(3264877062)
 ```
 
 ---------
