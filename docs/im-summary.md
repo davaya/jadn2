@@ -52,7 +52,7 @@ to as equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
 parsing input and serializing output in a specified data format.
 
-Although class and type appear similar, the critical distinction is that objects are dynamic while values
+Although class and datatype appear similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming language's mechanisms for implementing variables while types define
 the set of distinct constant values a variable of a given type may have, as defined in [[XSD]](xsd):
 
@@ -66,10 +66,10 @@ the set of distinct constant values a variable of a given type may have, as defi
 To illustrate the relationship between objects, values and literals, consider the **information** in
 a geographic coordinate:
 
-> A set of two numbers: a latitude with a value between -90.0 and 90.0 degrees and a longitude with
-> a value between -180.0 and 180.0 degrees.
+> Coordinate: A set of two numbers - a latitude with a value between -90.0 and 90.0 degrees and
+> a longitude with a value between -180.0 and 180.0 degrees.
 
-The semantics of a coordinate is the same across all processing environments with no dependence on
+The semantics of coordinate is the same across all processing environments with no dependence on
 programming language or coding techniques. A designer uses an information modeling language to
 express coordinate semantics by defining a datatype, for example:
 ```
@@ -80,8 +80,8 @@ Coordinate = Record
 Latitude = Number [-90.0, 90.0]
 Longitude = Number (-180.0, 180.0]
 ```
-where **Record** and **Number** are datatypes built into an IM language. Record is a group of values and
-Number is an atomic value, each with semantics defined by the IM language and the designer's model.
+where **Record** and **Number** are datatypes built into an IM language. Record is a collection of values
+and Number is an atomic value, with semantics defined by the IM language and the designer's model.
 The Coordinate data type specifies what values a variable of type Coordinate may have, but not how it
 is implemented or what operations, such as computing the distance between two Coordinates, it supports.
 
@@ -140,10 +140,12 @@ Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
 ```
 
 ---------
-Parking lot:
+**Parking lot:**
 
 Javascript [[ES](#es)]
-4.3.1 Objects - not class-based object-oriented languages like C++, Smalltalk or Java  
+4.3.1 "Even though ECMAScript includes syntax for class definitions, ECMAScript objects are not
+fundamentally class-based such as those in C++, Smalltalk, or Java."
+
 4.4.17-19 Boolean value, type, object  
 4.4.20-22 String value, type, object  
 4.4.23-25 Number value, type, object
@@ -154,39 +156,17 @@ Javascript [[ES](#es)]
 24.3 WeakMap Objects
 24.4 WeakSet Objects
 
+Objects do not mean Object-Oriented Programming:
+The DEC PDP-11 1970's-era minicomputer has memory, registers, operations, and I/O.
+Even its 8- and 16-bit values operated on by machine-level instructions are objects with values and operations:
+
+<img src="images/pdp11i.jpg" width=360>
+
 "YAML Schemas" [[YAMLS](#yamls)]
 describes advantages of using the YAML data format and the challenges of validating YAML data
 in various programming languages.
 
-
 ---------
-<!---
-> In the objected-oriented approach, the fundamental construct is the object, which incorporates both
-> data structures and functions. The building blocks in the O-O model are object classes, attributes,
-> operations, and associations (relationships.)
-
-There is a critical distinction between the object-oriented **approach** and an object-oriented
-**programming language**:
-Every hardware CPU, virtual machine, and programming environment, simply by processing data,
-has object classes, attributes, operations and associations:
-
-* **Literals** are constant values (sequences of bytes or characters) suitable for storage and transmission.
-* **Objects** hold variable values in a processing environment.
-* Input translates literals into object values.
-* Output translates object values to literals.
-* An object has an information value with operations supported by a processing environment, but
-loading, processing and saving information does not require an OOP language.
-
-Example:
-* The DEC PDP-11, a 1970's era minicomputer, has memory, registers, operations, and I/O.
-Even its 8- and 16-bit values operated on by machine-level instructions are objects:
-
-<img src="images/pdp11i.jpg" width=300>
-
-The semantic meaning of an information value is independent of any literal values used
-to represent it.
---->
-
 
 ## References
 
@@ -203,7 +183,3 @@ https://www.w3.org/TR/xmlschema11-2/#datatype
 
 ###### [YAMLS]
 *"YAML Schemas"*, Codethink, November 2021, https://www.codethink.co.uk/articles/2021/yaml-schemas/
-
-###### [2]
-"Mastering Classes and Objects", Dev Community,
-https://dev.to/singhaayush/mastering-classes-and-objects-step-by-step-for-beginners-28i4
