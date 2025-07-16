@@ -13,7 +13,7 @@ NIST describes an Information Model [[IM]](IM) as:
 This hints at the primary reasons for using an information model:
 
 1. **High Level** - not only is an IM sharable, stable and structured, it is a high level
-specification focused on information **requirements** rather than implementation details.
+specification that separates information **requirements** from implementation details.
 This makes an IM suitable for initial conceptual design where details are unknown or distracting,
 down to implementation and deployment where unambiguous specification of details using a formal
 syntax make or break robustness and interoperability.
@@ -48,9 +48,6 @@ Describing how this is accomplished requires some common terminology:
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
 or characters. Two different literals that are instances of the same information value are referred
 to as equivalent.
-6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values.
-or characters. Two different literals that are instances of the same information value are said to
-be equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
 parsing input and serializing output in a specified data format.
 
@@ -151,6 +148,8 @@ ECMAScript [[ES](#es)]
 "YAML Schemas" [[YAMLS](#yamls)]
 describes advantages of using the YAML data format and the challenges of validating YAML data
 in various programming languages.
+
+
 ---------
 <!---
 > In the objected-oriented approach, the fundamental construct is the object, which incorporates both
