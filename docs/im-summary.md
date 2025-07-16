@@ -16,14 +16,15 @@ This hints at the primary reasons for using an information model:
 specification that separates information **requirements** from implementation details.
 This makes an IM suitable for initial conceptual design where details are unknown or distracting,
 down to implementation and deployment where unambiguous specification of details using a formal
-syntax make or break robustness and interoperability.
-2. **Language Independent** - because an IM is requirements focused, a single specification
-applies to all data formats, and a single information value (described below)
-ensures lossless conversion between literal values in any data format.
+syntax is essential for robustness and interoperability.
+2. **Language Independent** - an information modeling language defines information in a way that
+is representation-independent both within a process and when stored or communicated among processes.
+Because an IM is requirements focused, a single specification applies to all data formats, and a single
+information value (described below) ensures lossless conversion between literal values in any data format.
 
-An information modeling language defines information in a way that is representation-independent
-both within a process and when stored or communicated among processes.
-Consider an example with two different processing environments and two different message formats
+<img src="images/im-concept.jpg" width="360">
+
+Consider an environment with two different processes and two different message formats
 where an information model defines the semantics and constraints of an arbitrary data type "Foo":
 
 <img src="images/computers-comms.jpg" width="360">
@@ -53,7 +54,7 @@ parsing input and serializing output in a specified data format.
 
 Although class and type appear similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming language's mechanisms for implementing variables while types define
-the set of distinct values a variable of a given type may have, as defined in [[XSD]](xsd):
+the set of distinct constant values a variable of a given type may have, as defined in [[XSD]](xsd):
 
 > In this specification, a datatype has three properties:
 > * **value space**, which is a set of values.
@@ -70,7 +71,7 @@ a geographic coordinate:
 
 The semantics of a coordinate is the same across all processing environments with no dependence on
 programming language or coding techniques. A designer uses an information modeling language to
-express coordinate semantics by defining datatypes, for example:
+express coordinate semantics by defining a datatype, for example:
 ```
 Coordinate = Record
     1 latitude     Latitude
@@ -81,16 +82,18 @@ Longitude = Number (-180.0, 180.0]
 ```
 where **Record** and **Number** are datatypes built into an IM language. Record is a group of values and
 Number is an atomic value, each with semantics defined by the IM language and the designer's model.
-The Coordinate data type specifies what values a variable of type Coordinate may have, but not how programming
-language variables are implemented or operated upon, such as computing the distance between two
-coordinates.
+The Coordinate data type specifies what values a variable of type Coordinate may have, but not how it
+is implemented or what operations, such as computing the distance between two Coordinates, it supports.
 
 A single **value** of type Coordinate (for example 38.8895, -77.0352) is processed using an **object**
-containing two IEEE 754 floating point values somewhere. The content of the object aside from those two
-values is irrelevant from an information modeling perspective. The details of the **lexical mapping**
-used for message I/O are key to ensuring interoperability. The single Coordinate value can be serialized,
-for example, using three different dialects of XML, three dialects of JSON / YAML, raw binary, CBOR, and other
-data formats, and that's ignoring literals using degrees-minutes-seconds format instead of decimal degrees:
+containing two IEEE 754 floating point values somewhere, but details of the object aside from those two
+values is irrelevant. The **lexical mapping** used for message I/O is the key to interoperability.
+The single Coordinate value can be serialized, for example, using at least three different dialects of XML,
+four dialects of JSON / YAML, raw binary, CBOR, and other data formats, as well as with literals
+using degrees-minutes-seconds format instead of decimal degrees in all formats.
+All of these messages carry the identical information value and are equivalent.
+And as above, the motivation for information modeling is to enable message design based on information
+requirements, not the merits of any particular message format.
 
 ```
 XML:
@@ -105,6 +108,8 @@ XML:
 
 JSON:
    {"latitude": 38.8895, "longitude": -77.0352}
+   
+   {1: 38.8895, 2: -77.0352}
     
    [38.8895, -77.0352]
     
@@ -114,7 +119,11 @@ YAML:
    ---
    latitude: 38.8895
    longitude: -77.0352
-       
+  
+   ---
+   1: 38.8895
+   2: -77.0352  
+     
    ---
    - 38.8895
    - -77.0352
@@ -133,11 +142,11 @@ Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
 ---------
 Parking lot:
 
-ECMAScript [[ES](#es)]
+Javascript [[ES](#es)]
 4.3.1 Objects - not class-based object-oriented languages like C++, Smalltalk or Java  
-4.4.17 Boolean value, type, object  
-4.4.20 String value, type, object  
-4.4.23 Number value, type, object
+4.4.17-19 Boolean value, type, object  
+4.4.20-22 String value, type, object  
+4.4.23-25 Number value, type, object
 23.1 Array Objects  
 23.2 TypedArray Objects  
 24.1 Map Objects  
