@@ -12,8 +12,8 @@ NIST describes an Information Model [[IM]](IM) as:
 
 This hints at the primary reasons for using an information model:
 
-1. **High Level** - not only is an IM sharable, stable and structured, it is a high level
-specification that separates information **requirements** from implementation details.
+1. **High Level** - for an IM to be broadly sharable, stable and structured, it should be a
+high level specification that separates information **requirements** from implementation details.
 This makes an IM suitable for initial conceptual design where details are unknown or distracting,
 down to implementation and deployment where unambiguous specification of details using a formal
 syntax is essential for robustness and interoperability.
@@ -24,8 +24,9 @@ information value (described below) ensures lossless conversion between literal 
 
 <img src="images/im-concept.jpg" width="360">
 
-Consider an environment with two different processes and two different message formats
-where an information model defines the semantics and constraints of an arbitrary data type "Foo":
+To illustrate language independence consider an environment with two different processes and
+two different message formats where an information model defines the semantics and constraints
+of an arbitrary data type "Foo":
 
 <img src="images/computers-comms.jpg" width="360">
 
@@ -34,9 +35,9 @@ where an information model defines the semantics and constraints of an arbitrary
 * process 2 writes that Javascript value to message B (JSON format)
 * process 1 reads message B and validates it as a C# value Y of Type Foo
 
-If value X = value Y, then we know that processes 1 and 2 have the same information, and
+If value X = value Y, we know that processes 1 and 2 have the same information, and
 message A is equivalent to (carries the same information as) message B. The information model
-defines how to translate a message from any format to another and back, without loss.
+defines how to translate a message from any format to another and back without loss.
 Describing how this is accomplished requires some common terminology:
 
 1. **Class:** a blueprint or template for creating objects. It defines the characteristics
@@ -54,7 +55,7 @@ parsing input and serializing output in a specified data format.
 
 Although class and datatype appear similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming language's mechanisms for implementing variables while types define
-the set of distinct constant values a variable of a given type may have, as defined in [[XSD]](xsd):
+the set of constant values a variable of a specified type may have, as defined in [[XSD]](xsd):
 
 > In this specification, a datatype has three properties:
 > * **value space**, which is a set of values.
@@ -63,8 +64,8 @@ the set of distinct constant values a variable of a given type may have, as defi
 > Included are equality and (for some datatypes) order relations on the **value space**,
 > and a **lexical mapping**, which is a mapping from the **lexical space** into the **value space**.
 
-To illustrate the relationship between objects, values and literals, consider the **information** in
-a geographic coordinate:
+To illustrate the relationship between objects, values and literals, consider the information involved
+in this simplest of examples - a geographic coordinate:
 
 > Coordinate: A set of two numbers - a latitude with a value between -90.0 and 90.0 degrees and
 > a longitude with a value between -180.0 and 180.0 degrees.
@@ -74,26 +75,24 @@ programming language or coding techniques. A designer uses an information modeli
 express coordinate semantics by defining a datatype, for example:
 ```
 Coordinate = Record
-    1 latitude     Latitude
-    2 longitude    Longitude
-
-Latitude = Number [-90.0, 90.0]
-Longitude = Number (-180.0, 180.0]
+    1 latitude     Number [-90.0, 90.0]
+    2 longitude    Number (-180.0, 180.0]
 ```
 where **Record** and **Number** are datatypes built into an IM language. Record is a collection of values
-and Number is an atomic value, with semantics defined by the IM language and the designer's model.
-The Coordinate data type specifies what values a variable of type Coordinate may have, but not how it
-is implemented or what operations, such as computing the distance between two Coordinates, it supports.
+and Number is an atomic value, each with semantics defined by the IM language and the designer's model.
+The Coordinate data type specifies what values a variable of type Coordinate may have (its value space),
+but not the operations, such as computing the distance between two points, a Coordinate object supports.
 
 A single **value** of type Coordinate (for example 38.8895, -77.0352) is processed using an **object**
-containing two IEEE 754 floating point values somewhere, but details of the object aside from those two
-values is irrelevant. The **lexical mapping** used for message I/O is the key to interoperability.
-The single Coordinate value can be serialized, for example, using at least three different dialects of XML,
+containing two floating point variables somewhere, but details of the object aside from its value and
+equality with other object values is immaterial.
+The **lexical mapping** used for message I/O is the key to interoperability.
+A single Coordinate value can be serialized, for example, using at least three different dialects of XML,
 four dialects of JSON / YAML, raw binary, CBOR, and other data formats, as well as with literals
 using degrees-minutes-seconds format instead of decimal degrees in all formats.
-All of these messages carry the identical information value and are equivalent.
-And as above, the motivation for information modeling is to enable message design based on information
-requirements, not the merits of any particular message format.
+All of these messages carry the identical value and are equivalent.
+And as above, the motivation for information modeling is not the quantity or merits of different 
+message formats, but to enable message design based on information requirements regardless of format.
 
 ```
 XML:
@@ -139,6 +138,30 @@ Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
       FA C29A1206    # primitive(3264877062)
 ```
 
+The format-agnostic goal of information modeling and the semantics of objects, types,
+values and literals form the foundation for creating a formal information modeling language.
+The IM language data types should be based on variable types broadly supported across programming
+languages that implement the expected semantics.
+
+* Primitive Types:
+  * Boolean
+  * Integer
+  * Number
+  * String
+  * Binary
+* Value Collection Types:
+  * Sequence - ordered, non-unique
+  * Set - unordered, unique
+  * OrderedSet - ordered, unique
+  * Bag - unordered, non-unique
+* Association (Key:Value) Collection Types:
+  * Mapping - unordered
+  * OrderedMapping - ordered
+* Union Types:
+  * Enumerated
+  * TaggedChoice
+  * UntaggedChoice
+
 ---------
 **Parking lot:**
 
@@ -146,15 +169,32 @@ Javascript [[ES](#es)]
 4.3.1 "Even though ECMAScript includes syntax for class definitions, ECMAScript objects are not
 fundamentally class-based such as those in C++, Smalltalk, or Java."
 
-4.4.17-19 Boolean value, type, object  
-4.4.20-22 String value, type, object  
-4.4.23-25 Number value, type, object
+6.1.1 Undefined Type
+6.1.2 Null Type
+6.1.3 Boolean Type
+6.1.4 String Type
+6.1.5 Symbol Type
+6.1.6.1 Number Type
+6.1.6.2 BigInt Type
+6.1.7 Object Type - key can be only string or symbol - symbol denotes object functions (e.g. asyncIterator)
+20.1 Object Objects
+20.2 Function Objects
+20.3 Boolean Objects
+20.4 Symbol Objects
+20.5 Error Objects
+21.1 Number Objects
+21.2 BigInt Objects
+21.3 Math Objects
+21.4 Date Objects
+22.1 String Objects
+22.2 RexExp Objects
 23.1 Array Objects  
 23.2 TypedArray Objects  
-24.1 Map Objects  
+24.1 Map Objects - "both the keys and values may be arbitrary ES language values" including "object" but not Array or ArraryBuffer (binary)
 24.2 Set Objects  
 24.3 WeakMap Objects
 24.4 WeakSet Objects
+25.1 ArrayBuffer Objects - (Binary values)
 
 Objects do not mean Object-Oriented Programming:
 The DEC PDP-11 1970's-era minicomputer has memory, registers, operations, and I/O.
