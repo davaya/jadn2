@@ -96,52 +96,59 @@ message formats, but to enable message design based on information requirements 
 
 ```
 XML:
-   <Coordinate latitude="38.8895" longitude="-77.0352"></Coordinate>
+   1. <Coordinate latitude="38.8895" longitude="-77.0352"></Coordinate>
     
-   <Coordinate>
-     <Latitude>38.8895</Latitude>
-     <Longitude>-77.0352</Longitude>
-   </Coordinate
+   2. <Coordinate>
+        <Latitude>38.8895</Latitude>
+        <Longitude>-77.0352</Longitude>
+      </Coordinate
     
-   <Coordinate>38.8895, -77.0352</Coordinate>
+   3. <Coordinate>38.8895, -77.0352</Coordinate>
 
 JSON:
-   {"latitude": 38.8895, "longitude": -77.0352}
+   1. {"latitude": 38.8895, "longitude": -77.0352}
    
-   {1: 38.8895, 2: -77.0352}
+   2. {1: 38.8895, 2: -77.0352}
     
-   [38.8895, -77.0352]
+   3. [38.8895, -77.0352]
     
-   "38.8895, -77.0352"
+   4. "38.8895, -77.0352"
 
 YAML:
-   ---
-   latitude: 38.8895
-   longitude: -77.0352
+   1. ---
+      latitude: 38.8895
+      longitude: -77.0352
   
-   ---
-   1: 38.8895
-   2: -77.0352  
+   2. ---
+      1: 38.8895
+      2: -77.0352  
      
-   ---
-   - 38.8895
-   - -77.0352
+   3. ---
+      - 38.8895
+      - -77.0352
        
-   38.8895, -77.0352
+   4. 38.8895, -77.0352
 
 Binary - 8 bytes, two IEEE 754 floats:
-   421B8ED9 C29A1206
+   1. 421B8ED9 C29A1206
 
 Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
-   82                # array(2)
-      FA 421B8ED9    # primitive(1109102297)
-      FA C29A1206    # primitive(3264877062)
+   1. 82                # array(2)
+         FA 421B8ED9    # primitive(1109102297)
+         FA C29A1206    # primitive(3264877062)
 ```
 
-The format-agnostic goal of information modeling and the semantics of objects, types,
-values and literals form the foundation for creating a formal information modeling language.
-The IM language data types should be based on variable types broadly supported across programming
-languages that implement the expected semantics.
+As these examples illustrate, there are many ways of serializing the identical information, and
+an information modeling language extends XSD's concept of Type (value space, lexical space, l2v mapping)
+to multiple serializations. An IM Type defines a value space, multiple lexical spaces, and for each
+lexical space an l2v mapping. Within a process, for each Type in an IM there is an object (executable code)
+that processes information values of that type and an object (executable code) that performs l2v mapping
+(parsing and serialization) between the value and a specific literal format. A formal information
+modeling language should define a minimum set of types necessary and sufficient to support a broad
+range of information exchange requirements, minimizing the objects needed to translate and validate
+information items.
+
+The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the following types:
 
 * Primitive Types:
   * Boolean
@@ -149,18 +156,21 @@ languages that implement the expected semantics.
   * Number
   * String
   * Binary
-* Value Collection Types:
-  * Sequence - ordered, non-unique
-  * Set - unordered, unique
-  * OrderedSet - ordered, unique
-  * Bag - unordered, non-unique
-* Association (Key:Value) Collection Types:
-  * Mapping - unordered
-  * OrderedMapping - ordered
+* Compound Types:
+  * Array
+  * ArrayOf
+  * Map
+  * MapOf
+  * Record
 * Union Types:
   * Enumerated
   * TaggedChoice
   * UntaggedChoice
+
+As illustrated in the Coordinate example, the Record compound type defines both an Array and a Map form
+of the collection of values it contains, allowing both to be serialized and defining equivalence between them.
+JADN also defines both numeric and string forms of Map keys, using the long form for human readability
+and the concise numeric index for machine-optimized messaging.
 
 ---------
 **Parking lot:**
@@ -215,7 +225,12 @@ in various programming languages.
 https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265
 
 ###### [ES]
-*"ECMAScript 2026 Language Specification"*, ECMA International, 15 July 2025, https://tc39.es/ecma262/#sec-set-objects
+*"ECMAScript 2026 Language Specification"*, ECMA International, 15 July 2025,
+https://tc39.es/ecma262/#sec-set-objects
+
+###### [JADN]
+*"JSON Abstract Data Notation (JADN) Version 2.0, CS Draft 01"*, OASIS Open, 19 February 2025,
+https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html
 
 ###### [XSD]
 *"W3C XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes"*, W3C, 5 April 2012,
