@@ -55,7 +55,7 @@ parsing input and serializing output in a specified data format.
 
 Although class and datatype appear similar, the critical distinction is that objects are dynamic while values
 are static. Classes are a programming language's mechanisms for implementing variables while types define
-the set of constant values a variable of a specified type may have, as defined in [[XSD]](xsd):
+the set of constant values a variable of a specified type may have, as defined in [[XSD](#xsd)]:
 
 > In this specification, a datatype has three properties:
 > * **value space**, which is a set of values.
@@ -141,7 +141,7 @@ Concise Binary Object Representation (CBOR) - 11 bytes, two floats:
 As these examples illustrate, there are many ways of serializing the identical information, and
 an information modeling language extends XSD's concept of Type (value space, lexical space, L2V mapping)
 to multiple serializations. An IM Type defines a value space, multiple lexical spaces, and for each
-lexical space an l2v mapping. Within a process, for each Type in an IM there is an object (executable code)
+lexical space an L2V mapping. Within a process, for each Type in an IM there is an object (executable code)
 that processes information values of that type and an object (executable code) that performs L2V mapping
 (parsing and serialization) between the value and a specific literal format. A formal information
 modeling language should define a minimum set of types necessary and sufficient to support a broad
