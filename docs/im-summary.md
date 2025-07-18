@@ -132,7 +132,7 @@ YAML:
 Binary - 8 bytes, two IEEE 754 floats:
    1. 421B8ED9 C29A1206
 
-Concise Binary Object Encoding (CBOR) - 11 bytes, two floats:
+Concise Binary Object Representation (CBOR) - 11 bytes, two floats:
    1. 82                # array(2)
          FA 421B8ED9    # primitive(1109102297)
          FA C29A1206    # primitive(3264877062)
@@ -179,34 +179,34 @@ Javascript [[ES](#es)]
 4.3.1 "Even though ECMAScript includes syntax for class definitions, ECMAScript objects are not
 fundamentally class-based such as those in C++, Smalltalk, or Java."
 
-6.1.1 Undefined Type
-6.1.2 Null Type
-6.1.3 Boolean Type
-6.1.4 String Type
-6.1.5 Symbol Type
-6.1.6.1 Number Type
-6.1.6.2 BigInt Type
-6.1.7 Object Type - key can be only string or symbol - symbol denotes object functions (e.g. asyncIterator)
-20.1 Object Objects
-20.2 Function Objects
-20.3 Boolean Objects
-20.4 Symbol Objects
-20.5 Error Objects
-21.1 Number Objects
-21.2 BigInt Objects
-21.3 Math Objects
-21.4 Date Objects
-22.1 String Objects
-22.2 RexExp Objects
+6.1.1 Undefined Type  
+6.1.2 Null Type  
+6.1.3 Boolean Type  
+6.1.4 String Type  
+6.1.5 Symbol Type  
+6.1.6.1 Number Type  
+6.1.6.2 BigInt Type  
+6.1.7 Object Type - key can be only string or symbol - symbol denotes object functions (e.g. asyncIterator)  
+20.1 Object Objects  
+20.2 Function Objects  
+20.3 Boolean Objects  
+20.4 Symbol Objects  
+20.5 Error Objects  
+21.1 Number Objects  
+21.2 BigInt Objects  
+21.3 Math Objects  
+21.4 Date Objects  
+22.1 String Objects  
+22.2 RexExp Objects  
 23.1 Array Objects  
 23.2 TypedArray Objects  
-24.1 Map Objects - "both the keys and values may be arbitrary ES language values" including "object" but not Array or ArraryBuffer (binary)
+24.1 Map Objects - "both the keys and values may be arbitrary ES language values" including "object" but not Array or ArraryBuffer (binary)  
 24.2 Set Objects  
-24.3 WeakMap Objects
-24.4 WeakSet Objects
-25.1 ArrayBuffer Objects - (Binary values)
+24.3 WeakMap Objects  
+24.4 WeakSet Objects  
+25.1 ArrayBuffer Objects - (Binary values)  
 
-Objects do not mean Object-Oriented Programming:
+"Object" does not mean Object-Oriented Programming:
 The DEC PDP-11 1970's-era minicomputer has memory, registers, operations, and I/O.
 Even its 8- and 16-bit values operated on by machine-level instructions are objects with values and operations:
 
