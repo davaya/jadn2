@@ -35,9 +35,9 @@ of an arbitrary data type "Foo":
 * process 2 writes that Javascript value to message B (JSON format)
 * process 1 reads message B and validates it as a C# value Y of Type Foo
 
-If value X = value Y, we know that processes 1 and 2 have the same information, and
-message A is equivalent to (carries the same information as) message B. The information model
-defines how to translate a message from any format to another and back without loss.
+If value X = value Y, we know that processes 1 and 2 have the same information after the message
+exchange, and message A is equivalent to (carries the same information as) message B.
+The information model defines how to translate a message from any format to another and back without loss.
 Describing how this is accomplished requires some common terminology:
 
 1. **Class:** a blueprint or template for creating objects. It defines the characteristics
@@ -48,8 +48,8 @@ Describing how this is accomplished requires some common terminology:
    memory is allocated for it.
 4. **Value:** an instance of a type within a process.
 5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
-or characters. Two different literals that are instances of the same information value are referred
-to as equivalent.
+or characters. Two different literals that are instances of the same information value are said
+to be equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
 parsing input and serializing output in a specified data format.
 
@@ -72,7 +72,7 @@ in this simplest of examples - a geographic coordinate:
 
 The semantics of coordinate is the same across all processing environments with no dependence on
 programming language or coding techniques. A designer uses an information modeling language to
-express coordinate semantics by defining a datatype, for example:
+express coordinate semantics by defining a type, for example:
 ```
 Coordinate = Record
     1 latitude     Number [-90.0, 90.0]
@@ -80,7 +80,7 @@ Coordinate = Record
 ```
 where **Record** and **Number** are datatypes built into an IM language. Record is a collection of values
 and Number is an atomic value, each with semantics defined by the IM language and the designer's model.
-The Coordinate data type specifies what values a variable of type Coordinate may have (its value space),
+The Coordinate type specifies what values a variable of type Coordinate may have (its value space),
 but not the operations, such as computing the distance between two points, a Coordinate object supports.
 
 A single **value** of type Coordinate (for example 38.8895, -77.0352) is processed using an **object**
@@ -91,8 +91,8 @@ A single Coordinate value can be serialized, for example, using at least three d
 four dialects of JSON / YAML, raw binary, CBOR, and other data formats, as well as with literals
 using degrees-minutes-seconds format instead of decimal degrees in all formats.
 All of these messages carry the identical value and are equivalent.
-And as above, the motivation for information modeling is not the quantity or merits of different 
-message formats, but to enable message design based on information requirements regardless of format.
+Information modeling is used not for the number of message formats it enables, but for its ability to
+define easily understood format-agnostic specifications.
 
 ```
 XML:
@@ -139,10 +139,10 @@ Concise Binary Object Representation (CBOR) - 11 bytes, two floats:
 ```
 
 As these examples illustrate, there are many ways of serializing the identical information, and
-an information modeling language extends XSD's concept of Type (value space, lexical space, l2v mapping)
+an information modeling language extends XSD's concept of Type (value space, lexical space, L2V mapping)
 to multiple serializations. An IM Type defines a value space, multiple lexical spaces, and for each
 lexical space an l2v mapping. Within a process, for each Type in an IM there is an object (executable code)
-that processes information values of that type and an object (executable code) that performs l2v mapping
+that processes information values of that type and an object (executable code) that performs L2V mapping
 (parsing and serialization) between the value and a specific literal format. A formal information
 modeling language should define a minimum set of types necessary and sufficient to support a broad
 range of information exchange requirements, minimizing the objects needed to translate and validate
@@ -168,9 +168,9 @@ The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the fol
   * UntaggedChoice
 
 As illustrated in the Coordinate example, the Record compound type defines both an Array and a Map form
-of the collection of values it contains, allowing both to be serialized and defining equivalence between them.
-JADN also defines both numeric and string forms of Map keys, using the long form for human readability
-and the concise numeric index for machine-optimized messaging.
+of the collection of values it contains, allowing both to be serialized using the same IM and defining
+equivalence between them. JADN also defines both numeric and string forms of Map keys, using the long form
+for human readability and the concise numeric index for machine-optimized messaging.
 
 ---------
 **Parking lot:**
