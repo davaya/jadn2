@@ -13,13 +13,13 @@ NIST describes an Information Model [[IM]](IM) as:
 This hints at the primary reasons for using an information model:
 
 1. **High Level** - for an IM to be broadly sharable, stable and structured, it should be a
-high level specification that separates information **requirements** from implementation details.
-This makes an IM suitable for initial conceptual design where details are unknown or distracting,
-down to implementation and deployment where unambiguous specification of details using a formal
+high level specification that separates information requirements from implementation details.
+This makes an IM desirable for initial conceptual design where details are unknown or distracting,
+as well as for implementation and deployment where unambiguous specification of details using a formal
 syntax is essential for robustness and interoperability.
 2. **Language Independent** - an information modeling language defines information in a way that
 is representation-independent both within a process and when stored or communicated among processes.
-Because an IM is requirements focused, a single specification applies to all data formats, and a single
+Because an IM is requirements focused, a single specification applies to many data formats, and a single
 information value (described below) ensures lossless conversion between literal values in any data format.
 
 <img src="images/im-concept.jpg" width="360">
@@ -64,35 +64,34 @@ the set of constant values a variable of a specified type may have, as defined i
 > Included are equality and (for some datatypes) order relations on the **value space**,
 > and a **lexical mapping**, which is a mapping from the **lexical space** into the **value space**.
 
-To illustrate the relationship between objects, values and literals, consider the information involved
-in this simplest of examples - a geographic coordinate:
+To illustrate the relationship between objects, values and literals, consider a simple example
+- the information carried in a geographic coordinate:
 
-> Coordinate: A set of two numbers - a latitude with a value between -90.0 and 90.0 degrees and
-> a longitude with a value between -180.0 and 180.0 degrees.
+> Geographic Coordinate: A set of two angular measurements - a latitude with a value between
+> -90.0 and 90.0 degrees and a longitude with a value between -180.0 and 180.0 degrees.
 
-The semantics of coordinate is the same across all processing environments with no dependence on
+The meaning of Coordinate is the same across all processing environments with no dependence on
 programming language or coding techniques. A designer uses an information modeling language to
-express coordinate semantics by defining a type, for example:
+express coordinate semantics by defining a type:
 ```
 Coordinate = Record
     1 latitude     Number [-90.0, 90.0]
     2 longitude    Number (-180.0, 180.0]
 ```
 where **Record** and **Number** are datatypes built into an IM language. Record is a collection of values
-and Number is an atomic value, each with semantics defined by the IM language and the designer's model.
+and Number is an atomic value, each with semantics defined by the modeling language and the designer's model.
 The Coordinate type specifies what values a variable of type Coordinate may have (its value space),
-but not the operations, such as computing the distance between two points, a Coordinate object supports.
+but not its operations, such as computing the distance between two points.
 
 A single **value** of type Coordinate (for example 38.8895, -77.0352) is processed using an **object**
-containing two floating point variables somewhere, but details of the object aside from its value and
-equality with other object values is immaterial.
-The **lexical mapping** used for message I/O is the key to interoperability.
-A single Coordinate value can be serialized, for example, using at least three different dialects of XML,
+containing two floating point variables, but details of the object aside from its value and
+equality with other values of the same type is immaterial.
+The **lexical-to-value mapping** used for message I/O is the key to interoperability.
+A single Coordinate value can be serialized using at least three different dialects of XML,
 four dialects of JSON / YAML, raw binary, CBOR, and other data formats, as well as with literals
 using degrees-minutes-seconds format instead of decimal degrees in all formats.
-All of these messages carry the identical value and are equivalent.
-Information modeling is used not for the number of message formats it enables, but for its ability to
-define easily understood format-agnostic specifications.
+All of these messages carry the identical value and are equivalent, but information modeling
+is useful for its simple format-agnostic definitions even if only a single data format is used.
 
 ```
 XML:
@@ -138,15 +137,13 @@ Concise Binary Object Representation (CBOR) - 11 bytes, two floats:
          FA C29A1206    # primitive(3264877062)
 ```
 
-As these examples illustrate, there are many ways of serializing the identical information, and
-an information modeling language extends XSD's concept of Type (value space, lexical space, L2V mapping)
-to multiple serializations. An IM Type defines a value space, multiple lexical spaces, and for each
-lexical space an L2V mapping. Within a process, for each Type in an IM there is an object (executable code)
-that processes information values of that type and an object (executable code) that performs L2V mapping
-(parsing and serialization) between the value and a specific literal format. A formal information
-modeling language should define a minimum set of types necessary and sufficient to support a broad
-range of information exchange requirements, minimizing the objects needed to translate and validate
-information items.
+Because there are many ways to serialize the identical information, an information modeling language
+extends XSD's concept of Type (value space, lexical space, L2V mapping) to multiple serializations.
+An IM Type defines a single value space, multiple lexical spaces, and for each lexical space an L2V mapping.
+Within a process, for each Type in an IM there is an object (executable code) that validates information
+values, and for each supported data format an object that performs L2V mapping (parsing and serialization).
+An information modeling language should define the minimal set of types necessary to support a broad
+range of information exchange requirements.
 
 The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the following types:
 
@@ -164,15 +161,17 @@ The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the fol
   * Record
 * Union Types:
   * Enumerated
-  * TaggedChoice
-  * UntaggedChoice
+  * Choice
 
-As illustrated in the Coordinate example, the Record compound type defines both an Array and a Map form
-of the collection of values it contains, allowing both to be serialized using the same IM and defining
-equivalence between them. JADN also defines both numeric and string forms of Map keys, using the long form
-for human readability and the concise numeric index for machine-optimized messaging.
+As shown in the Coordinate examples, the Record type defines both an Array and a Map form
+of the values it contains, establishing their semantic equivalence.
+JADN also defines equivalent numeric and string forms of enumerated values including Map keys,
+supporting string keys for human readability and numeric index for concise machine-optimized messages.
+Consult the JADN specification for details on the available types, mapping between syntax and
+semantics, and additional capabilities such as type inheritance.
 
----------
+<!----
+
 **Parking lot:**
 
 Javascript [[ES](#es)]
@@ -215,6 +214,8 @@ Even its 8- and 16-bit values operated on by machine-level instructions are obje
 "YAML Schemas" [[YAMLS](#yamls)]
 describes advantages of using the YAML data format and the challenges of validating YAML data
 in various programming languages.
+
+-->
 
 ---------
 
