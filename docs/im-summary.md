@@ -1,6 +1,6 @@
 # Information Modeling for Data Interoperability
 
-NIST describes an Information Model [[IM]](IM) as:
+NIST describes an Information Model [[IM](#im)] as:
 
 > An information model is a representation of concepts, relationships, constraints, rules,
 > and operations to specify data semantics for a chosen domain of discourse.
@@ -64,8 +64,8 @@ the set of constant values a variable of a specified type may have, as defined i
 > Included are equality and (for some datatypes) order relations on the **value space**,
 > and a **lexical mapping**, which is a mapping from the **lexical space** into the **value space**.
 
-To illustrate the relationship between objects, values and literals, consider a simple example
-- the information carried in a geographic coordinate:
+To illustrate the relationship between objects, values and literals, consider a simple example:
+the information in a geographic coordinate:
 
 > Geographic Coordinate: A set of two angular measurements - a latitude with a value between
 > -90.0 and 90.0 degrees and a longitude with a value between -180.0 and 180.0 degrees.
@@ -215,6 +215,14 @@ Even its 8- and 16-bit values operated on by machine-level instructions are obje
 describes advantages of using the YAML data format and the challenges of validating YAML data
 in various programming languages.
 
+
+###### [ES]
+*"ECMAScript 2026 Language Specification"*, ECMA International, 15 July 2025,
+https://tc39.es/ecma262/#sec-set-objects
+
+###### [YAMLS]
+*"YAML Schemas"*, Codethink, November 2021, https://www.codethink.co.uk/articles/2021/yaml-schemas/
+
 -->
 
 ---------
@@ -225,10 +233,6 @@ in various programming languages.
 *"Information Modeling: From Design to Implementation"*, Y. Tina Lee, NIST, September 1999,
 https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=821265
 
-###### [ES]
-*"ECMAScript 2026 Language Specification"*, ECMA International, 15 July 2025,
-https://tc39.es/ecma262/#sec-set-objects
-
 ###### [JADN]
 *"JSON Abstract Data Notation (JADN) Version 2.0, CS Draft 01"*, OASIS Open, 19 February 2025,
 https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html
@@ -237,5 +241,3 @@ https://docs.oasis-open.org/openc2/jadn/v2.0/jadn-v2.0.html
 *"W3C XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes"*, W3C, 5 April 2012,
 https://www.w3.org/TR/xmlschema11-2/#datatype
 
-###### [YAMLS]
-*"YAML Schemas"*, Codethink, November 2021, https://www.codethink.co.uk/articles/2021/yaml-schemas/
