@@ -41,14 +41,13 @@ The information model defines how to translate a message from any format to anot
 Describing how this is accomplished requires some common terminology:
 
 1. **Class:** a blueprint or template for creating objects. It defines the characteristics
-   (data or variables) and behaviors (functions or methods) that objects of that class will possess.
+   (variable datatype) and behaviors (functions or methods) that objects of that class will possess.
 2. **Object:** an instance of a class.
-3. **Datatype:** a classification that specifies the kind of value a variable can hold and how the
-   computer interprets it. It dictates the operations that can be performed on the data and how much
-   memory is allocated for it.
-4. **Value:** an instance of a type within a process.
-5. **Literal:** an instance of a type outside a process. A literal is an immutable sequence of bytes
-or characters. Two different literals that are instances of the same information value are said
+3. **Datatype:** a classification that specifies the set of values a variable of that type can hold and
+   the comparison relationships between those values.
+4. **Value:** an instance of a type in a process, specifying the valid values of an object of that type.
+5. **Literal:** an instance of a type outside a process, an immutable sequence of bytes or
+characters. Two different literals that are instances of the same information value are said
 to be equivalent.
 6. **I/O:** input/output. In the IM context I/O defines the mapping between literals and values,
 parsing input and serializing output in a specified data format.
@@ -164,7 +163,7 @@ The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the fol
   * Choice
 
 As shown in the Coordinate examples, the Record type defines both an Array and a Map form
-of the values it contains, establishing their semantic equivalence.
+of the values it contains, establishing the semantic equivalence between forms.
 JADN also defines equivalent numeric and string forms of enumerated values including Map keys,
 supporting string keys for human readability and numeric index for concise machine-optimized messages.
 Consult the JADN specification for details on the available types, mapping between syntax and
