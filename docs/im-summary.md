@@ -165,7 +165,7 @@ The OASIS JSON Abstract Data Notation ([[JADN](#jadn)]) language defines the fol
 As shown in the Coordinate examples, the Record type defines both an Array and a Map form
 of the values it contains, establishing the semantic equivalence between forms.
 JADN also defines equivalent numeric and string forms of enumerated values including Map keys,
-supporting string keys for human readability and numeric index for concise machine-optimized messages.
+supporting strings for human readability and numeric index for concise machine-optimized messages.
 Consult the JADN specification for details on the available types, mapping between syntax and
 semantics, and additional capabilities such as type inheritance.
 
