@@ -39,9 +39,7 @@ class ATREE(JADNCore):
         tr = tree_style(style['draw'])
         defs = build_deps(self.SCHEMA)  # Get all type definitions and their dependencies
         refs = set(d for deps in defs.values() for d in deps)   # All referenced types
-        if not (roots := set(defs) - refs):        # Unreferenced types
-            raise ValueError('No root types')
-        ttt = [build_tree(defs, root) for root in roots]
+        roots = set(defs) - refs        # Unreferenced types
         tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
         tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.SCHEMA['types']}
         return '\n'.join([line(t, tx, style['detail']) for t in tree.split('\n')])
@@ -50,18 +48,25 @@ class ATREE(JADNCore):
 # Support functions
 # ========================================================
 
-def build_tree(dependencies: dict[str, list], root: str) -> dict:
-    def bt(deps: dict, this: str, seen: set):
-        tree = {}
-        if this not in seen:
-            seen |= {this, }
-        if this in deps:
-            for dep in deps[this]:
-                tree[dep] = bt(deps, dep, seen)
-        return tree
+def build_tree(dependencies: dict[str, list], root: str) -> dict[str, dict]:
+    color = {}    # Node state: default: not seen, 1: processing, 2: done
+    subtree = {}
 
-    seen = set()
-    return {' ' + root: bt(dependencies, root, seen)}
+    def dfs(node: str) -> dict[str, dict]:  # Depth-first search
+        color[node] = 1     # Started processing node
+        tr = {}
+        for dep in dependencies.get(node, []):
+            if (c := color.get(dep, 0)) == 1:
+                raise ValueError(f'Graph cycle detected at type "{node}->{dep}"')
+            if c == 0:
+                tr |= {dep: dfs(dep)}
+                subtree[dep] = tr[dep]
+            if c == 2:
+                tr |= {dep: subtree[dep]}
+        color[node] = 2  # Mark node and its subtree as processed.
+        return tr
+
+    return {root: dfs(root)}
 
 
 def tree_style(style: str) -> LeftAligned:
@@ -93,7 +98,12 @@ if __name__ == '__main__':
     tree = build_tree(dependencies, 'asciitree')
     print(ts(tree))
 
-    print('\nWith a cycle:')    # add a cycle
-    dependencies['want'].append('sometimes')
-    tree = build_tree(dependencies, 'asciitree')
+    print('\nWith cycles denormalized to tree:')    # add cycles
+    dependencies['just'].insert(0, 'sometimes')
+    dependencies |= {'draw': ['just']}
+    # dependencies |= {'you': ['you']}
+    try:
+        tree = build_tree(dependencies, 'asciitree')
+    except ValueError as e:
+        print(repr(e))
     print(ts(tree))
