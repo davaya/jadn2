@@ -39,7 +39,9 @@ class ATREE(JADNCore):
         tr = tree_style(style['draw'])
         defs = build_deps(self.SCHEMA)  # Get all type definitions and their dependencies
         refs = set(d for deps in defs.values() for d in deps)   # All referenced types
-        roots = set(defs) - refs        # Unreferenced types
+        if not (roots := set(defs) - refs):        # Unreferenced types
+            raise ValueError('No root types')
+        ttt = [build_tree(defs, root) for root in roots]
         tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
         tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.SCHEMA['types']}
         return '\n'.join([line(t, tx, style['detail']) for t in tree.split('\n')])
@@ -53,9 +55,9 @@ def build_tree(dependencies: dict[str, list], root: str) -> dict:
         tree = {}
         if this not in seen:
             seen |= {this, }
-            if this in deps:
-                for dep in deps[this]:
-                    tree[dep] = bt(deps, dep, seen)
+        if this in deps:
+            for dep in deps[this]:
+                tree[dep] = bt(deps, dep, seen)
         return tree
 
     seen = set()
@@ -88,5 +90,10 @@ if __name__ == '__main__':
     }
 
     ts = tree_style('double')
+    tree = build_tree(dependencies, 'asciitree')
+    print(ts(tree))
+
+    print('\nWith a cycle:')    # add a cycle
+    dependencies['want'].append('sometimes')
     tree = build_tree(dependencies, 'asciitree')
     print(ts(tree))
