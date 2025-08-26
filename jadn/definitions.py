@@ -125,7 +125,7 @@ TYPE_OPTIONS = {
 FIELD_OPTIONS = {
     0x5b: ('minOccurs', 'Integer', 27),     #  91 '[', min cardinality, default = 1, 0 = field is optional
     0x5d: ('maxOccurs', 'Integer', 28),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagid', 'Integer', 29),         #  38 '&', field that specifies the type of this field
+    0x26: ('tagId', 'Integer', 29),         #  38 '&', field that specifies the type of this field
     0x3c: ('dir', 'String', 30),            #  60 '<', pointer enumeration treats field as a collection
     0x4b: ('key', 'Boolean', 31),           #  75 'K', field is the primary key for TypeName
     0x4c: ('link', 'Boolean', 32),          #  76 'L', field is a link (foreign key) to an instance of FieldType
@@ -145,9 +145,9 @@ REQUIRED_TYPE_OPTIONS = {
     'Enumerated': [],
     'Choice': [],
     'Array': [],
-    'ArrayOf': ['vtype'],
+    'ArrayOf': ['valueType'],
     'Map': [],
-    'MapOf': ['ktype', 'vtype'],
+    'MapOf': ['keyType', 'valueType'],
     'Record': [],
 }
 
@@ -163,9 +163,9 @@ ALLOWED_TYPE_OPTIONS = {
     'Enumerated': ['id', 'enum', 'pointer', 'attr'],
     'Choice': ['id', 'combine'],
     'Array': ['format', 'minLength', 'maxLength'],
-    'ArrayOf': ['vtype', 'minLength', 'maxLength', 'unique', 'set', 'unordered'],
+    'ArrayOf': ['valueType', 'minLength', 'maxLength', 'unique', 'set', 'unordered'],
     'Map': ['id', 'minLength', 'maxLength', 'sequence'],
-    'MapOf': ['ktype', 'vtype', 'minLength', 'maxLength', 'sequence'],
+    'MapOf': ['keyType', 'valueType', 'minLength', 'maxLength', 'sequence'],
     'Record': ['minLength', 'maxLength', 'sequence'],
 }
 
@@ -241,7 +241,7 @@ EXTENSIONS = {
     'AnonymousType',            # TYPE_OPTIONS included in FieldOptions
     'Multiplicity',             # maxOccurs other than 1, or minLength other than 0 (optional) or 1 (required)
     'DerivedEnum',              # enum and pointer/dir options, create Enumerated type of fields or JSON Pointers
-    'MapOfEnum',                # ktype option specifies an Enumerated type
+    'MapOfEnum',                # keyType option specifies an Enumerated type
     'Link',                     # key and link options
 }
 
