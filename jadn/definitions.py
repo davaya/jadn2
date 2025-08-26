@@ -95,8 +95,8 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
 
 TYPE_OPTIONS = {
     0x3d: ('id', 'Boolean', 1),             #  61 '=', Enumerated type and Choice/Map/Record keys are ID not Name
-    0x2a: ('vtype', 'String', 2),           #  42 '*', Value type for ArrayOf and MapOf
-    0x2b: ('ktype', 'String', 3),           #  43 '+', Key type for MapOf
+    0x2a: ('valueType', 'String', 2),       #  42 '*', Value type for ArrayOf and MapOf
+    0x2b: ('keyType', 'String', 3),         #  43 '+', Key type for MapOf
     0x23: ('enum', 'String', 4),            #  35 '#', enumeration derived from Array/Choice/Map/Record type
     0x3e: ('pointer', 'String', 5),         #  62 '>', enumeration of pointers derived from Array/Choice/Map/Record type
     0x25: ('pattern', 'String', 6),         #  37 '%', regular expression that a string must match
@@ -119,7 +119,7 @@ TYPE_OPTIONS = {
     0x72: ('restricts', 'String', 23),      # 114 'r', Inheritance: restriction - subset of referenced type
     0x65: ('extends', 'String', 24),        # 101 'e', Inheritance: extension - superset of referenced type
     0x66: ('final', 'Boolean', 25),         # 102 'f', Inheritance: final - cannot have subtype
-    0x41: ('attr', 'Boolean', 26)           #  65 'A', field may be serialized as an attribute of an element
+    0x41: ('attr', 'Boolean', 26)           #  65 'A', Value may be serialized as an XML attribute
 }
 
 FIELD_OPTIONS = {
