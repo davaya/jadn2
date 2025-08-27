@@ -57,7 +57,7 @@ def build_tree(dependencies: dict[str, list], root: str) -> dict[str, dict]:
         tr = {}
         for dep in dependencies.get(node, []):
             if (c := color.get(dep, 0)) == 1:
-                raise ValueError(f'Graph cycle detected at type "{node}->{dep}"')
+                raise ValueError(f'Graph cycle detected at: {node}->{dep}')
             if c == 0:
                 tr |= {dep: dfs(dep)}
                 subtree[dep] = tr[dep]
@@ -98,10 +98,10 @@ if __name__ == '__main__':
     tree = build_tree(dependencies, 'asciitree')
     print(ts(tree))
 
-    print('\nWith cycles denormalized to tree:')    # add cycles
-    dependencies['just'].insert(0, 'sometimes')
-    dependencies |= {'draw': ['just']}
-    # dependencies |= {'you': ['you']}
+    print('\nWith cycles:')    # add cycles
+    dependencies['just'].insert(0, 'sometimes')     # not a cycle
+    dependencies |= {'draw': ['just']}      # back edge
+    # dependencies |= {'you': ['you']}        # self edge
     try:
         tree = build_tree(dependencies, 'asciitree')
     except ValueError as e:
