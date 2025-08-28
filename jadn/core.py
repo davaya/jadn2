@@ -184,7 +184,18 @@ if __name__ == '__main__':
                 print(f'Option ID mismatch: {td[TypeName]}: {fm} != {fd}')
 
     # Test tagged-string serialization
-    opts_s = ['=', '#Pasta', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
+    opts_s = [
+        '=',        # id
+        '*Foo',     # valueType
+        '+#Bar',    # keyType[Enum]
+        '#Pasta',   # Enum
+        '>Zoo',     # Pointer
+        r'%^[-_\da-zA-Z]{1,10}$',    # Pattern
+        'w4',       # minExclusive
+        'x5',       # maxExclusive
+        'y2',       # minInclusive
+        'z3.00',    # maxInclusive
+        'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
     print(f'\n Loaded opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'Number')
     print('Logical opts:')
