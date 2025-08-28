@@ -180,6 +180,8 @@ if __name__ == '__main__':
         for f in td[Fields]:
             if (fm := f[FieldName]) != (fd := OPTS[f[FieldID]][0]):
                 print(f'Option mismatch: {td[TypeName]}: {fm} != {fd}')
+            if (fm := f[FieldID]) != (fd := OPTX[f[FieldName]]):
+                print(f'Option ID mismatch: {td[TypeName]}: {fm} != {fd}')
 
     # Test tagged-string serialization
     opts_s = ['=', '#Pasta', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
