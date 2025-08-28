@@ -4,6 +4,7 @@ from copy import deepcopy
 from jadn.definitions import OPTS, OPTX, OPTO, BOOL_OPTS, PYTHON_TYPES, CoreType, Fields, FieldType, TypeOptions, FieldOptions
 from typing import TextIO, BinaryIO, Any
 from numbers import Number
+from pprint import pprint
 
 
 # =========================================================
@@ -184,8 +185,12 @@ if __name__ == '__main__':
     opts_s = ['=', '#Pasta', 'y2', 'z3.00', 'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
     print(f'\n Loaded opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'Number')
-    print(f'Logical opts: {opts_d}')
+    print('Logical opts:')
+    pprint(opts_d, indent=4, sort_dicts=False)
     opts_s2 = _dump_tagstrings(opts_d, 'Number')
     print(f' Dumped opts: {opts_s2}')
     if opts_s2 != opts_s:
-        print(' ** Translation mismatch **')
+        print('\n** Translation mismatch **')
+        for i in range(len(opts_s)):
+            if opts_s[i] != opts_s2[i]:
+                print(f"    '{opts_s[i]}' != '{opts_s2[i]}'")
