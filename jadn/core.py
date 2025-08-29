@@ -58,15 +58,15 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
 # Support functions
 # ========================================================
 
-def _load_tagstrings(tstrings: list[str], ct: str) -> dict[str, str]:
+def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str]:
     """
     Convert JSON-serialized TypeOptions and FieldOptions list of strings to dict
     """
-    def opt(s: str, ct: str) -> tuple[str, str]:
+    def opt(s: str, core_type: str) -> tuple[str, str]:
         t = OPTS[ord(s[0])]
-        f = PYTHON_TYPES[ct if t[1] is None else t[1]]
+        f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
         return s if s[0] in BOOL_OPTS else t[0], '' if s[0] in BOOL_OPTS else True if f is bool else f(s[1:])
-    return dict(opt(s, ct) for s in tstrings)
+    return dict(opt(s, core_type) for s in tstrings)
 
 
 def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
@@ -191,19 +191,79 @@ if __name__ == '__main__':
         '#Pasta',   # Enum
         '>Zoo',     # Pointer
         r'%^[-_\da-zA-Z]{1,10}$',    # Pattern
-        'w4',       # minExclusive
-        'x5',       # maxExclusive
-        'y2',       # minInclusive
-        'z3.00',    # maxInclusive
-        'u3.14159', 'q', '/ipv4', '/d3', 'A', '[0']
+        '{3',       # minLength
+        '}10',      # maxLength
+        'q',        # unique
+        's',        # set
+        'b',        # unordered
+        'o',        # sequence
+        '0',        # nillable
+        'CanyOf',   # union combine
+        '/ipv4',    # format1
+        '/d3',      # format2
+        'a',        # abstract
+        'rFoo',     # restricts
+        'eBar',     # extends
+        'f',        # final
+        'A',        # attribute
+        '[0',       # minOccurs
+        ']-1',      # maxOccurs
+        '&3',       # tagId
+        '<foo',     # dir (pointer)
+        'K',        # key
+        'L',        # link
+        'N',        # not
+    ]
     print(f'\n Loaded opts: {opts_s}')
-    opts_d = _load_tagstrings(opts_s, 'Number')
+    opts_d = _load_tagstrings(opts_s, 'None')
     print('Logical opts:')
     pprint(opts_d, indent=4, sort_dicts=False)
-    opts_s2 = _dump_tagstrings(opts_d, 'Number')
+    opts_s2 = _dump_tagstrings(opts_d, 'None')
     print(f' Dumped opts: {opts_s2}')
     if opts_s2 != opts_s:
         print('\n** Translation mismatch **')
         for i in range(len(opts_s)):
             if opts_s[i] != opts_s2[i]:
                 print(f"    '{opts_s[i]}' != '{opts_s2[i]}'")
+
+    # Options with values that match CoreType
+    topts_s = {
+        'Binary': [
+
+        ],
+        'Boolean': [
+            'ufalse',
+            'v0',
+        ],
+        'Integer': [
+            'w4',     # minExclusive Integer
+            'x5',     # maxExclusive Integer - schema error - no valid instance
+        ],
+        'Number': [
+            'y2',       # minInclusive
+            'z3.00',    # maxInclusive
+            'u3.14159', # default
+        ],
+        'String': [
+            'w0',       # minExclusive
+            'x10',      # maxExclusive
+            'yBar',     # minInclusive
+            'zBaz',     # maxInclusive
+            'u3.14159', # default
+            'vFred',    # const
+        ]
+    }
+
+    for core_type, opts_s in topts_s.items():
+        print(f'\n Loaded opts({core_type}): {opts_s}')
+        opts_d = {}
+        try:
+            opts_d = _load_tagstrings(opts_s, core_type)
+        except ValueError as e:
+            print(e)
+        print(f'Logical opts ({core_type}):')
+        pprint(opts_d, indent=4, sort_dicts=False)
+        opts_s2 = _dump_tagstrings(opts_d, core_type)
+        print(f' Dumped opts({core_type}): {opts_s2}')
+        if opts_s2 != opts_s:
+            print('** Translation mismatch **')

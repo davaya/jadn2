@@ -97,14 +97,14 @@ def build_deps(schema: dict[str, list]) -> dict[str, list[str]]:
     def get_refs(tdef: list) -> list[str]:  # Return all type references from a type definition
         """
         # Options whose value is/has a type name: strip option id
-        oids = [JADN.OPTX['ktype'], JADN.OPTX['vtype'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
+        oids = [JADN.OPTX['keyType'], JADN.OPTX['valueType'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
         # Options that enumerate fields: keep option id
         oids2 = [JADN.OPTX['enum'], JADN.OPTX['pointer']]
         refs = [to[1:] for to in tdef[TypeOptions] if to[0] in oids and not is_builtin(to[1:])]
         refs += ([to[1:] for to in tdef[TypeOptions] if to[0] in oids2])
         """
 
-        ropts = {'ktype', 'vtype', 'extends', 'restricts', 'enum', 'pointer'}     # reference options
+        ropts = {'keyType', 'valueType', 'extends', 'restricts', 'enum', 'pointer'}     # reference options
         refs = [v for k, v in tdef[TypeOptions].items() if k in ropts and not is_builtin(v)]
         if has_fields(tdef[CoreType]):  # Ignore Enumerated
             for f in tdef[Fields]:
@@ -166,11 +166,11 @@ def cleanup_tagid(fields: dict) -> dict:
     """
     for f in fields:
         if len(f) > FieldOptions:
-            if t := f[FieldOptions].get('tagid', ''):
+            if t := f[FieldOptions].get('tagId', ''):
                 try:
                     int(t)          # Check if it is already a FieldID
                 except ValueError:
-                    f[FieldOptions]['tagid'] = {f[FieldName]: f[FieldID] for f in fields}[t]
+                    f[FieldOptions]['tagId'] = {f[FieldName]: f[FieldID] for f in fields}[t]
     return fields
 
 
@@ -186,7 +186,7 @@ def typestr2jadn(typestring: str) -> tuple:
     fopts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
     p_id = r'(#?)'                                  # 2 'id'
-    p_func = r'(?:\(([^)]+)\))?'                    # 3 'ktype', 'vtype', 'enum', 'pointer', 'tagid'
+    p_func = r'(?:\(([^)]+)\))?'                    # 3 'keyType', 'valueType', 'enum', 'pointer', 'tagId'
     p_lengthpat = r'\{(.*)\}'                       # 4 'minLength', 'maxLength', 'pattern'
     p_format = r'\s+(\/\w[-\w]*)'                   # 5 'format'
     p_flag = r'\s+(unique|set|unordered|sequence|abstract|final)'    # 6 rest: flags
@@ -200,13 +200,13 @@ def typestr2jadn(typestring: str) -> tuple:
         fopts += {'not': True}
         tname = tname[1:]
     topts.update({'id': True} if m.group(2) else {})
-    if m.group(3):                      # Parens: (ktype, vtype), enum(), pointer(), tagid(), choice() options
+    if m.group(3):                      # Parens: (keyType, valueType), enum(), pointer(), tagId(), choice() options
         opts = [parseopt(x) for x in m.group(3).split(',', maxsplit=1)]
         assert len(opts) == (2 if tname == 'MapOf' else 1)  # TODO: raise proper error message
         if tname == 'MapOf':
-            topts.update({'ktype': opts[0], 'vtype': opts[1]})
+            topts.update({'keyType': opts[0], 'valueType': opts[1]})
         elif tname == 'ArrayOf':
-            topts.update({'vtype': opts[0]})
+            topts.update({'valueType': opts[0]})
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
         else:
@@ -254,7 +254,7 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     """
     Convert typename and options to string
     """
-    # Handle ktype/vtype containing Enum options
+    # Handle keyType/valueType containing Enum options
     def _kvstr(optv: str) -> str:
         if optv[0] == OPTX['enum']:
             return f'Enum[{optv[1:]}]'
@@ -283,8 +283,8 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     opts = copy.deepcopy(topts)
     txt = '#' if opts.pop('id', None) else ''   # SIDE EFFECT: remove known options from opts.
     if tname in ('ArrayOf', 'MapOf'):
-        txt += f"({_kvstr(opts.pop('ktype'))}, " if tname == 'MapOf' else '('
-        txt += f"{_kvstr(opts.pop('vtype'))})"
+        txt += f"({_kvstr(opts.pop('keyType'))}, " if tname == 'MapOf' else '('
+        txt += f"{_kvstr(opts.pop('valueType'))})"
 
     if v := opts.pop('combine', None):
         txt += f"({ {'O': 'anyOf', 'A': 'allOf', 'X': 'oneOf'}[v]})"
@@ -319,7 +319,7 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         if o := opts.pop(opt, None):
             txt += f" {opt}({o})"
 
-    for opt in ('minOccurs', 'maxOccurs', 'tagid'):
+    for opt in ('minOccurs', 'maxOccurs', 'tagId'):
         opts.pop(opt, None)     # Handled by caller
 
     return f"{tname}{txt}{f' ?{opts}?' if opts else ''}"  # Flag unrecognized options
@@ -351,7 +351,7 @@ def jadn2fielddef(fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         fto = fdef[FieldOptions]       # ?
         fname += '/' if 'dir' in fto else ''
         tf = ''
-        if tagid := fto.get('tagid', None):
+        if tagid := fto.get('tagId', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == tagid][0]
             tf = f'(TagId[{tf if tf else tagid}])'
         ft = jadn2typestr(f'{fdef[FieldType]}{tf}', fto)
@@ -394,8 +394,8 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
             fo.update({'minOccurs': -1, 'maxOccurs': -1})
         fo.update(fopts)
         # if fopts:
-        #     assert len(fopts) == 1 and fopts[0][0] == JADN.OPTX['tagid']    # Update if additional field options defined
-        #     fo.update({'tagid': fopts[0][1:]})      # if field name, MUST update to id after all fields have been read
+        #     assert len(fopts) == 1 and fopts[0][0] == JADN.OPTX['tagId']    # Update if additional field options defined
+        #     fo.update({'tagId': fopts[0][1:]})      # if field name, MUST update to id after all fields have been read
     if fdesc:
         m = re.match(r'^(?:\s*\/\/)?\s*(.*)$', fdesc)
         fdesc = m.group(1)
@@ -436,9 +436,9 @@ if __name__ == '__main__':
         opts = [parseopt(x) for x in m_group3.split(',', maxsplit=1)]
         assert len(opts) == (2 if tname == 'MapOf' else 1)
         if tname == 'MapOf':
-            topts.update({'ktype': opts[0], 'vtype': opts[1]})
+            topts.update({'keyType': opts[0], 'valueType': opts[1]})
         elif tname == 'ArrayOf':
-            topts.update({'vtype': opts[0]})
+            topts.update({'valueType': opts[0]})
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
         else:

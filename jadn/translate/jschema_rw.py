@@ -156,7 +156,7 @@ def define_jadn_type(tn: str, tv: dict, jss: dict, jssx: dict) -> list:
             tr = typerefname(ref, jss, jssx)
             tr = tr if tr else typerefname(itype, jss, jssx)
             tr = tr if tr else tn + '-item'
-            topts |= {'vtype': tr}
+            topts |= {'valueType': tr}
         else:
             coretype = 'Array'      # TODO: process individual items
             raise_error(f'Array type not yet supported: {tv}')

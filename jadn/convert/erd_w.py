@@ -101,7 +101,7 @@ class ERD(JADNCore):
             Return graph edges from type options in selected diagram language
             """
             topts = td[TypeOptions]
-            k, v = topts.get('ktype', None), topts.get('vtype', None)
+            k, v = topts.get('keyType', None), topts.get('valueType', None)
             edge = edge_field(td, [0, 'key', k, {}, '']) if k else ''
             edge += edge_field(td, [0, 'value', v, {}, '']) if v else ''
             return edge
@@ -118,8 +118,8 @@ class ERD(JADNCore):
             if td[CoreType] == 'Enumerated':
                 return ''
             fopts = fd[FieldOptions]
-            fieldtype = fopts['vtype'] if fd[FieldType] in {'ArrayOf', 'MapOf'} else fd[FieldType]
-            if fieldtype in nodes:      # TODO: include ktype
+            fieldtype = fopts['valueType'] if fd[FieldType] in {'ArrayOf', 'MapOf'} else fd[FieldType]
+            if fieldtype in nodes:      # TODO: include keyType
                 mult_f = multiplicity_str(fopts)
                 mult_r = '1'
                 if s['graph'] == 'plantuml':
