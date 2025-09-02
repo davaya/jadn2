@@ -65,7 +65,10 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str]:
     def opt(s: str, core_type: str) -> tuple[str, str]:
         t = OPTS[ord(s[0])]
         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
-        return s if s[0] in BOOL_OPTS else t[0], '' if s[0] in BOOL_OPTS else True if f is bool else f(s[1:])
+        if f == type(b''):
+            f = bytes.fromhex
+        return (s if s[0] in BOOL_OPTS else t[0],
+                '' if s[0] in BOOL_OPTS else True if f is bool else f(s[1:]))
     return dict(opt(s, core_type) for s in tstrings)
 
 
@@ -74,7 +77,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
     def strs(k: str, v: Any) -> str:
-        v = '' if isinstance(v, bool) else str(v)
+        v = '' if isinstance(v, bool) else v.hex() if isinstance(v, bytes) else str(v)
         return k if k[0] in BOOL_OPTS else chr(OPTX[k]) + v
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
             key=lambda k: OPTO[k[0]] if k[0][0] not in BOOL_OPTS else OPTO['format'])]
@@ -229,15 +232,16 @@ if __name__ == '__main__':
     # Options with values that match CoreType
     topts_s = {
         'Binary': [
-
+            'u00010203466f6f',  # ....Foo
+            'vc0a80001',        # 192.168.0.1
         ],
         'Boolean': [
-            'ufalse',
-            'v0',
+            'u',        # default - present = True
+                        # const ('v') - absent = False
         ],
         'Integer': [
-            'w4',     # minExclusive Integer
-            'x5',     # maxExclusive Integer - schema error - no valid instance
+            'w4',       # minExclusive Integer
+            'x5',       # maxExclusive Integer - schema warning - no valid instance
         ],
         'Number': [
             'y2',       # minInclusive
@@ -245,7 +249,7 @@ if __name__ == '__main__':
             'u3.14159', # default
         ],
         'String': [
-            'w0',       # minExclusive
+            'w0',       # minExclusive - schema warning - string collation order may not be supported
             'x10',      # maxExclusive
             'yBar',     # minInclusive
             'zBaz',     # maxInclusive
