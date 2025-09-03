@@ -253,13 +253,13 @@ if __name__ == '__main__':
             'x10',      # maxExclusive
             'yBar',     # minInclusive
             'zBaz',     # maxInclusive
-            'u3.14159', # default
+            'u3.1415@', # default - this is a valid string but not a number.
             'vFred',    # const
         ]
     }
 
     for core_type, opts_s in topts_s.items():
-        print(f'\n Loaded opts({core_type}): {opts_s}')
+        print(f'\n Loaded opts ({core_type}): {opts_s}')
         opts_d = {}
         try:
             opts_d = _load_tagstrings(opts_s, core_type)
@@ -268,6 +268,6 @@ if __name__ == '__main__':
         print(f'Logical opts ({core_type}):')
         pprint(opts_d, indent=4, sort_dicts=False)
         opts_s2 = _dump_tagstrings(opts_d, core_type)
-        print(f' Dumped opts({core_type}): {opts_s2}')
+        print(f' Dumped opts ({core_type}): {opts_s2}')
         if opts_s2 != opts_s:
             print('** Translation mismatch **')
