@@ -58,7 +58,7 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
 # Support functions
 # ========================================================
 
-def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str]:
+def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dict[str, str]]:
     """
     Convert JSON-serialized TypeOptions and FieldOptions list of strings to dict
     """
@@ -68,7 +68,11 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str]:
         if f == type(b''):
             f = bytes.fromhex
         return (s if s[0] in BOOL_OPTS else t[0],
-                '' if s[0] in BOOL_OPTS else True if f is bool else f(s[1:]))
+                '' if s[0] in BOOL_OPTS else
+                True if f is bool else
+                {'enum': s[2:]} if s[1] == chr(OPTX['enum']) else
+                f(s[1:]))
+
     return dict(opt(s, core_type) for s in tstrings)
 
 
@@ -76,9 +80,17 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     """
     Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
     """
+    def dictopt(v: dict[str, str]) -> str:
+        kv = v.popitem()
+        return chr(OPTX[kv[0]]) + kv[1]
+
     def strs(k: str, v: Any) -> str:
-        v = '' if isinstance(v, bool) else v.hex() if isinstance(v, bytes) else str(v)
+        v = '' if isinstance(v, bool) else\
+            v.hex() if isinstance(v, bytes) else\
+            dictopt(v) if isinstance(v, dict) else\
+            str(v)
         return k if k[0] in BOOL_OPTS else chr(OPTX[k]) + v
+
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
             key=lambda k: OPTO[k[0]] if k[0][0] not in BOOL_OPTS else OPTO['format'])]
 
@@ -189,11 +201,11 @@ if __name__ == '__main__':
     # Test tagged-string serialization
     opts_s = [
         '=',        # id
-        '*Foo',     # valueType
-        '+#Bar',    # keyType[Enum]
-        '#Pasta',   # Enum
-        '>Zoo',     # Pointer
-        r'%^[-_\da-zA-Z]{1,10}$',    # Pattern
+        '*Foo',     # valueType: ArrayOf(TypeRef)
+        '+#Bar',    # keyType: MapOf(Enum[TypeRef], ...)
+        '#Pasta',   # enum: Enumerated(Enum[TypeRef])
+        '>Zoo',     # pointer
+        r'%^[-_\da-zA-Z]{1,10}$',    # pattern: String{pattern="..."}
         '{3',       # minLength
         '}10',      # maxLength
         'q',        # unique
