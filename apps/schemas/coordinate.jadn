@@ -1,0 +1,8 @@
+{
+  "types": [
+    ["Coordinate", "Record", [], "GPS Coordinate", [
+      [1, "latitude", "Number", ["y-90", "z90"], "Latitude"],
+      [2, "longitude", "Number", ["w-180", "z180"], "Longitude"]
+    ]]
+  ]
+}

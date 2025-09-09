@@ -8,9 +8,9 @@ from pprint import pprint
 
 
 # =========================================================
-# Define JADN schema static function here because it's needed for METASCHEMA
-# class variable but using JADN class would be an inheritance loop
-# METASCHEMA is not validated on load, it must be correct.
+# Define JADN schema static function here because it's needed to load METASCHEMA.
+# Using the JADN class would be an inheritance loop error.
+# METASCHEMA can validate itself like any other JADN schema.
 # =========================================================
 def jadn_schema_loads(self, jadn_str: str) -> dict:
     """
@@ -134,7 +134,7 @@ class JADNCore:
     DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
     if 'METASCHEMA' not in dir():
         with open(os.path.join(DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-            METASCHEMA = jadn_schema_loads(None, fp.read())
+            METASCHEMA = jadn_schema_loads(None, fp.read())     # Static class variable shared by all instances
     SCHEMA = None
     SOURCE = None
 
@@ -241,14 +241,14 @@ if __name__ == '__main__':
             if opts_s[i] != opts_s2[i]:
                 print(f"    '{opts_s[i]}' != '{opts_s2[i]}'")
 
-    # Options with values that match CoreType
+    # Test tagged-string options where Value Type = CoreType
     topts_s = {
         'Binary': [
             'u00010203466f6f',  # ....Foo
             'vc0a80001',        # 192.168.0.1
         ],
         'Boolean': [
-            'u',        # default - present = True
+            'u',        # default - present = True.  schema warning if any value present
                         # const ('v') - absent = False
         ],
         'Integer': [
@@ -262,10 +262,10 @@ if __name__ == '__main__':
         ],
         'String': [
             'w0',       # minExclusive - schema warning - string collation order may not be supported
-            'x10',      # maxExclusive
+            'x10',      # maxExclusive - this is a string, not a number
             'yBar',     # minInclusive
             'zBaz',     # maxInclusive
-            'u3.1415@', # default - this is a valid string but not a number.
+            'u3.1415@', # default - this is a valid string, not a number.
             'vFred',    # const
         ]
     }

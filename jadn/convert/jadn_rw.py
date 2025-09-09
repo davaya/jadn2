@@ -3,7 +3,7 @@ from jadn.core import JADNCore, jadn_schema_loads, jadn_schema_dumps
 
 # =========================================================
 # JADN-format methods
-# schema_load function is defined in jadn.core in order to initialize METASCHEMA class variable
+# schema_loads function is defined in jadn.core in order to initialize METASCHEMA class variable
 # =========================================================
 class JADN(JADNCore):
     def style(self) -> dict:
