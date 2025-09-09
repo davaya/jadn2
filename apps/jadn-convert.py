@@ -9,7 +9,7 @@ CONFIG = 'jadn_config.json'
 
 
 def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: str) -> None:
-    klass = {
+    class_ = {
         'jadn': JADN,
         'jidl': JIDL,
         'xasd': XASD,
@@ -28,7 +28,7 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
 
     fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
-    if (k := klass.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
+    if (k := class_.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
 
         # Read schema literal into information value
         pkg = k()
@@ -39,13 +39,13 @@ def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: st
         pkg.validate()
 
         # Serialize information value to schema literal in output format
-        if format in klass:
-            style = style_args(klass[format](), format, style_cmd, CONFIG)    # style from format, config, args
+        if format in class_:
+            style = style_args(class_[format](), format, style_cmd, CONFIG)    # style from format, config, args
             if outdir:
                 with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
-                    klass[format]().schema_dump(fp, pkg, style)
+                    class_[format]().schema_dump(fp, pkg, style)
             else:
-                klass[format]().schema_dump(sys.stdout, pkg, style)
+                class_[format]().schema_dump(sys.stdout, pkg, style)
         else:
             print(f'Unknown output format "{format}"')
             sys.exit(2)
