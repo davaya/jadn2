@@ -214,7 +214,6 @@ if __name__ == '__main__':
         'o',        # sequence
         '0',        # nillable
         'CanyOf',   # union combine
-        'G',        # union combine group
         '/ipv4',    # format1
         '/d3',      # format2
         'a',        # abstract

@@ -128,20 +128,14 @@
     ]],
     ["IntegerOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
-      [1, "min", "MinInt", ["[0"]],
-      [2, "max", "MaxInt", ["[0"]],
+      [121, "minInclusive", "Integer", ["[0"]],
+      [122, "maxInclusive", "Integer", ["[0"]],
+      [119, "minExclusive", "Integer", ["[0"]],
+      [120, "maxExclusive", "Integer", ["[0"]],
       [117, "default", "Integer", ["[0"]],
       [118, "const", "Integer", ["[0"]],
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
-    ]],
-    ["MinInt", "Choice", ["ConeOf", "G"], "", [
-      [121, "minInclusive", "Integer"],
-      [119, "minExclusive", "Integer"]
-    ]],
-    ["MaxInt", "Choice", ["ConeOf", "G"], "", [
-      [122, "maxInclusive", "Integer"],
-      [120, "maxExclusive", "Integer"]
     ]],
     ["NumberOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
@@ -176,8 +170,7 @@
     ]],
     ["ChoiceOpts", "Map", ["eAllOpts"], "", [
       [61, "id", "Boolean", ["[0"]],
-      [67, "combine", "String", ["{1", "}1", "[0"]],
-      []
+      [67, "combine", "String", ["{1", "}1", "[0"]]
     ]],
     ["ArrayOpts", "Map", ["eAllOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
