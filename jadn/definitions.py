@@ -115,21 +115,22 @@ TYPE_OPTIONS = {
     0x30: ('nillable', 'Boolean', 19),      #  48 '0', Instance may have no value, represented by nil, null, None, etc.
     0x43: ('combine', 'String', 20),        #  67 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
     0x2f: ('format', 'String', 21),         #  47 '/', semantic validation keyword, may affect serialization
-    0x61: ('abstract', 'Boolean', 22),      #  97 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', 'String', 23),      # 114 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', 'String', 24),        # 101 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', 'Boolean', 25),         # 102 'f', Inheritance: final - cannot have subtype
-    0x41: ('attr', 'Boolean', 26)           #  65 'A', Value may be serialized as an XML attribute
+    0x45: ('scale', 'Integer', 22),         #  69 'E', fixed point scale factor n, serialized int = value * 10^n
+    0x61: ('abstract', 'Boolean', 23),      #  97 'a', Inheritance: abstract, non-instantiatable
+    0x72: ('restricts', 'String', 24),      # 114 'r', Inheritance: restriction - subset of referenced type
+    0x65: ('extends', 'String', 25),        # 101 'e', Inheritance: extension - superset of referenced type
+    0x66: ('final', 'Boolean', 26),         # 102 'f', Inheritance: final - cannot have subtype
+    0x41: ('attr', 'Boolean', 27)           #  65 'A', Value may be serialized as an XML attribute
 }
 
 FIELD_OPTIONS = {
-    0x5b: ('minOccurs', 'Integer', 27),     #  91 '[', min cardinality, default = 1, 0 = field is optional
-    0x5d: ('maxOccurs', 'Integer', 28),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagId', 'Integer', 29),         #  38 '&', field that specifies the type of this field
-    0x3c: ('dir', 'String', 30),            #  60 '<', pointer enumeration treats field as a collection
-    0x4b: ('key', 'Boolean', 31),           #  75 'K', field is the primary key for TypeName
-    0x4c: ('link', 'Boolean', 32),          #  76 'L', field is a link (foreign key) to an instance of FieldType
-    0x4e: ('not', 'Boolean', 33),           #  78 'N', field is not an instance of FieldType
+    0x5b: ('minOccurs', 'Integer', 28),     #  91 '[', min cardinality, default = 1, 0 = field is optional
+    0x5d: ('maxOccurs', 'Integer', 29),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
+    0x26: ('tagId', 'Integer', 30),         #  38 '&', field that specifies the type of this field
+    0x3c: ('dir', 'String', 31),            #  60 '<', pointer enumeration treats field as a collection
+    0x4b: ('key', 'Boolean', 32),           #  75 'K', field is the primary key for TypeName
+    0x4c: ('link', 'Boolean', 33),          #  76 'L', field is a link (foreign key) to an instance of FieldType
+    0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType
 }
 
 BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
@@ -156,7 +157,7 @@ ALLOWED_TYPE_OPTIONS_ALL = ['nillable', 'abstract', 'extends', 'restricts', 'fin
 ALLOWED_TYPE_OPTIONS = {
     'Binary': ['format', 'minLength', 'maxLength', 'default', 'const','nillable', 'attr'],
     'Boolean': ['default', 'const', 'nillable', 'attr'],
-    'Integer': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive',
+    'Integer': ['format', 'scale', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive',
                 'default', 'const', 'nillable', 'attr'],
     'Number': ['format', 'minInclusive', 'maxInclusive', 'minExclusive', 'maxExclusive',
                'default', 'const', 'nillable', 'attr'],
@@ -223,7 +224,6 @@ FORMAT_SERIALIZE = {        # Data representation formats for one or more serial
     'X': 'Binary',              # Hex - RFC 4648 Section 8 - uppercase only
     'i#': 'Integer',            # n-bit signed integer, n should be 8*2^N (8, 16, 32, 64, ...)
     'u#': 'Integer',            # n-bit field or unsigned integer
-    'd#': 'Integer',            # n-digit fixed precision integer scale = 10^n (1=deci, 2=centi, 3=milli, ...)
     'f#': 'Number',             # n-bit IEEE 754 Float (16=half precision, 32=single, 64=double, 128=quad, ...)
 }
 

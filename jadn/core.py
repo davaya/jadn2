@@ -214,8 +214,7 @@ if __name__ == '__main__':
         'o',        # sequence
         '0',        # nillable
         'CanyOf',   # union combine
-        '/ipv4',    # format1
-        '/d3',      # format2
+        '/ipv4',    # format
         'a',        # abstract
         'rFoo',     # restricts
         'eBar',     # extends
@@ -254,6 +253,7 @@ if __name__ == '__main__':
         'Integer': [
             'w4',       # minExclusive Integer
             'x5',       # maxExclusive Integer - schema warning - no valid instance
+            'E3',       # scale factor exponent - E3 means int = value*10^3 (milli-units)
         ],
         'Number': [
             'y2',       # minInclusive
