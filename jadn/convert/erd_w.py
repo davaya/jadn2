@@ -77,7 +77,7 @@ class ERD(JADNCore):
             elif s['detail'] == 'logical':
                 fval = fd[FieldName]
             elif s['detail'] == 'information':
-                fl = '{field} ' if s['language'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
+                fl = '{field} ' if s['graph'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
                 fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
                 fdef += '' if fmult == '1' else ' [' + fmult + ']'
                 fval = f'{fd[FieldID]} {fname}' + ('' if td[CoreType] == 'Enumerated' else f' : {fl}{fdef}')

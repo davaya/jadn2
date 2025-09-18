@@ -287,7 +287,7 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         txt += f"{_kvstr(opts.pop('valueType'))})"
 
     if v := opts.pop('combine', None):
-        txt += f"({ {'O': 'anyOf', 'A': 'allOf', 'X': 'oneOf'}[v]})"
+        txt += v
 
     if v := opts.pop('enum', None):
         txt += f'(Enum[{v}])'

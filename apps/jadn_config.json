@@ -5,7 +5,9 @@
       "desc": 55
     },
     "erd": {
-      "graph": "graphviz"
+      "graph": "graphviz",
+      "detail": "information",
+      "attributes": true
     }
   }
 }

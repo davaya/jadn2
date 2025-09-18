@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "package": "https://docs.oasis-open.org/openeox/v1.0/schema/core/",
+    "jadn_version": "http://oasis-open.org/openc2/jadn/v2.0/schema/",
+    "title": "EoX Information - Core",
+    "description": "The schema for representing End-of-Life (EoL), End-of-Security-Support (EoSSec) and other End-of information in OpenEoX.",
+    "roots": ["Root"],
+    "config": {
+      "$FieldName": "^[$a-z][_A-Za-z0-9]{0,63}$"
+    }
+  },
+
+  "types": [
+    ["EoX", "Record", [], "The schema for representing End-of-Life (EoL), End-of-Security-Support (EoSSec) and other End-of information in OpenEoX.", [
+      [1, "$schema", "String", ["/uri", "vhttps://docs.oasis-open.org/openeox/v1.0/schema/core/"], "Specifies the schema the JSON object must be valid against."],
+      [2, "end_of_life", "TimestampOption", [], "Indicates the last day when the particular product is officially supported in any way by the vendor."],
+      [3, "end_of_sales", "TimestampOption", ["[0"], "Indicates the last day when a particular product may be ordered by customers from vendor sales channels."],
+      [4, "end_of_security_support", "TimestampOption", [], "Indicates the last day when the vendor has committed to providing security remediations for the particular product."],
+      [5, "last_updated", "Timestamp", [], "Contains the RFC 3339 timestamp when the record was last updated."]
+    ]],
+
+    ["TimestampOption", "Choice", ["ConeOf"], "Contains the timestamp at which the product reaches the specified stage or the indicator that this is still 'to be announced'.", [
+      [1, "timestamp", "Timestamp", [], "A specific date and time"],
+      [2, "tba", "String", ["vtba"], "Indicates that a date/time is 'to be announced'"]
+    ]],
+
+    ["Timestamp", "Integer", ["/date-time"], "A date and time"]
+  ]
+}
