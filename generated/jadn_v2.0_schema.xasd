@@ -51,9 +51,9 @@
     <Type name="Type" type="Array">
       <Field fid="1" name="type_name" type="TypeName"></Field>
       <Field fid="2" name="core_type" type="Enumerated" enum="JADN-Type"></Field>
-      <Field fid="3" name="type_options" type="TypeOptions" minOccurs="0" tagid="2"></Field>
+      <Field fid="3" name="type_options" type="TypeOptions" minOccurs="0" tagId="2"></Field>
       <Field fid="4" name="type_description" type="Description" minOccurs="0"></Field>
-      <Field fid="5" name="fields" type="JADN-Type" minOccurs="0" tagid="2"></Field>
+      <Field fid="5" name="fields" type="JADN-Type" minOccurs="0" tagId="2"></Field>
     </Type>
     <Type name="JADN-Type" type="Choice">
       <Field fid="1" name="Binary" type="Empty"></Field>
@@ -84,8 +84,8 @@
       <Field fid="12" name="Record" type="RecordOpts"></Field>
     </Type>
     <Type name="Empty" type="Array" maxLength="0"></Type>
-    <Type name="Items" type="ArrayOf" vtype="Item"></Type>
-    <Type name="Fields" type="ArrayOf" vtype="Field"></Type>
+    <Type name="Items" type="ArrayOf" valueType="Item"></Type>
+    <Type name="Fields" type="ArrayOf" valueType="Field"></Type>
     <Type name="Item" type="Array">
       <Field fid="1" name="item_id" type="FieldID"></Field>
       <Field fid="2" name="item_value" type="String" minOccurs="0"></Field>
@@ -95,7 +95,7 @@
       <Field fid="1" name="field_id" type="FieldID"></Field>
       <Field fid="2" name="field_name" type="FieldName"></Field>
       <Field fid="3" name="field_type" type="TypeRef"></Field>
-      <Field fid="4" name="field_options" type="TypeOptions" minOccurs="0" tagid="3"></Field>
+      <Field fid="4" name="field_options" type="TypeOptions" minOccurs="0" tagId="3"></Field>
       <Field fid="5" name="field_description" type="Description" minOccurs="0"></Field>
     </Type>
     <Type name="FieldID" type="Integer" minInclusive="0"></Type>
@@ -114,41 +114,46 @@
       <Field fid="114" name="restricts" type="TypeRef" minOccurs="0"></Field>
       <Field fid="102" name="final" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="BinaryOpts" type="Map" extends="AllOpts">
-      <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+    <Type name="BinaryOpts" type="Map">
+      <Field fid="47" name="format" type="ArrayOf" valueType="Format" unique="True" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minOccurs="0"></Field>
       <Field fid="117" name="default" type="Binary" minOccurs="0"></Field>
       <Field fid="118" name="const" type="Binary" minOccurs="0"></Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
       <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="BooleanOpts" type="Map" extends="AllOpts">
+    <Type name="BooleanOpts" type="Map">
       <Field fid="117" name="default" type="Boolean" minOccurs="0"></Field>
       <Field fid="118" name="const" type="Boolean" minOccurs="0"></Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
       <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="IntegerOpts" type="Map" extends="AllOpts">
-      <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+    <Type name="IntegerOpts" type="Map">
+      <Field fid="47" name="format" type="ArrayOf" valueType="Format" unique="True" minOccurs="0"></Field>
+      <Field fid="69" name="scale" type="Integer" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="120" name="maxExclusive" type="Integer" minOccurs="0"></Field>
       <Field fid="117" name="default" type="Integer" minOccurs="0"></Field>
       <Field fid="118" name="const" type="Integer" minOccurs="0"></Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
       <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="NumberOpts" type="Map" extends="AllOpts">
-      <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+    <Type name="NumberOpts" type="Map">
+      <Field fid="47" name="format" type="ArrayOf" valueType="Format" unique="True" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="Number" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="Number" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="Number" minOccurs="0"></Field>
       <Field fid="120" name="maxExclusive" type="Number" minOccurs="0"></Field>
       <Field fid="117" name="default" type="Number" minOccurs="0"></Field>
       <Field fid="118" name="const" type="Number" minOccurs="0"></Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
       <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
-    <Type name="StringOpts" type="Map" extends="AllOpts">
-      <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+    <Type name="StringOpts" type="Map">
+      <Field fid="47" name="format" type="ArrayOf" valueType="Format" unique="True" minOccurs="0"></Field>
       <Field fid="121" name="minInclusive" type="String" minOccurs="0"></Field>
       <Field fid="122" name="maxInclusive" type="String" minOccurs="0"></Field>
       <Field fid="119" name="minExclusive" type="String" minOccurs="0"></Field>
@@ -158,6 +163,7 @@
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="117" name="default" type="String" minOccurs="0"></Field>
       <Field fid="118" name="const" type="String" minOccurs="0"></Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
       <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
     </Type>
     <Type name="EnumeratedOpts" type="Map" extends="AllOpts">
@@ -171,12 +177,12 @@
       <Field fid="67" name="combine" type="String" minLength="1" maxLength="1" minOccurs="0"></Field>
     </Type>
     <Type name="ArrayOpts" type="Map" extends="AllOpts">
-      <Field fid="47" name="format" type="ArrayOf" vtype="Format" unique="True" minOccurs="0"></Field>
+      <Field fid="47" name="format" type="ArrayOf" valueType="Format" unique="True" minOccurs="0"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
     </Type>
     <Type name="ArrayOfOpts" type="Map" extends="AllOpts">
-      <Field fid="42" name="vtype" type="TypeRef"></Field>
+      <Field fid="42" name="valueType" type="TypeRef"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="113" name="unique" type="Boolean" minOccurs="0"></Field>
@@ -190,8 +196,8 @@
       <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
     </Type>
     <Type name="MapOfOpts" type="Map" extends="AllOpts">
-      <Field fid="43" name="ktype" type="TypeRef"></Field>
-      <Field fid="42" name="vtype" type="TypeRef"></Field>
+      <Field fid="43" name="keyType" type="TypeRef"></Field>
+      <Field fid="42" name="valueType" type="TypeRef"></Field>
       <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
       <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>

@@ -111,30 +111,34 @@
       [114, "restricts", "TypeRef", ["[0"]],
       [102, "final", "Boolean", ["[0"]]
     ]],
-    ["BinaryOpts", "Map", ["eAllOpts"], "", [
+    ["BinaryOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [123, "minLength", "Integer", ["[0"]],
       [125, "maxLength", "Integer", ["[0"]],
       [117, "default", "Binary", ["[0"]],
       [118, "const", "Binary", ["[0"]],
+      [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["BooleanOpts", "Map", ["eAllOpts"], "", [
+    ["BooleanOpts", "Map", [], "", [
       [117, "default", "Boolean", ["[0"]],
       [118, "const", "Boolean", ["[0"]],
+      [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["IntegerOpts", "Map", ["eAllOpts"], "", [
+    ["IntegerOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [69, "scale", "Integer", ["[0"]],
       [121, "minInclusive", "Integer", ["[0"]],
       [122, "maxInclusive", "Integer", ["[0"]],
       [119, "minExclusive", "Integer", ["[0"]],
       [120, "maxExclusive", "Integer", ["[0"]],
       [117, "default", "Integer", ["[0"]],
       [118, "const", "Integer", ["[0"]],
+      [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["NumberOpts", "Map", ["eAllOpts"], "", [
+    ["NumberOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [121, "minInclusive", "Number", ["[0"]],
       [122, "maxInclusive", "Number", ["[0"]],
@@ -142,9 +146,10 @@
       [120, "maxExclusive", "Number", ["[0"]],
       [117, "default", "Number", ["[0"]],
       [118, "const", "Number", ["[0"]],
+      [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["StringOpts", "Map", ["eAllOpts"], "", [
+    ["StringOpts", "Map", [], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [121, "minInclusive", "String", ["[0"]],
       [122, "maxInclusive", "String", ["[0"]],
@@ -155,6 +160,7 @@
       [125, "maxLength", "Integer", ["y0", "[0"]],
       [117, "default", "String", ["[0"]],
       [118, "const", "String", ["[0"]],
+      [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
     ["EnumeratedOpts", "Map", ["eAllOpts"], "", [
@@ -173,7 +179,7 @@
       [125, "maxLength", "Integer", ["y0", "[0"]]
     ]],
     ["ArrayOfOpts", "Map", ["eAllOpts"], "", [
-      [42, "vtype", "TypeRef"],
+      [42, "valueType", "TypeRef"],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
       [113, "unique", "Boolean", ["[0"]],
@@ -187,8 +193,8 @@
       [111, "sequence", "Boolean", ["[0"]]
     ]],
     ["MapOfOpts", "Map", ["eAllOpts"], "", [
-      [43, "ktype", "TypeRef"],
-      [42, "vtype", "TypeRef"],
+      [43, "keyType", "TypeRef"],
+      [42, "valueType", "TypeRef"],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
       [111, "sequence", "Boolean", ["[0"]]

@@ -178,7 +178,7 @@ def parseopt(optstr: str) -> tuple:
     m1 = re.match(r'^\s*(!?[-$:\w]+)(?:\[([^]]+)])?$', optstr)   # Typeref: !foo:MyType[Ktype, Vtype]
     if m1 is None:
         raise_error(f'TypeString2JADN: unexpected function: {optstr}')
-    return m1.group(1) if m1.group(2) is None else {m1.group(1).lower(): m1.group(2)}
+    return m1.group(1) if m1.group(2) is None else {m1.group(1): m1.group(2)}
 
 
 def typestr2jadn(typestring: str) -> tuple:
@@ -257,9 +257,9 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     # Handle keyType/valueType containing Enum options
     def _kvstr(optv: str) -> str:
         if optv[0] == OPTX['enum']:
-            return f'Enum[{optv[1:]}]'
+            return f'enum[{optv[1:]}]'
         if optv[0] == OPTX['pointer']:
-            return f'Pointer[{optv[1:]}]'
+            return f'pointer[{optv[1:]}]'
         return optv
 
     # Length range (single-ended) - default is {0..*}
@@ -290,10 +290,10 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         txt += v
 
     if v := opts.pop('enum', None):
-        txt += f'(Enum[{v}])'
+        txt += f'(enum[{v}])'
 
     if v := opts.pop('pointer', None):
-        txt += f'(Pointer[{v}])'
+        txt += f'(pointer[{v}])'
 
     if v := opts.pop('pattern', None):
         txt += f'{{pattern="{v}"}}'
@@ -353,10 +353,10 @@ def jadn2fielddef(fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         tf = ''
         if tagid := fto.get('tagId', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == tagid][0]
-            tf = f'(TagId[{tf if tf else tagid}])'
+            tf = f'(tagId[{tf if tf else tagid}])'
         ft = jadn2typestr(f'{fdef[FieldType]}{tf}', fto)
         fnot = '!' if 'not' in fto else ''
-        ftyperef = f'Key({ft})' if 'key' in fto else f'Link({ft})' if 'link' in fto else fnot + ft
+        ftyperef = f'key({ft})' if 'key' in fto else f'link({ft})' if 'link' in fto else fnot + ft
         fmult = multiplicity_str(fto)
     return fname, ftyperef, fmult, fdesc
 
@@ -372,7 +372,7 @@ def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> li
     ftyperef = ''
     fo = {}
     if fstr:
-        if m := re.match(r'^(Link|Key)\((.*)\)$', fstr):
+        if m := re.match(r'^(link|key)\((.*)\)$', fstr):
             fo = {m.group(1).lower(): True}
             fstr = m.group(2)
         ftyperef, topts, fopts = typestr2jadn(fstr)

@@ -100,10 +100,10 @@ Config vars override JADN defaults
 | ID | Type                          | \#   | Description            |
 |----|-------------------------------|------|------------------------|
 | 1  | TypeName                      | 1    | **type_name** -        |
-| 2  | Enumerated(Enum[JADN-Type])   | 1    | **core_type** -        |
-| 3  | TypeOptions(TagId[core_type]) | 0..1 | **type_options** -     |
+| 2  | Enumerated(enum[JADN-Type])   | 1    | **core_type** -        |
+| 3  | TypeOptions(tagId[core_type]) | 0..1 | **type_options** -     |
 | 4  | Description                   | 0..1 | **type_description** -  |
-| 5  | JADN-Type(TagId[core_type])   | 0..1 | **fields** -           |
+| 5  | JADN-Type(tagId[core_type])   | 0..1 | **fields** -           |
 
 **********
 
@@ -180,7 +180,7 @@ Config vars override JADN defaults
 | 1  | FieldID                        | 1    | **field_id** -          |
 | 2  | FieldName                      | 1    | **field_name** -        |
 | 3  | TypeRef                        | 1    | **field_type** -        |
-| 4  | TypeOptions(TagId[field_type]) | 0..1 | **field_options** -     |
+| 4  | TypeOptions(tagId[field_type]) | 0..1 | **field_options** -     |
 | 5  | Description                    | 0..1 | **field_description** -  |
 
 **********
@@ -216,7 +216,7 @@ Config vars override JADN defaults
 
 **********
 
-**Type: BinaryOpts (Map extends(AllOpts))**
+**Type: BinaryOpts (Map)**
 
 | ID  | Name          | Type                   | \#   | Description |
 |-----|---------------|------------------------|------|-------------|
@@ -225,36 +225,40 @@ Config vars override JADN defaults
 | 125 | **maxLength** | Integer                | 0..1 |             |
 | 117 | **default**   | Binary                 | 0..1 |             |
 | 118 | **const**     | Binary                 | 0..1 |             |
+| 48  | **nillable**  | Boolean                | 0..1 |             |
 | 65  | **attr**      | Boolean                | 0..1 |             |
 
 **********
 
-**Type: BooleanOpts (Map extends(AllOpts))**
+**Type: BooleanOpts (Map)**
 
-| ID  | Name        | Type    | \#   | Description |
-|-----|-------------|---------|------|-------------|
-| 117 | **default** | Boolean | 0..1 |             |
-| 118 | **const**   | Boolean | 0..1 |             |
-| 65  | **attr**    | Boolean | 0..1 |             |
+| ID  | Name         | Type    | \#   | Description |
+|-----|--------------|---------|------|-------------|
+| 117 | **default**  | Boolean | 0..1 |             |
+| 118 | **const**    | Boolean | 0..1 |             |
+| 48  | **nillable** | Boolean | 0..1 |             |
+| 65  | **attr**     | Boolean | 0..1 |             |
 
 **********
 
-**Type: IntegerOpts (Map extends(AllOpts))**
+**Type: IntegerOpts (Map)**
 
 | ID  | Name             | Type                   | \#   | Description |
 |-----|------------------|------------------------|------|-------------|
 | 47  | **format**       | ArrayOf(Format) unique | 0..1 |             |
+| 69  | **scale**        | Integer                | 0..1 |             |
 | 121 | **minInclusive** | Integer                | 0..1 |             |
 | 122 | **maxInclusive** | Integer                | 0..1 |             |
 | 119 | **minExclusive** | Integer                | 0..1 |             |
 | 120 | **maxExclusive** | Integer                | 0..1 |             |
 | 117 | **default**      | Integer                | 0..1 |             |
 | 118 | **const**        | Integer                | 0..1 |             |
+| 48  | **nillable**     | Boolean                | 0..1 |             |
 | 65  | **attr**         | Boolean                | 0..1 |             |
 
 **********
 
-**Type: NumberOpts (Map extends(AllOpts))**
+**Type: NumberOpts (Map)**
 
 | ID  | Name             | Type                   | \#   | Description |
 |-----|------------------|------------------------|------|-------------|
@@ -265,11 +269,12 @@ Config vars override JADN defaults
 | 120 | **maxExclusive** | Number                 | 0..1 |             |
 | 117 | **default**      | Number                 | 0..1 |             |
 | 118 | **const**        | Number                 | 0..1 |             |
+| 48  | **nillable**     | Boolean                | 0..1 |             |
 | 65  | **attr**         | Boolean                | 0..1 |             |
 
 **********
 
-**Type: StringOpts (Map extends(AllOpts))**
+**Type: StringOpts (Map)**
 
 | ID  | Name             | Type                   | \#   | Description |
 |-----|------------------|------------------------|------|-------------|
@@ -283,6 +288,7 @@ Config vars override JADN defaults
 | 125 | **maxLength**    | Integer=[0, \*]        | 0..1 |             |
 | 117 | **default**      | String                 | 0..1 |             |
 | 118 | **const**        | String                 | 0..1 |             |
+| 48  | **nillable**     | Boolean                | 0..1 |             |
 | 65  | **attr**         | Boolean                | 0..1 |             |
 
 **********
@@ -321,7 +327,7 @@ Config vars override JADN defaults
 
 | ID  | Name          | Type            | \#   | Description |
 |-----|---------------|-----------------|------|-------------|
-| 42  | **vtype**     | TypeRef         | 1    |             |
+| 42  | **valueType** | TypeRef         | 1    |             |
 | 123 | **minLength** | Integer=[0, \*] | 0..1 |             |
 | 125 | **maxLength** | Integer=[0, \*] | 0..1 |             |
 | 113 | **unique**    | Boolean         | 0..1 |             |
@@ -345,8 +351,8 @@ Config vars override JADN defaults
 
 | ID  | Name          | Type            | \#   | Description |
 |-----|---------------|-----------------|------|-------------|
-| 43  | **ktype**     | TypeRef         | 1    |             |
-| 42  | **vtype**     | TypeRef         | 1    |             |
+| 43  | **keyType**   | TypeRef         | 1    |             |
+| 42  | **valueType** | TypeRef         | 1    |             |
 | 123 | **minLength** | Integer=[0, \*] | 0..1 |             |
 | 125 | **maxLength** | Integer=[0, \*] | 0..1 |             |
 | 111 | **sequence**  | Boolean         | 0..1 |             |

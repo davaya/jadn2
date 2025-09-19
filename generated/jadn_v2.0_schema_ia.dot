@@ -1,0 +1,331 @@
+# title: JADN Metaschema
+# package: http://oasis-open.org/openc2/jadn/v2.0/schema
+# description: Syntax of a JSON Abstract Data Notation (JADN) package.
+# license: CC-BY-4.0
+# roots: ['Schema']
+# config: {'$FieldName': '^[$A-Za-z][_A-Za-z0-9]{0,63}$'}
+
+digraph G {
+  graph [fontname=Arial, fontsize=12];
+  node [fontname=Arial, fontsize=8, shape=plain, style=filled, fillcolor=lightskyblue1];
+  edge [fontname=Arial, fontsize=7, arrowsize=0.5, labelangle=45.0, labeldistance=0.9];
+  bgcolor="transparent";
+
+n0 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Schema : Record  </b></td></tr><hr/>
+  <tr><td align="left">  1 meta : Metadata [0..1]  </td></tr>
+  <tr><td align="left">  2 types : Type unique [1..*]  </td></tr>
+</table>>]
+
+n1 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Metadata : Map  </b></td></tr><hr/>
+  <tr><td align="left">  1 package : Namespace  </td></tr>
+  <tr><td align="left">  2 version : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  3 title : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  4 description : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  5 comment : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  6 copyright : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  7 license : String{1..*} [0..1]  </td></tr>
+  <tr><td align="left">  8 namespaces : PrefixNs unique [0..*]  </td></tr>
+  <tr><td align="left">  9 roots : TypeName unique [0..*]  </td></tr>
+  <tr><td align="left">  10 config : Config [0..1]  </td></tr>
+  <tr><td align="left">  11 jadn_version : Namespace [0..1]  </td></tr>
+</table>>]
+
+n2 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  PrefixNs : Array  </b></td></tr><hr/>
+  <tr><td align="left">  1  : NSID  </td></tr>
+  <tr><td align="left">  2  : Namespace  </td></tr>
+</table>>]
+
+n3 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Config : Map{1..*}  </b></td></tr><hr/>
+  <tr><td align="left">  1 $MaxBinary : Integer=[1, *] [0..1]  </td></tr>
+  <tr><td align="left">  2 $MaxString : Integer=[1, *] [0..1]  </td></tr>
+  <tr><td align="left">  3 $MaxElements : Integer=[1, *] [0..1]  </td></tr>
+  <tr><td align="left">  4 $Sys : String{1..1} [0..1]  </td></tr>
+  <tr><td align="left">  5 $TypeName : String /regex [0..1]  </td></tr>
+  <tr><td align="left">  6 $FieldName : String /regex [0..1]  </td></tr>
+  <tr><td align="left">  7 $NSID : String /regex [0..1]  </td></tr>
+</table>>]
+
+n4 [label=<<b>Namespace : String /uri</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n5 [label=<<b>NSID : String{pattern="$NSID"}</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n6 [label=<<b>TypeName : String{pattern="$TypeName"}</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n7 [label=<<b>FieldName : String{pattern="$FieldName"}</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n8 [label=<<b>TypeRef : String</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n9 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Type : Array  </b></td></tr><hr/>
+  <tr><td align="left">  1  : TypeName  </td></tr>
+  <tr><td align="left">  2  : Enumerated(enum[JADN-Type])  </td></tr>
+  <tr><td align="left">  3  : TypeOptions(tagId[core_type]) [0..1]  </td></tr>
+  <tr><td align="left">  4  : Description [0..1]  </td></tr>
+  <tr><td align="left">  5  : JADN-Type(tagId[core_type]) [0..1]  </td></tr>
+</table>>]
+
+n10 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  JADN-Type : Choice  </b></td></tr><hr/>
+  <tr><td align="left">  1 Binary : Empty  </td></tr>
+  <tr><td align="left">  2 Boolean : Empty  </td></tr>
+  <tr><td align="left">  3 Integer : Empty  </td></tr>
+  <tr><td align="left">  4 Number : Empty  </td></tr>
+  <tr><td align="left">  5 String : Empty  </td></tr>
+  <tr><td align="left">  6 Enumerated : Items  </td></tr>
+  <tr><td align="left">  7 Choice : Fields  </td></tr>
+  <tr><td align="left">  8 Array : Fields  </td></tr>
+  <tr><td align="left">  9 ArrayOf : Empty  </td></tr>
+  <tr><td align="left">  10 Map : Fields  </td></tr>
+  <tr><td align="left">  11 MapOf : Empty  </td></tr>
+  <tr><td align="left">  12 Record : Fields  </td></tr>
+</table>>]
+
+n11 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  TypeOptions : Choice  </b></td></tr><hr/>
+  <tr><td align="left">  1 Binary : BinaryOpts  </td></tr>
+  <tr><td align="left">  2 Boolean : BooleanOpts  </td></tr>
+  <tr><td align="left">  3 Integer : IntegerOpts  </td></tr>
+  <tr><td align="left">  4 Number : NumberOpts  </td></tr>
+  <tr><td align="left">  5 String : StringOpts  </td></tr>
+  <tr><td align="left">  6 Enumerated : EnumeratedOpts  </td></tr>
+  <tr><td align="left">  7 Choice : ChoiceOpts  </td></tr>
+  <tr><td align="left">  8 Array : ArrayOpts  </td></tr>
+  <tr><td align="left">  9 ArrayOf : ArrayOfOpts  </td></tr>
+  <tr><td align="left">  10 Map : MapOpts  </td></tr>
+  <tr><td align="left">  11 MapOf : MapOfOpts  </td></tr>
+  <tr><td align="left">  12 Record : RecordOpts  </td></tr>
+</table>>]
+
+n12 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Empty : Array{0..0}  </b></td></tr>
+</table>>]
+
+n13 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Items : ArrayOf(Item)  </b></td></tr>
+</table>>]
+
+n14 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Fields : ArrayOf(Field)  </b></td></tr>
+</table>>]
+
+n15 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Item : Array  </b></td></tr><hr/>
+  <tr><td align="left">  1  : FieldID  </td></tr>
+  <tr><td align="left">  2  : String [0..1]  </td></tr>
+  <tr><td align="left">  3  : Description [0..1]  </td></tr>
+</table>>]
+
+n16 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  Field : Array  </b></td></tr><hr/>
+  <tr><td align="left">  1  : FieldID  </td></tr>
+  <tr><td align="left">  2  : FieldName  </td></tr>
+  <tr><td align="left">  3  : TypeRef  </td></tr>
+  <tr><td align="left">  4  : TypeOptions(tagId[field_type]) [0..1]  </td></tr>
+  <tr><td align="left">  5  : Description [0..1]  </td></tr>
+</table>>]
+
+n17 [label=<<b>FieldID : Integer=[0, *]</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n18 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  FieldOptions : Map  </b></td></tr><hr/>
+  <tr><td align="left">  91 minOccurs : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  93 maxOccurs : Integer=[-2, *] [0..1]  </td></tr>
+  <tr><td align="left">  38 tagId : Integer [0..1]  </td></tr>
+  <tr><td align="left">  75 key : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  76 link : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  78 not : Boolean [0..1]  </td></tr>
+</table>>]
+
+n19 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  AllOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  97 abstract : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  101 extends : TypeRef [0..1]  </td></tr>
+  <tr><td align="left">  114 restricts : TypeRef [0..1]  </td></tr>
+  <tr><td align="left">  102 final : Boolean [0..1]  </td></tr>
+</table>>]
+
+n20 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  BinaryOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  47 format : ArrayOf(Format) unique [0..1]  </td></tr>
+  <tr><td align="left">  123 minLength : Integer [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer [0..1]  </td></tr>
+  <tr><td align="left">  117 default : Binary [0..1]  </td></tr>
+  <tr><td align="left">  118 const : Binary [0..1]  </td></tr>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n21 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  BooleanOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  117 default : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  118 const : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n22 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  IntegerOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  47 format : ArrayOf(Format) unique [0..1]  </td></tr>
+  <tr><td align="left">  69 scale : Integer [0..1]  </td></tr>
+  <tr><td align="left">  121 minInclusive : Integer [0..1]  </td></tr>
+  <tr><td align="left">  122 maxInclusive : Integer [0..1]  </td></tr>
+  <tr><td align="left">  119 minExclusive : Integer [0..1]  </td></tr>
+  <tr><td align="left">  120 maxExclusive : Integer [0..1]  </td></tr>
+  <tr><td align="left">  117 default : Integer [0..1]  </td></tr>
+  <tr><td align="left">  118 const : Integer [0..1]  </td></tr>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n23 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  NumberOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  47 format : ArrayOf(Format) unique [0..1]  </td></tr>
+  <tr><td align="left">  121 minInclusive : Number [0..1]  </td></tr>
+  <tr><td align="left">  122 maxInclusive : Number [0..1]  </td></tr>
+  <tr><td align="left">  119 minExclusive : Number [0..1]  </td></tr>
+  <tr><td align="left">  120 maxExclusive : Number [0..1]  </td></tr>
+  <tr><td align="left">  117 default : Number [0..1]  </td></tr>
+  <tr><td align="left">  118 const : Number [0..1]  </td></tr>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n24 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  StringOpts : Map  </b></td></tr><hr/>
+  <tr><td align="left">  47 format : ArrayOf(Format) unique [0..1]  </td></tr>
+  <tr><td align="left">  121 minInclusive : String [0..1]  </td></tr>
+  <tr><td align="left">  122 maxInclusive : String [0..1]  </td></tr>
+  <tr><td align="left">  119 minExclusive : String [0..1]  </td></tr>
+  <tr><td align="left">  120 maxExclusive : String [0..1]  </td></tr>
+  <tr><td align="left">  37 pattern : String /regex [0..1]  </td></tr>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  117 default : String [0..1]  </td></tr>
+  <tr><td align="left">  118 const : String [0..1]  </td></tr>
+  <tr><td align="left">  48 nillable : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n25 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  EnumeratedOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  61 id : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  35 enum : TypeRef [0..1]  </td></tr>
+  <tr><td align="left">  62 pointer : TypeRef [0..1]  </td></tr>
+  <tr><td align="left">  65 attr : Boolean [0..1]  </td></tr>
+</table>>]
+
+n26 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  ChoiceOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  61 id : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  67 combine : String{1..1} [0..1]  </td></tr>
+</table>>]
+
+n27 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  ArrayOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  47 format : ArrayOf(Format) unique [0..1]  </td></tr>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+</table>>]
+
+n28 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  ArrayOfOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  42 valueType : TypeRef  </td></tr>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  113 unique : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  115 set : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  98 unordered : Boolean [0..1]  </td></tr>
+</table>>]
+
+n29 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  MapOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  61 id : Boolean [0..1]  </td></tr>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  111 sequence : Boolean [0..1]  </td></tr>
+</table>>]
+
+n30 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  MapOfOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  43 keyType : TypeRef  </td></tr>
+  <tr><td align="left">  42 valueType : TypeRef  </td></tr>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  111 sequence : Boolean [0..1]  </td></tr>
+</table>>]
+
+n31 [label=<<table cellborder="0" cellpadding="1" cellspacing="0">
+<tr><td cellpadding="4"><b>  RecordOpts : Map extends(AllOpts)  </b></td></tr><hr/>
+  <tr><td align="left">  123 minLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  125 maxLength : Integer=[0, *] [0..1]  </td></tr>
+  <tr><td align="left">  111 sequence : Boolean [0..1]  </td></tr>
+</table>>]
+
+n32 [label=<<b>Format : String{pattern="^/[a-zA-Z0-9]{1,16}+$"}</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+n33 [label=<<b>Description : String</b>>, shape=ellipse, style=filled, fillcolor=palegreen]
+
+  n0 -> n1 [label=meta, headlabel="0..1", taillabel="1"]
+  n0 -> n9 [label=types, headlabel="1..*", taillabel="1"]
+  n1 -> n4 [label=package, headlabel="1", taillabel="1"]
+  n1 -> n2 [label=namespaces, headlabel="0..*", taillabel="1"]
+  n1 -> n6 [label=roots, headlabel="0..*", taillabel="1"]
+  n1 -> n3 [label=config, headlabel="0..1", taillabel="1"]
+  n1 -> n4 [label=jadn_version, headlabel="0..1", taillabel="1"]
+  n2 -> n5 [label=prefix, headlabel="1", taillabel="1"]
+  n2 -> n4 [label=namespace, headlabel="1", taillabel="1"]
+  n9 -> n6 [label=type_name, headlabel="1", taillabel="1"]
+  n9 -> n11 [label=type_options, headlabel="0..1", taillabel="1"]
+  n9 -> n33 [label=type_description, headlabel="0..1", taillabel="1"]
+  n9 -> n10 [label=fields, headlabel="0..1", taillabel="1"]
+  n10 -> n12 [label=Binary, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=Boolean, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=Integer, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=Number, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=String, headlabel="1", taillabel="1"]
+  n10 -> n13 [label=Enumerated, headlabel="1", taillabel="1"]
+  n10 -> n14 [label=Choice, headlabel="1", taillabel="1"]
+  n10 -> n14 [label=Array, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=ArrayOf, headlabel="1", taillabel="1"]
+  n10 -> n14 [label=Map, headlabel="1", taillabel="1"]
+  n10 -> n12 [label=MapOf, headlabel="1", taillabel="1"]
+  n10 -> n14 [label=Record, headlabel="1", taillabel="1"]
+  n11 -> n20 [label=Binary, headlabel="1", taillabel="1"]
+  n11 -> n21 [label=Boolean, headlabel="1", taillabel="1"]
+  n11 -> n22 [label=Integer, headlabel="1", taillabel="1"]
+  n11 -> n23 [label=Number, headlabel="1", taillabel="1"]
+  n11 -> n24 [label=String, headlabel="1", taillabel="1"]
+  n11 -> n25 [label=Enumerated, headlabel="1", taillabel="1"]
+  n11 -> n26 [label=Choice, headlabel="1", taillabel="1"]
+  n11 -> n27 [label=Array, headlabel="1", taillabel="1"]
+  n11 -> n28 [label=ArrayOf, headlabel="1", taillabel="1"]
+  n11 -> n29 [label=Map, headlabel="1", taillabel="1"]
+  n11 -> n30 [label=MapOf, headlabel="1", taillabel="1"]
+  n11 -> n31 [label=Record, headlabel="1", taillabel="1"]
+  n13 -> n15 [label=value, headlabel="1", taillabel="1"]
+  n14 -> n16 [label=value, headlabel="1", taillabel="1"]
+  n15 -> n17 [label=item_id, headlabel="1", taillabel="1"]
+  n15 -> n33 [label=item_description, headlabel="0..1", taillabel="1"]
+  n16 -> n17 [label=field_id, headlabel="1", taillabel="1"]
+  n16 -> n7 [label=field_name, headlabel="1", taillabel="1"]
+  n16 -> n8 [label=field_type, headlabel="1", taillabel="1"]
+  n16 -> n11 [label=field_options, headlabel="0..1", taillabel="1"]
+  n16 -> n33 [label=field_description, headlabel="0..1", taillabel="1"]
+  n19 -> n8 [label=extends, headlabel="0..1", taillabel="1"]
+  n19 -> n8 [label=restricts, headlabel="0..1", taillabel="1"]
+  n20 -> n32 [label=format, headlabel="0..1", taillabel="1"]
+  n22 -> n32 [label=format, headlabel="0..1", taillabel="1"]
+  n23 -> n32 [label=format, headlabel="0..1", taillabel="1"]
+  n24 -> n32 [label=format, headlabel="0..1", taillabel="1"]
+  n25 -> n8 [label=enum, headlabel="0..1", taillabel="1"]
+  n25 -> n8 [label=pointer, headlabel="0..1", taillabel="1"]
+  n27 -> n32 [label=format, headlabel="0..1", taillabel="1"]
+  n28 -> n8 [label=valueType, headlabel="1", taillabel="1"]
+  n30 -> n8 [label=keyType, headlabel="1", taillabel="1"]
+  n30 -> n8 [label=valueType, headlabel="1", taillabel="1"]
+}
