@@ -133,7 +133,6 @@ FIELD_OPTIONS = {
     0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType
 }
 
-BOOL_OPTS = {'/', }     # Full-key Boolean options, present=True (e.g., /format)
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
 MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 

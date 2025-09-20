@@ -1,7 +1,7 @@
 import os
 import json
 from copy import deepcopy
-from jadn.definitions import OPTS, OPTX, OPTO, BOOL_OPTS, PYTHON_TYPES, CoreType, Fields, FieldType, TypeOptions, FieldOptions
+from jadn.definitions import OPTS, OPTX, OPTO, PYTHON_TYPES, CoreType, Fields, FieldType, TypeOptions, FieldOptions
 from typing import TextIO, BinaryIO, Any
 from numbers import Number
 from pprint import pprint
@@ -67,8 +67,7 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dic
         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
         if f == type(b''):
             f = bytes.fromhex
-        return (s if s[0] in BOOL_OPTS else t[0],
-                '' if s[0] in BOOL_OPTS else
+        return (t[0],
                 True if f is bool else
                 {'enum': s[2:]} if s[1] == chr(OPTX['enum']) else
                 f(s[1:]))
@@ -89,10 +88,10 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
             v.hex() if isinstance(v, bytes) else\
             dictopt(v) if isinstance(v, dict) else\
             str(v)
-        return k if k[0] in BOOL_OPTS else chr(OPTX[k]) + v
+        return chr(OPTX[k]) + v
 
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
-            key=lambda k: OPTO[k[0]] if k[0][0] not in BOOL_OPTS else OPTO['format'])]
+            key=lambda k: OPTO[k[0]])]
 
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
