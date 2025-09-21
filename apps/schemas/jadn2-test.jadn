@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "title": "JADNv2 Test Schema",
+    "package": "http://example.org/jadn-test/",
+    "roots": ["Test"]
+  },
+  "types": [
+    ["Test", "Record", [], "Test schema format conversions for all options", [
+      [1, "opts", "Options", [], "Type and field options"],
+      [2, "coll", "Collections", [], "Compound types with collection semantics"],
+      [3, "comb", "Combinations", [], "Untagged unions"]
+    ]],
+
+    ["Options", "Record", [], "Individual options", [
+      [1, "vtype", "ArrayOf", ["*Bar"], "valueType"],
+      [2, "ktype", "MapOf", ["+Foo", "*Bar"], "keyType and valueType"],
+      [3, "enum", "Enumerated", ["#ValOpts"], "Derived enumeration serialized as names"],
+      [4, "id", "Enumerated", ["#ValOpts", "="], "Derived enumeration serialized as IDs"],
+      [5, "pointers", "Enumerated", [">ValOpts"], "Derived enumeration of pointers"],
+      [6, "length", "String", ["{3", "}9"], "character or byte count"],
+      [7, "regex", "String", ["%^/[a-zA-Z0-9]{1,16}+$"], "Match regular expression"],
+      [8, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"]
+    ]],
+
+    ["ValOpts", "Choice", [], "", [
+      [9, "abc", "Boolean", ["ufalse"], "TODO: fix default is true/false"],
+      [8, "def", "Number", ["y10", "x20"], "half-open interval up to 19.999999"],
+      [4, "bcd", "Integer", ["w3", "z6", "u5"], "half-open interval 4-6, default=5"],
+      [1, "cde", "Integer", ["v8"], "=[constant] (minInclusive=maxInclusive)"],
+      [7, "fgh", "String", ["vFred"], "=[constant]"],
+      [3, "efg", "String", ["uFred", "{3", "}9"], "Length 3-9, ?=[default value]"],
+      [2, "ghi", "Binary", ["v000102032d466f6f"], "constant"]
+    ]],
+
+    ["Collections", "Record", [], "Collection semantics: Compound serialization", [
+      [1, "a", "ArrayOf", ["*String"], "Sequence: array of ordered elements"],
+      [2, "b", "ArrayOf", ["*String", "s"], "Set: array of unordered unique elements"],
+      [3, "c", "ArrayOf", ["*String", "q"], "OrderedSet: array of ordered unique elements"],
+      [4, "d", "ArrayOf", ["*String", "b"], "Bag: array of unordered elements"],
+      [5, "e", "ArrayOf", ["*Keyed", "s"], "Map: array of keyed elements"],
+      [6, "f", "ArrayOf", ["*Keyed"], "OrderedMap: array of ordered and keyed elements"],
+      [7, "g", "Array", [], "Sequence: array of individually ordered elements"],
+      [8, "h", "Array", ["q"], "OrderedSet: array of individually ordered unique elements"],
+      [9, "i", "MapOf", ["+String", "*String"], "Map: map of key:value associations"],
+      [10, "j", "MapOf", ["+String", "*String", "o"], "OrderedMap: map of ordered key:value associations"]
+    ]],
+
+    ["Keyed", "Record", [], "Value with a primary key", [
+      [1, "name", "String", [], "Column 1"],
+      [2, "id", "Integer", ["K"], "Record identifier (Primary Key)"],
+      [3, "email", "String", [], "Column 3"],
+      [4, "phone", "String", [], "Column 4"]
+    ]],
+
+    ["Combinations", "Record", [], "Untagged Unions", [
+      [1, "c1", "C1", [], "Only one"],
+      [2, "c2", "C2", [], "One or more"],
+      [3, "c3", "C3", [], "All"]
+    ]],
+
+    ["C1", "Choice", ["ConeOf"], "Only one - int or any string except keywords",[
+      [1, "c1", "Colors", [], "Specific keywords"],
+      [2, "c2", "String", ["}10"], "Any string"],
+      [3, "c3", "Integer"]
+    ]],
+
+    ["C2", "Choice", ["CanyOf"], "Choose first match",[
+      [1, "c1", "Colors", [], "Specific keywords"],
+      [2, "c2", "String", ["}10"], "Any string"],
+      [3, "c3", "Integer"]
+    ]],
+
+    ["C3", "Choice", ["CallOf"], "All never matches - conflicting types",[
+      [1, "c1", "Colors", [], "Specific keywords"],
+      [2, "c2", "String", ["}10"], "Any string"],
+      [3, "c3", "Integer"]
+    ]],
+
+    ["Colors", "Enumerated", [], "Keyword id and string",[
+      [7, "red"],
+      [5, "green"],
+      [3, "blue"]
+    ]]
+  ]
+}

@@ -271,8 +271,9 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         return f'{{{lo}..{hs}}}' if lo != 0 or hs != '*' else ''
 
     # Value range (double-ended) - default is [*..*]
-    # min/max Inclusive: []
-    # min/max Exclusive: ()
+    # constant: [val]
+    # min/max Inclusive: [lo, hi]
+    # min/max Exclusive: (lo, hi)
     def _vrange(ops: dict) -> str:
         lc = '(' if 'minExclusive' in ops else '['
         hc = ')' if 'maxExclusive' in ops else ']'
@@ -287,7 +288,7 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         txt += f"{_kvstr(opts.pop('valueType'))})"
 
     if v := opts.pop('combine', None):
-        txt += v
+        txt += f'({v})'
 
     if v := opts.pop('enum', None):
         txt += f'(enum[{v}])'
@@ -304,12 +305,14 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     if v := _lrange(opts):
         txt += v
 
-    pops = []
-    for v in opts:
-        if v[0] in ('/', ):     # Formats
-            pops.append(v)
-            txt += f' {v}'
-    [opts.pop(v) for v in pops]
+    if v := opts.pop('default', None):
+        txt += f'?=[{v}]'
+
+    if v := opts.pop('const', None):
+        txt += f'=[{v}]'
+
+    if v := opts.pop('format', None):
+        txt += (' /' + v)
 
     for opt in ('unique', 'set', 'unordered', 'sequence', 'abstract', 'final'):
         if o := opts.pop(opt, None):
