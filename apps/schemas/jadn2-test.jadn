@@ -32,6 +32,14 @@
       [2, "ghi", "Binary", ["v000102032d466f6f"], "constant"]
     ]],
 
+    ["NilOpts", "Record", [], "Nillable Types", [
+      [1, "bool", "Boolean", ["0"]],
+      [2, "int", "Integer", ["y2", "z9", "0", "[0"]],
+      [3, "num", "Number", ["v5", "0"]],
+      [4, "str", "String", ["uFred", "0", "[0"]],
+      [5, "octets", "Binary", ["v00", "0"]]
+    ]],
+
     ["Collections", "Record", [], "Collection semantics: Compound serialization", [
       [1, "a", "ArrayOf", ["*String"], "Sequence: array of ordered elements"],
       [2, "b", "ArrayOf", ["*String", "s"], "Set: array of unordered unique elements"],
@@ -44,7 +52,7 @@
       [9, "i", "Acoll", [], "Sequence - collection of typed elements accessed by position: array"],
       [10, "j", "Mcoll", [], "Map - collection of typed elements accessed by key (id or name): map"],
       [11, "k", "McollId", [], "Map - collection of typed elements accessed by key (id): map"],
-      [11, "k", "Rcoll", [], "OrderedMap - collection of typed elements accessed by position or key: map or array"]
+      [12, "l", "Rcoll", [], "OrderedMap - collection of typed elements accessed by position or key: map or array"]
     ]],
 
     ["Keyed", "Record", [], "Value with a primary key", [

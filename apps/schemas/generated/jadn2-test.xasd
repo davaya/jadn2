@@ -32,6 +32,13 @@
       <Field fid="3" name="efg" type="String" default="Fred" minLength="3" maxLength="9">Length 3-9, ?=[default value]</Field>
       <Field fid="2" name="ghi" type="Binary" const="b'\x00\x01\x02\x03-Foo'">constant</Field>
     </Type>
+    <Type name="NilOpts" type="Record">Nillable Types
+      <Field fid="1" name="bool" type="Boolean" nillable="True"></Field>
+      <Field fid="2" name="int" type="Integer" minInclusive="2" maxInclusive="9" nillable="True" minOccurs="0"></Field>
+      <Field fid="3" name="num" type="Number" const="5.0" nillable="True"></Field>
+      <Field fid="4" name="str" type="String" default="Fred" nillable="True" minOccurs="0"></Field>
+      <Field fid="5" name="octets" type="Binary" const="b'\x00'" nillable="True"></Field>
+    </Type>
     <Type name="Collections" type="Record">Collection semantics: Compound serialization
       <Field fid="1" name="a" type="ArrayOf" valueType="String">Sequence: array of ordered elements</Field>
       <Field fid="2" name="b" type="ArrayOf" valueType="String" set="True">Set: array of unordered unique elements</Field>
@@ -44,7 +51,7 @@
       <Field fid="9" name="i" type="Acoll">Sequence - collection of typed elements accessed by position: array</Field>
       <Field fid="10" name="j" type="Mcoll">Map - collection of typed elements accessed by key (id or name): map</Field>
       <Field fid="11" name="k" type="McollId">Map - collection of typed elements accessed by key (id): map</Field>
-      <Field fid="11" name="k" type="Rcoll">OrderedMap - collection of typed elements accessed by position or key: map or array</Field>
+      <Field fid="12" name="l" type="Rcoll">OrderedMap - collection of typed elements accessed by position or key: map or array</Field>
     </Type>
     <Type name="Keyed" type="Record">Value with a primary key
       <Field fid="1" name="name" type="String">Column 1</Field>

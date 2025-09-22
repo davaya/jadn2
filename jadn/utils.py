@@ -314,7 +314,7 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     if v := opts.pop('format', None):
         txt += (' /' + v)
 
-    for opt in ('unique', 'set', 'unordered', 'sequence', 'abstract', 'final'):
+    for opt in ('unique', 'set', 'unordered', 'sequence', 'nillable', 'abstract', 'final'):
         if o := opts.pop(opt, None):
             txt += (' ' + opt)
 

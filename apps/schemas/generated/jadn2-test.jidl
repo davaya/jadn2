@@ -26,6 +26,13 @@ ValOpts = Choice                                         // Options with depende
    3 efg              String{3..9}?=[Fred]               // Length 3-9, ?=[default value]
    2 ghi              Binary=[b'\x00\x01\x02\x03-Foo']   // constant
 
+NilOpts = Record                                         // Nillable Types
+   1 bool             Boolean nillable
+   2 int              Integer=[2, 9] nillable optional
+   3 num              Number=[5.0] nillable
+   4 str              String?=[Fred] nillable optional
+   5 octets           Binary=[b'\x00'] nillable
+
 Collections = Record                                     // Collection semantics: Compound serialization
    1 a                ArrayOf(String)                    // Sequence: array of ordered elements
    2 b                ArrayOf(String) set                // Set: array of unordered unique elements
@@ -33,12 +40,12 @@ Collections = Record                                     // Collection semantics
    4 d                ArrayOf(String) unordered          // Bag: array of unordered elements
    5 e                ArrayOf(Keyed) set                 // Map: array of keyed elements
    6 f                ArrayOf(Keyed)                     // OrderedMap: array of ordered and keyed elements
-   7 g                MapOf(String, String)              // Map: map of key:value associations
-   8 h                MapOf(String, String) sequence     // OrderedMap: map of ordered key:value associations
+   7 g                MapOf(String, String)              // Map: collection of key:value associations
+   8 h                MapOf(String, String) sequence     // OrderedMap: collection of ordered key:value associations
    9 i                Acoll                              // Sequence - collection of typed elements accessed by position: array
   10 j                Mcoll                              // Map - collection of typed elements accessed by key (id or name): map
   11 k                McollId                            // Map - collection of typed elements accessed by key (id): map
-  11 k                Rcoll                              // OrderedMap - collection of typed elements accessed by position or key: map or array
+  12 l                Rcoll                              // OrderedMap - collection of typed elements accessed by position or key: map or array
 
 Keyed = Record                                           // Value with a primary key
    1 name             String                             // Column 1
