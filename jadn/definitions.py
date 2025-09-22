@@ -254,3 +254,4 @@ META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'com
 OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
 OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
 OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}
+OPTT = {v[0] for v in TYPE_OPTIONS.values()}    # Set of Type Option names

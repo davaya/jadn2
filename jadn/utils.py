@@ -12,7 +12,7 @@ from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
-    is_builtin, has_fields, OPTX
+    is_builtin, has_fields, OPTX, OPTT
 )
 
 
@@ -281,8 +281,8 @@ def jadn2typestr(tname: str, topts: dict) -> str:
         hi = ops.pop('maxInclusive', ops.pop('maxExclusive', '*'))
         return f'={lc}{lo}, {hi}{hc}' if lo != '*' or hi != '*' else ''
 
-    opts = copy.deepcopy(topts)
-    txt = '#' if opts.pop('id', None) else ''   # SIDE EFFECT: remove known options from opts.
+    opts = {k:v for k, v in topts.items() if k in OPTT} # FIELD_OPTIONS not processed.
+    txt = '#' if opts.pop('id', None) else ''   # Remove known options from opts as processed.
     if tname in ('ArrayOf', 'MapOf'):
         txt += f"({_kvstr(opts.pop('keyType'))}, " if tname == 'MapOf' else '('
         txt += f"{_kvstr(opts.pop('valueType'))})"
