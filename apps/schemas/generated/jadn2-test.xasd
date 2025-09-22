@@ -22,6 +22,7 @@
       <Field fid="6" name="length" type="String" minLength="3" maxLength="9">character or byte count</Field>
       <Field fid="7" name="regex" type="String" pattern="^/[a-zA-Z0-9]{1,16}+$">Match regular expression</Field>
       <Field fid="8" name="fields" type="ValOpts" minOccurs="0" tagId="3">select value based on 'enum' field</Field>
+      <Field fid="9" name="nil" type="NilOpts" minOccurs="0">nillable vs. optional values</Field>
     </Type>
     <Type name="ValOpts" type="Choice">Options with dependent value types
       <Field fid="9" name="abc" type="Boolean" default="True">TODO: fix default is true/false</Field>

@@ -19,7 +19,8 @@
       [5, "pointers", "Enumerated", [">ValOpts"], "Derived enumeration of pointers"],
       [6, "length", "String", ["{3", "}9"], "character or byte count"],
       [7, "regex", "String", ["%^/[a-zA-Z0-9]{1,16}+$"], "Match regular expression"],
-      [8, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"]
+      [8, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"],
+      [9, "nil", "NilOpts", ["[0"], "nillable vs. optional values"]
     ]],
 
     ["ValOpts", "Choice", [], "Options with dependent value types", [

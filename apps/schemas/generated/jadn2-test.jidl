@@ -16,6 +16,7 @@ Options = Record                                         // Individual options
    6 length           String{3..9}                       // character or byte count
    7 regex            String{pattern="^/[a-zA-Z0-9]{1,16}+$"} // Match regular expression
    8 fields           ValOpts(tagId[enum]) optional      // select value based on 'enum' field
+   9 nil              NilOpts optional                   // nillable vs. optional values
 
 ValOpts = Choice                                         // Options with dependent value types
    9 abc              Boolean?=[True]                    // TODO: fix default is true/false
