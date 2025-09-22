@@ -1,8 +1,8 @@
 {
   "style": {
     "jidl": {
-      "name": 20,
-      "desc": 55
+      "name": 16,
+      "desc": 56
     },
     "erd": {
       "graph": "graphviz",

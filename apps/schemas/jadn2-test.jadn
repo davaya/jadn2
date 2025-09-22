@@ -22,7 +22,7 @@
       [8, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"]
     ]],
 
-    ["ValOpts", "Choice", [], "", [
+    ["ValOpts", "Choice", [], "Options with dependent value types", [
       [9, "abc", "Boolean", ["ufalse"], "TODO: fix default is true/false"],
       [8, "def", "Number", ["y10", "x20"], "half-open interval up to 19.999999"],
       [4, "bcd", "Integer", ["w3", "z6", "u5"], "half-open interval 4-6, default=5"],
@@ -39,10 +39,12 @@
       [4, "d", "ArrayOf", ["*String", "b"], "Bag: array of unordered elements"],
       [5, "e", "ArrayOf", ["*Keyed", "s"], "Map: array of keyed elements"],
       [6, "f", "ArrayOf", ["*Keyed"], "OrderedMap: array of ordered and keyed elements"],
-      [7, "g", "Array", [], "Sequence: array of individually ordered elements"],
-      [8, "h", "Array", ["q"], "OrderedSet: array of individually ordered unique elements"],
-      [9, "i", "MapOf", ["+String", "*String"], "Map: map of key:value associations"],
-      [10, "j", "MapOf", ["+String", "*String", "o"], "OrderedMap: map of ordered key:value associations"]
+      [7, "g", "MapOf", ["+String", "*String"], "Map: collection of key:value associations"],
+      [8, "h", "MapOf", ["+String", "*String", "o"], "OrderedMap: collection of ordered key:value associations"],
+      [9, "i", "Acoll", [], "Sequence - collection of typed elements accessed by position: array"],
+      [10, "j", "Mcoll", [], "Map - collection of typed elements accessed by key (id or name): map"],
+      [11, "k", "McollId", [], "Map - collection of typed elements accessed by key (id): map"],
+      [11, "k", "Rcoll", [], "OrderedMap - collection of typed elements accessed by position or key: map or array"]
     ]],
 
     ["Keyed", "Record", [], "Value with a primary key", [
@@ -50,6 +52,30 @@
       [2, "id", "Integer", ["K"], "Record identifier (Primary Key)"],
       [3, "email", "String", [], "Column 3"],
       [4, "phone", "String", [], "Column 4"]
+    ]],
+
+    ["Acoll", "Array", [], "Sequence: Collection accessed by position (=id)", [
+      [1, "name", "String"],
+      [2, "rank", "String"],
+      [3, "serialNumber", "Integer"]
+    ]],
+
+    ["Mcoll", "Map", [], "Map: Collection accessed by key (id or name)", [
+      [5, "name", "String"],
+      [2, "rank", "String"],
+      [4, "serialNumber", "Integer"]
+    ]],
+
+    ["McollId", "Map", ["="], "Map: Collection accessed by key (id)", [
+      [5, "name", "String"],
+      [2, "rank", "String"],
+      [4, "serialNumber", "Integer"]
+    ]],
+
+    ["Rcoll", "Record", [], "OrderedMap: Collection accessed by position (=id) or key (=name)", [
+      [1, "name", "String"],
+      [2, "rank", "String"],
+      [3, "serialNumber", "Integer"]
     ]],
 
     ["Combinations", "Record", [], "Untagged Unions", [
