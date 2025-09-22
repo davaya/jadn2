@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema>
+  <Metadata>
+    <Title>JADNv2 Test Schema</Title>
+    <Package>http://example.org/jadn-test/</Package>
+    <Roots>
+      <TypeName>Test</TypeName>
+    </Roots>
+  </Metadata>
+  <Types>
+    <Type name="Test" type="Record">Test schema format conversions for all options
+      <Field fid="1" name="opts" type="Options">Type and field options</Field>
+      <Field fid="2" name="coll" type="Collections">Compound types with collection semantics</Field>
+      <Field fid="3" name="comb" type="Combinations">Untagged unions</Field>
+    </Type>
+    <Type name="Options" type="Record">Individual options
+      <Field fid="1" name="vtype" type="ArrayOf" valueType="Bar">valueType</Field>
+      <Field fid="2" name="ktype" type="MapOf" keyType="Foo" valueType="Bar">keyType and valueType</Field>
+      <Field fid="3" name="enum" type="Enumerated" enum="ValOpts">Derived enumeration serialized as names</Field>
+      <Field fid="4" name="id" type="Enumerated" enum="ValOpts" id="True">Derived enumeration serialized as IDs</Field>
+      <Field fid="5" name="pointers" type="Enumerated" pointer="ValOpts">Derived enumeration of pointers</Field>
+      <Field fid="6" name="length" type="String" minLength="3" maxLength="9">character or byte count</Field>
+      <Field fid="7" name="regex" type="String" pattern="^/[a-zA-Z0-9]{1,16}+$">Match regular expression</Field>
+      <Field fid="8" name="fields" type="ValOpts" minOccurs="0" tagId="3">select value based on 'enum' field</Field>
+    </Type>
+    <Type name="ValOpts" type="Choice">Options with dependent value types
+      <Field fid="9" name="abc" type="Boolean" default="True">TODO: fix default is true/false</Field>
+      <Field fid="8" name="def" type="Number" minInclusive="10.0" maxExclusive="20.0">half-open interval up to 19.999999</Field>
+      <Field fid="4" name="bcd" type="Integer" minExclusive="3" maxInclusive="6" default="5">half-open interval 4-6, default=5</Field>
+      <Field fid="1" name="cde" type="Integer" const="8">=[constant] (minInclusive=maxInclusive)</Field>
+      <Field fid="7" name="fgh" type="String" const="Fred">=[constant]</Field>
+      <Field fid="3" name="efg" type="String" default="Fred" minLength="3" maxLength="9">Length 3-9, ?=[default value]</Field>
+      <Field fid="2" name="ghi" type="Binary" const="b'\x00\x01\x02\x03-Foo'">constant</Field>
+    </Type>
+    <Type name="Collections" type="Record">Collection semantics: Compound serialization
+      <Field fid="1" name="a" type="ArrayOf" valueType="String">Sequence: array of ordered elements</Field>
+      <Field fid="2" name="b" type="ArrayOf" valueType="String" set="True">Set: array of unordered unique elements</Field>
+      <Field fid="3" name="c" type="ArrayOf" valueType="String" unique="True">OrderedSet: array of ordered unique elements</Field>
+      <Field fid="4" name="d" type="ArrayOf" valueType="String" unordered="True">Bag: array of unordered elements</Field>
+      <Field fid="5" name="e" type="ArrayOf" valueType="Keyed" set="True">Map: array of keyed elements</Field>
+      <Field fid="6" name="f" type="ArrayOf" valueType="Keyed">OrderedMap: array of ordered and keyed elements</Field>
+      <Field fid="7" name="g" type="MapOf" keyType="String" valueType="String">Map: collection of key:value associations</Field>
+      <Field fid="8" name="h" type="MapOf" keyType="String" valueType="String" sequence="True">OrderedMap: collection of ordered key:value associations</Field>
+      <Field fid="9" name="i" type="Acoll">Sequence - collection of typed elements accessed by position: array</Field>
+      <Field fid="10" name="j" type="Mcoll">Map - collection of typed elements accessed by key (id or name): map</Field>
+      <Field fid="11" name="k" type="McollId">Map - collection of typed elements accessed by key (id): map</Field>
+      <Field fid="11" name="k" type="Rcoll">OrderedMap - collection of typed elements accessed by position or key: map or array</Field>
+    </Type>
+    <Type name="Keyed" type="Record">Value with a primary key
+      <Field fid="1" name="name" type="String">Column 1</Field>
+      <Field fid="2" name="id" type="Integer" key="True">Record identifier (Primary Key)</Field>
+      <Field fid="3" name="email" type="String">Column 3</Field>
+      <Field fid="4" name="phone" type="String">Column 4</Field>
+    </Type>
+    <Type name="Acoll" type="Array">Sequence: Collection accessed by position (=id)
+      <Field fid="1" name="name" type="String"></Field>
+      <Field fid="2" name="rank" type="String"></Field>
+      <Field fid="3" name="serialNumber" type="Integer"></Field>
+    </Type>
+    <Type name="Mcoll" type="Map">Map: Collection accessed by key (id or name)
+      <Field fid="5" name="name" type="String"></Field>
+      <Field fid="2" name="rank" type="String"></Field>
+      <Field fid="4" name="serialNumber" type="Integer"></Field>
+    </Type>
+    <Type name="McollId" type="Map" id="True">Map: Collection accessed by key (id)
+      <Field fid="5" name="name" type="String"></Field>
+      <Field fid="2" name="rank" type="String"></Field>
+      <Field fid="4" name="serialNumber" type="Integer"></Field>
+    </Type>
+    <Type name="Rcoll" type="Record">OrderedMap: Collection accessed by position (=id) or key (=name)
+      <Field fid="1" name="name" type="String"></Field>
+      <Field fid="2" name="rank" type="String"></Field>
+      <Field fid="3" name="serialNumber" type="Integer"></Field>
+    </Type>
+    <Type name="Combinations" type="Record">Untagged Unions
+      <Field fid="1" name="c1" type="C1">Only one</Field>
+      <Field fid="2" name="c2" type="C2">One or more</Field>
+      <Field fid="3" name="c3" type="C3">All</Field>
+    </Type>
+    <Type name="C1" type="Choice" combine="oneOf">Only one - int or any string except keywords
+      <Field fid="1" name="c1" type="Colors">Specific keywords</Field>
+      <Field fid="2" name="c2" type="String" maxLength="10">Any string</Field>
+      <Field fid="3" name="c3" type="Integer"></Field>
+    </Type>
+    <Type name="C2" type="Choice" combine="anyOf">Choose first match
+      <Field fid="1" name="c1" type="Colors">Specific keywords</Field>
+      <Field fid="2" name="c2" type="String" maxLength="10">Any string</Field>
+      <Field fid="3" name="c3" type="Integer"></Field>
+    </Type>
+    <Type name="C3" type="Choice" combine="allOf">All never matches - conflicting types
+      <Field fid="1" name="c1" type="Colors">Specific keywords</Field>
+      <Field fid="2" name="c2" type="String" maxLength="10">Any string</Field>
+      <Field fid="3" name="c3" type="Integer"></Field>
+    </Type>
+    <Type name="Colors" type="Enumerated">Keyword id and string
+      <Item id="7" value="red"></Item>
+      <Item id="5" value="green"></Item>
+      <Item id="3" value="blue"></Item>
+    </Type>
+  </Types>
+</Schema>
