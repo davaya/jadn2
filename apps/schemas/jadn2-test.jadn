@@ -38,7 +38,7 @@
       [2, "int", "Integer", ["y2", "z9", "[0"], "Optional = nillable = absent in map, null in array"],
       [3, "num", "Number", ["v5"], "Required + not nillable + absent = invalid"],
       [4, "str", "String", ["uFred", "0"], "default ignored if field is required"],
-      [5, "octets", "Binary", ["v00", "0"]]
+      [5, "octets", "Binary", ["v00", "0"], "b'0' != b'' != null"]
     ]],
 
     ["Collections", "Record", [], "Collection semantics: Compound serialization", [

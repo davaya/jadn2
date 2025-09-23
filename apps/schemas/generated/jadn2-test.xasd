@@ -38,7 +38,7 @@
       <Field fid="2" name="int" type="Integer" minInclusive="2" maxInclusive="9" minOccurs="0">Optional = nillable = absent in map, null in array</Field>
       <Field fid="3" name="num" type="Number" const="5.0">Required + not nillable + absent = invalid</Field>
       <Field fid="4" name="str" type="String" default="Fred" nillable="True">default ignored if field is required</Field>
-      <Field fid="5" name="octets" type="Binary" const="b'\x00'" nillable="True"></Field>
+      <Field fid="5" name="octets" type="Binary" const="b'\x00'" nillable="True">b'0' != b'' != null</Field>
     </Type>
     <Type name="Collections" type="Record">Collection semantics: Compound serialization
       <Field fid="1" name="a" type="ArrayOf" valueType="String">Sequence: array of ordered elements</Field>
