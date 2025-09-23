@@ -8,7 +8,9 @@
     ["Test", "Record", [], "Test schema format conversions for all options", [
       [1, "opts", "Options", [], "Type and field options"],
       [2, "coll", "Collections", [], "Compound types with collection semantics"],
-      [3, "comb", "Combinations", [], "Untagged unions"]
+      [3, "comb", "Combinations", [], "Untagged unions"],
+      [4, "format", "Formats", [], "Semantic validation keywords"],
+      [5, "inherit", "Inherit", [], "Type inheritance"]
     ]],
 
     ["Options", "Record", [], "Individual options", [
@@ -18,9 +20,11 @@
       [4, "id", "Enumerated", ["#ValOpts", "="], "Derived enumeration serialized as IDs"],
       [5, "pointers", "Enumerated", [">ValOpts"], "Derived enumeration of pointers"],
       [6, "length", "String", ["{3", "}9"], "character or byte count"],
-      [7, "regex", "String", ["%^/[a-zA-Z0-9]{1,16}+$"], "Match regular expression"],
-      [8, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"],
-      [9, "nil", "NilOpts", ["[0"], "nillable vs. optional values"]
+      [7, "olist", "String", ["[0", "]9"], "optional list of strings"],
+      [8, "list", "String", ["]9"], "list of strings"],
+      [9, "regex", "String", ["%^/[a-zA-Z0-9]{1,16}+$"], "Match regular expression"],
+      [10, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"],
+      [11, "nil", "NilOpts", ["[0"], "nillable vs. optional values"]
     ]],
 
     ["ValOpts", "Choice", [], "Options with dependent value types", [
@@ -59,7 +63,7 @@
     ]],
 
     ["Keyed", "Record", [], "Value with a primary key", [
-      [1, "name", "String", [], "Column 1"],
+      [1, "name", "String", ["A"], "Column 1, XML Attribute"],
       [2, "id", "Integer", ["K"], "Record identifier (Primary Key)"],
       [3, "email", "String", [], "Column 3"],
       [4, "phone", "String", [], "Column 4"]

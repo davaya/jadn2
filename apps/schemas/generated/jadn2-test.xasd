@@ -12,6 +12,8 @@
       <Field fid="1" name="opts" type="Options">Type and field options</Field>
       <Field fid="2" name="coll" type="Collections">Compound types with collection semantics</Field>
       <Field fid="3" name="comb" type="Combinations">Untagged unions</Field>
+      <Field fid="4" name="format" type="Formats">Semantic validation keywords</Field>
+      <Field fid="5" name="inherit" type="Inherit">Type inheritance</Field>
     </Type>
     <Type name="Options" type="Record">Individual options
       <Field fid="1" name="vtype" type="ArrayOf" valueType="Bar">valueType</Field>
@@ -20,9 +22,11 @@
       <Field fid="4" name="id" type="Enumerated" enum="ValOpts" id="True">Derived enumeration serialized as IDs</Field>
       <Field fid="5" name="pointers" type="Enumerated" pointer="ValOpts">Derived enumeration of pointers</Field>
       <Field fid="6" name="length" type="String" minLength="3" maxLength="9">character or byte count</Field>
-      <Field fid="7" name="regex" type="String" pattern="^/[a-zA-Z0-9]{1,16}+$">Match regular expression</Field>
-      <Field fid="8" name="fields" type="ValOpts" minOccurs="0" tagId="3">select value based on 'enum' field</Field>
-      <Field fid="9" name="nil" type="NilOpts" minOccurs="0">nillable vs. optional values</Field>
+      <Field fid="7" name="olist" type="String" minOccurs="0" maxOccurs="9">optional list of strings</Field>
+      <Field fid="8" name="list" type="String" maxOccurs="9">list of strings</Field>
+      <Field fid="9" name="regex" type="String" pattern="^/[a-zA-Z0-9]{1,16}+$">Match regular expression</Field>
+      <Field fid="10" name="fields" type="ValOpts" minOccurs="0" tagId="3">select value based on 'enum' field</Field>
+      <Field fid="11" name="nil" type="NilOpts" minOccurs="0">nillable vs. optional values</Field>
     </Type>
     <Type name="ValOpts" type="Choice">Options with dependent value types
       <Field fid="9" name="abc" type="Boolean" default="True">TODO: fix default is true/false</Field>
@@ -57,7 +61,7 @@
       <Field fid="12" name="l" type="Rcoll">OrderedMap - collection of typed elements accessed by position or key: map or array</Field>
     </Type>
     <Type name="Keyed" type="Record">Value with a primary key
-      <Field fid="1" name="name" type="String">Column 1</Field>
+      <Field fid="1" name="name" type="String" attr="True">Column 1, XML Attribute</Field>
       <Field fid="2" name="id" type="Integer" key="True">Record identifier (Primary Key)</Field>
       <Field fid="3" name="email" type="String">Column 3</Field>
       <Field fid="4" name="phone" type="String">Column 4</Field>
