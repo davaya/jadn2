@@ -29,15 +29,15 @@
       [4, "bcd", "Integer", ["w3", "z6", "u5"], "half-open interval 4-6, default=5"],
       [1, "cde", "Integer", ["v8"], "=[constant] (minInclusive=maxInclusive)"],
       [7, "fgh", "String", ["vFred"], "=[constant]"],
-      [3, "efg", "String", ["uFred", "{3", "}9"], "Length 3-9, ?=[default value]"],
+      [3, "efg", "String", ["uFred", "{3", "}9", "[0"], "Length 3-9, ?=[default value]"],
       [2, "ghi", "Binary", ["v000102032d466f6f"], "constant"]
     ]],
 
     ["NilOpts", "Record", [], "Nillable Types", [
-      [1, "bool", "Boolean", ["0"]],
-      [2, "int", "Integer", ["y2", "z9", "0", "[0"]],
-      [3, "num", "Number", ["v5", "0"]],
-      [4, "str", "String", ["uFred", "0", "[0"]],
+      [1, "bool", "Boolean", ["0"], "Required + nillable + absent = null in map and array"],
+      [2, "int", "Integer", ["y2", "z9", "[0"], "Optional = nillable = absent in map, null in array"],
+      [3, "num", "Number", ["v5"], "Required + not nillable + absent = invalid"],
+      [4, "str", "String", ["uFred", "0"], "default ignored if field is required"],
       [5, "octets", "Binary", ["v00", "0"]]
     ]],
 

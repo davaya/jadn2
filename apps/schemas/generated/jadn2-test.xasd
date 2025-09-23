@@ -30,14 +30,14 @@
       <Field fid="4" name="bcd" type="Integer" minExclusive="3" maxInclusive="6" default="5">half-open interval 4-6, default=5</Field>
       <Field fid="1" name="cde" type="Integer" const="8">=[constant] (minInclusive=maxInclusive)</Field>
       <Field fid="7" name="fgh" type="String" const="Fred">=[constant]</Field>
-      <Field fid="3" name="efg" type="String" default="Fred" minLength="3" maxLength="9">Length 3-9, ?=[default value]</Field>
+      <Field fid="3" name="efg" type="String" default="Fred" minLength="3" maxLength="9" minOccurs="0">Length 3-9, ?=[default value]</Field>
       <Field fid="2" name="ghi" type="Binary" const="b'\x00\x01\x02\x03-Foo'">constant</Field>
     </Type>
     <Type name="NilOpts" type="Record">Nillable Types
-      <Field fid="1" name="bool" type="Boolean" nillable="True"></Field>
-      <Field fid="2" name="int" type="Integer" minInclusive="2" maxInclusive="9" nillable="True" minOccurs="0"></Field>
-      <Field fid="3" name="num" type="Number" const="5.0" nillable="True"></Field>
-      <Field fid="4" name="str" type="String" default="Fred" nillable="True" minOccurs="0"></Field>
+      <Field fid="1" name="bool" type="Boolean" nillable="True">Required + nillable + absent = null in map and array</Field>
+      <Field fid="2" name="int" type="Integer" minInclusive="2" maxInclusive="9" minOccurs="0">Optional = nillable = absent in map, null in array</Field>
+      <Field fid="3" name="num" type="Number" const="5.0">Required + not nillable + absent = invalid</Field>
+      <Field fid="4" name="str" type="String" default="Fred" nillable="True">default ignored if field is required</Field>
       <Field fid="5" name="octets" type="Binary" const="b'\x00'" nillable="True"></Field>
     </Type>
     <Type name="Collections" type="Record">Collection semantics: Compound serialization
