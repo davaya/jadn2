@@ -33,6 +33,8 @@ NilOpts = Record                                   // Nillable Types
    3 num              Number=[5.0]                 // Required + not nillable + absent = invalid
    4 str              String?=[Fred] nillable      // default ignored if field is required
    5 octets           Binary=[b'\x00'] nillable    // b'0' != b'' != null
+   6 array            Acoll nillable               // [] != null
+   7 map              Mcoll nillable               // {} != null
 
 Collections = Record                               // Collection semantics: Compound serialization
    1 a                ArrayOf(String)              // Sequence: array of ordered elements
