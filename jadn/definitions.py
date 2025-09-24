@@ -127,10 +127,10 @@ FIELD_OPTIONS = {
     0x5b: ('minOccurs', 'Integer', 28),     #  91 '[', min cardinality, default = 1, 0 = field is optional
     0x5d: ('maxOccurs', 'Integer', 29),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
     0x26: ('tagId', 'Integer', 30),         #  38 '&', field that specifies the type of this field
-    0x3c: ('dir', 'String', 31),            #  60 '<', pointer enumeration treats field as a collection
+    0x3c: ('dir', 'Boolean', 31),           #  60 '<', pointer enumeration treats field as a collection
     0x4b: ('key', 'Boolean', 32),           #  75 'K', field is the primary key for TypeName
     0x4c: ('link', 'Boolean', 33),          #  76 'L', field is a link (foreign key) to an instance of FieldType
-    0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType
+    # 0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType, use Choice(anyOf)
 }
 
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit

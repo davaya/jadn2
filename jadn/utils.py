@@ -317,13 +317,13 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     if v := opts.pop('format', None):
         txt += (' /' + v)
 
-    for opt in ('unique', 'set', 'unordered', 'sequence', 'nillable', 'abstract', 'final'):
+    for opt in ('unique', 'set', 'unordered', 'sequence', 'attr', 'nillable', 'abstract', 'final'):
         if o := opts.pop(opt, None):
             txt += (' ' + opt)
 
     for opt in ('extends', 'restricts'):
         if o := opts.pop(opt, None):
-            txt += f" {opt}({o})"
+            txt += f' {opt}({o})'
 
     for opt in ('minOccurs', 'maxOccurs', 'tagId'):
         opts.pop(opt, None)     # Handled by caller

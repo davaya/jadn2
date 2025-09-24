@@ -65,6 +65,8 @@
       <Field fid="2" name="id" type="Integer" key="True">Record identifier (Primary Key)</Field>
       <Field fid="3" name="email" type="String">Column 3</Field>
       <Field fid="4" name="phone" type="String">Column 4</Field>
+      <Field fid="5" name="friend" type="Keyed" link="True" minOccurs="0" maxOccurs="-1">Links to friends (Foreign Keys</Field>
+      <Field fid="6" name="extra" type="Rcoll" dir="True">Pointer enumeration stops here, not at leaf fields, </Field>
     </Type>
     <Type name="Acoll" type="Array">Sequence: Collection accessed by position (=id)
       <Field fid="1" name="name" type="String"></Field>
@@ -116,6 +118,17 @@
       <Field fid="2" name="ipv6-net" type="Array" format="ipv6-net">IPv6 subnet = [address (Binary), prefix length (Integer)]</Field>
       <Field fid="3" name="timestamp" type="Integer" format="date-time" scale="3">Timestamp with millisecond resolution</Field>
       <Field fid="4" name="month" type="Integer" format="gmonth">Calendar month (1-12)</Field>
+    </Type>
+    <Type name="Pixel" type="Record" abstract="True">Base type
+      <Field fid="1" name="red" type="String"></Field>
+      <Field fid="2" name="green" type="String"></Field>
+      <Field fid="3" name="blue" type="String"></Field>
+    </Type>
+    <Type name="PixelX" type="Record" extends="Pixel">Extended type
+      <Field fid="4" name="yellow" type="String"></Field>
+    </Type>
+    <Type name="PixelR" type="Record" restricts="Pixel" final="True">Restricted type
+      <Field fid="2" name="green" type="String" maxOccurs="0">deleted field - TODO: min/maxOccurs</Field>
     </Type>
   </Types>
 </Schema>

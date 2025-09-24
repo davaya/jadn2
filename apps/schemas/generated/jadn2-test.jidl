@@ -2,111 +2,124 @@
      package: "http://example.org/jadn-test/"
        roots: ["Test"]
 
-Test = Record                                      // Test schema format conversions for all options
-   1 opts             Options                      // Type and field options
-   2 coll             Collections                  // Compound types with collection semantics
-   3 comb             Combinations                 // Untagged unions
-   4 format           Formats                      // Semantic validation keywords
-   5 inherit          Inherit                      // Type inheritance
+Test = Record                                            // Test schema format conversions for all options
+   1 opts             Options                            // Type and field options
+   2 coll             Collections                        // Compound types with collection semantics
+   3 comb             Combinations                       // Untagged unions
+   4 format           Formats                            // Semantic validation keywords
+   5 inherit          Inherit                            // Type inheritance
 
-Options = Record                                   // Individual options
-   1 vtype            ArrayOf(Bar)                 // valueType
-   2 ktype            MapOf(Foo, Bar)              // keyType and valueType
-   3 enum             Enumerated(enum[ValOpts])    // Derived enumeration serialized as names
-   4 id               Enumerated#(enum[ValOpts])   // Derived enumeration serialized as IDs
-   5 pointers         Enumerated(pointer[ValOpts]) // Derived enumeration of pointers
-   6 length           String{3..9}                 // character or byte count
-   7 olist            String [0..9]                // optional list of strings
-   8 list             String [1..9]                // list of strings
+Options = Record                                         // Individual options
+   1 vtype            ArrayOf(Bar)                       // valueType
+   2 ktype            MapOf(Foo, Bar)                    // keyType and valueType
+   3 enum             Enumerated(enum[ValOpts])          // Derived enumeration serialized as names
+   4 id               Enumerated#(enum[ValOpts])         // Derived enumeration serialized as IDs
+   5 pointers         Enumerated(pointer[ValOpts])       // Derived enumeration of pointers
+   6 length           String{3..9}                       // character or byte count
+   7 olist            String [0..9]                      // optional list of strings
+   8 list             String [1..9]                      // list of strings
    9 regex            String{pattern="^/[a-zA-Z0-9]{1,16}+$"} // Match regular expression
-  10 fields           ValOpts(tagId[enum]) optional // select value based on 'enum' field
-  11 nil              NilOpts optional             // nillable vs. optional values
+  10 fields           ValOpts(tagId[enum]) optional      // select value based on 'enum' field
+  11 nil              NilOpts optional                   // nillable vs. optional values
 
-ValOpts = Choice                                   // Options with dependent value types
-   9 abc              Boolean?=[True]              // TODO: fix default is true/false
-   8 def              Number=[10.0, 20.0)          // half-open interval up to 19.999999
-   4 bcd              Integer=(3, 6]?=[5]          // half-open interval 4-6, default=5
-   1 cde              Integer=[8]                  // =[constant] (minInclusive=maxInclusive)
-   7 fgh              String=[Fred]                // =[constant]
-   3 efg              String{3..9}?=[Fred] optional // Length 3-9, ?=[default value]
-   2 ghi              Binary=[b'\x00\x01\x02\x03-Foo'] // constant
+ValOpts = Choice                                         // Options with dependent value types
+   9 abc              Boolean?=[True]                    // TODO: fix default is true/false
+   8 def              Number=[10.0, 20.0)                // half-open interval up to 19.999999
+   4 bcd              Integer=(3, 6]?=[5]                // half-open interval 4-6, default=5
+   1 cde              Integer=[8]                        // =[constant] (minInclusive=maxInclusive)
+   7 fgh              String=[Fred]                      // =[constant]
+   3 efg              String{3..9}?=[Fred] optional      // Length 3-9, ?=[default value]
+   2 ghi              Binary=[b'\x00\x01\x02\x03-Foo']   // constant
 
-NilOpts = Record                                   // Nillable Types
-   1 bool             Boolean nillable             // Required + nillable + absent = null in map and array
-   2 int              Integer=[2, 9] optional      // Optional = nillable = absent in map, null in array
-   3 num              Number=[5.0]                 // Required + not nillable + absent = invalid
-   4 str              String?=[Fred] nillable      // default ignored if field is required
-   5 octets           Binary=[b'\x00'] nillable    // b'0' != b'' != null
-   6 array            Acoll nillable               // [] != null
-   7 map              Mcoll nillable               // {} != null
+NilOpts = Record                                         // Nillable Types
+   1 bool             Boolean nillable                   // Required + nillable + absent = null in map and array
+   2 int              Integer=[2, 9] optional            // Optional = nillable = absent in map, null in array
+   3 num              Number=[5.0]                       // Required + not nillable + absent = invalid
+   4 str              String?=[Fred] nillable            // default ignored if field is required
+   5 octets           Binary=[b'\x00'] nillable          // b'0' != b'' != null
+   6 array            Acoll nillable                     // [] != null
+   7 map              Mcoll nillable                     // {} != null
 
-Collections = Record                               // Collection semantics: Compound serialization
-   1 a                ArrayOf(String)              // Sequence: array of ordered elements
-   2 b                ArrayOf(String) set          // Set: array of unordered unique elements
-   3 c                ArrayOf(String) unique       // OrderedSet: array of ordered unique elements
-   4 d                ArrayOf(String) unordered    // Bag: array of unordered elements
-   5 e                ArrayOf(Keyed) set           // Map: array of keyed elements
-   6 f                ArrayOf(Keyed)               // OrderedMap: array of ordered and keyed elements
-   7 g                MapOf(String, String)        // Map: collection of key:value associations
-   8 h                MapOf(String, String) sequence // OrderedMap: collection of ordered key:value associations
-   9 i                Acoll                        // Sequence - collection of typed elements accessed by position: array
-  10 j                Mcoll                        // Map - collection of typed elements accessed by key (id or name): map
-  11 k                McollId                      // Map - collection of typed elements accessed by key (id): map
-  12 l                Rcoll                        // OrderedMap - collection of typed elements accessed by position or key: map or array
+Collections = Record                                     // Collection semantics: Compound serialization
+   1 a                ArrayOf(String)                    // Sequence: array of ordered elements
+   2 b                ArrayOf(String) set                // Set: array of unordered unique elements
+   3 c                ArrayOf(String) unique             // OrderedSet: array of ordered unique elements
+   4 d                ArrayOf(String) unordered          // Bag: array of unordered elements
+   5 e                ArrayOf(Keyed) set                 // Map: array of keyed elements
+   6 f                ArrayOf(Keyed)                     // OrderedMap: array of ordered and keyed elements
+   7 g                MapOf(String, String)              // Map: collection of key:value associations
+   8 h                MapOf(String, String) sequence     // OrderedMap: collection of ordered key:value associations
+   9 i                Acoll                              // Sequence - collection of typed elements accessed by position: array
+  10 j                Mcoll                              // Map - collection of typed elements accessed by key (id or name): map
+  11 k                McollId                            // Map - collection of typed elements accessed by key (id): map
+  12 l                Rcoll                              // OrderedMap - collection of typed elements accessed by position or key: map or array
 
-Keyed = Record                                     // Value with a primary key
-   1 name             String ?{'attr': True}?      // Column 1, XML Attribute
-   2 id               key(Integer)                 // Record identifier (Primary Key)
-   3 email            String                       // Column 3
-   4 phone            String                       // Column 4
+Keyed = Record                                           // Value with a primary key
+   1 name             String attr                        // Column 1, XML Attribute
+   2 id               key(Integer)                       // Record identifier (Primary Key)
+   3 email            String                             // Column 3
+   4 phone            String                             // Column 4
+   5 friend           link(Keyed) [0..*]                 // Links to friends (Foreign Keys
+   6 extra/           Rcoll                              // Pointer enumeration stops here, not at leaf fields,
 
-Acoll = Array                                      // Sequence: Collection accessed by position (=id)
-   1  String                                       // name::
-   2  String                                       // rank::
-   3  Integer                                      // serialNumber::
+Acoll = Array                                            // Sequence: Collection accessed by position (=id)
+   1  String                                             // name::
+   2  String                                             // rank::
+   3  Integer                                            // serialNumber::
 
-Mcoll = Map                                        // Map: Collection accessed by key (id or name)
+Mcoll = Map                                              // Map: Collection accessed by key (id or name)
    5 name             String
    2 rank             String
    4 serialNumber     Integer
 
-McollId = Map#                                     // Map: Collection accessed by key (id)
-   5  String                                       // name::
-   2  String                                       // rank::
-   4  Integer                                      // serialNumber::
+McollId = Map#                                           // Map: Collection accessed by key (id)
+   5  String                                             // name::
+   2  String                                             // rank::
+   4  Integer                                            // serialNumber::
 
-Rcoll = Record                                     // OrderedMap: Collection accessed by position (=id) or key (=name)
+Rcoll = Record                                           // OrderedMap: Collection accessed by position (=id) or key (=name)
    1 name             String
    2 rank             String
    3 serialNumber     Integer
 
-Combinations = Record                              // Untagged Unions
-   1 c1               C1                           // Only one
-   2 c2               C2                           // One or more
-   3 c3               C3                           // All
+Combinations = Record                                    // Untagged Unions
+   1 c1               C1                                 // Only one
+   2 c2               C2                                 // One or more
+   3 c3               C3                                 // All
 
-C1 = Choice(oneOf)                                 // Only one - int or any string except keywords
-   1  Colors                                       // c1:: Specific keywords
-   2  String{0..10}                                // c2:: Any string
-   3  Integer                                      // c3::
+C1 = Choice(oneOf)                                       // Only one - int or any string except keywords
+   1  Colors                                             // c1:: Specific keywords
+   2  String{0..10}                                      // c2:: Any string
+   3  Integer                                            // c3::
 
-C2 = Choice(anyOf)                                 // Choose first match
-   1  Colors                                       // c1:: Specific keywords
-   2  String{0..10}                                // c2:: Any string
-   3  Integer                                      // c3::
+C2 = Choice(anyOf)                                       // Choose first match
+   1  Colors                                             // c1:: Specific keywords
+   2  String{0..10}                                      // c2:: Any string
+   3  Integer                                            // c3::
 
-C3 = Choice(allOf)                                 // All never matches - conflicting types
-   1  Colors                                       // c1:: Specific keywords
-   2  String{0..10}                                // c2:: Any string
-   3  Integer                                      // c3::
+C3 = Choice(allOf)                                       // All never matches - conflicting types
+   1  Colors                                             // c1:: Specific keywords
+   2  String{0..10}                                      // c2:: Any string
+   3  Integer                                            // c3::
 
-Colors = Enumerated                                // Keyword id and string
+Colors = Enumerated                                      // Keyword id and string
    7 red
    5 green
    3 blue
 
-Formats = Record                                   // Semantic validation keywords
-   1 ipv4             Binary /ipv4                 // IPv4 address
-   2 ipv6-net         Array /ipv6-net              // IPv6 subnet = [address (Binary), prefix length (Integer)]
-   3 timestamp        Integer /date-time ?{'scale': 3}? // Timestamp with millisecond resolution
-   4 month            Integer /gmonth              // Calendar month (1-12)
+Formats = Record                                         // Semantic validation keywords
+   1 ipv4             Binary /ipv4                       // IPv4 address
+   2 ipv6-net         Array /ipv6-net                    // IPv6 subnet = [address (Binary), prefix length (Integer)]
+   3 timestamp        Integer E3 /date-time              // Timestamp with millisecond resolution
+   4 month            Integer /gmonth                    // Calendar month (1-12)
+
+Pixel = Record abstract                                  // Base type
+   1 red              String
+   2 green            String
+   3 blue             String
+
+PixelX = Record extends(Pixel)                           // Extended type
+   4 yellow           String
+
+PixelR = Record final restricts(Pixel)                   // Restricted type
+   2 green            String [1..0]                      // deleted field - TODO: min/maxOccurs
