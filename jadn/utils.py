@@ -305,6 +305,9 @@ def jadn2typestr(tname: str, topts: dict) -> str:
     if v := _lrange(opts):
         txt += v
 
+    if v := opts.pop('scale', None):
+        txt += f' E{v}'
+
     if v := opts.pop('default', None):
         txt += f'?=[{v}]'
 
