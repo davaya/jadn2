@@ -111,5 +111,11 @@
       <Item id="5" value="green"></Item>
       <Item id="3" value="blue"></Item>
     </Type>
+    <Type name="Formats" type="Record">Semantic validation keywords
+      <Field fid="1" name="ipv4" type="Binary" format="ipv4">IPv4 address</Field>
+      <Field fid="2" name="ipv6-net" type="Array" format="ipv6-net">IPv6 subnet = [address (Binary), prefix length (Integer)]</Field>
+      <Field fid="3" name="timestamp" type="Integer" format="date-time" scale="3">Timestamp with millisecond resolution</Field>
+      <Field fid="4" name="month" type="Integer" format="gmonth">Calendar month (1-12)</Field>
+    </Type>
   </Types>
 </Schema>

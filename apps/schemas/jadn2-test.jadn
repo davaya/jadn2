@@ -121,6 +121,13 @@
       [7, "red"],
       [5, "green"],
       [3, "blue"]
+    ]],
+
+    ["Formats", "Record", [], "Semantic validation keywords", [
+      [1, "ipv4", "Binary", ["/ipv4"], "IPv4 address"],
+      [2, "ipv6-net", "Array", ["/ipv6-net"], "IPv6 subnet = [address (Binary), prefix length (Integer)]"],
+      [3, "timestamp", "Integer", ["/date-time", "E3"], "Timestamp with millisecond resolution"],
+      [4, "month", "Integer", ["/gmonth"], "Calendar month (1-12)"]
     ]]
   ]
 }
