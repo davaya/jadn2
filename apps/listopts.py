@@ -2,7 +2,7 @@ from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, FieldOptio
 from jadn.convert import JADN
 
 """
-List the options defined in a JADN Schema
+List the options used in a JADN Schema
 (used to check coverage of all options in the jadn2-test schema)
 """
 

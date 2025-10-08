@@ -66,7 +66,9 @@
       [1, "name", "String", ["A"], "Column 1, XML Attribute"],
       [2, "id", "Integer", ["K"], "Record identifier (Primary Key)"],
       [3, "email", "String", [], "Column 3"],
-      [4, "phone", "String", [], "Column 4"]
+      [4, "phone", "String", [], "Column 4"],
+      [5, "friend", "Keyed", ["L", "[0", "]-1"], "Links to friends (Foreign Keys"],
+      [6, "extra", "Rcoll", ["<"], "Pointer enumeration stops here, not at leaf fields, "]
     ]],
 
     ["Acoll", "Array", [], "Sequence: Collection accessed by position (=id)", [
@@ -128,6 +130,21 @@
       [2, "ipv6-net", "Array", ["/ipv6-net"], "IPv6 subnet = [address (Binary), prefix length (Integer)]"],
       [3, "timestamp", "Integer", ["/date-time", "E3"], "Timestamp with millisecond resolution"],
       [4, "month", "Integer", ["/gmonth"], "Calendar month (1-12)"]
+    ]],
+
+    ["Pixel", "Record", ["a"], "Base type", [
+      [1, "red", "String"],
+      [2, "green", "String"],
+      [3, "blue", "String"]
+    ]],
+
+    ["PixelX", "Record", ["ePixel"], "Extended type", [
+      [4, "yellow", "String"]
+    ]],
+
+    ["PixelR", "Record", ["rPixel", "f"], "Restricted type", [
+      [2, "green", "String", ["]0"], "deleted field - TODO: min/maxOccurs"]
     ]]
+
   ]
 }
