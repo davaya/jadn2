@@ -130,7 +130,7 @@ FIELD_OPTIONS = {
     0x3c: ('dir', 'String', 31),            #  60 '<', pointer enumeration treats field as a collection
     0x4b: ('key', 'Boolean', 32),           #  75 'K', field is the primary key for TypeName
     0x4c: ('link', 'Boolean', 33),          #  76 'L', field is a link (foreign key) to an instance of FieldType
-    0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType
+#   0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType
 }
 
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
