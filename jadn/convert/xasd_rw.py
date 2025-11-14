@@ -36,7 +36,7 @@ class XASD(JADNCore):
 
         sp = '  '   # Indentation space per level
         xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-        if meta := self.SCHEMA['meta']:
+        if meta := self.SCHEMA.get('meta', None):
             xasd += f'{sp}<Metadata>\n'
             # xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
             for k, v in meta.items():
