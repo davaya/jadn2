@@ -212,7 +212,7 @@ if __name__ == '__main__':
         'b',        # unordered
         'o',        # sequence
         '0',        # nillable
-        'CanyOf',   # union combine
+        'C2',       # union combine type (anyOf)
         '/ipv4',    # format
         'a',        # abstract
         'rFoo',     # restricts
@@ -222,10 +222,9 @@ if __name__ == '__main__':
         '[0',       # minOccurs
         ']-1',      # maxOccurs
         '&3',       # tagId
-        '<foo',     # dir (pointer)
+        '<',        # dir (pointer)
         'K',        # key
         'L',        # link
-        'N',        # not
     ]
     print(f'\n Loaded opts: {opts_s}')
     opts_d = _load_tagstrings(opts_s, 'None')
