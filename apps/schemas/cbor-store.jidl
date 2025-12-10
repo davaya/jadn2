@@ -1,0 +1,26 @@
+Store = Map
+  1 book Book
+  2 bicycle Bicycle
+
+Book = Record
+  1 category Category
+  2 author String
+  3 title String
+  4 price Price
+  5 isbn ISBN optional
+
+Bicycle = Record
+  1 color Color
+  2 price Price
+
+Category = Enumerated
+  1 reference
+  2 fiction
+  3 news
+
+Color = Enumerated
+  1 red
+  2 green
+  3 blue
+
+Price = Integer /d2

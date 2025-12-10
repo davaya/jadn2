@@ -44,8 +44,11 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
     for td in schema_copy['types']:
         td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
         for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
-            fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
-            fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
+            if td[CoreType] == 'Enumerated':
+                fdef = [None, None, '']
+            else:
+                fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
+                fdef = [None, None, None, [], '']
             while fd and fd[-1] == fdef[len(fd) - 1]:
                 fd.pop()
         tdef = [None, None, [], '', []]
