@@ -114,23 +114,23 @@ TYPE_OPTIONS = {
     0x6f: ('sequence', 'Boolean', 18),      # 111 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
     0x30: ('nillable', 'Boolean', 19),      #  48 '0', Instance may have no value, represented by nil, null, None, etc.
     0x43: ('combine', 'String', 20),        #  67 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
-    0x2f: ('format', 'String', 21),         #  47 '/', semantic validation keyword, may affect serialization
+    0x2f: ('/', 'String', 21),              #  47 '/', semantic validation keyword, may affect serialization
     0x45: ('scale', 'Integer', 22),         #  69 'E', fixed point scale factor n, serialized int = value * 10^n
     0x61: ('abstract', 'Boolean', 23),      #  97 'a', Inheritance: abstract, non-instantiatable
     0x72: ('restricts', 'String', 24),      # 114 'r', Inheritance: restriction - subset of referenced type
     0x65: ('extends', 'String', 25),        # 101 'e', Inheritance: extension - superset of referenced type
     0x66: ('final', 'Boolean', 26),         # 102 'f', Inheritance: final - cannot have subtype
-    0x41: ('attr', 'Boolean', 27)           #  65 'A', Value may be serialized as an XML attribute
+    0x41: ('attr', 'Boolean', 27),          #  65 'A', Value may be serialized as an XML attribute
+    0x74: ('tagString', 'Boolean', 28)      # 116 't', Map defining tag-string serialization {key: name, type}
 }
 
 FIELD_OPTIONS = {
-    0x5b: ('minOccurs', 'Integer', 28),     #  91 '[', min cardinality, default = 1, 0 = field is optional
-    0x5d: ('maxOccurs', 'Integer', 29),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagId', 'Integer', 30),         #  38 '&', field that specifies the type of this field
-    0x3c: ('dir', 'Boolean', 31),           #  60 '<', pointer enumeration treats field as a collection
-    0x4b: ('key', 'Boolean', 32),           #  75 'K', field is the primary key for TypeName
-    0x4c: ('link', 'Boolean', 33),          #  76 'L', field is a link (foreign key) to an instance of FieldType
-    # 0x4e: ('not', 'Boolean', 34),           #  78 'N', field is not an instance of FieldType, use Choice(anyOf)
+    0x5b: ('minOccurs', 'Integer', 29),     #  91 '[', min cardinality, default = 1, 0 = field is optional
+    0x5d: ('maxOccurs', 'Integer', 30),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
+    0x26: ('tagId', 'Integer', 31),         #  38 '&', field that specifies the type of this field
+    0x3c: ('dir', 'Boolean', 32),           #  60 '<', pointer enumeration treats field as a collection
+    0x4b: ('key', 'Boolean', 33),           #  75 'K', field is the primary key for TypeName
+    0x4c: ('link', 'Boolean', 34),          #  76 'L', field is a link (foreign key) to an instance of FieldType
 }
 
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit

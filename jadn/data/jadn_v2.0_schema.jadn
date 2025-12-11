@@ -179,7 +179,8 @@
       [61, "id", "Boolean", ["[0"]],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
-      [111, "sequence", "Boolean", ["[0"]]
+      [111, "sequence", "Boolean", ["[0"]],
+      [116, "tagString", "String", ["[0"]]
     ]],
     ["MapOfOpts", "Map", ["eAllOpts"], "", [
       [43, "keyType", "TypeRef"],

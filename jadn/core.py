@@ -67,6 +67,8 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dic
     """
     def opt(s: str, core_type: str) -> tuple[str, str]:
         t = OPTS[ord(s[0])]
+        if t[0] == 'format':
+            return s, ''
         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
         if f == type(b''):
             f = bytes.fromhex
@@ -93,9 +95,13 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
             str(v)
         return chr(OPTX[k]) + v
 
-    return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
-            key=lambda k: OPTO[k[0]])]
+    def _sortorder(k: str):
+        k = ('format', ) if k[0][0] == chr(OPTX['format']) else k
+        return OPTO[k[0]]
 
+    return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
+            key = lambda k: _sortorder(k))]
+            # key = lambda k: OPTO[k[0]])]
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
     """
@@ -216,7 +222,9 @@ if __name__ == '__main__':
         'o',        # sequence
         '0',        # nillable
         'C2',       # union combine type (anyOf)
-        '/ipv4',    # format
+        '/ipv4',    # format (32 bit IPv4 address)
+        '/i32',     # format (signed 32 bit int)
+        '/d2',      # format (hundredths)
         'a',        # abstract
         'rFoo',     # restricts
         'eBar',     # extends
