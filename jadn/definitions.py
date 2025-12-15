@@ -95,17 +95,17 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
 
 TYPE_OPTIONS = {
     0x3d: ('id', 'Boolean', 1),             #  61 '=', Enumerated type and Choice/Map/Record keys are ID not Name
-    0x2a: ('valueType', 'String', 2),       #  42 '*', Value type for ArrayOf and MapOf
-    0x2b: ('keyType', 'String', 3),         #  43 '+', Key type for MapOf
-    0x23: ('enum', 'String', 4),            #  35 '#', enumeration derived from Array/Choice/Map/Record type
-    0x3e: ('pointer', 'String', 5),         #  62 '>', enumeration of pointers derived from Array/Choice/Map/Record type
+    0x2a: ('valueType', 'TypeRef', 2),      #  42 '*', Value type for ArrayOf and MapOf
+    0x2b: ('keyType', 'TypeRef', 3),        #  43 '+', Key type for MapOf
+    0x23: ('enum', 'TypeRef', 4),           #  35 '#', enumeration derived from Array/Choice/Map/Record type
+    0x3e: ('pointer', 'TypeRef', 5),        #  62 '>', enumeration of pointers derived from Array/Choice/Map/Record type
     0x25: ('pattern', 'String', 6),         #  37 '%', regular expression that a string must match
-    0x77: ('minExclusive', None, 7),        # 119 'w', minimum numeric/string value, excluding bound
-    0x78: ('maxExclusive', None, 8),        # 120 'x', maximum numeric/string value, excluding bound
-    0x79: ('minInclusive', None, 9),        # 121 'y', minimum numeric/string value
-    0x7a: ('maxInclusive', None, 10),       # 122 'z', maximum numeric/string value
-    0x75: ('default', None, 11),            # 117 'u', Default value
-    0x76: ('const', None, 12),              # 118 'v', Constant value
+    0x75: ('default', None, 7),             # 117 'u', Default value
+    0x76: ('const', None, 8),               # 118 'v', Constant value
+    0x77: ('minExclusive', None, 9),        # 119 'w', minimum numeric/string value, excluding bound
+    0x78: ('maxExclusive', None, 10),       # 120 'x', maximum numeric/string value, excluding bound
+    0x79: ('minInclusive', None, 11),       # 121 'y', minimum numeric/string value
+    0x7a: ('maxInclusive', None, 12),       # 122 'z', maximum numeric/string value
     0x7b: ('minLength', 'Integer', 13),     # 123 '{', minimum byte or text string length, collection item count
     0x7d: ('maxLength', 'Integer', 14),     # 125 '}', maximum byte or text string length, collection item count
     0x71: ('unique', 'Boolean', 15),        # 113 'q', ArrayOf instance must not contain duplicates
@@ -113,15 +113,15 @@ TYPE_OPTIONS = {
     0x62: ('unordered', 'Boolean', 17),     #  98 'b', ArrayOf instance is unordered and not unique (bag)
     0x6f: ('sequence', 'Boolean', 18),      # 111 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
     0x30: ('nillable', 'Boolean', 19),      #  48 '0', Instance may have no value, represented by nil, null, None, etc.
-    0x43: ('combine', 'String', 20),        #  67 'C', Choice instance is a logical combination (anyOf, allOf, oneOf)
-    0x2f: ('/', 'String', 21),              #  47 '/', semantic validation keyword, may affect serialization
+    0x43: ('combine', 'Combine', 20),       #  67 'C', Choice instance is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff")
+    0x2f: ('format', 'Format', 21),         #  47 '/', semantic validation keyword, may affect serialization
     0x45: ('scale', 'Integer', 22),         #  69 'E', fixed point scale factor n, serialized int = value * 10^n
-    0x61: ('abstract', 'Boolean', 23),      #  97 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', 'String', 24),      # 114 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', 'String', 25),        # 101 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', 'Boolean', 26),         # 102 'f', Inheritance: final - cannot have subtype
-    0x41: ('attr', 'Boolean', 27),          #  65 'A', Value may be serialized as an XML attribute
-    0x74: ('tagString', 'Boolean', 28)      # 116 't', Map defining tag-string serialization {key: name, type}
+    0x74: ('tagString', 'TypeRef', 23),     # 116 't', Map defining tag-string serialization {key: name, type}
+    0x61: ('abstract', 'Boolean', 24),      #  97 'a', Inheritance: abstract, non-instantiatable
+    0x72: ('restricts', 'TypeRef', 25),     # 114 'r', Inheritance: restriction - subset of referenced type
+    0x65: ('extends', 'TypeRef', 26),       # 101 'e', Inheritance: extension - superset of referenced type
+    0x66: ('final', 'Boolean', 27),         # 102 'f', Inheritance: final - cannot have subtype
+    0x41: ('attr', 'Boolean', 28),          #  65 'A', Value may be serialized as an XML attribute
 }
 
 FIELD_OPTIONS = {
@@ -167,7 +167,7 @@ ALLOWED_TYPE_OPTIONS = {
     'Choice': ['id', 'combine'],
     'Array': ['format', 'minLength', 'maxLength'],
     'ArrayOf': ['valueType', 'minLength', 'maxLength', 'unique', 'set', 'unordered'],
-    'Map': ['id', 'minLength', 'maxLength', 'sequence'],
+    'Map': ['id', 'minLength', 'maxLength', 'sequence', 'tagString'],
     'MapOf': ['keyType', 'valueType', 'minLength', 'maxLength', 'sequence'],
     'Record': ['minLength', 'maxLength', 'sequence'],
 }

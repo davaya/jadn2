@@ -63,9 +63,10 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
 
 def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dict[str, str]]:
     """
-    Convert JSON-serialized TypeOptions and FieldOptions list of strings to dict
+    Convert list of tagStrings (e.g., TypeOptions, FieldOptions) to dict
     """
     def opt(s: str, core_type: str) -> tuple[str, str]:
+        """
         t = OPTS[ord(s[0])]
         if t[0] == 'format':
             return s, ''
@@ -76,6 +77,8 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dic
                 True if f is bool else
                 {'enum': s[2:]} if s[1] == chr(OPTX['enum']) else
                 f(s[1:]))
+        """
+        return OPTS[ord(s[0])][0], s[1:]
 
     return dict(opt(s, core_type) for s in tstrings)
 
@@ -89,19 +92,16 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
         return chr(OPTX[kv[0]]) + kv[1]
 
     def strs(k: str, v: Any) -> str:
+        """
         v = '' if isinstance(v, bool) else\
             v.hex() if isinstance(v, bytes) else\
             dictopt(v) if isinstance(v, dict) else\
             str(v)
+        """
         return chr(OPTX[k]) + v
 
-    def _sortorder(k: str):
-        k = ('format', ) if k[0][0] == chr(OPTX['format']) else k
-        return OPTO[k[0]]
-
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
-            key = lambda k: _sortorder(k))]
-            # key = lambda k: OPTO[k[0]])]
+            key = lambda k: OPTO[k[0]])]
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
     """
@@ -223,8 +223,9 @@ if __name__ == '__main__':
         '0',        # nillable
         'C2',       # union combine type (anyOf)
         '/ipv4',    # format (32 bit IPv4 address)
-        '/i32',     # format (signed 32 bit int)
-        '/d2',      # format (hundredths)
+        # '/i32',     # format (signed 32 bit int)
+        'E2',       # integer fixed point scale
+        't',        # tagString
         'a',        # abstract
         'rFoo',     # restricts
         'eBar',     # extends

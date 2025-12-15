@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "title": "JADN Semantic Validation Keywords",
+    "package": "http://oasis-open.org/openc2/jadn/v2.0/schema/formats",
+    "description": "JADN formats defined by JADN, JSON, and XML",
+    "license": "CC-BY-4.0",
+    "roots": ["Formats"]
+  },
+  "types": [
+    ["Formats", "Choice", ["C2"], "Semantic Validation Keywords (Formats)", [
+      [1, "jadn", "JADN_Formats"],
+      [2, "json", "JSON_Formats"]
+    ]],
+    ["JADN_Formats", "Map", [], "", [
+      [1, "/in", "Integer", ["[0"], "Signed n-bit integer, value must be between -2^(n-1) and 2^(n-1) - 1."],
+      [2, "/un", "Integer", ["[0"], "Unsigned integer or bit field of n bits, value must be between 0 and 2^n - 1."],
+      [10, "/ipv4-addr", "Binary", ["[0"], "IPv4 address as specified in RFC 791 Section 3.1"]
+    ]],
+    ["JSON_Formats", "Map", [], "", [
+      [1, "/date-time", "String", ["[0"], "String literal RFC-9557 Section 4.1 'date-time-ext'"],
+      [2, "/date", "String", ["[0"], "String literal RFC-3339 Section 5.6 'full-date'"]
+    ]]
+  ]
+}
