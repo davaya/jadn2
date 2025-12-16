@@ -232,7 +232,7 @@
       [98, "unordered", "'b', Boolean: ArrayOf instance is unordered and not unique (bag)"],
       [111, "sequence", "'o', Boolean: Map, MapOr or Record instance is ordered and unique (ordered set)"],
       [48, "nillable", "'0', Boolean: Instance may have no value, represented by nil, null, None, etc."],
-      [67, "combine", "'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff")],
+      [67, "combine", "'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff)"],
       [47, "format", "'/', Format: semantic validation keyword, may affect serialization"],
       [69, "scale", "'E', Integer: fixed point scale factor n, serialized int = value * 10^n"],
       [116, "tagString", "'t', TypeRef: tag-string serialization enumeration {key: name}"],

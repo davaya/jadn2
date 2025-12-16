@@ -225,7 +225,7 @@ if __name__ == '__main__':
         '/ipv4',    # format (32 bit IPv4 address)
         # '/i32',     # format (signed 32 bit int)
         'E2',       # integer fixed point scale
-        't',        # tagString
+        'tOptKeys', # tagString
         'a',        # abstract
         'rFoo',     # restricts
         'eBar',     # extends
@@ -266,17 +266,17 @@ if __name__ == '__main__':
             'E3',       # scale factor exponent - E3 means int = value*10^3 (milli-units)
         ],
         'Number': [
+            'u3.14159', # default
             'y2',       # minInclusive
             'z3.00',    # maxInclusive
-            'u3.14159', # default
         ],
         'String': [
+            'u3.1415@', # default - this is a valid string, not a number.
+            'vFred',    # const
             'w0',       # minExclusive - schema warning - string collation order may not be supported
             'x10',      # maxExclusive - this is a string, not a number
             'yBar',     # minInclusive
             'zBaz',     # maxInclusive
-            'u3.1415@', # default - this is a valid string, not a number.
-            'vFred',    # const
         ]
     }
 
