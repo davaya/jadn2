@@ -1,4 +1,4 @@
-from jadn import JADNCore
+from jadn.core import JADNCore
 
 """
 Translate JADN abstract schema to Protocol Buffers

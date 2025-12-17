@@ -4,7 +4,7 @@ Translate JADN to XML Abstract Schema Definition (XASD)
 from io import BytesIO
 from typing import Union
 from lxml import etree as ET
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
                               FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES, OPTS, OPTX)
 

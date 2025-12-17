@@ -3,7 +3,7 @@ Convert JADN to/from JADN Interface Definition Language (JIDL)
 """
 import json
 import re
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)

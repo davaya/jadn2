@@ -1,7 +1,7 @@
 from asciitree import LeftAligned
 from asciitree.drawing import BoxStyle, BOX_BLANK, BOX_ASCII, BOX_LIGHT, BOX_HEAVY, BOX_DOUBLE
 
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions
 from jadn.utils import build_deps, jadn2typestr
 

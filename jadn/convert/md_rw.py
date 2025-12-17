@@ -1,6 +1,6 @@
 import json
 import re
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
 from jadn.utils import jadn2typestr, typestr2jadn, jadn2fielddef, fielddef2jadn, cleanup_tagid, raise_error
 

@@ -139,6 +139,7 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 # JADN schema core class
 # ========================================================
 class JADNCore:
+    print('JADNCore Class')
     DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
     if 'METASCHEMA' not in dir():
         with open(os.path.join(DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:

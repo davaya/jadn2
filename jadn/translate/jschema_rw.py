@@ -1,6 +1,6 @@
 import json
 import os
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import TypeName, is_builtin
 from jadn.utils import raise_error
 

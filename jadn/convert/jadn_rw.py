@@ -30,5 +30,5 @@ if __name__ == '__main__':
     with open(os.path.join(pkg.DATA_DIR, 'jadn_v2.0_schema.jadn')) as fp:
         pkg.schema_load(fp)
     print(f'\nSchema package: {pkg.package}')
-    print(f'\nIM Schema - Logical value:\n{pkg.schema}')           # Internal (logical) schema value
+    print(f'\nIM Schema - Logical value:\n{pkg.schema}')            # Internal (logical) schema value
     print(f'\nIM Schema - JSON value:\n{pkg.schema_dumps()}')       # External (lexical) schema value

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from io import BytesIO
 from lxml import etree
-from jadn import JADNCore
+from jadn.core import JADNCore
 
 """
 Translate JADN abstract schema to XML schema definition (XSD)

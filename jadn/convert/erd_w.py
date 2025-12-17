@@ -1,5 +1,5 @@
 import re
-from jadn import JADNCore
+from jadn.core import JADNCore
 from jadn.definitions import (PRIMITIVE_TYPES, TypeName, CoreType, TypeOptions, Fields,
                               FieldID, FieldName, FieldType, FieldOptions)
 from jadn.utils import jadn2typestr, jadn2fielddef, multiplicity_str

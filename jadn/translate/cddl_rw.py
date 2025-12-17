@@ -1,4 +1,4 @@
-from jadn import JADNCore
+from jadn.core import JADNCore
 
 """
 Translate JADN abstract schema to/from Concise Data Definition Language (CDDL), a concrete schema for CBOR
