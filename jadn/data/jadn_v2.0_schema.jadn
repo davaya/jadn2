@@ -202,7 +202,7 @@
     ]],
     ["ChoiceOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [61, "id", "Boolean", ["[0"]],
-      [67, "combine", "String", ["{1", "}1", "[0"]]
+      [67, "combine", "Combine", ["{1", "}1", "[0"]]
     ]],
     ["FieldOpts", "Map", ["tJADNOpts"], "", [
       [91, "minOccurs", "Integer", ["y0", "[0"], "[: min cardinality, default = 1, 0 = field is optional"],
