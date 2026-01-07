@@ -218,7 +218,7 @@ def typestr2jadn(typestring: str) -> tuple:
         # [x,y] rest  group(4) = x   group(6) = y
         # [x] rest    group(4) = x
         # x rest      group(2) = x
-        rangepat = r'^\s*=\s*(([-\d.]+)|([[(])([-\d.]+)(\s*,\s*([-*\d.]+))?([])]))(.*)$'
+        rangepat = r'^\s*=\s*(([-\d.]+)|([\[(])([-\d.]+)(\s*,\s*([-*\d.]+))?([])]))(.*)$'
         if m := re.match(rangepat, rest):
             rest = m.group(8)
             fn = {'Integer': int, 'Number': float}[tname]

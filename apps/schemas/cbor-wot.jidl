@@ -25,5 +25,5 @@ InteractionType = Enumerated
 MediaType = Enumerated
   1 application/json
 
-Name = String(pattern="^[\w]{1,12}$")
+Name = String{pattern="^[\w]{1,12}$"}
 URI = String /uri

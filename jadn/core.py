@@ -98,7 +98,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
             dictopt(v) if isinstance(v, dict) else\
             str(v)
         """
-        return chr(OPTX[k]) + v
+        return chr(OPTX[k]) + str(v)
 
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
             key = lambda k: OPTO[k[0]])]
