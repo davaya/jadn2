@@ -242,7 +242,8 @@ def typestr2jadn(typestring: str) -> tuple:
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
         for opt in re.findall(p_format, rest):
-            topts.update({opt: ''})
+            # topts.update({opt: ''})
+            topts.update({'format': opt[1:]})
         for opt in re.findall(p_flag, rest):
             topts.update({opt: True})
         for opt in re.findall(p_attr, rest):

@@ -1,7 +1,8 @@
 import os
 import json
 from copy import deepcopy
-from jadn.definitions import OPTS, OPTX, OPTO, PYTHON_TYPES, CoreType, Fields, FieldType, TypeOptions, FieldOptions
+from jadn.definitions import PYTHON_TYPES, TypeName, CoreType, TypeOptions, Fields, \
+    ItemID,ItemValue, FieldType, FieldOptions
 from typing import TextIO, BinaryIO, Any
 from numbers import Number
 from pprint import pprint
@@ -20,7 +21,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
 
     :param self: supplied when calling from a class instance, not used
     :param jadn_str: {meta, types} in serialized format
-    :return: {meta, types} in logical format
+    :return: schema value: {meta, types}
     """
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
@@ -38,11 +39,15 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
 def jadn_schema_dumps(self, style: dict = {}) -> str:
     """
     Return a schema instance as a string containing JADN data in JSON format
+
+    Don't include empty metadata section
+    Don't include empty trailing optional columns
     """
-    schema_copy = {'meta': self.SCHEMA['meta'], 'types': deepcopy(self.SCHEMA['types'])}
+    schema_copy = {'meta': self.SCHEMA['meta']} if self.SCHEMA['meta'] else {}
+    schema_copy.update({'types': deepcopy(self.SCHEMA['types'])})
 
     for td in schema_copy['types']:
-        td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
+        # Clean up field defs
         for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
             if td[CoreType] == 'Enumerated':
                 fdef = [None, None, '']
@@ -51,10 +56,61 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
                 fdef = [None, None, None, [], '']
             while fd and fd[-1] == fdef[len(fd) - 1]:
                 fd.pop()
+        # Clean up type def
+        td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
         tdef = [None, None, [], '', []]
-        while td and td[-1] == tdef[len(td) - 1]:   # Don't pop Fields before checking them
+        while td and td[-1] == tdef[len(td) - 1]:
             td.pop()
+
     return _pprint(schema_copy, strip=style.get('strip', True)) + '\n'
+
+
+# ========================================================
+# JADN schema core class
+# ========================================================
+class JADNCore:
+    # Initialize static class variable shared by all instances
+    if 'METASCHEMA' not in dir():
+        DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+        with open(os.path.join(DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
+            METASCHEMA = jadn_schema_loads(None, fp.read())
+        TYPE_X = {td[TypeName]: td for td in METASCHEMA['types']}
+        _opts = TYPE_X['JADNOpts'][Fields]
+        OPT_NAME = {i[ItemID]: i[ItemValue] for i in _opts}
+        OPT_ID = {i[ItemValue]: i[ItemID] for i in _opts}
+        OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(_opts, start=1)}
+        assert len(OPT_NAME) == len(OPT_ID) == len(OPT_ORDER) == len(_opts), 'Bad JADNOpts (duplicate id or name)'
+
+        SCHEMA = None
+        SOURCE = None
+
+    def __init__(self):
+        pass
+        # self.validate()     # Validate JADN schema against METASCHEMA
+
+    def style(self) -> dict:
+        return {}
+
+    def schema_loads(self, message: str | bytes) -> None:
+        print('Schema load not implemented')
+        exit(1)
+
+    def schema_load(self, fp: TextIO | BinaryIO) -> None:
+        self.SOURCE = fp.name
+        self.schema_loads(fp.read())
+
+    def schema_dumps(self, pkg, style: dict = {}) -> str | bytes:
+        print('Schema dump not implemented')
+        exit(1)
+
+    def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict = {}) -> None:
+        fp.write(self.schema_dumps(pkg, style))
+
+    def validate(self) -> None:
+        """
+        Validate a logical schema instance against JADN metaschema
+        """
+        pass
 
 
 # ========================================================
@@ -66,8 +122,10 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dic
     Convert list of tagStrings (e.g., TypeOptions, FieldOptions) to dict
     """
     def opt(s: str, core_type: str) -> tuple[str, str]:
+        t = JADNCore.OPT_NAME[ord(s[0])]
+        v = s[1:]
         """
-        t = OPTS[ord(s[0])]
+        t = OPT_NAME[ord(s[0])]
         if t[0] == 'format':
             return s, ''
         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
@@ -75,10 +133,10 @@ def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dic
             f = bytes.fromhex
         return (t[0],
                 True if f is bool else
-                {'enum': s[2:]} if s[1] == chr(OPTX['enum']) else
+                {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
                 f(s[1:]))
         """
-        return OPTS[ord(s[0])][0], s[1:]
+        return JADNCore.OPT_NAME[ord(s[0])][0], v
 
     return dict(opt(s, core_type) for s in tstrings)
 
@@ -89,7 +147,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
     """
     def dictopt(v: dict[str, str]) -> str:
         kv = v.popitem()
-        return chr(OPTX[kv[0]]) + kv[1]
+        return chr(JADNCore.OPT_ID[kv[0]]) + kv[1]
 
     def strs(k: str, v: Any) -> str:
         """
@@ -98,10 +156,10 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
             dictopt(v) if isinstance(v, dict) else\
             str(v)
         """
-        return chr(OPTX[k]) + str(v)
+        return chr(JADNCore.OPT_ID[k]) + str(v)
 
     return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
-            key = lambda k: OPTO[k[0]])]
+            key = lambda k: JADNCore.OPT_ORDER[k[0]])]
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
     """
@@ -135,50 +193,10 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
     return '???'
 
 
-# ========================================================
-# JADN schema core class
-# ========================================================
-class JADNCore:
-    print('JADNCore Class')
-    DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-    if 'METASCHEMA' not in dir():
-        with open(os.path.join(DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-            METASCHEMA = jadn_schema_loads(None, fp.read())     # Static class variable shared by all instances
-    SCHEMA = None
-    SOURCE = None
-
-    def __init__(self):
-        self.validate()     # METASCHEMA
-
-    def style(self) -> dict:
-        return {}
-
-    def schema_loads(self, message: str | bytes) -> None:
-        print('Schema load not implemented')
-        exit(1)
-
-    def schema_load(self, fp: TextIO | BinaryIO) -> None:
-        self.SOURCE = fp.name
-        self.schema_loads(fp.read())
-
-    def schema_dumps(self, pkg, style: dict = {}) -> str | bytes:
-        print('Schema dump not implemented')
-        exit(1)
-
-    def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict = {}) -> None:
-        fp.write(self.schema_dumps(pkg, style))
-
-    def validate(self) -> None:
-        """
-        Validate a logical schema instance against JADN metaschema
-        """
-        pass
-
-
 # =========================================================
 # Diagnostics
 # =========================================================
-from jadn.definitions import TypeName, Fields, FieldID, FieldName, FieldType, ALLOWED_TYPE_OPTIONS
+from jadn.definitions import FieldID, FieldName, ALLOWED_TYPE_OPTIONS
 
 if __name__ == '__main__':
     # Print class constants generated from definitions.py
@@ -189,8 +207,8 @@ if __name__ == '__main__':
     # Verify that Metaschema option IDs agree with definitions
     for td in JADNCore.METASCHEMA['types']:
         for fd in td[Fields]:
-            if fd[FieldName] in OPTX:
-                if (a := fd[FieldID]) != (b := OPTX[fd[FieldName]]):
+            if fd[FieldName] in JADNCore.OPT_ID:
+                if (a := fd[FieldID]) != (b := JADNCore.OPT_ID[fd[FieldName]]):
                     print(f'{td[TypeName]}.{fd[FieldName]}: {a} != {b}')
 
     # Verify Metaschema's allowed options by type
@@ -202,9 +220,9 @@ if __name__ == '__main__':
         if set(ato) != set(atm):
             print(f'Option mismatch: {td[TypeName]}: {ato} != {atm}')
         for f in td[Fields]:
-            if (fm := f[FieldName]) != (fd := OPTS[f[FieldID]][0]):
+            if (fm := f[FieldName]) != (fd := JADNCore.OPT_NAME[f[FieldID]][0]):
                 print(f'Option mismatch: {td[TypeName]}: {fm} != {fd}')
-            if (fm := f[FieldID]) != (fd := OPTX[f[FieldName]]):
+            if (fm := f[FieldID]) != (fd := JADNCore.OPT_ID[f[FieldName]]):
                 print(f'Option ID mismatch: {td[TypeName]}: {fm} != {fd}')
 
     # Test tagged-string serialization

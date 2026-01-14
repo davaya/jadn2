@@ -1,0 +1,33 @@
+{
+  "types": [
+    ["WOT-TD", "Record", [], "", [
+      [1, "name", "Name"],
+      [2, "@type", "Name"],
+      [3, "@context", "URI"],
+      [4, "base", "URI"],
+      [5, "id", "Integer"],
+      [6, "interactions", "Interaction", ["[0", "]-1"]]
+    ]],
+    ["Interaction", "Record", [], "", [
+      [1, "name", "Name"],
+      [2, "@type", "InteractionType", ["]-1"]],
+      [3, "writable", "Boolean", ["[0"]],
+      [4, "outputData", "DataSpec"],
+      [5, "links", "Link", ["[0", "]-1"]]
+    ]],
+    ["Link", "Record", [], "", [
+      [1, "href", "URI"],
+      [2, "mediaType", "MediaType"]
+    ]],
+    ["InteractionType", "Enumerated", [], "", [
+      [1, "Action"],
+      [2, "Property"],
+      [3, "Event"]
+    ]],
+    ["MediaType", "Enumerated", [], "", [
+      [1, "application/json"]
+    ]],
+    ["Name", "String", ["%^[\\w]{1,12}$"]],
+    ["URI", "String", ["/uri"]]
+  ]
+}

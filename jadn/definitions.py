@@ -93,6 +93,7 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
 #   of the string is the Unicode codepoint (ID) of its key; the remaining characters are its value.
 #   Option tables list the ID: (key name, value type, canonical sort order) of each option:
 
+"""
 TYPE_OPTIONS = {
     0x3d: ('id', 'Boolean', 1),             #  61 '=', Enumerated type and Choice/Map/Record keys are ID not Name
     0x2a: ('valueType', 'TypeRef', 2),      #  42 '*', Value type for ArrayOf and MapOf
@@ -132,6 +133,7 @@ FIELD_OPTIONS = {
     0x4b: ('key', 'Boolean', 33),           #  75 'K', field is the primary key for TypeName
     0x4c: ('link', 'Boolean', 34),          #  76 'L', field is a link (foreign key) to an instance of FieldType
 }
+"""
 
 MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
 MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
@@ -250,8 +252,10 @@ EXTENSIONS = {
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
 
+"""
 # Precomputed constants
 OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
 OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
 OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}
 OPTT = {v[0] for v in TYPE_OPTIONS.values()}    # Set of Type Option names
+"""
