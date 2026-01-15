@@ -8,7 +8,7 @@ from jadn.translate import JSCHEMA, XSD, CDDL, PROTO, XETO
 CONFIG = 'jadn_config.json'
 
 
-def convert_schema(out_format: str, style_cmd: str, path: str, in_file: str, out_dir: str) -> None:
+def convert_file(format: str, style_cmd: str, path: str, infile: str, outdir: str) -> None:
     class_ = {
         'jadn': JADN,
         'jidl': JIDL,
@@ -23,37 +23,37 @@ def convert_schema(out_format: str, style_cmd: str, path: str, in_file: str, out
         'xeto': XETO,
     }
 
-    if out_dir:
-        print(in_file)  # Don't print filename if destination is stdout
+    if outdir:
+        print(infile)  # Don't print if destination is stdout
 
-    fn, ext = os.path.splitext(in_file)
+    fn, ext = os.path.splitext(infile)
     ext = ext.lstrip('.')
     if (k := class_.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
 
         # Read schema literal into information value
         pkg = k()
-        with open(os.path.join(path, in_file), 'r') as fp:
+        with open(os.path.join(path, infile), 'r') as fp:
             pkg.schema_load(fp)
 
         # Validate JADN information value against JADN metaschema
         pkg.validate()
 
         # Serialize information value to schema literal in output format
-        if out_format in class_:
-            style = style_args(class_[out_format](), out_format, style_cmd, CONFIG)    # style from format, config, args
-            if out_dir:
-                with open(os.path.join(out_dir, style_fname(fn, out_format, style)), 'w', encoding='utf8') as fp:
-                    class_[out_format]().schema_dump(fp, pkg, style)
+        if format in class_:
+            style = style_args(class_[format](), format, style_cmd, CONFIG)    # style from format, config, args
+            if outdir:
+                with open(os.path.join(outdir, style_fname(fn, format, style)), 'w', encoding='utf8') as fp:
+                    class_[format]().schema_dump(fp, pkg, style)
             else:
-                class_[out_format]().schema_dump(sys.stdout, pkg, style)
+                class_[format]().schema_dump(sys.stdout, pkg, style)
         else:
-            print(f'Unknown output format "{out_format}"')
+            print(f'Unknown output format "{format}"')
             sys.exit(2)
     else:
         print(f'Unknown input format "{ext}" -- ignored')
 
 
-def jadn_convert(input: str, out_dir: str, out_format: str, style: str, recursive: bool) -> None:
+def main(input: str, output_dir: str, format: str, style: str, recursive: bool) -> None:
     """
     Convert JADN schema among multiple formats
 
@@ -64,21 +64,21 @@ def jadn_convert(input: str, out_dir: str, out_format: str, style: str, recursiv
 
     # print(f'Installed JADN version: {jadn.__version__}\n')
 
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     if os.path.isdir(input):
         # If input is directory, process all files, including contained directories if recursive=True
-        for in_path, dirs, files in os.walk(input):
+        for path, dirs, files in os.walk(input):
             if not recursive:
                 dirs.clear()
-            for in_file in files:
-                convert_schema(out_format, style, in_path, in_file, out_dir)
+            for file in files:
+                convert_file(format, style, path, file, output_dir)
     else:
         # Otherwise process the named input file
-        in_path, in_file = os.path.split(input)
+        path, file = os.path.split(input)
         try:
-            convert_schema(out_format, style, in_path, in_file, out_dir)
+            convert_file(format, style, path, file, output_dir)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)
@@ -92,9 +92,9 @@ if __name__ == '__main__':
                         help='output format')
     parser.add_argument('-r', action='store_true', help='recursive directory search')
     parser.add_argument('--style', default='', help='serialization style options')
-    parser.add_argument('input', help='input filename or directory')
-    parser.add_argument('out_dir', nargs='?', default=None)
+    parser.add_argument('schema')
+    parser.add_argument('output_dir', nargs='?', default=None)
     args = parser.parse_args()
-    if args.out_dir:
-        print(args)     # Don't print command line args if schema output is stdout
-    jadn_convert(args.input, args.out_dir, args.f, args.style, args.r)
+    if args.output_dir:
+        print(args)     # Don't print info if output on stdout
+    main(args.schema, args.output_dir, args.f, args.style, args.r)

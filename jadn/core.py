@@ -163,7 +163,7 @@ def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
     """
-    Prettyprint a JSON-serialized schema in compact format
+    Prettyprint a JSON-serialized JADN schema in compact format
 
     :param val: JSON string to be formatted
     :param level: Indentation level, default = 0 for external calls
