@@ -241,6 +241,7 @@
       [101, "extends", "'e', TypeRef: Inheritance: superset of referenced type"],
       [102, "final", "f', Boolean: Inheritance: cannot have subtype"],
       [65, "attr", "'A', Boolean: Value may be serialized as an XML attribute"],
+      [84, "typeOpts", "'T', --Sentinel--: preceding items are Type Options, following items are Field Options"],
       [91, "minOccurs", "'[', Integer: min cardinality, default = 1, 0 = field is optional"],
       [93, "maxOccurs", "']', Integer: max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
       [38, "tagId", "'&', Integer: field that specifies the type of this field"],
