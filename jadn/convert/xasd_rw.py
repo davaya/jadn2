@@ -6,7 +6,7 @@ from typing import Union
 from lxml import etree as ET
 from jadn.core import JADNCore
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
-                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES, OPTS, OPTX)
+                              FieldID, FieldName, FieldType, FieldDesc, FieldOptions, PYTHON_TYPES)
 
 
 class XASD(JADNCore):

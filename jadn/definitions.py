@@ -78,6 +78,8 @@ FIELD_LENGTH = {
     'Record': 5,
 }
 
+MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
+MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 
 def is_builtin(t: str) -> bool:      # Is a core type
     return t in CORE_TYPES
@@ -135,8 +137,6 @@ FIELD_OPTIONS = {
 }
 """
 
-MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
-MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 
 REQUIRED_TYPE_OPTIONS = {
     'Binary': [],

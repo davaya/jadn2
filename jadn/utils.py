@@ -11,8 +11,8 @@ from typing import Any, Union
 from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
-    DEFAULT_CONFIG, TYPE_OPTIONS, FIELD_OPTIONS, MAX_DEFAULT, MAX_UNLIMITED,
-    is_builtin, has_fields, OPTX, OPTT
+    DEFAULT_CONFIG, MAX_DEFAULT, MAX_UNLIMITED,
+    is_builtin, has_fields
 )
 
 

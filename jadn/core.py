@@ -23,16 +23,41 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
     :param jadn_str: {meta, types} in serialized format
     :return: schema value: {meta, types}
     """
+
+    def load_tagstrings(tstrings: list[str], otype) -> dict[str, str]:
+        """
+        Convert list of tagStrings (e.g., TypeOptions, FieldOptions) to dict
+        """
+        return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tstrings}
+
+        """
+        Convert string option values to typee values
+
+        def opt(s: str) -> tuple[str, str]:
+            t = OPT_NAME[ord(s[0])]
+            if t[0] == 'format':
+                return s, ''
+            f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
+            if f == type(b''):
+                f = bytes.fromhex
+            return (t[0],
+                    True if f is bool else
+                    {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
+                    f(s[1:]))
+            return self.OPT_NAME[ord(s[0])][0], s[1:]
+        return dict(opt(s) for s in tstrings)
+        """
+
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
     for td in schema['types']:
         td += tdef[len(td):len(tdef)]
-        td[TypeOptions] = _load_tagstrings(td[TypeOptions], td[CoreType])
+        td[TypeOptions] = load_tagstrings(td[TypeOptions], td[CoreType])
         for fd in td[Fields]:
             fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
             fd += fdef[len(fd):len(fdef)]
             if td[CoreType] != 'Enumerated':
-                fd[FieldOptions] = _load_tagstrings(fd[FieldOptions], fd[FieldType])
+                fd[FieldOptions] = load_tagstrings(fd[FieldOptions], fd[FieldType])
     return schema
 
 
@@ -43,6 +68,28 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
     Don't include empty metadata section
     Don't include empty trailing optional columns
     """
+
+    def dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
+        """
+        Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
+        """
+
+        def dictopt(v: dict[str, str]) -> str:
+            kv = v.popitem()
+            return chr(self.OPT_ID[kv[0]]) + kv[1]
+
+        def strs(k: str, v: Any) -> str:
+            """
+            v = '' if isinstance(v, bool) else\
+                v.hex() if isinstance(v, bytes) else\
+                dictopt(v) if isinstance(v, dict) else\
+                str(v)
+            """
+            return chr(self.OPT_ID[k]) + str(v)
+
+        return [strs(k, v) for k, v in sorted(opts.items(),  # Sort options to a canonical order to ease comparison
+                                              key=lambda k: self.OPT_ORDER[k[0]])]
+
     schema_copy = {'meta': self.SCHEMA['meta']} if self.SCHEMA['meta'] else {}
     schema_copy.update({'types': deepcopy(self.SCHEMA['types'])})
 
@@ -52,12 +99,12 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
             if td[CoreType] == 'Enumerated':
                 fdef = [None, None, '']
             else:
-                fd[FieldOptions] = _dump_tagstrings(fd[FieldOptions], fd[FieldType])
+                fd[FieldOptions] = dump_tagstrings(fd[FieldOptions], fd[FieldType])
                 fdef = [None, None, None, [], '']
             while fd and fd[-1] == fdef[len(fd) - 1]:
                 fd.pop()
         # Clean up type def
-        td[TypeOptions] = _dump_tagstrings(td[TypeOptions], td[CoreType])
+        td[TypeOptions] = dump_tagstrings(td[TypeOptions], td[CoreType])
         tdef = [None, None, [], '', []]
         while td and td[-1] == tdef[len(td) - 1]:
             td.pop()
@@ -69,24 +116,33 @@ def jadn_schema_dumps(self, style: dict = {}) -> str:
 # JADN schema core class
 # ========================================================
 class JADNCore:
-    # Initialize static class variable shared by all instances
-    if 'METASCHEMA' not in dir():
-        DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-        with open(os.path.join(DATA_DIR, 'jadn_v2.0_schema.jadn'), encoding='utf8') as fp:
-            METASCHEMA = jadn_schema_loads(None, fp.read())
-        TYPE_X = {td[TypeName]: td for td in METASCHEMA['types']}
-        _opts = TYPE_X['JADNOpts'][Fields]
-        OPT_NAME = {i[ItemID]: i[ItemValue] for i in _opts}
-        OPT_ID = {i[ItemValue]: i[ItemID] for i in _opts}
-        OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(_opts, start=1)}
-        assert len(OPT_NAME) == len(OPT_ID) == len(OPT_ORDER) == len(_opts), 'Bad JADNOpts (duplicate id or name)'
-
-        SCHEMA = None
-        SOURCE = None
+    METASCHEMA = None
+    SCHEMA = None
+    SOURCE = None
 
     def __init__(self):
-        pass
-        # self.validate()     # Validate JADN schema against METASCHEMA
+        if JADNCore.METASCHEMA is None:
+            # Load metaschema from JADN file
+            data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+            meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')     # TODO: use only metaschema in data_dir
+            with open(meta_file, encoding='utf8') as fp:
+                jadn_str = fp.read()
+
+            # Get option definitions from reserved Metaschema type "JADNOpts"
+            # Pre-compute option tables as class variables
+            schema = json.loads(jadn_str)
+            JADNCore.TYPE_X = {td[TypeName]: td for td in schema['types']}
+            assert 'JADNOpts' in JADNCore.TYPE_X, f'{meta_file}: Metaschema is missing JADNOpts option definitions'
+            assert JADNCore.TYPE_X['JADNOpts'][CoreType] == 'Enumerated', f'{meta_file}: JADNOpts is not Enumerated'
+            opts = JADNCore.TYPE_X['JADNOpts'][Fields]
+            JADNCore.OPT_NAME = {i[ItemID]: i[ItemValue] for i in opts}
+            JADNCore.OPT_ID = {i[ItemValue]: i[ItemID] for i in opts}
+            JADNCore.OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(opts, start=1)}
+            assert len(JADNCore.OPT_NAME) == len(JADNCore.OPT_ID) == len(JADNCore.OPT_ORDER) == len(opts),\
+                f'{meta_file}: Bad JADNOpts (duplicate id or name)'
+
+            # With option tables in place, load metaschema
+            JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
 
     def style(self) -> dict:
         return {}
@@ -116,50 +172,6 @@ class JADNCore:
 # ========================================================
 # Support functions
 # ========================================================
-
-def _load_tagstrings(tstrings: list[str], core_type: str) -> dict[str, str | dict[str, str]]:
-    """
-    Convert list of tagStrings (e.g., TypeOptions, FieldOptions) to dict
-    """
-    def opt(s: str, core_type: str) -> tuple[str, str]:
-        t = JADNCore.OPT_NAME[ord(s[0])]
-        v = s[1:]
-        """
-        t = OPT_NAME[ord(s[0])]
-        if t[0] == 'format':
-            return s, ''
-        f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
-        if f == type(b''):
-            f = bytes.fromhex
-        return (t[0],
-                True if f is bool else
-                {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
-                f(s[1:]))
-        """
-        return JADNCore.OPT_NAME[ord(s[0])][0], v
-
-    return dict(opt(s, core_type) for s in tstrings)
-
-
-def _dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
-    """
-    Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
-    """
-    def dictopt(v: dict[str, str]) -> str:
-        kv = v.popitem()
-        return chr(JADNCore.OPT_ID[kv[0]]) + kv[1]
-
-    def strs(k: str, v: Any) -> str:
-        """
-        v = '' if isinstance(v, bool) else\
-            v.hex() if isinstance(v, bytes) else\
-            dictopt(v) if isinstance(v, dict) else\
-            str(v)
-        """
-        return chr(JADNCore.OPT_ID[k]) + str(v)
-
-    return [strs(k, v) for k, v in sorted(opts.items(),     # Sort options to a canonical order to ease comparison
-            key = lambda k: JADNCore.OPT_ORDER[k[0]])]
 
 def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> str:
     """
@@ -244,7 +256,7 @@ if __name__ == '__main__':
         '/ipv4',    # format (32 bit IPv4 address)
         # '/i32',     # format (signed 32 bit int)
         'E2',       # integer fixed point scale
-        'tOptKeys', # tagString
+        'tMapKeys', # tagString
         'a',        # abstract
         'rFoo',     # restricts
         'eBar',     # extends
