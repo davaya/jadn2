@@ -30,23 +30,23 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
         """
         return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tstrings}
 
-        """
-        Convert string option values to typee values
+    """
+    Convert string option values to typee values
 
-        def opt(s: str) -> tuple[str, str]:
-            t = OPT_NAME[ord(s[0])]
-            if t[0] == 'format':
-                return s, ''
-            f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
-            if f == type(b''):
-                f = bytes.fromhex
-            return (t[0],
-                    True if f is bool else
-                    {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
-                    f(s[1:]))
-            return self.OPT_NAME[ord(s[0])][0], s[1:]
-        return dict(opt(s) for s in tstrings)
-        """
+    def opt(s: str) -> tuple[str, str]:
+        t = OPT_NAME[ord(s[0])]
+        if t[0] == 'format':
+            return s, ''
+        f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
+        if f == type(b''):
+            f = bytes.fromhex
+        return (t[0],
+                True if f is bool else
+                {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
+                f(s[1:]))
+        return self.OPT_NAME[ord(s[0])][0], s[1:]
+    return dict(opt(s) for s in tstrings)
+    """
 
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
@@ -121,15 +121,15 @@ class JADNCore:
     SOURCE = None
 
     def __init__(self):
+        # If this is the first instance, load metaschema from JADN file
         if JADNCore.METASCHEMA is None:
-            # Load metaschema from JADN file
             data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
             meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')     # TODO: use only metaschema in data_dir
             with open(meta_file, encoding='utf8') as fp:
                 jadn_str = fp.read()
 
-            # Get option definitions from reserved Metaschema type "JADNOpts"
-            # Pre-compute option tables as class variables
+            # Get option definitions from Metaschema reserved type "JADNOpts"
+            # Pre-compute tag-string serialization tables as class variables
             schema = json.loads(jadn_str)
             JADNCore.TYPE_X = {td[TypeName]: td for td in schema['types']}
             assert 'JADNOpts' in JADNCore.TYPE_X, f'{meta_file}: Metaschema is missing JADNOpts option definitions'
@@ -141,7 +141,7 @@ class JADNCore:
             assert len(JADNCore.OPT_NAME) == len(JADNCore.OPT_ID) == len(JADNCore.OPT_ORDER) == len(opts),\
                 f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
-            # With option tables in place, load metaschema
+            # With option tables in place, load metaschema as any JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
 
     def style(self) -> dict:

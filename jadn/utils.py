@@ -181,7 +181,7 @@ def parseopt(optstr: str) -> tuple:
     return m1.group(1) if m1.group(2) is None else {m1.group(1): m1.group(2)}
 
 
-def typestr2jadn(typestring: str) -> tuple:
+def typestr2jadn(self, typestring: str) -> tuple:
     topts = {}
     fopts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
@@ -196,9 +196,6 @@ def typestr2jadn(typestring: str) -> tuple:
     if m is None:
         raise_error(f'TypeString2JADN: "{typestring}" does not match pattern {pattern}')
     tname = m.group(1)
-    if tname[0] == '!':     # TODO: this is a field option
-        fopts += {'not': True}
-        tname = tname[1:]
     topts.update({'id': True} if m.group(2) else {})
     if m.group(3):                      # Parens: (keyType, valueType), enum(), pointer(), tagId(), choice() options
         opts = [parseopt(x) for x in m.group(3).split(',', maxsplit=1)]
@@ -251,7 +248,7 @@ def typestr2jadn(typestring: str) -> tuple:
     return tname, topts, fopts
 
 
-def jadn2typestr(tname: str, topts: dict) -> str:
+def jadn2typestr(self, tname: str, topts: dict) -> str:
     """
     Convert typename and options to string
     """

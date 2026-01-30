@@ -38,7 +38,7 @@ class JIDL(JADNCore):
         fields = None
         for line in doc.splitlines():
             if line:
-                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a JIDL line
+                t, v = _line2jadn(self, line, types[-1] if types else None)    # Parse a JIDL line
                 if t == 'F':
                     fields.append(v)
                 elif fields:
@@ -55,7 +55,7 @@ class JIDL(JADNCore):
         """
         Convert JADN schema to JADN-IDL
 
-        :param dict schema: JADN schema
+        :param JIDL pkg: JADN schema
         :param dict style: Override default column widths if specified
         :return: JADN-IDL text
         :rtype: str
@@ -75,12 +75,12 @@ class JIDL(JADNCore):
 
         wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
         for td in self.SCHEMA['types']:
-            tdef = f'{td[TypeName]} = {jadn2typestr(td[CoreType], td[TypeOptions])}'
+            tdef = f'{td[TypeName]} = {jadn2typestr(self, td[CoreType], td[TypeOptions])}'
             tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
             idt = id_type(td)
             for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
-                fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
+                fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
                 if td[CoreType] == 'Enumerated':
                     fdesc = ' // ' + fdesc if fdesc else ''
                     fs = f'{fd[ItemID]:>{w["id"]}} {fname}'
@@ -103,7 +103,7 @@ class JIDL(JADNCore):
 # ========================================================
 
 # Convert JIDL to JADN
-def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
+def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
     if line.split('//', maxsplit=1)[0].strip():
         p_meta = r'^\s*([-\w]+):\s*(.+?)\s*$'
         if m := re.match(p_meta, line):
@@ -118,7 +118,7 @@ def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
 
         p_type = fr'^{p_tname}{p_assign}{p_tstr}$'
         if m := re.match(p_type, line):
-            btype, topts, fo = typestr2jadn(m.group(2))
+            btype, topts, fo = typestr2jadn(self, m.group(2))
             assert fo == {}  # field options MUST not be included in typedefs
             newtype = [m.group(1), btype, topts, desc, []]
             return 'T', newtype
