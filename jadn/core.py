@@ -121,7 +121,7 @@ class JADNCore:
     SOURCE = None
 
     def __init__(self):
-        # If this is the first instance, load metaschema from JADN file
+        # If this is the first instance, load metaschema from JADN file into class variables
         if JADNCore.METASCHEMA is None:
             data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
             meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')     # TODO: use only metaschema in data_dir
@@ -132,12 +132,14 @@ class JADNCore:
             # Pre-compute tag-string serialization tables as class variables
             schema = json.loads(jadn_str)
             JADNCore.TYPE_X = {td[TypeName]: td for td in schema['types']}
-            assert 'JADNOpts' in JADNCore.TYPE_X, f'{meta_file}: Metaschema is missing JADNOpts option definitions'
-            assert JADNCore.TYPE_X['JADNOpts'][CoreType] == 'Enumerated', f'{meta_file}: JADNOpts is not Enumerated'
+            assert 'JADNOpts' in JADNCore.TYPE_X, f'Metaschema {meta_file} is missing JADNOpts option definitions'
             opts = JADNCore.TYPE_X['JADNOpts'][Fields]
             JADNCore.OPT_NAME = {i[ItemID]: i[ItemValue] for i in opts}
             JADNCore.OPT_ID = {i[ItemValue]: i[ItemID] for i in opts}
             JADNCore.OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(opts, start=1)}
+            to = JADNCore.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
+            JADNCore.TYPE_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v < to}
+            JADNCore.FIELD_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v > to}
             assert len(JADNCore.OPT_NAME) == len(JADNCore.OPT_ID) == len(JADNCore.OPT_ORDER) == len(opts),\
                 f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 

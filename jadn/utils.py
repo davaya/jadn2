@@ -208,8 +208,8 @@ def typestr2jadn(self, typestring: str) -> tuple:
             topts.update({'combine': opts[0]})
         else:
             op = OPTX[[k for k in opts[0]][0]]
-            topts.update(opts[0] if op in TYPE_OPTIONS else {})
-            fopts.update(opts[0] if op in FIELD_OPTIONS else {})
+            topts.update(opts[0] if op in self.TYPE_OPTS else {})
+            fopts.update(opts[0] if op in self.FIELD_OPTS else {})
     if rest := m.group(4):
         # Matches     group(3) = [   group(7) = ]   group(8) = rest
         # [x,y] rest  group(4) = x   group(6) = y
@@ -279,7 +279,7 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         hi = ops.pop('maxInclusive', ops.pop('maxExclusive', '*'))
         return f'={lc}{lo}, {hi}{hc}' if lo != '*' or hi != '*' else ''
 
-    opts = {k:v for k, v in topts.items() if k in OPTT} # FIELD_OPTIONS not processed.
+    opts = {k:v for k, v in topts.items() if k in self.TYPE_OPTS} # FIELD_OPTIONS not processed.
     txt = '#' if opts.pop('id', None) else ''   # Remove known options from opts as processed.
     if tname in ('ArrayOf', 'MapOf'):
         txt += f"({_kvstr(opts.pop('keyType'))}, " if tname == 'MapOf' else '('
@@ -342,7 +342,7 @@ def id_type(td: list) -> bool:    # True if FieldName is a label in description
         or td[TypeOptions].get('combine', False))
 
 
-def jadn2fielddef(fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
+def jadn2fielddef(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     idtype = id_type(tdef)
     fname = '' if idtype else fdef[FieldName]
     fdesc = f'{fdef[FieldName]}:: ' if idtype else ''
@@ -358,14 +358,14 @@ def jadn2fielddef(fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         if tagid := fto.get('tagId', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == tagid][0]
             tf = f'(tagId[{tf if tf else tagid}])'
-        ft = jadn2typestr(f'{fdef[FieldType]}{tf}', fto)
+        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', fto)
         fnot = '!' if 'not' in fto else ''
         ftyperef = f'key({ft})' if 'key' in fto else f'link({ft})' if 'link' in fto else fnot + ft
         fmult = multiplicity_str(fto)
     return fname, ftyperef, fmult, fdesc
 
 
-def fielddef2jadn(fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> list:
+def fielddef2jadn(self, fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> list:
     def fopts_s2d(olist: list) -> dict:
         fd = {}
         for o in olist:
