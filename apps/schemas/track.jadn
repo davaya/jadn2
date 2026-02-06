@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "package": "http://example.com/schema/tracker"
+  },
+  "types": [
+    ["Track", "Record", [], "Position log", [
+      [1, "start_time", "Integer", ["/datetime","s3"]],
+      [2, "positions", "Position", ["[1", "]1"], "List of track points"]
+    ]],
+    ["Position", "Record", ["eCoordinate"], "3D position: (lat, long, altitude, time)", [
+      [1, "altitude", "Integer", ["s2"], "Centimeters"],
+      [2, "time", "Integer", ["s3"], "Milliseconds since track start time"]
+    ]],
+    ["Coordinate", "Record", [], "GPS Coordinate", [
+      [1, "latitude", "Number", ["y-90", "z90"], "Latitude"],
+      [2, "longitude", "Number", ["w-180", "z180"], "Longitude"]
+    ]]
+  ]
+}
