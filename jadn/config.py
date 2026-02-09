@@ -4,7 +4,7 @@ import os
 
 def style_args(self, format: str, args: str, config: str = '') -> dict:
     """
-    Combine style options from command line options, user defaults file, and format-defined defaults
+    Combine style options from command line options, user config file, and format-defined defaults
 
     :param pkg: JADN schema package instance
     :param format: name of serialized (lexical) format

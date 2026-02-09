@@ -51,7 +51,7 @@ class JIDL(JADNCore):
                     fields = types[-1][Fields]
         self.SCHEMA = {'meta': meta, 'types': types}
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
+    def schema_dumps(self, pkg, style: dict) -> str:
         """
         Convert JADN schema to JADN-IDL
 
@@ -128,13 +128,13 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
             if tdef[CoreType] == 'Enumerated':  # Parse Enumerated Item
                 pattern = fr'^{p_id}{p_fstr}$'
                 if m := re.match(pattern, line):
-                    return 'F', fielddef2jadn(int(m.group(1)), m.group(2), '', '', desc)
+                    return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), '', '', desc)
             else:  # Parse Field
                 pattern = fr'^{p_id}{pn}{p_fstr}{p_range}$'
                 if m := re.match(pattern, line):
                     m_range = '0..1' if m.group(5) else m.group(4)  # Convert 'optional' to range
-                    return 'F', fielddef2jadn(int(m.group(1)), m.group(2), m.group(3), m_range if m_range else '',
-                                              desc)
+                    return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), m.group(3),
+                                              m_range if m_range else '', desc)
         else:
             raise_error(f'JIDL Load - field with no type: {repr(line)}')
 

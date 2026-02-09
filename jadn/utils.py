@@ -379,7 +379,7 @@ def fielddef2jadn(self, fid: int, fname: str, fstr: str, fmult: str, fdesc: str)
         if m := re.match(r'^(link|key)\((.*)\)$', fstr):
             fo = {m.group(1).lower(): True}
             fstr = m.group(2)
-        ftyperef, topts, fopts = typestr2jadn(fstr)
+        ftyperef, topts, fopts = typestr2jadn(self, fstr)
         # Field is one of: enum#, enum, field#, field
         fo.update(topts)                   # Copy type options (if any) into field options (JADN extension)
         if fname.endswith('/'):

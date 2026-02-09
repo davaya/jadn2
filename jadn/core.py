@@ -1,11 +1,10 @@
 import os
 import json
 from copy import deepcopy
-from jadn.definitions import PYTHON_TYPES, TypeName, CoreType, TypeOptions, Fields, \
+from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     ItemID,ItemValue, FieldType, FieldOptions
 from typing import TextIO, BinaryIO, Any
 from numbers import Number
-from pprint import pprint
 
 
 # =========================================================
@@ -61,7 +60,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
     return schema
 
 
-def jadn_schema_dumps(self, style: dict = {}) -> str:
+def jadn_schema_dumps(self, style: dict=None) -> str:
     """
     Return a schema instance as a string containing JADN data in JSON format
 
@@ -157,14 +156,14 @@ class JADNCore:
         self.SOURCE = fp.name
         self.schema_loads(fp.read())
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str | bytes:
+    def schema_dumps(self, pkg, style: dict=None) -> str | bytes:
         print('Schema dump not implemented')
         exit(1)
 
-    def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict = {}) -> None:
+    def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict=None) -> None:
         fp.write(self.schema_dumps(pkg, style))
 
-    def validate(self) -> None:
+    def schema_validate(self) -> None:
         """
         Validate a logical schema instance against JADN metaschema
         """
@@ -208,8 +207,9 @@ def _pprint(val: Any, level: int = 0, indent: int = 2, strip: bool = False) -> s
 
 
 # =========================================================
-# Diagnostics
+# Diagnostics - replace with unit test schemas
 # =========================================================
+"""
 from jadn.definitions import FieldID, FieldName, ALLOWED_TYPE_OPTIONS
 
 if __name__ == '__main__':
@@ -219,14 +219,15 @@ if __name__ == '__main__':
     # print('OPTO:', len(JADN.OPTO), JADN.OPTO)   # Option sort order
 
     # Verify that Metaschema option IDs agree with definitions
-    for td in JADNCore.METASCHEMA['types']:
+    pkg = JADNCore()
+    for td in pkg.METASCHEMA['types']:
         for fd in td[Fields]:
-            if fd[FieldName] in JADNCore.OPT_ID:
-                if (a := fd[FieldID]) != (b := JADNCore.OPT_ID[fd[FieldName]]):
+            if fd[FieldName] in pkg.OPT_ID:
+                if (a := fd[FieldID]) != (b := pkg.OPT_ID[fd[FieldName]]):
                     print(f'{td[TypeName]}.{fd[FieldName]}: {a} != {b}')
 
     # Verify Metaschema's allowed options by type
-    tdx = {t[TypeName]: t for t in JADNCore.METASCHEMA['types']}
+    tdx = {t[TypeName]: t for t in pkg.METASCHEMA['types']}
     for to in tdx['TypeOptions'][Fields]:
         td = tdx[to[FieldType]]
         ato = ALLOWED_TYPE_OPTIONS[to[FieldName]]
@@ -234,9 +235,9 @@ if __name__ == '__main__':
         if set(ato) != set(atm):
             print(f'Option mismatch: {td[TypeName]}: {ato} != {atm}')
         for f in td[Fields]:
-            if (fm := f[FieldName]) != (fd := JADNCore.OPT_NAME[f[FieldID]][0]):
+            if (fm := f[FieldName]) != (fd := pkg.OPT_NAME[f[FieldID]][0]):
                 print(f'Option mismatch: {td[TypeName]}: {fm} != {fd}')
-            if (fm := f[FieldID]) != (fd := JADNCore.OPT_ID[f[FieldName]]):
+            if (fm := f[FieldID]) != (fd := pkg.OPT_ID[f[FieldName]]):
                 print(f'Option ID mismatch: {td[TypeName]}: {fm} != {fd}')
 
     # Test tagged-string serialization
@@ -326,3 +327,4 @@ if __name__ == '__main__':
         print(f' Dumped opts ({core_type}): {opts_s2}')
         if opts_s2 != opts_s:
             print('** Translation mismatch **')
+"""

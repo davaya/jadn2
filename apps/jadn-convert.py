@@ -28,15 +28,14 @@ def convert_schema(out_format: str, style_cmd: str, path: str, in_file: str, out
 
     fn, ext = os.path.splitext(in_file)
     ext = ext.lstrip('.')
-    if (k := class_.get(ext)) and k.schema_loads != k.__bases__[0].schema_loads: # input format has a read method
-
+    if ext in class_ and (pkg := class_[ext]()) and 'schema_loads' in dir(pkg):     # Input format has a load method
+    # if (pkg := class_.get(ext)()) and 'schema_loads' in dir(pkg):   # Input format has a load method
         # Read schema literal into information value
-        pkg = k()
         with open(os.path.join(path, in_file), 'r') as fp:
             pkg.schema_load(fp)
 
         # Validate JADN information value against JADN metaschema
-        pkg.validate()
+        pkg.schema_validate()
 
         # Serialize information value to schema literal in output format
         if out_format in class_:
