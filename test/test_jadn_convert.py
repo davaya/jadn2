@@ -35,6 +35,8 @@ def test_schema_convert():
                 out_pkg = schema_convert(in_pkg, out_format, style)
 
 
+def schema_convert(self, output_format: str='jadn', style: dict=None): -> 'JADNCore'
+
 
 def convert_schema(self, out_pkg, style: dict=None, out_format: str, style_cmd: str, path: str, in_file: str, out_dir: str) -> None:
 
