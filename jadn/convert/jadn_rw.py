@@ -11,13 +11,12 @@ class JADN(JADNCore):
             'strip': True
         }
 
-    def schema_loads(self, jadn_str: str) -> None:
+    def schema_loads(self, jadn_str: str, source: str=None) -> None:
         schema = jadn_schema_loads(self, jadn_str)
-        self.SCHEMA = schema
+        self.schema = schema
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
+    def schema_dumps(self, style: dict = None) -> str:
         return jadn_schema_dumps(self, style)
 
 

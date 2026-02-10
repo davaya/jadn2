@@ -25,7 +25,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
 
     def load_tagstrings(tstrings: list[str], otype) -> dict[str, str]:
         """
-        Convert list of tagStrings (e.g., TypeOptions, FieldOptions) to dict
+        Parse JSON-serialized list of tagStrings (e.g., TypeOptions, FieldOptions) to a dict
         """
         return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tstrings}
 
@@ -70,7 +70,7 @@ def jadn_schema_dumps(self, style: dict=None) -> str:
 
     def dump_tagstrings(opts: dict[str, str], ct: str) -> list[str]:
         """
-        Convert TypeOptions and FieldOptions dict to JSON-serialized list of strings
+        Serialize TypeOptions and FieldOptions dict as JSON list of tag-strings
         """
 
         def dictopt(v: dict[str, str]) -> str:
@@ -89,8 +89,8 @@ def jadn_schema_dumps(self, style: dict=None) -> str:
         return [strs(k, v) for k, v in sorted(opts.items(),  # Sort options to a canonical order to ease comparison
                                               key=lambda k: self.OPT_ORDER[k[0]])]
 
-    schema_copy = {'meta': self.SCHEMA['meta']} if self.SCHEMA['meta'] else {}
-    schema_copy.update({'types': deepcopy(self.SCHEMA['types'])})
+    schema_copy = {'meta': x} if (x := self.schema.get('meta')) else {}
+    schema_copy.update({'types': deepcopy(self.schema['types'])})
 
     for td in schema_copy['types']:
         # Clean up field defs
@@ -116,10 +116,15 @@ def jadn_schema_dumps(self, style: dict=None) -> str:
 # ========================================================
 class JADNCore:
     METASCHEMA = None
-    SCHEMA = None
-    SOURCE = None
 
-    def __init__(self):
+    def __init__(self, pkg: 'JADNCore'=None) -> None:
+        self.schema = None          # original schema
+        self.source = None          # source of original schema
+        self.full_schema = None     # schema after all shortcuts expanded (required for data validation)
+        if pkg is not None:
+            assert pkg.__class__.__bases__ == self.__class__.__bases__      # pkg must be a subclass of JADNCore
+            self.__dict__.update(pkg.__dict__)      # Copy all instance variables from pkg (shallow)
+
         # If this is the first instance, load metaschema from JADN file into class variables
         if JADNCore.METASCHEMA is None:
             data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
@@ -148,20 +153,19 @@ class JADNCore:
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, message: str | bytes) -> None:
+    def schema_loads(self, message: str | bytes, source: str=None) -> None:
         print('Schema load not implemented')
         exit(1)
 
     def schema_load(self, fp: TextIO | BinaryIO) -> None:
-        self.SOURCE = fp.name
-        self.schema_loads(fp.read())
+        self.schema_loads(fp.read(), fp.name)
 
-    def schema_dumps(self, pkg, style: dict=None) -> str | bytes:
+    def schema_dumps(self, style: dict=None) -> str | bytes:
         print('Schema dump not implemented')
         exit(1)
 
-    def schema_dump(self, fp: TextIO | BinaryIO, pkg, style: dict=None) -> None:
-        fp.write(self.schema_dumps(pkg, style))
+    def schema_dump(self, fp: TextIO | BinaryIO, style: dict=None) -> None:
+        fp.write(self.schema_dumps(style))
 
     def schema_validate(self) -> None:
         """
