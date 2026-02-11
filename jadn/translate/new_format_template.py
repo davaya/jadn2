@@ -1,4 +1,4 @@
-from jadn import JADNCore
+from jadn.core import JADNCore
 
 """
 Template for creating a new JADNCore class for new schema format <foo>
@@ -13,7 +13,7 @@ class FOO(JADNCore):
             'option2': 42
         }
 
-    def schema_loads(self, doc: str) -> None:
+    def schema_loads(self, doc: str, source: str=None) -> None:
         meta = {}   # Initialize JADN schema
         types = []
 
@@ -21,11 +21,10 @@ class FOO(JADNCore):
         # Convert a text or binary schema in format "foo" to JADN schema
         #  ...
 
-        self.SCHEMA = {'meta': meta, 'types': types}    # Save the schema to input class variable
+        self.schema = {'meta': meta, 'types': types}    # Save the schema to input class variable
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
-        self.SCHEMA = pkg.SCHEMA    # Copy the source JADN schema to output class variable
-        self.SOURCE = pkg.SOURCE    # SOURCE filename is populated by schema_load(), copy to output class
+    def schema_dumps(self, style: dict=None) -> str:
 
         foo = ''    # or foo = b''
 

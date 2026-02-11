@@ -22,7 +22,7 @@ class JSCHEMA(JADNCore):
                                     # anon: types are nested anonymously and repeated
         }
 
-    def schema_loads(self, doc: str) -> None:
+    def schema_loads(self, doc: str, source: str=None) -> None:
         jss = json.loads(doc)
         # assert jss['type'] == 'object', f'Unsupported JSON Schema format'
         defs = jss.get('definitions', jss.get('$defs', {}))
@@ -52,16 +52,15 @@ class JSCHEMA(JADNCore):
             if t not in ntypes:  # O(n^2) runtime because type definitions aren't hashable
                 ntypes.append(t)  # Convert to immutable types if it becomes an issue
 
-        self.SCHEMA = {'meta': meta, 'types': ntypes}
+        self.schema = {'meta': meta, 'types': ntypes}
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
+    def schema_dumps(self, style: dict=None) -> str:
         """
         Translate JADN schema to/from jschema
         """
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
         print('JSON Schema dump not implemented')
-        exit(1)
+        return '\n'
 
 
 # ========================================================

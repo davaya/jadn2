@@ -8,12 +8,12 @@ class XETO(JADNCore):
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, doc: str) -> None:
+    def schema_loads(self, doc: str, source: dict=None) -> None:
+        self.schema = {'meta': {}, 'types': []}
+        self.source = source
         print('XETO schema load not implemented')
         exit(1)
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
+    def schema_dumps(self, style: dict=None) -> str:
         print('XETO schema dump not implemented')
-        exit(1)
+        return ''

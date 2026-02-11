@@ -37,7 +37,7 @@ class ERD(JADNCore):
             }
         }
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
+    def schema_dumps(self, style: dict=None) -> str:
         """
         Convert JADN schema to Entity Relationship Diagram source file
         """
@@ -78,7 +78,7 @@ class ERD(JADNCore):
                 fval = fd[FieldName]
             elif s['detail'] == 'information':
                 fl = '{field} ' if s['graph'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
-                fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
+                fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
                 fdef += '' if fmult == '1' else ' [' + fmult + ']'
                 fval = f'{fd[FieldID]} {fname}' + ('' if td[CoreType] == 'Enumerated' else f' : {fl}{fdef}')
             return {
@@ -135,9 +135,6 @@ class ERD(JADNCore):
                     return f'  n{nodes[td[TypeName]]} -> n{nodes[fieldtype]}{edge_label}\n'
             return ''
 
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
-
         s = self.style()
         s.update(style)
         assert s['graph'] in {'plantuml', 'graphviz'}, f'Invalid graph language: {s["graph"]}'
@@ -158,16 +155,16 @@ class ERD(JADNCore):
         }[s['graph']]
 
         text = ''
-        for k, v in self.SCHEMA.get('meta', {}).items():
+        for k, v in self.schema.get('meta', {}).items():
             text += f"{fmt['comment']} {k}: {v}\n"
         text += f"\n{fmt['start']}\n  " + '\n  '.join(fmt['header']) + '\n\n'
 
         hide_types = [] if s['attributes'] else (*PRIMITIVE_TYPES, 'Enumerated')
-        nodes = {tdef[TypeName]: k for k, tdef in enumerate(self.SCHEMA['types']) if tdef[CoreType] not in hide_types}
+        nodes = {tdef[TypeName]: k for k, tdef in enumerate(self.schema['types']) if tdef[CoreType] not in hide_types}
         edges = ''
-        for td in self.SCHEMA['types']:
+        for td in self.schema['types']:
             if (td[TypeName]) in nodes:
-                bt = f' : {jadn2typestr(td[CoreType], td[TypeOptions])}' if s['detail'] == 'information' else ''
+                bt = f' : {jadn2typestr(self, td[CoreType], td[TypeOptions])}' if s['detail'] == 'information' else ''
                 if td[CoreType] in PRIMITIVE_TYPES:
                     text += node_leaf(td, bt)
                 else:

@@ -17,7 +17,7 @@ class MD(JADNCore):
             'links': True   # Retain Markdown links: [text](link)
         }
 
-    def schema_loads(self, doc: str) -> None:
+    def schema_loads(self, doc: str, source: dict=None):
         meta = {}       # TODO: parsing state machine for meta followed by types including TypeDesc
         types = []
         fields = None
@@ -36,25 +36,24 @@ class MD(JADNCore):
                     fields = types[-1][Fields]
                 elif t:
                     assert t == 'D', f'Unexpected line {t}: "{v}"'
-        self.SCHEMA = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types}
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
+    def schema_dumps(self, style: dict=None) -> str:
         """
         Convert JADN schema to Markdown Tables
         """
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
 
         text = '```\n'
-        meta = self.SCHEMA['meta']
+        meta = self.schema.get('meta', {})
         mlist = [k for k in META_ORDER if k in meta]
         for k in mlist + list(set(meta) - set(mlist)):      # Display meta elements in fixed order
             text += f'{k:>14}: {json.dumps(meta[k])}\n'     # TODO: wrap to width, continuation-line parser
         text += '```\n'
 
-        for td in self.SCHEMA['types']:
+        for td in self.schema['types']:
             if len(td) > Fields and td[Fields]:
-                tdef = f'{td[TypeName]} ({jadn2typestr(td[CoreType], td[TypeOptions])})'
+                tdef = f'{td[TypeName]} ({jadn2typestr(self, td[CoreType], td[TypeOptions])})'
                 tdesc = f'\n{td[TypeDesc]}\n' if td[TypeDesc] else ''
                 text += f'{tdesc}\n**Type: ' + tdef.replace("*", r"\*") + '**\n'
                 idt = td[CoreType] == 'Array' or td[TypeOptions].get('id', False)
@@ -66,7 +65,7 @@ class MD(JADNCore):
                     [['ID', 'Name', 'Type', r'\#', 'Description']]
                 ][table_type]
                 for fd in td[Fields]:
-                    fname, fdef, fmult, fdesc = jadn2fielddef(fd, td)
+                    fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
                     fdef = fdef.replace('*', r'\*')
                     fmult = fmult.replace('*', r'\*')
                     dsc = fdesc.split('::', maxsplit=2)
@@ -81,7 +80,7 @@ class MD(JADNCore):
                         table.append([str(fd[FieldID]), f'**{fname}**', fdef, fmult, fdesc])
             else:
                 table = [['Type Name', 'Type Definition', 'Description'],
-                         [f'**{td[TypeName]}**', jadn2typestr(td[CoreType], td[TypeOptions]), td[TypeDesc]]]
+                         [f'**{td[TypeName]}**', jadn2typestr(self, td[CoreType], td[TypeOptions]), td[TypeDesc]]]
             text += f'\n{_format_table(table)}\n\n**********\n'
         return text
 

@@ -12,7 +12,7 @@ class XSD(JADNCore):
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, xml_str: str) -> None:
+    def schema_loads(self, xml_str: str, source: dict=None) -> None:
         tree = etree.parse(BytesIO(xml_str.encode('utf8')))
         root = tree.getroot()
         tag = etree.QName(root.tag).localname
@@ -25,13 +25,12 @@ class XSD(JADNCore):
         meta['namespaces'] = [(k, v) for k, v in root.nsmap.items()]
 
         types = make_jadn(root)
-        self.SCHEMA = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types}
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = {}) -> str:
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
+    def schema_dumps(self, style: dict=None) -> str:
         print('XSD dump not implemented')
-        exit(1)
+        return '\n'
 
 # ========================================================
 # Support functions

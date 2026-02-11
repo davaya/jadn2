@@ -13,7 +13,7 @@ class XASD(JADNCore):
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, xml_str: str) -> None:
+    def schema_loads(self, xml_str: str, source: dict=None):
         tree = ET.parse(BytesIO(xml_str.encode('utf8')))
         root = tree.getroot()
         assert root.tag == 'Schema'
@@ -25,18 +25,17 @@ class XASD(JADNCore):
             elif element.tag == 'Types':
                 for el in element:
                     types.append(_get_type(self, el))
-        self.SCHEMA = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types}
+        self.source = source
 
-    def schema_dumps(self, pkg, style: dict = None) -> str:
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
+    def schema_dumps(self, style: dict=None) -> str:
 
         def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
             return k.replace('/', '_')
 
         sp = '  '   # Indentation space per level
         xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
-        if meta := self.SCHEMA.get('meta', None):
+        if meta := self.schema.get('meta', {}):
             xasd += f'{sp}<Metadata>\n'
             # xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
             for k, v in meta.items():
@@ -59,7 +58,7 @@ class XASD(JADNCore):
                     xasd += f'{2*sp}<{k.capitalize()}>{meta[k]}</{k.capitalize()}>\n'
             xasd += f'{sp}</Metadata>\n'
         xasd += f'{sp}<Types>\n'
-        for td in self.SCHEMA['types']:
+        for td in self.schema['types']:
             (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
             to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
             xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'

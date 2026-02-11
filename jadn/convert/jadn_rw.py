@@ -16,7 +16,7 @@ class JADN(JADNCore):
         self.schema = schema
         self.source = source
 
-    def schema_dumps(self, style: dict = None) -> str:
+    def schema_dumps(self, style: dict=None) -> str:
         return jadn_schema_dumps(self, style)
 
 

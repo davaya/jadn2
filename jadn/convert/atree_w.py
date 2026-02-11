@@ -18,7 +18,7 @@ class ATREE(JADNCore):
         }
 
 
-    def schema_dumps(self, pkg, style: dict = None) -> str:
+    def schema_dumps(self, style: dict=None) -> str:
         """
         Translate JADN schema to ascii tree diagram
         """
@@ -33,15 +33,12 @@ class ATREE(JADNCore):
                 return ' '.join((tree_col, jtype))
             return ''
 
-        self.SCHEMA = pkg.SCHEMA
-        self.SOURCE = pkg.SOURCE
-
         tr = tree_style(style['draw'])
-        defs = build_deps(self.SCHEMA)  # Get all type definitions and their dependencies
+        defs = build_deps(self.schema)  # Get all type definitions and their dependencies
         refs = set(d for deps in defs.values() for d in deps)   # All referenced types
         roots = set(defs) - refs        # Unreferenced types
         tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
-        tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.SCHEMA['types']}
+        tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.schema['types']}
         return '\n'.join([line(t, tx, style['detail']) for t in tree.split('\n')])
 
 # ========================================================
