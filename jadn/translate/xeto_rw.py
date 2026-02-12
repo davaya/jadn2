@@ -11,9 +11,7 @@ class XETO(JADNCore):
     def schema_loads(self, doc: str, source: dict=None) -> None:
         self.schema = {'meta': {}, 'types': []}
         self.source = source
-        print('XETO schema load not implemented')
-        exit(1)
+        raise NotImplementedError('XETO schema load not implemented')
 
     def schema_dumps(self, style: dict=None) -> str:
-        print('XETO schema dump not implemented')
-        return ''
+        raise NotImplementedError('XETO schema dump not implemented')

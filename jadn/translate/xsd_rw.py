@@ -29,8 +29,7 @@ class XSD(JADNCore):
         self.source = source
 
     def schema_dumps(self, style: dict=None) -> str:
-        print('XSD dump not implemented')
-        return '\n'
+        raise NotImplementedError('XSD schema dump not implemented')
 
 # ========================================================
 # Support functions

@@ -154,15 +154,13 @@ class JADNCore:
         return {}
 
     def schema_loads(self, message: str | bytes, source: str=None) -> None:
-        print('Schema load not implemented')
-        exit(1)
+        raise NotImplementedError(f'{self.__class__.__name__} schema load not implemented')
 
     def schema_load(self, fp: TextIO | BinaryIO) -> None:
         self.schema_loads(fp.read(), fp.name)
 
     def schema_dumps(self, style: dict=None) -> str | bytes:
-        print('Schema dump not implemented')
-        exit(1)
+        raise NotImplementedError(f'{self.__class__.__name__} schema dump not implemented')
 
     def schema_dump(self, fp: TextIO | BinaryIO, style: dict=None) -> None:
         fp.write(self.schema_dumps(style))

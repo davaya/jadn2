@@ -9,9 +9,7 @@ class CDDL(JADNCore):
         return {}
 
     def schema_loads(self, doc: str, source: dict=None) -> None:
-        print('CDDL load not implemented')
-        exit(1)
+        raise NotImplementedError('CDDL schema load not implemented')
 
     def schema_dumps(self, style: dict=None) -> str:
-        print('CDDL dump not implemented')
-        return '\n'
+        raise NotImplementedError('CDDL schema dump not implemented')

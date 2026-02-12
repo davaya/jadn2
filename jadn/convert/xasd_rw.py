@@ -13,7 +13,7 @@ class XASD(JADNCore):
     def style(self) -> dict:
         return {}
 
-    def schema_loads(self, xml_str: str, source: dict=None):
+    def schema_loads(self, xml_str: str, source: str=None) -> None:
         tree = ET.parse(BytesIO(xml_str.encode('utf8')))
         root = tree.getroot()
         assert root.tag == 'Schema'

@@ -59,8 +59,7 @@ class JSCHEMA(JADNCore):
         """
         Translate JADN schema to/from jschema
         """
-        print('JSON Schema dump not implemented')
-        return '\n'
+        raise NotImplementedError('JSON Schema dump not implemented')
 
 
 # ========================================================

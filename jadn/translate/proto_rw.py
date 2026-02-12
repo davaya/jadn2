@@ -11,9 +11,7 @@ class PROTO(JADNCore):
     def schema_loads(self, doc: str, source: str=None) -> None:
         self.schema = {'meta': {}, 'types': []}
         self.source = source
-        print('Protobuf schema load not implemented')
-        exit(1)
+        raise NotImplementedError('Protobuf schema load not implemented')
 
     def schema_dumps(self, style: dict=None) -> str:
-        print('Protobuf schema dump not implemented')
-        return '\n'
+        raise NotImplementedError('Protobuf schema dump not implemented')
