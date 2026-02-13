@@ -16,16 +16,16 @@
     ]],
     ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
-      [2, "version", "String", ["{1", "[0"], "Incrementing version within package"],
-      [3, "title", "String", ["{1", "[0"], "Title"],
-      [4, "description", "String", ["{1", "[0"], "Description"],
-      [5, "comment", "String", ["{1", "[0"], "Comment"],
-      [6, "copyright", "String", ["{1", "[0"], "Copyright notice"],
-      [7, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"],
-      [8, "namespaces", "PrefixNs", ["q", "[0", "]-1"], "Referenced packages"],
-      [9, "roots", "TypeName", ["q", "[0", "]-1"], "Roots of the type tree(s) in this package"],
-      [10, "config", "Config", ["[0"], "Configuration variables"],
-      [11, "jadn_version", "Namespace", ["[0"], "JADN Metaschema package"]
+      [2, "namespaces", "PrefixNs", ["q", "[0", "]-1"], "Referenced packages"],
+      [3, "roots", "TypeName", ["q", "[0", "]-1"], "Roots of the type tree(s) in this package"],
+      [4, "config", "Config", ["[0"], "Configuration variables"],
+      [5, "jadn_version", "Namespace", ["[0"], "JADN Metaschema package"],
+      [6, "version", "String", ["{1", "[0"], "Incrementing version within package"],
+      [7, "title", "String", ["{1", "[0"], "Title"],
+      [8, "description", "String", ["{1", "[0"], "Description"],
+      [9, "comment", "String", ["{1", "[0"], "Comment"],
+      [10, "copyright", "String", ["{1", "[0"], "Copyright notice"],
+      [11, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"]
     ]],
     ["PrefixNs", "Array", [], "Prefix corresponding to a namespace IRI", [
       [1, "prefix", "NSID", [], "Namespace prefix string"],
@@ -58,13 +58,13 @@
       [3, "Integer", "Empty"],
       [4, "Number", "Empty"],
       [5, "String", "Empty"],
-      [6, "Enumerated", "Items"],
-      [7, "Choice", "Fields"],
-      [8, "Array", "Fields"],
-      [9, "ArrayOf", "Empty"],
-      [10, "Map", "Fields"],
-      [11, "MapOf", "Empty"],
-      [12, "Record", "Fields"]
+      [6, "Array", "Fields"],
+      [7, "ArrayOf", "Empty"],
+      [8, "Map", "Fields"],
+      [9, "MapOf", "Empty"],
+      [10, "Record", "Fields"],
+      [11, "Enumerated", "Items"],
+      [12, "Choice", "Fields"]
     ]],
     ["TypeOptions", "Choice", [], "", [
       [1, "Binary", "BinaryOpts"],
@@ -72,13 +72,13 @@
       [3, "Integer", "IntegerOpts"],
       [4, "Number", "NumberOpts"],
       [5, "String", "StringOpts"],
-      [6, "Enumerated", "EnumeratedOpts"],
-      [7, "Choice", "ChoiceOpts"],
-      [8, "Array", "ArrayOpts"],
-      [9, "ArrayOf", "ArrayOfOpts"],
-      [10, "Map", "MapOpts"],
-      [11, "MapOf", "MapOfOpts"],
-      [12, "Record", "RecordOpts"]
+      [6, "Array", "ArrayOpts"],
+      [7, "ArrayOf", "ArrayOfOpts"],
+      [8, "Map", "MapOpts"],
+      [9, "MapOf", "MapOfOpts"],
+      [10, "Record", "RecordOpts"],
+      [11, "Enumerated", "EnumeratedOpts"],
+      [12, "Choice", "ChoiceOpts"]
     ]],
     ["Empty", "Array", ["}0"]],
     ["Items", "ArrayOf", ["*Item"]],
@@ -101,17 +101,16 @@
       [93, "maxOccurs", "Integer", ["y-2", "[0"]],
       [38, "tagId", "Integer", ["[0"]],
       [75, "key", "Boolean", ["[0"]],
-      [76, "link", "Boolean", ["[0"]],
-      [78, "not", "Boolean", ["[0"]]
+      [76, "link", "Boolean", ["[0"]]
     ]],
-    ["AllOpts", "Map", [], "", [
+    ["AllOpts", "Map", ["tJADNOpts"], "", [
       [48, "nillable", "Boolean", ["[0"]],
       [97, "abstract", "Boolean", ["[0"]],
       [101, "extends", "TypeRef", ["[0"]],
       [114, "restricts", "TypeRef", ["[0"]],
       [102, "final", "Boolean", ["[0"]]
     ]],
-    ["BinaryOpts", "Map", [], "", [
+    ["BinaryOpts", "Map", ["tJADNOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [123, "minLength", "Integer", ["[0"]],
       [125, "maxLength", "Integer", ["[0"]],
@@ -120,13 +119,13 @@
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["BooleanOpts", "Map", [], "", [
+    ["BooleanOpts", "Map", ["tJADNOpts"], "", [
       [117, "default", "Boolean", ["[0"]],
       [118, "const", "Boolean", ["[0"]],
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["IntegerOpts", "Map", [], "", [
+    ["IntegerOpts", "Map", ["tJADNOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [69, "scale", "Integer", ["[0"]],
       [121, "minInclusive", "Integer", ["[0"]],
@@ -138,7 +137,7 @@
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["NumberOpts", "Map", [], "", [
+    ["NumberOpts", "Map", ["tJADNOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [121, "minInclusive", "Number", ["[0"]],
       [122, "maxInclusive", "Number", ["[0"]],
@@ -149,7 +148,7 @@
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["StringOpts", "Map", [], "", [
+    ["StringOpts", "Map", ["tJADNOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [121, "minInclusive", "String", ["[0"]],
       [122, "maxInclusive", "String", ["[0"]],
@@ -163,22 +162,12 @@
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
-    ["EnumeratedOpts", "Map", ["eAllOpts"], "", [
-      [61, "id", "Boolean", ["[0"]],
-      [35, "enum", "TypeRef", ["[0"]],
-      [62, "pointer", "TypeRef", ["[0"]],
-      [65, "attr", "Boolean", ["[0"]]
-    ]],
-    ["ChoiceOpts", "Map", ["eAllOpts"], "", [
-      [61, "id", "Boolean", ["[0"]],
-      [67, "combine", "String", ["{1", "}1", "[0"]]
-    ]],
-    ["ArrayOpts", "Map", ["eAllOpts"], "", [
+    ["ArrayOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]]
     ]],
-    ["ArrayOfOpts", "Map", ["eAllOpts"], "", [
+    ["ArrayOfOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [42, "valueType", "TypeRef"],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
@@ -186,25 +175,94 @@
       [115, "set", "Boolean", ["[0"]],
       [98, "unordered", "Boolean", ["[0"]]
     ]],
-    ["MapOpts", "Map", ["eAllOpts"], "", [
+    ["MapOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [61, "id", "Boolean", ["[0"]],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
-      [111, "sequence", "Boolean", ["[0"]]
+      [111, "sequence", "Boolean", ["[0"]],
+      [116, "tagString", "String", ["[0"]]
     ]],
-    ["MapOfOpts", "Map", ["eAllOpts"], "", [
+    ["MapOfOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [43, "keyType", "TypeRef"],
       [42, "valueType", "TypeRef"],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
       [111, "sequence", "Boolean", ["[0"]]
     ]],
-    ["RecordOpts", "Map", ["eAllOpts"], "", [
+    ["RecordOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
       [111, "sequence", "Boolean", ["[0"]]
     ]],
+    ["EnumeratedOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
+      [61, "id", "Boolean", ["[0"]],
+      [35, "enum", "TypeRef", ["[0"]],
+      [62, "pointer", "TypeRef", ["[0"]],
+      [65, "attr", "Boolean", ["[0"]]
+    ]],
+    ["ChoiceOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
+      [61, "id", "Boolean", ["[0"]],
+      [67, "combine", "Combine", ["{1", "}1", "[0"]]
+    ]],
+    ["FieldOpts", "Map", ["tJADNOpts"], "", [
+      [91, "minOccurs", "Integer", ["y0", "[0"], "[: min cardinality, default = 1, 0 = field is optional"],
+      [93, "maxOccurs", "Integer", ["y0", "[0"], "]: max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
+      [38, "tagId", "Integer", ["y1", "[0"], "&: field that specifies the type of this field"],
+      [60, "dir", "Boolean", ["[0"], "<: pointer enumeration treats field as a collection"],
+      [75, "key", "Boolean", ["[0"], "K: field is the primary key for TypeName"],
+      [76, "link", "Boolean", ["[0"], "L: field is a link (foreign key) to an instance of FieldType"]
+    ]],
+    ["JADNOpts", "Enumerated", [], "JADN Option IDs used for tag-string serialization", [
+      [61, "id", "'=', Boolean: Enumerated type and Choice/Map/Record keys are ID not Name"],
+      [42, "valueType", "'*', TypeRef: Value type for ArrayOf and MapOf"],
+      [43, "keyType", "'+', TypeRef: Key type for MapOf"],
+      [35, "enum", "'#', TypeRef: enumeration derived from Array/Choice/Map/Record type"],
+      [62, "pointer", "'>', TypeRef: enumeration of pointers derived from Array/Choice/Map/Record type"],
+      [37, "pattern", "'%', String: regular expression that a string must match"],
+      [117, "default", "'u', *: Default value"],
+      [118, "const", "'v', *: Constant value"],
+      [119, "minExclusive", "'w', *: minimum numeric/string value, excluding bound"],
+      [120, "maxExclusive", "'x', *: maximum numeric/string value, excluding bound"],
+      [121, "minInclusive", "'y', *: minimum numeric/string value"],
+      [122, "maxInclusive", "'z', *: maximum numeric/string value"],
+      [123, "minLength", "'{', Integer: minimum byte or text string length, collection item count"],
+      [125, "maxLength", "'}', Integer: maximum byte or text string length, collection item count"],
+      [113, "unique", "'q', Boolean: ArrayOf instance must not contain duplicates (ordered set)"],
+      [115, "set", "'s', Boolean: ArrayOf instance is unordered and unique (set)"],
+      [98, "unordered", "'b', Boolean: ArrayOf instance is unordered and not unique (bag)"],
+      [111, "sequence", "'o', Boolean: Map, MapOf or Record instance is ordered and unique (ordered keys)"],
+      [48, "nillable", "'0', Boolean: Instance may have no value, represented by nil, null, None, etc."],
+      [67, "combine", "'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff)"],
+      [47, "format", "'/', Format: semantic validation keyword, may affect serialization"],
+      [69, "scale", "'E', Integer: fixed point scale factor n, serialized int = value * 10^n"],
+      [116, "tagString", "'t', TypeRef: use referenced type for tag-string serialization"],
+      [97, "abstract", "'a', Boolean: Inheritance: non-instantiatable"],
+      [114, "restricts", "'r', TypeRef: Inheritance: subset of referenced type"],
+      [101, "extends", "'e', TypeRef: Inheritance: superset of referenced type"],
+      [102, "final", "f', Boolean: Inheritance: cannot have subtype"],
+      [65, "attr", "'A', Boolean: Value may be serialized as an XML attribute"],
+      [84, "typeOpts", "'T', --Sentinel--: preceding items are Type Options, following items are Field Options"],
+      [91, "minOccurs", "'[', Integer: min cardinality, default = 1, 0 = field is optional"],
+      [93, "maxOccurs", "']', Integer: max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
+      [38, "tagId", "'&', Integer: field that specifies the type of this field"],
+      [60, "dir", "'<', Boolean: pointer enumeration treats field as a collection"],
+      [75, "key", "'K', Boolean: field is the primary key for TypeName"],
+      [76, "link", "'L', Boolean: field is a link (foreign key) to an instance of FieldType"]
+    ]],
     ["Format", "String", ["%^/[a-zA-Z0-9]{1,16}+$"]],
-    ["Description", "String"]
+    ["Description", "Choice", ["C3"], "", [
+      [1, "str", "String", [], "Text String"],
+      [2, "anno", "Annotation", [], "Type-labeled strings"]
+    ]],
+    ["Annotation", "Map", [], "", [
+      [1, "md", "String", [], "MarkDown text"],
+      [2, "xml", "String", [], "XML annotation"]
+    ]],
+    ["Combine", "Enumerated", ["="], "Untagged Union combining function", [
+      [1, "allOf"],
+      [2, "anyOf"],
+      [3, "oneOf"],
+      [4, "diff"]
+    ]]
   ]
 }

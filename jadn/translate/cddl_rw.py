@@ -9,6 +9,9 @@ class CDDL(JADNCore):
         return {}
 
     def schema_loads(self, doc: str, source: dict=None) -> None:
+        self.schema = {'meta': {}, 'types': []}
+        self.source = source
+        self.schema_load_finish()
         raise NotImplementedError('CDDL schema load not implemented')
 
     def schema_dumps(self, style: dict=None) -> str:

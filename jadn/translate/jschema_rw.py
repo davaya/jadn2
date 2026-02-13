@@ -54,6 +54,7 @@ class JSCHEMA(JADNCore):
 
         self.schema = {'meta': meta, 'types': ntypes}
         self.source = source
+        self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:
         """

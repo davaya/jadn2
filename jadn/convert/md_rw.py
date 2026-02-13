@@ -38,6 +38,7 @@ class MD(JADNCore):
                     assert t == 'D', f'Unexpected line {t}: "{v}"'
         self.schema = {'meta': meta, 'types': types}
         self.source = source
+        self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:
         """

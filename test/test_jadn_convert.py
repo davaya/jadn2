@@ -7,8 +7,8 @@ from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
 from jadn.translate import JSCHEMA, XSD, CDDL, PROTO, XETO
 from jadn.config import style_args, style_fname
 
-SCHEMA_DIR = '../apps/schemas'
-CONFIG_FILE = '../apps/jadn_config.json'
+SCHEMA_DIR = 'apps/schemas'
+CONFIG_FILE = 'apps/jadn_config.json'
 OUT_DIR = 'Out'
 SCHEMA_CLASS = {
     'jadn': JADN,

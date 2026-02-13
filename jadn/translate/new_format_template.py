@@ -23,6 +23,7 @@ class FOO(JADNCore):
 
         self.schema = {'meta': meta, 'types': types}    # Save the schema to input class variable
         self.source = source
+        self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:
 
