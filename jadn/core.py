@@ -33,6 +33,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
         td += tdef[len(td):len(tdef)]
         td[TypeOptions] = load_tagstrings(td[TypeOptions], td[CoreType])
         for fd in td[Fields]:
+            # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
             fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
             fd += fdef[len(fd):len(fdef)]
             if td[CoreType] != 'Enumerated':
@@ -103,12 +104,12 @@ class JADNCore:
           * expand shortcuts
         """
         for td in self.schema['types']:
-            if 'tagString' in td[TypeOptions]:
-                print(f'{td[TypeName]}: {td[TypeOptions]}')
+            if ts := td[TypeOptions].get('tagString'):
+                print(f'{td[TypeName]}: {td[TypeOptions]} - {ts}')
         print(' *')
 
     """
-    Convert string option values to typee values
+    Convert option strings to typed values
 
     def opt(s: str) -> tuple[str, str]:
         t = OPT_NAME[ord(s[0])]
