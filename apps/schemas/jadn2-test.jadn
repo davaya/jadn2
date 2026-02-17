@@ -6,11 +6,21 @@
   },
   "types": [
     ["Test", "Record", [], "Test schema format conversions for all options", [
-      [1, "opts", "Options", [], "Type and field options"],
-      [2, "coll", "Collections", [], "Compound types with collection semantics"],
-      [3, "comb", "Combinations", [], "Untagged unions"],
-      [4, "format", "Formats", [], "Semantic validation keywords"],
-      [5, "inherit", "Inherit", [], "Type inheritance"]
+      [1, "defaults", "Defaults", [], "Default and constant primitive options"],
+      [2, "opts", "Options", [], "Type and field options"],
+      [3, "coll", "Collections", [], "Compound types with collection semantics"],
+      [4, "comb", "Combinations", [], "Untagged unions"],
+      [5, "format", "Formats", [], "Semantic validation keywords"],
+      [6, "inherit", "Inherit", [], "Type inheritance"]
+    ]],
+
+    ["Defaults", "Record", [], "Primitive typed constants", [
+      [1, "bin1", "Binary", ["u00010203466f6f"], "default: ....Foo"],
+      [2, "bin2", "Binary", ["vc0a80001"], "const: 192.168.0.1"],
+      [3, "bool1", "Boolean", ["u"], "default: True"],
+      [4, "bool2", "Boolean", [], "const: required = False"],
+      [5, "int1", "Integer", ["u42"], "default"],
+      [6, "int2", "Integer", ["v-498"], "const"]
     ]],
 
     ["Options", "Record", [], "Individual options", [

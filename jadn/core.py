@@ -6,38 +6,37 @@ from typing import TextIO, BinaryIO, Any
 
 
 # =========================================================
-# Define JADN schema static function here because it's needed to load METASCHEMA.
-# Using the JADN class would be an inheritance loop error.
-# METASCHEMA can validate itself like any other JADN schema.
+# Define JADN schema static load function because it's needed to load METASCHEMA,
+# and using the class method would be recursive.
 # =========================================================
 def jadn_schema_loads(self, jadn_str: str) -> dict:
     """
     Load a logical JADN schema from a JSON string.
 
-    For each type definition, fill in defaults and convert options from list of tagged strings to dict.
+    For each type definition, fill in column defaults and convert options from tagString list to dict.
 
-    :param self: supplied when calling from a class instance, not used
-    :param jadn_str: {meta, types} in serialized format
-    :return: schema value: {meta, types}
+    :param self: pre-computed option tag-to-name lookup table
+    :param jadn_str: {meta, types} in JSON-serialized format
+    :return: schema dict value: {meta, types}
     """
 
-    def load_tagstrings(tstrings: list[str], otype) -> dict[str, str]:
+    def load_tagstrings(tag_strings: list[str]) -> dict[str, str]:
         """
-        Parse JSON-serialized list of tagStrings (e.g., TypeOptions, FieldOptions) to a dict
+        Convert JSON-serialized list of tagString-serialized TypeOptions and FieldOptions to dict format
         """
-        return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tstrings}
+        return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tag_strings}
 
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
     for td in schema['types']:
         td += tdef[len(td):len(tdef)]
-        td[TypeOptions] = load_tagstrings(td[TypeOptions], td[CoreType])
+        td[TypeOptions] = load_tagstrings(td[TypeOptions])
         for fd in td[Fields]:
             # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
             fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
             fd += fdef[len(fd):len(fdef)]
             if td[CoreType] != 'Enumerated':
-                fd[FieldOptions] = load_tagstrings(fd[FieldOptions], fd[FieldType])
+                fd[FieldOptions] = load_tagstrings(fd[FieldOptions])
     return schema
 
 
@@ -50,7 +49,7 @@ class JADNCore:
     def __init__(self, pkg: 'JADNCore'=None) -> None:
         self.schema = None          # original schema
         self.source = None          # source of original schema
-        self.full_schema = None     # schema after all shortcuts expanded (required for data validation)
+        self.full_schema = None     # schema with shortcuts expanded for data validation
         if pkg is not None:
             assert pkg.__class__.__bases__ == self.__class__.__bases__      # pkg must be a subclass of JADNCore
             self.__dict__.update(pkg.__dict__)      # Copy all instance variables from pkg (shallow)
@@ -58,7 +57,7 @@ class JADNCore:
         # If this is the first instance, load metaschema from JADN file into class variables
         if JADNCore.METASCHEMA is None:
             data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-            meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')     # TODO: use only metaschema in data_dir
+            meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')
             with open(meta_file, encoding='utf8') as fp:
                 jadn_str = fp.read()
 
@@ -67,17 +66,19 @@ class JADNCore:
             schema = json.loads(jadn_str)
             JADNCore.TYPE_X = {td[TypeName]: td for td in schema['types']}
             assert 'JADNOpts' in JADNCore.TYPE_X, f'Metaschema {meta_file} is missing JADNOpts option definitions'
+
             opts = JADNCore.TYPE_X['JADNOpts'][Fields]
-            JADNCore.OPT_NAME = {i[ItemID]: i[ItemValue] for i in opts}
-            JADNCore.OPT_ID = {i[ItemValue]: i[ItemID] for i in opts}
-            JADNCore.OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(opts, start=1)}
-            to = JADNCore.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
-            JADNCore.TYPE_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v < to}
-            JADNCore.FIELD_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v > to}
+            JADNCore.OPT_NAME = {i[ItemID]: i[ItemValue] for i in opts}     # ID to Name lookup
+            JADNCore.OPT_ID = {i[ItemValue]: i[ItemID] for i in opts}       # Name to ID lookup
+            JADNCore.OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(opts, start=1)}     # Name to position
             assert len(JADNCore.OPT_NAME) == len(JADNCore.OPT_ID) == len(JADNCore.OPT_ORDER) == len(opts),\
                 f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
-            # With option tables in place, load metaschema as any JADN schema
+            to = JADNCore.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
+            JADNCore.TYPE_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v < to}
+            JADNCore.FIELD_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v > to}
+
+            # With option tables in place, load metaschema as with any JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
 
     def style(self) -> dict:
@@ -99,9 +100,8 @@ class JADNCore:
         """
         Schema load common processing
 
-          * convert option string values to typed values
-          * validate schema against Meteschema
-          * expand shortcuts
+          * expand shortcuts to produce execution-optimized schema
+          * validate schema against Metaschema
         """
         for td in self.schema['types']:
             if ts := td[TypeOptions].get('tagString'):

@@ -254,9 +254,9 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
     """
     # Handle keyType/valueType containing Enum options
     def _kvstr(optv: str) -> str:
-        if optv[0] == OPTX['enum']:
+        if optv[0] == self.OPT_ID['enum']:
             return f'enum[{optv[1:]}]'
-        if optv[0] == OPTX['pointer']:
+        if optv[0] == self.OPT_ID['pointer']:
             return f'pointer[{optv[1:]}]'
         return optv
 
