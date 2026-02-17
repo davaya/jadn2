@@ -111,7 +111,7 @@ def build_deps(schema: dict[str, list]) -> dict[str, list[str]]:
                 if not is_builtin(f[FieldType]):
                     refs.append(f[FieldType])       # Add reference to type name
                 # Get refs from type opts in field (extension)
-                refs += get_refs(['', f[FieldType], f[FieldOptions], ''])
+                refs += get_refs(['', f[FieldType], f[FieldOptions], '', []])
         return refs
 
     deps = {t[TypeName]: get_refs(t) for t in schema['types']}
@@ -330,8 +330,8 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
 
 
 def multiplicity_str(opts: dict) -> str:
-    lo = opts.get('minOccurs', 1)
-    hi = opts.get('maxOccurs', 1)
+    lo = int(opts.get('minOccurs', 1))
+    hi = int(opts.get('maxOccurs', 1))
     hs = '*' if hi <= MAX_DEFAULT else str(hi)
     return f'{hi}' if 0 <= hi == lo else f'{lo}..{hs}'  # 0 <= hi and hi == lo
 
@@ -356,7 +356,7 @@ def jadn2fielddef(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         fname += '/' if 'dir' in fto else ''
         tf = ''
         if tagid := fto.get('tagId', None):
-            tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == tagid][0]
+            tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == int(tagid)][0]
             tf = f'(tagId[{tf if tf else tagid}])'
         ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', fto)
         fnot = '!' if 'not' in fto else ''
