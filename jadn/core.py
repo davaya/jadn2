@@ -64,22 +64,29 @@ class JADNCore:
             # Get option definitions from Metaschema reserved type "JADNOpts"
             # Pre-compute tag-string serialization tables as class variables
             schema = json.loads(jadn_str)
-            JADNCore.TYPE_X = {td[TypeName]: td for td in schema['types']}
-            assert 'JADNOpts' in JADNCore.TYPE_X, f'Metaschema {meta_file} is missing JADNOpts option definitions'
+            tx = {td[TypeName]: td for td in schema['types']}
+            assert 'JADNOpts' in tx, f'Metaschema {meta_file} is missing JADNOpts option definitions'
+            opts = tx['JADNOpts'][Fields]
 
-            opts = JADNCore.TYPE_X['JADNOpts'][Fields]
             JADNCore.OPT_NAME = {i[ItemID]: i[ItemValue] for i in opts}     # ID to Name lookup
             JADNCore.OPT_ID = {i[ItemValue]: i[ItemID] for i in opts}       # Name to ID lookup
             JADNCore.OPT_ORDER = {i[ItemValue]: n for n, i in enumerate(opts, start=1)}     # Name to position
-            assert len(JADNCore.OPT_NAME) == len(JADNCore.OPT_ID) == len(JADNCore.OPT_ORDER) == len(opts),\
-                f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
-            to = JADNCore.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
-            JADNCore.TYPE_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v < to}
-            JADNCore.FIELD_OPTS = {k for k, v in JADNCore.OPT_ORDER.items() if v > to}
+            to = self.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
+            JADNCore.TYPE_OPTS = {k for k, v in self.OPT_ORDER.items() if v < to}
+            JADNCore.FIELD_OPTS = {k for k, v in self.OPT_ORDER.items() if v > to}
+            assert len(self.OPT_NAME) == len(self.OPT_ID) == len(self.OPT_ORDER) == len(opts), \
+                f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
             # With option tables in place, load metaschema as with any JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
+            JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
+
+            # Options that refer to other types
+            JADNCore.REF_OPTS = {fd[FieldName]
+                for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
+                    for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
+
 
     def style(self) -> dict:
         return {}

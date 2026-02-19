@@ -35,7 +35,7 @@ def test_schema_convert(schema_path, overall_setup):
     fn, ext = os.path.splitext(schema_file)
     ext = ext.lstrip('.')
     if ext in SCHEMA_CLASS:     # Ignore directories and non-schema files
-        if (in_pkg := SCHEMA_CLASS[ext]()) and 'schema_loads' in dir(in_pkg):  # Input format has a load method
+        if (in_pkg := SCHEMA_CLASS[ext]()):  # and 'schema_loads' in dir(in_pkg):  # Input format has a load method
             with open(schema_path, 'r') as fp:
                 if ext in {'jadn', 'jidl', 'xasd', 'md', 'json'}:
                     in_pkg.schema_load(fp)

@@ -207,7 +207,7 @@ def typestr2jadn(self, typestring: str) -> tuple:
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
         else:
-            op = OPTX[[k for k in opts[0]][0]]
+            op = [k for k in opts[0]][0]
             topts.update(opts[0] if op in self.TYPE_OPTS else {})
             fopts.update(opts[0] if op in self.FIELD_OPTS else {})
     if rest := m.group(4):
@@ -369,7 +369,7 @@ def fielddef2jadn(self, fid: int, fname: str, fstr: str, fmult: str, fdesc: str)
     def fopts_s2d(olist: list) -> dict:
         fd = {}
         for o in olist:
-            k, v, _ = FIELD_OPTIONS[ord(o[0])]
+            k, v, _ = self.FIELD_OPTS[ord(o[0])]
             fd[k] = o[1:]
         return fd
 
