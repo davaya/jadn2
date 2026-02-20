@@ -33,7 +33,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
         td[TypeOptions] = load_tagstrings(td[TypeOptions])
         for fd in td[Fields]:
             # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
-            fdef = [None, None, ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
+            fdef = [None, '', ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
             fd += fdef[len(fd):len(fdef)]
             if td[CoreType] != 'Enumerated':
                 fd[FieldOptions] = load_tagstrings(fd[FieldOptions])
@@ -82,11 +82,14 @@ class JADNCore:
             JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
 
-            # Options that refer to other types
-            JADNCore.REF_OPTS = {fd[FieldName]
+            JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
 
+            for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
+               if ts := td[TypeOptions].get('tagString'):
+                   print(f'{td[TypeName]}: {td[TypeOptions]} - {ts}')
+            print(' *')
 
     def style(self) -> dict:
         return {}
@@ -105,15 +108,10 @@ class JADNCore:
 
     def schema_load_finish(self) -> None:
         """
-        Schema load common processing
-
+        Common schema-load post-processing
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
-        for td in self.schema['types']:
-            if ts := td[TypeOptions].get('tagString'):
-                print(f'{td[TypeName]}: {td[TypeOptions]} - {ts}')
-        print(' *')
 
     """
     Convert option strings to typed values

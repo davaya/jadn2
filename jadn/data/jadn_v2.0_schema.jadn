@@ -45,10 +45,10 @@
     ["TypeName", "String", ["%$TypeName"], "Name of a logical type"],
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],
     ["TypeRef", "String", [], "Reference to a type, matching ($NSID ':')? $TypeName"],
-    ["Type", "Array", [], "", [
+    ["Type", "Array", [], "Fixed structure for all type definitions", [
       [1, "type_name", "TypeName"],
       [2, "core_type", "Enumerated", ["#JADN-Type"]],
-      [3, "type_options", "TypeOptions", ["[0", "&2"]],
+      [3, "type_options", "TypeOptions", ["[0", "&2"], "Required/allowed options for each JADN-Type"],
       [4, "type_description", "Description", ["[0"]],
       [5, "fields", "JADN-Type", ["[0", "&2"]]
     ]],
@@ -66,7 +66,7 @@
       [11, "Enumerated", "Items"],
       [12, "Choice", "Fields"]
     ]],
-    ["TypeOptions", "Choice", [], "", [
+    ["TypeOptions", "Choice", [], "Required/allowed options for each JADN-Type", [
       [1, "Binary", "BinaryOpts"],
       [2, "Boolean", "BooleanOpts"],
       [3, "Integer", "IntegerOpts"],
@@ -103,15 +103,8 @@
       [75, "key", "Boolean", ["[0"]],
       [76, "link", "Boolean", ["[0"]]
     ]],
-    ["AllOpts", "Map", ["tJADNOpts"], "", [
-      [48, "nillable", "Boolean", ["[0"]],
-      [97, "abstract", "Boolean", ["[0"]],
-      [101, "extends", "TypeRef", ["[0"]],
-      [114, "restricts", "TypeRef", ["[0"]],
-      [102, "final", "Boolean", ["[0"]]
-    ]],
     ["BinaryOpts", "Map", ["tJADNOpts"], "", [
-      [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [47, "format", "Format", ["[0"]],
       [123, "minLength", "Integer", ["[0"]],
       [125, "maxLength", "Integer", ["[0"]],
       [117, "default", "Binary", ["[0"]],
@@ -120,13 +113,14 @@
       [65, "attr", "Boolean", ["[0"]]
     ]],
     ["BooleanOpts", "Map", ["tJADNOpts"], "", [
+      [47, "format", "Format", ["[0"]],
       [117, "default", "Boolean", ["[0"]],
       [118, "const", "Boolean", ["[0"]],
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
     ["IntegerOpts", "Map", ["tJADNOpts"], "", [
-      [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [47, "format", "Format", ["[0"]],
       [69, "scale", "Integer", ["[0"]],
       [121, "minInclusive", "Integer", ["[0"]],
       [122, "maxInclusive", "Integer", ["[0"]],
@@ -138,7 +132,7 @@
       [65, "attr", "Boolean", ["[0"]]
     ]],
     ["NumberOpts", "Map", ["tJADNOpts"], "", [
-      [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [47, "format", "Format", ["[0"]],
       [121, "minInclusive", "Number", ["[0"]],
       [122, "maxInclusive", "Number", ["[0"]],
       [119, "minExclusive", "Number", ["[0"]],
@@ -149,7 +143,7 @@
       [65, "attr", "Boolean", ["[0"]]
     ]],
     ["StringOpts", "Map", ["tJADNOpts"], "", [
-      [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [47, "format", "Format", ["[0"]],
       [121, "minInclusive", "String", ["[0"]],
       [122, "maxInclusive", "String", ["[0"]],
       [119, "minExclusive", "String", ["[0"]],
@@ -162,8 +156,15 @@
       [48, "nillable", "Boolean", ["[0"]],
       [65, "attr", "Boolean", ["[0"]]
     ]],
+    ["AllOpts", "Map", ["tJADNOpts"], "", [
+      [48, "nillable", "Boolean", ["[0"]],
+      [97, "abstract", "Boolean", ["[0"]],
+      [101, "extends", "TypeRef", ["[0"]],
+      [114, "restricts", "TypeRef", ["[0"]],
+      [102, "final", "Boolean", ["[0"]]
+    ]],
     ["ArrayOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
-      [47, "format", "ArrayOf", ["*Format", "q", "[0"]],
+      [47, "format", "Format", ["[0"]],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]]
     ]],
@@ -249,7 +250,7 @@
       [75, "key", "'K', Boolean: field is the primary key for TypeName"],
       [76, "link", "'L', Boolean: field is a link (foreign key) to an instance of FieldType"]
     ]],
-    ["Format", "String", ["%^/[a-zA-Z0-9]{1,16}+$"]],
+    ["Format", "String", ["^[a-zA-Z0-9]{1,16}+$"]],
     ["Description", "Choice", ["C3"], "", [
       [1, "str", "String", [], "Text String"],
       [2, "anno", "Annotation", [], "Type-labeled strings"]
