@@ -1,7 +1,7 @@
 import os
 import json
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
-    ItemID, ItemValue, FieldName, FieldType, FieldOptions
+    ItemID, ItemValue, FieldName, FieldType, FieldOptions, PYTHON_TYPES
 from typing import TextIO, BinaryIO, Any
 
 
@@ -86,9 +86,12 @@ class JADNCore:
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
 
+            fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
             for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
-               if ts := td[TypeOptions].get('tagString'):
-                   print(f'{td[TypeName]}: {td[TypeOptions]} - {ts}')
+                if ts := td[TypeOptions].get('tagString'):
+                    print(f'{td[TypeName]}: {td[TypeOptions]} - {ts}')
+                    for fd in td[Fields]:
+                        set_otype(fd[FieldOptions], fd[FieldType], fo_type)
             print(' *')
 
     def style(self) -> dict:
@@ -138,6 +141,13 @@ class JADNCore:
         """
         pass
 
+def set_otype(fopts: dict, ftype: str, otype: dict):
+    def _st(val: str, t: str):
+        return PYTHON_TYPES[t](val)
+
+    for k, v in fopts.items():
+        fopts[k] = _st(v, otype[k]) if k in otype else _st(v, ftype)
+    pass
 
 # =========================================================
 # Diagnostics - replace with unit test schemas
