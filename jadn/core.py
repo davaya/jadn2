@@ -1,7 +1,7 @@
 import os
 import json
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
-    ItemID, ItemValue, FieldName, FieldType, FieldOptions, PYTHON_TYPES
+    ItemID, ItemValue, FieldName, FieldType, FieldOptions, PYTHON_TYPES, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
 
 
@@ -85,6 +85,7 @@ class JADNCore:
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
+            self.REF_OPTS -= {'extends', 'restricts'}   # Exclude type inheritance: not a value relationship
 
             fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
             for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
@@ -148,6 +149,40 @@ def set_otype(fopts: dict, ftype: str, otype: dict):
     for k, v in fopts.items():
         fopts[k] = _st(v, otype[k]) if k in otype else _st(v, ftype)
     pass
+
+
+def build_deps(self, schema: dict[str, list]) -> dict[str, list[str]]:
+    """
+    Build a Dependency dict: {TypeName: [Dep1, Dep2, ...]}
+    Returns dependencies for each type in order and a list of all referenced types.
+    A single unreferenced type (root) indicates a fully-connected hierarchy;
+    multiple roots indicate disconnected items or hierarchies,
+    and no roots indicate a dependency cycle.
+    """
+    def get_refs(tdef: list) -> list[list[str]]:  # Return all type references from a type definition
+        """
+        # Options whose value is/has a type name: strip option id
+        oids = [JADN.OPTX['keyType'], JADN.OPTX['valueType'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
+        # Options that enumerate fields: keep option id
+        oids2 = [JADN.OPTX['enum'], JADN.OPTX['pointer']]
+        refs = [to[1:] for to in tdef[TypeOptions] if to[0] in oids and not is_builtin(to[1:])]
+        refs += ([to[1:] for to in tdef[TypeOptions] if to[0] in oids2])
+        """
+
+        # Type options that reference other types (e.g., value_type)
+        refs = [(v, True) for k, v in tdef[TypeOptions].items() if k in self.REF_OPTS and not is_builtin(v)]
+        # Fields that contain or link to other types
+        if has_fields(tdef[CoreType]):  # Ignore Enumerated
+            for f in tdef[Fields]:
+                if not is_builtin(f[FieldType]):
+                    refs.append((f[FieldType], 'link' not in f[FieldOptions]))  # Add reference to type name
+                # Get refs from type opts in field (extension)
+                refs += get_refs(['', f[FieldType], f[FieldOptions], '', []])
+        return refs
+
+    deps = {t[TypeName]: get_refs(t) for t in schema['types']}
+    return deps
+
 
 # =========================================================
 # Diagnostics - replace with unit test schemas

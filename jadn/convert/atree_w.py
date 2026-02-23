@@ -1,9 +1,9 @@
 from asciitree import LeftAligned
 from asciitree.drawing import BoxStyle, BOX_BLANK, BOX_ASCII, BOX_LIGHT, BOX_HEAVY, BOX_DOUBLE
 
-from jadn.core import JADNCore
+from jadn.core import JADNCore, build_deps
 from jadn.definitions import TypeName, CoreType, TypeOptions
-from jadn.utils import build_deps, jadn2typestr
+from jadn.utils import jadn2typestr
 
 """
 Translate JADN abstract schema to a tree diagram
@@ -29,12 +29,12 @@ class ATREE(JADNCore):
                 tree_col = tree_col.strip('[]')
                 jtype = (f'{name}' if detail == 'conceptual' else
                          f'{name} = {tx[name][CoreType]}' if detail == 'logical' else
-                         f'{name} = {jadn2typestr(tx[name][CoreType], tx[name][TypeOptions])}')
+                         f'{name} = {jadn2typestr(self, tx[name][CoreType], tx[name][TypeOptions])}')
                 return ' '.join((tree_col, jtype))
             return ''
 
         tr = tree_style(style['draw'])
-        defs = build_deps(self.schema)  # Get all type definitions and their dependencies
+        defs = build_deps(self, self.schema)  # Get all type definitions and their dependencies
         refs = set(d for deps in defs.values() for d in deps)   # All referenced types
         roots = set(defs) - refs        # Unreferenced types
         tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
