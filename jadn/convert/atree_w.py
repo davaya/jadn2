@@ -34,10 +34,11 @@ class ATREE(JADNCore):
             return ''
 
         tr = tree_style(style['draw'])
-        defs = build_deps(self, self.schema)  # Get all type definitions and their dependencies
-        refs = set(d for deps in defs.values() for d in deps)   # All referenced types
-        roots = set(defs) - refs        # Unreferenced types
-        tree = '\n\n'.join([tr(build_tree(defs, root)) for root in roots])
+        tag_deps = build_deps(self)     # Get labeled type definitions and their dependencies
+        deps = {k: [d[0] for d in v if d[1] == 'C'] for k, v in tag_deps.items()}   # Only Contained values
+        refs = {d for v in deps.values() for d in v}   # All referenced types
+        roots = set(deps) - refs        # Unreferenced types
+        tree = '\n\n'.join([tr(build_tree(deps, root)) for root in roots])
         tx = {} if style['detail'] == 'conceptual' else {k[TypeName]: k for k in self.schema['types']}
         return '\n'.join([line(t, tx, style['detail']) for t in tree.split('\n')])
 
@@ -46,24 +47,24 @@ class ATREE(JADNCore):
 # ========================================================
 
 def build_tree(dependencies: dict[str, list], root: str) -> dict[str, dict]:
-    color = {}    # Node state: default: not seen, 1: processing, 2: done
+    state = {}    # Node state: default: not seen, 1: processing, 2: done
     subtree = {}
 
     def dfs(node: str) -> dict[str, dict]:  # Depth-first search
-        color[node] = 1     # Started processing node
+        state[node] = 1     # Started processing node
         tr = {}
         for dep in dependencies.get(node, []):
-            if (c := color.get(dep, 0)) == 1:
+            if (c := state.get(dep, 0)) == 1:
                 raise ValueError(f'Graph cycle detected at: {node}->{dep}')
             if c == 0:
                 tr |= {dep: dfs(dep)}
                 subtree[dep] = tr[dep]
             if c == 2:
                 tr |= {dep: subtree[dep]}
-        color[node] = 2  # Mark node and its subtree as processed.
+        state[node] = 2  # Mark node and its subtree as processed.
         return tr
 
-    return {root: dfs(root)}
+    return {f' ({root})': dfs(root)}
 
 
 def tree_style(style: str) -> LeftAligned:

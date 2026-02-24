@@ -2,7 +2,7 @@ import os
 import json
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     ItemID, ItemValue, FieldName, FieldType, FieldOptions, PYTHON_TYPES, has_fields, is_builtin
-from typing import TextIO, BinaryIO, Any
+from typing import TextIO, BinaryIO
 
 
 # =========================================================
@@ -85,7 +85,7 @@ class JADNCore:
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
-            self.REF_OPTS -= {'extends', 'restricts'}   # Exclude type inheritance: not a value relationship
+            # self.REF_OPTS -= {'extends', 'restricts'}   # Exclude type inheritance: not a value relationship
 
             fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
             for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
@@ -151,7 +151,7 @@ def set_otype(fopts: dict, ftype: str, otype: dict):
     pass
 
 
-def build_deps(self, schema: dict[str, list]) -> dict[str, list[str]]:
+def build_deps(self) -> dict[str, list[str]]:
     """
     Build a Dependency dict: {TypeName: [Dep1, Dep2, ...]}
     Returns dependencies for each type in order and a list of all referenced types.
@@ -170,17 +170,22 @@ def build_deps(self, schema: dict[str, list]) -> dict[str, list[str]]:
         """
 
         # Type options that reference other types (e.g., value_type)
-        refs = [(v, True) for k, v in tdef[TypeOptions].items() if k in self.REF_OPTS and not is_builtin(v)]
+        refs = [(v, 'C') for k, v in tdef[TypeOptions].items() if k in self.REF_OPTS and not is_builtin(v)]
         # Fields that contain or link to other types
         if has_fields(tdef[CoreType]):  # Ignore Enumerated
             for f in tdef[Fields]:
-                if not is_builtin(f[FieldType]):
-                    refs.append((f[FieldType], 'link' not in f[FieldOptions]))  # Add reference to type name
-                # Get refs from type opts in field (extension)
+                if not is_builtin(f[FieldType]):    # Ignore core types
+                    fo = set(f[FieldOptions])
+                    ref_type = (
+                        'I' if {'extends', 'restricts'} & fo else   # Type Inheritance in schema
+                        'L' if {'link'} & fo else                   # Link (foreign key) in container instance
+                        'C')                                        # Value in container instance
+                    refs.append((f[FieldType], ref_type))
+                # Get references from field (using fake TypeDefinition)
                 refs += get_refs(['', f[FieldType], f[FieldOptions], '', []])
         return refs
 
-    deps = {t[TypeName]: get_refs(t) for t in schema['types']}
+    deps = {t[TypeName]: get_refs(t) for t in self.schema['types']}
     return deps
 
 
