@@ -116,7 +116,18 @@ class JADNCore:
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
+        pass
 
+    def schema_validate(self) -> None:
+        """
+        Validate a logical schema instance against JADN metaschema
+        """
+        pass
+
+
+    # =========================================================
+    # Support Functions
+    # =========================================================
     """
     Convert option strings to typed values
 
@@ -135,12 +146,6 @@ class JADNCore:
     return dict(opt(s) for s in tstrings)
     """
 
-
-    def schema_validate(self) -> None:
-        """
-        Validate a logical schema instance against JADN metaschema
-        """
-        pass
 
 def set_otype(fopts: dict, ftype: str, otype: dict):
     def _st(val: str, t: str):

@@ -96,12 +96,13 @@
       [5, "field_description", "Description", ["[0"]]
     ]],
     ["FieldID", "Integer", ["y0"]],
-    ["FieldOptions", "Map", [], "", [
-      [91, "minOccurs", "Integer", ["y0", "[0"]],
-      [93, "maxOccurs", "Integer", ["y-2", "[0"]],
-      [38, "tagId", "Integer", ["[0"]],
-      [75, "key", "Boolean", ["[0"]],
-      [76, "link", "Boolean", ["[0"]]
+    ["FieldOptions", "Map", ["tJADNOpts"], "", [
+      [91, "minOccurs", "Integer", ["y0", "[0"], "[: min cardinality, default = 1, 0 = field is optional"],
+      [93, "maxOccurs", "Integer", ["y0", "[0"], "]: max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
+      [38, "tagId", "Integer", ["y1", "[0"], "&: field that specifies the type of this field"],
+      [60, "dir", "Boolean", ["[0"], "<: pointer enumeration treats field as a collection"],
+      [75, "key", "Boolean", ["[0"], "K: field is the primary key for TypeName"],
+      [76, "link", "Boolean", ["[0"], "L: field is a link (foreign key) to an instance of FieldType"]
     ]],
     ["BinaryOpts", "Map", ["tJADNOpts"], "", [
       [47, "format", "Format", ["[0"]],
@@ -204,14 +205,6 @@
     ["ChoiceOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [61, "id", "Boolean", ["[0"]],
       [67, "combine", "Combine", ["[0"]]
-    ]],
-    ["FieldOpts", "Map", ["tJADNOpts"], "", [
-      [91, "minOccurs", "Integer", ["y0", "[0"], "[: min cardinality, default = 1, 0 = field is optional"],
-      [93, "maxOccurs", "Integer", ["y0", "[0"], "]: max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
-      [38, "tagId", "Integer", ["y1", "[0"], "&: field that specifies the type of this field"],
-      [60, "dir", "Boolean", ["[0"], "<: pointer enumeration treats field as a collection"],
-      [75, "key", "Boolean", ["[0"], "K: field is the primary key for TypeName"],
-      [76, "link", "Boolean", ["[0"], "L: field is a link (foreign key) to an instance of FieldType"]
     ]],
     ["JADNOpts", "Enumerated", [], "JADN Option IDs used for tag-string serialization", [
       [61, "id", "'=', Boolean: Enumerated type and Choice/Map/Record keys are ID not Name"],
