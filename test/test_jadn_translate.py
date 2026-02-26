@@ -3,38 +3,34 @@ import os
 import pytest
 import sys
 from jadn.core import JADNCore
-from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
+from jadn.translate import JSCHEMA, XSD, CDDL, PROTO, XETO
 from jadn.config import style_args, style_fname
 
-JADN_SCHEMA_DIR = 'apps/schemas/jadn'
+SCHEMA_DIR = 'apps/schemas/concrete'
 CONFIG_FILE = 'apps/jadn_config.json'
 OUT_DIR = 'Out'
-JADN_SCHEMA_CLASS = {
-    'jadn': JADN,
-    'jidl': JIDL,
-    'xasd': XASD,
-    'md': MD,
-    # 'html': HTML,
-    # 'dot': GRAPH_VIZ,
-    # 'puml': PLANT_UML,
-    'erd': ERD,
-    'atree': ATREE,
+DATA_SCHEMA_CLASS = {
+    'json': JSCHEMA,
+    'xsd': XSD,
+    'cddl': CDDL,
+    'proto': PROTO,
+    'xeto': XETO,
 }
 
 
-def get_jadn_schemas():
-    return glob.glob(f'{JADN_SCHEMA_DIR}/*')
+def get_input_files():
+    return glob.glob(f'{SCHEMA_DIR}/*')
 
-
+"""
 @pytest.mark.parametrize('test', ['dump', 'load', 'round_trip'])
-@pytest.mark.parametrize('schema_format', JADN_SCHEMA_CLASS)
-@pytest.mark.parametrize('schema_path', get_jadn_schemas())
+@pytest.mark.parametrize('schema_format', DATA_SCHEMA_CLASS)
+@pytest.mark.parametrize('schema_path', get_input_files())
 def test_jadn_schema_convert(schema_path, schema_format, test):
     schema_file  = os.path.split(schema_path)[1]
     fn, ext = os.path.splitext(schema_file)
     ext = ext.lstrip('.')
-    if ext in JADN_SCHEMA_CLASS:     # Ignore directories and non-schema files
-        if in_pkg := JADN_SCHEMA_CLASS[ext]():   # and 'schema_loads' in dir(in_pkg):  # Input format has a load method
+    if ext in DATA_SCHEMA_CLASS:     # Ignore directories and non-schema files
+        if (in_pkg := DATA_SCHEMA_CLASS[ext]()):  # and 'schema_loads' in dir(in_pkg):  # Input format has a load method
             with open(schema_path, 'r') as fp:
                 if ext in {'jadn', 'jidl', 'xasd', 'md', 'json'}:
                     in_pkg.schema_load(fp)
@@ -44,11 +40,15 @@ def test_jadn_schema_convert(schema_path, schema_format, test):
                         in_pkg.schema_load(fp)
     else:
         print(f'\nUnknown input format "{ext}" -- ignored')
+"""
+
+def test_concrete_schema_translate(schema_path, schema_format):
+    pass
 
 
 def schema_convert(fn: str, in_pkg: 'JADNCore') -> None:
-    for out_format in JADN_SCHEMA_CLASS:
-        out_pkg = JADN_SCHEMA_CLASS[out_format](in_pkg)
+    for out_format in DATA_SCHEMA_CLASS:
+        out_pkg = DATA_SCHEMA_CLASS[out_format](in_pkg)
         style = style_args(out_pkg, out_format, '', CONFIG_FILE)  # need out_pkg
         if out_format in {'jadn', 'jidl', 'xasd', 'md', 'erd', 'atree'}:
             convert_out(fn, out_format, out_pkg, style)

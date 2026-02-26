@@ -5,80 +5,80 @@
        roots: ["Schema"]
       config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
-Schema = Record                                         // Definition of a JADN package
-   1 meta                 Metadata optional             // Information about this package
-   2 types                Type unique [1..*]            // Types defined in this package
+Schema = Record                                          // Definition of a JADN package
+   1 meta             Metadata optional                  // Information about this package
+   2 types            Type [1..*]                        // Types defined in this package
 
-Metadata = Map                                          // Information about this package
-   1 package              Namespace                     // Unique name/version of this package
-   2 version              String{1..*} optional         // Incrementing version within package
-   3 title                String{1..*} optional         // Title
-   4 description          String{1..*} optional         // Description
-   5 comment              String{1..*} optional         // Comment
-   6 copyright            String{1..*} optional         // Copyright notice
-   7 license              String{1..*} optional         // SPDX licenseId of this package
-   8 namespaces           PrefixNs unique [0..*]        // Referenced packages
-   9 roots                TypeName unique [0..*]        // Roots of the type tree(s) in this package
-  10 config               Config optional               // Configuration variables
-  11 jadn_version         Namespace optional            // JADN Metaschema package
+Metadata = Map                                           // Information about this package
+   1 package          Namespace                          // Unique name/version of this package
+   2 namespaces       PrefixNs [0..*]                    // Referenced packages
+   3 roots            TypeName [0..*]                    // Roots of the type tree(s) in this package
+   4 config           Config optional                    // Configuration variables
+   5 jadn_version     Namespace optional                 // JADN Metaschema package
+   6 version          String{1..*} optional              // Incrementing version within package
+   7 title            String{1..*} optional              // Title
+   8 description      String{1..*} optional              // Description
+   9 comment          String{1..*} optional              // Comment
+  10 copyright        String{1..*} optional              // Copyright notice
+  11 license          String{1..*} optional              // SPDX licenseId of this package
 
-PrefixNs = Array                                        // Prefix corresponding to a namespace IRI
-   1  NSID                                              // prefix:: Namespace prefix string
-   2  Namespace                                         // namespace:: Namespace IRI
+PrefixNs = Array                                         // Prefix corresponding to a namespace IRI
+   1  NSID                                               // prefix:: Namespace prefix string
+   2  Namespace                                          // namespace:: Namespace IRI
 
-Config = Map{1..*}                                      // Config vars override JADN defaults
-   1 $MaxBinary           Integer=[1, *] optional       // Package max octets, default = 255
-   2 $MaxString           Integer=[1, *] optional       // Package max characters, default = 255
-   3 $MaxElements         Integer=[1, *] optional       // Package max items/properties, default = 255
-   4 $Sys                 String{1..1} optional         // System character for TypeName, default = '.'
-   5 $TypeName            String /regex optional        // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName           String /regex optional        // Default = ^[a-z][_A-Za-z0-9]{0,63}$
-   7 $NSID                String /regex optional        // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
+Config = Map{1..*}                                       // Config vars override JADN defaults
+   1 $MaxBinary       Integer=[1, *] optional            // Package max octets, default = 255
+   2 $MaxString       Integer=[1, *] optional            // Package max characters, default = 255
+   3 $MaxElements     Integer=[1, *] optional            // Package max items/properties, default = 255
+   4 $Sys             String{1..1} optional              // System character for TypeName, default = '.'
+   5 $TypeName        String /regex optional             // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 $FieldName       String /regex optional             // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   7 $NSID            String /regex optional             // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
-Namespace = String /uri                                 // Unique name of a package
+Namespace = String /uri                                  // Unique name of a package
 
-NSID = String{pattern="$NSID"}                          // Namespace prefix matching $NSID
+NSID = String{pattern="$NSID"}                           // Namespace prefix matching $NSID
 
-TypeName = String{pattern="$TypeName"}                  // Name of a logical type
+TypeName = String{pattern="$TypeName"}                   // Name of a logical type
 
-FieldName = String{pattern="$FieldName"}                // Name of a field in a structured type
+FieldName = String{pattern="$FieldName"}                 // Name of a field in a structured type
 
-TypeRef = String                                        // Reference to a type, matching ($NSID ':')? $TypeName
+TypeRef = String                                         // Reference to a type, matching ($NSID ':')? $TypeName
 
-Type = Array
-   1  TypeName                                          // type_name::
-   2  Enumerated(enum[JADN-Type])                       // core_type::
-   3  TypeOptions(tagId[core_type]) optional            // type_options::
-   4  Description optional                              // type_description::
-   5  JADN-Type(tagId[core_type]) optional              // fields::
+Type = Array                                             // Fixed structure for all type definitions
+   1  TypeName                                           // type_name:: Schema-defined type name
+   2  Enumerated(enum[JADN-Type])                        // core_type:: Core (JADN-defined) type name
+   3  TypeOptions(tagId[core_type]) optional             // type_options:: Required/allowed options for core type
+   4  Description optional                               // type_description:: Comments/Documentation
+   5  JADN-Type(tagId[core_type]) optional               // fields:: Fields, Items, or nothing more for core type
 
-JADN-Type = Choice
-   1 Binary               Empty
-   2 Boolean              Empty
-   3 Integer              Empty
-   4 Number               Empty
-   5 String               Empty
-   6 Enumerated           Items
-   7 Choice               Fields
-   8 Array                Fields
-   9 ArrayOf              Empty
-  10 Map                  Fields
-  11 MapOf                Empty
-  12 Record               Fields
+JADN-Type = Choice                                       // Fields applicable for each core type
+   1 Binary           Empty
+   2 Boolean          Empty
+   3 Integer          Empty
+   4 Number           Empty
+   5 String           Empty
+   6 Array            Fields
+   7 ArrayOf          Empty
+   8 Map              Fields
+   9 MapOf            Empty
+  10 Record           Fields
+  11 Enumerated       Items
+  12 Choice           Fields
 
-TypeOptions = Choice
-   1 Binary               BinaryOpts
-   2 Boolean              BooleanOpts
-   3 Integer              IntegerOpts
-   4 Number               NumberOpts
-   5 String               StringOpts
-   6 Enumerated           EnumeratedOpts
-   7 Choice               ChoiceOpts
-   8 Array                ArrayOpts
-   9 ArrayOf              ArrayOfOpts
-  10 Map                  MapOpts
-  11 MapOf                MapOfOpts
-  12 Record               RecordOpts
+TypeOptions = Choice                                     // Required/allowed options for each core type
+   1 Binary           BinaryOpts
+   2 Boolean          BooleanOpts
+   3 Integer          IntegerOpts
+   4 Number           NumberOpts
+   5 String           StringOpts
+   6 Array            ArrayOpts
+   7 ArrayOf          ArrayOfOpts
+   8 Map              MapOpts
+   9 MapOf            MapOfOpts
+  10 Record           RecordOpts
+  11 Enumerated       EnumeratedOpts
+  12 Choice           ChoiceOpts
 
 Empty = Array{0..0}
 
@@ -87,127 +87,176 @@ Items = ArrayOf(Item)
 Fields = ArrayOf(Field)
 
 Item = Array
-   1  FieldID                                           // item_id::
-   2  String optional                                   // item_value::
-   3  Description optional                              // item_description::
+   1  Integer                                            // item_id::
+   2  String optional                                    // item_value::
+   3  Description optional                               // item_description::
 
 Field = Array
-   1  FieldID                                           // field_id::
-   2  FieldName                                         // field_name::
-   3  TypeRef                                           // field_type::
-   4  TypeOptions(tagId[field_type]) optional           // field_options::
-   5  Description optional                              // field_description::
+   1  Integer=[1, *]                                     // field_id::
+   2  FieldName                                          // field_name::
+   3  TypeRef                                            // field_type::
+   4  FieldOptions(tagId[field_type]) optional           // field_options::
+   5  Description optional                               // field_description::
 
-FieldID = Integer=[0, *]
+FieldOptions = Map extends(TypeOptions) ?{'tagString': 'JADNOpts'}?
+  91 minOccurs        Integer=[0, *] optional            // [: min cardinality, default = 1, 0 = field is optional
+  93 maxOccurs        Integer=[0, *] optional            // ]: max cardinality, default = 1, <0 = inherited or none, not 1 = array
+  38 tagId            Integer=[1, *] optional            // &: field that specifies the type of this field
+  60 dir              Boolean optional                   // <: pointer enumeration treats field as a collection
+  75 key              Boolean optional                   // K: field is the primary key for TypeName
+  76 link             Boolean optional                   // L: field is a link (foreign key) to an instance of FieldType
 
-FieldOptions = Map
-  91 minOccurs            Integer=[0, *] optional
-  93 maxOccurs            Integer=[-2, *] optional
-  38 tagId                Integer optional
-  75 key                  Boolean optional
-  76 link                 Boolean optional
-  78 not                  Boolean optional
+BinaryOpts = Map ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+ 123 minLength        Integer optional
+ 125 maxLength        Integer optional
+ 117 default          Binary optional
+ 118 const            Binary optional
+  48 nillable         Boolean optional
+  65 attr             Boolean optional
 
-AllOpts = Map
-  48 nillable             Boolean optional
-  97 abstract             Boolean optional
- 101 extends              TypeRef optional
- 114 restricts            TypeRef optional
- 102 final                Boolean optional
+BooleanOpts = Map ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+ 117 default          Boolean optional
+ 118 const            Boolean optional
+  48 nillable         Boolean optional
+  65 attr             Boolean optional
 
-BinaryOpts = Map
-  47 format               ArrayOf(Format) unique optional
- 123 minLength            Integer optional
- 125 maxLength            Integer optional
- 117 default              Binary optional
- 118 const                Binary optional
-  48 nillable             Boolean optional
-  65 attr                 Boolean optional
+IntegerOpts = Map ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+  69 scale            Integer optional
+ 121 minInclusive     Integer optional
+ 122 maxInclusive     Integer optional
+ 119 minExclusive     Integer optional
+ 120 maxExclusive     Integer optional
+ 117 default          Integer optional
+ 118 const            Integer optional
+  48 nillable         Boolean optional
+  65 attr             Boolean optional
 
-BooleanOpts = Map
- 117 default              Boolean optional
- 118 const                Boolean optional
-  48 nillable             Boolean optional
-  65 attr                 Boolean optional
+NumberOpts = Map ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+ 121 minInclusive     Number optional
+ 122 maxInclusive     Number optional
+ 119 minExclusive     Number optional
+ 120 maxExclusive     Number optional
+ 117 default          Number optional
+ 118 const            Number optional
+  48 nillable         Boolean optional
+  65 attr             Boolean optional
 
-IntegerOpts = Map
-  47 format               ArrayOf(Format) unique optional
-  69 scale                Integer optional
- 121 minInclusive         Integer optional
- 122 maxInclusive         Integer optional
- 119 minExclusive         Integer optional
- 120 maxExclusive         Integer optional
- 117 default              Integer optional
- 118 const                Integer optional
-  48 nillable             Boolean optional
-  65 attr                 Boolean optional
+StringOpts = Map ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+ 121 minInclusive     String optional
+ 122 maxInclusive     String optional
+ 119 minExclusive     String optional
+ 120 maxExclusive     String optional
+  37 pattern          String /regex optional
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
+ 117 default          String optional
+ 118 const            String optional
+  48 nillable         Boolean optional
+  65 attr             Boolean optional
 
-NumberOpts = Map
-  47 format               ArrayOf(Format) unique optional
- 121 minInclusive         Number optional
- 122 maxInclusive         Number optional
- 119 minExclusive         Number optional
- 120 maxExclusive         Number optional
- 117 default              Number optional
- 118 const                Number optional
-  48 nillable             Boolean optional
-  65 attr                 Boolean optional
+AllOpts = Map ?{'tagString': 'JADNOpts'}?
+  48 nillable         Boolean optional
+  97 abstract         Boolean optional
+ 101 extends          TypeRef optional
+ 114 restricts        TypeRef optional
+ 102 final            Boolean optional
 
-StringOpts = Map
-  47 format               ArrayOf(Format) unique optional
- 121 minInclusive         String optional
- 122 maxInclusive         String optional
- 119 minExclusive         String optional
- 120 maxExclusive         String optional
-  37 pattern              String /regex optional
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
- 117 default              String optional
- 118 const                String optional
-  48 nillable             Boolean optional
-  65 attr                 Boolean optional
+ArrayOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  47 format           Format optional
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
 
-EnumeratedOpts = Map extends(AllOpts)
-  61 id                   Boolean optional
-  35 enum                 TypeRef optional
-  62 pointer              TypeRef optional
-  65 attr                 Boolean optional
+ArrayOfOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  42 valueType        TypeRef
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
+ 113 unique           Boolean optional
+ 115 set              Boolean optional
+  98 unordered        Boolean optional
 
-ChoiceOpts = Map extends(AllOpts)
-  61 id                   Boolean optional
-  67 combine              String{1..1} optional
+MapOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  61 id               Boolean optional
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
+ 111 sequence         Boolean optional
+ 116 tagString        String optional
 
-ArrayOpts = Map extends(AllOpts)
-  47 format               ArrayOf(Format) unique optional
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
+MapOfOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  43 keyType          TypeRef
+  42 valueType        TypeRef
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
+ 111 sequence         Boolean optional
 
-ArrayOfOpts = Map extends(AllOpts)
-  42 valueType            TypeRef
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
- 113 unique               Boolean optional
- 115 set                  Boolean optional
-  98 unordered            Boolean optional
+RecordOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+ 123 minLength        Integer=[0, *] optional
+ 125 maxLength        Integer=[0, *] optional
+ 111 sequence         Boolean optional
 
-MapOpts = Map extends(AllOpts)
-  61 id                   Boolean optional
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
- 111 sequence             Boolean optional
+EnumeratedOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  61 id               Boolean optional
+  35 enum             TypeRef optional
+  62 pointer          TypeRef optional
+  65 attr             Boolean optional
 
-MapOfOpts = Map extends(AllOpts)
-  43 keyType              TypeRef
-  42 valueType            TypeRef
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
- 111 sequence             Boolean optional
+ChoiceOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+  61 id               Boolean optional
+  67 combine          Combine optional
 
-RecordOpts = Map extends(AllOpts)
- 123 minLength            Integer=[0, *] optional
- 125 maxLength            Integer=[0, *] optional
- 111 sequence             Boolean optional
+JADNOpts = Enumerated                                    // JADN type and field option IDs/Names for tag-string serialization
+  61 id                                                  // '=', Boolean: Enumerated type and Choice/Map/Record keys are ID not Name
+  42 valueType                                           // '*', TypeRef: Value type for ArrayOf and MapOf
+  43 keyType                                             // '+', TypeRef: Key type for MapOf
+  35 enum                                                // '#', TypeRef: enumeration derived from Array/Choice/Map/Record type
+  62 pointer                                             // '>', TypeRef: enumeration of pointers derived from Array/Choice/Map/Record type
+  37 pattern                                             // '%', String: regular expression that a string must match
+ 117 default                                             // 'u', *: Default value
+ 118 const                                               // 'v', *: Constant value
+ 119 minExclusive                                        // 'w', *: minimum numeric/string value, excluding bound
+ 120 maxExclusive                                        // 'x', *: maximum numeric/string value, excluding bound
+ 121 minInclusive                                        // 'y', *: minimum numeric/string value
+ 122 maxInclusive                                        // 'z', *: maximum numeric/string value
+ 123 minLength                                           // '{', Integer: minimum byte or text string length, collection item count
+ 125 maxLength                                           // '}', Integer: maximum byte or text string length, collection item count
+ 113 unique                                              // 'q', Boolean: ArrayOf instance must not contain duplicates (ordered set)
+ 115 set                                                 // 's', Boolean: ArrayOf instance is unordered and unique (set)
+  98 unordered                                           // 'b', Boolean: ArrayOf instance is unordered and not unique (bag)
+ 111 sequence                                            // 'o', Boolean: Map, MapOf or Record instance is ordered and unique (ordered keys)
+  48 nillable                                            // '0', Boolean: Instance may have no value, represented by nil, null, None, etc.
+  67 combine                                             // 'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff)
+  47 format                                              // '/', Format: semantic validation keyword, may affect serialization
+  69 scale                                               // 'E', Integer: fixed point scale factor n, serialized int = value * 10^n
+ 116 tagString                                           // 't', TypeRef: use referenced type for tag-string serialization
+  97 abstract                                            // 'a', Boolean: Inheritance: non-instantiatable
+ 114 restricts                                           // 'r', TypeRef: Inheritance: subset of referenced type
+ 101 extends                                             // 'e', TypeRef: Inheritance: superset of referenced type
+ 102 final                                               // f', Boolean: Inheritance: cannot have subtype
+  65 attr                                                // 'A', Boolean: Value may be serialized as an XML attribute
+  84 typeOpts                                            // 'T', --Sentinel--: preceding items are Type Options, following items are Field Options
+  91 minOccurs                                           // '[', Integer: min cardinality, default = 1, 0 = field is optional
+  93 maxOccurs                                           // ']', Integer: max cardinality, default = 1, <0 = inherited or none, not 1 = array
+  38 tagId                                               // '&', Integer: field that specifies the type of this field
+  60 dir                                                 // '<', Boolean: pointer enumeration treats field as a collection
+  75 key                                                 // 'K', Boolean: field is the primary key for TypeName
+  76 link                                                // 'L', Boolean: field is a link (foreign key) to an instance of FieldType
 
-Format = String{pattern="^/[a-zA-Z0-9]{1,16}+$"}
+Format = String{pattern="^[a-zA-Z0-9]{1,16}+$"}
 
-Description = String
+Description = Choice(3)
+   1  String                                             // str:: Text String
+   2  Annotation                                         // anno:: Type-labeled strings
+
+Annotation = Map
+   1 md               String                             // MarkDown text
+   2 xml              String                             // XML annotation
+
+Combine = Enumerated                                     // Untagged Union combining function
+   1 allOf
+   2 anyOf
+   3 oneOf
+   4 diff

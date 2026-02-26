@@ -1,0 +1,101 @@
+ (JADNOpts)
+
+ (Schema)
+ ├── Metadata
+ │   ├── Namespace
+ │   ├── PrefixNs
+ │   │   ├── NSID
+ │   │   └── Namespace
+ │   ├── TypeName
+ │   └── Config
+ └── Type
+     ├── TypeName
+     ├── JADN-Type
+     │   ├── Empty
+     │   ├── Fields
+     │   │   └── Field
+     │   │       ├── FieldName
+     │   │       ├── TypeRef
+     │   │       ├── FieldOptions
+     │   │       │   └── TypeOptions
+     │   │       │       ├── BinaryOpts
+     │   │       │       │   └── Format
+     │   │       │       ├── BooleanOpts
+     │   │       │       │   └── Format
+     │   │       │       ├── IntegerOpts
+     │   │       │       │   └── Format
+     │   │       │       ├── NumberOpts
+     │   │       │       │   └── Format
+     │   │       │       ├── StringOpts
+     │   │       │       │   └── Format
+     │   │       │       ├── ArrayOpts
+     │   │       │       │   ├── AllOpts
+     │   │       │       │   │   └── TypeRef
+     │   │       │       │   └── Format
+     │   │       │       ├── ArrayOfOpts
+     │   │       │       │   ├── AllOpts
+     │   │       │       │   │   └── TypeRef
+     │   │       │       │   └── TypeRef
+     │   │       │       ├── MapOpts
+     │   │       │       │   └── AllOpts
+     │   │       │       │       └── TypeRef
+     │   │       │       ├── MapOfOpts
+     │   │       │       │   ├── AllOpts
+     │   │       │       │   │   └── TypeRef
+     │   │       │       │   └── TypeRef
+     │   │       │       ├── RecordOpts
+     │   │       │       │   └── AllOpts
+     │   │       │       │       └── TypeRef
+     │   │       │       ├── EnumeratedOpts
+     │   │       │       │   ├── AllOpts
+     │   │       │       │   │   └── TypeRef
+     │   │       │       │   └── TypeRef
+     │   │       │       └── ChoiceOpts
+     │   │       │           ├── AllOpts
+     │   │       │           │   └── TypeRef
+     │   │       │           └── Combine
+     │   │       └── Description
+     │   │           └── Annotation
+     │   └── Items
+     │       └── Item
+     │           └── Description
+     │               └── Annotation
+     ├── TypeOptions
+     │   ├── BinaryOpts
+     │   │   └── Format
+     │   ├── BooleanOpts
+     │   │   └── Format
+     │   ├── IntegerOpts
+     │   │   └── Format
+     │   ├── NumberOpts
+     │   │   └── Format
+     │   ├── StringOpts
+     │   │   └── Format
+     │   ├── ArrayOpts
+     │   │   ├── AllOpts
+     │   │   │   └── TypeRef
+     │   │   └── Format
+     │   ├── ArrayOfOpts
+     │   │   ├── AllOpts
+     │   │   │   └── TypeRef
+     │   │   └── TypeRef
+     │   ├── MapOpts
+     │   │   └── AllOpts
+     │   │       └── TypeRef
+     │   ├── MapOfOpts
+     │   │   ├── AllOpts
+     │   │   │   └── TypeRef
+     │   │   └── TypeRef
+     │   ├── RecordOpts
+     │   │   └── AllOpts
+     │   │       └── TypeRef
+     │   ├── EnumeratedOpts
+     │   │   ├── AllOpts
+     │   │   │   └── TypeRef
+     │   │   └── TypeRef
+     │   └── ChoiceOpts
+     │       ├── AllOpts
+     │       │   └── TypeRef
+     │       └── Combine
+     └── Description
+         └── Annotation
