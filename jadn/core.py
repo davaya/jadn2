@@ -156,7 +156,7 @@ def set_otype(fopts: dict, ftype: str, otype: dict):
     pass
 
 
-def build_deps(self) -> dict[str, list[str]]:
+def build_deps(self) -> dict[str, list[list[str]]]:
     """
     Build a Dependency dict: {TypeName: [Dep1, Dep2, ...]}
     Returns dependencies for each type in order and a list of all referenced types.

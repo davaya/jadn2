@@ -7,6 +7,8 @@ from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
 from jadn.config import style_args, style_fname
 
 JADN_SCHEMA_DIR = 'apps/schemas/jadn'
+ABSTRACT_SCHEMA_DIR = 'apps/schemas/abstract'
+CONCRETE_SCHEMA_DIR = 'apps/schemas/concrete'
 CONFIG_FILE = 'apps/jadn_config.json'
 JADN_SCHEMA_CLASS = {
     'jadn': JADN,
@@ -21,25 +23,37 @@ JADN_SCHEMA_CLASS = {
 }
 
 
-def get_jadn_schemas():
-    return glob.glob(f'{JADN_SCHEMA_DIR}/*')
+def get_files(in_dir: str) -> list[str]:
+    return glob.glob(f'{in_dir}/*')
 
 
-@pytest.mark.parametrize('test', ['dump', 'load', 'round_trip'])
-@pytest.mark.parametrize('schema_format', JADN_SCHEMA_CLASS)
-@pytest.mark.parametrize('schema_path', get_jadn_schemas())
-def test_jadn_schema_convert(session_data, schema_path, schema_format, test):
+@pytest.mark.parametrize('round_trip', ['', 'jadn'])
+@pytest.mark.parametrize('out_format', JADN_SCHEMA_CLASS)
+@pytest.mark.parametrize('schema_path', get_files(JADN_SCHEMA_DIR))
+def test_jadn_schema_convert(session_data, schema_path, out_format, round_trip):
+    """
+    Convert native JADN schema to equivalent alternate JADN format
+    """
     schema_file  = os.path.split(schema_path)[1]
     fn = os.path.splitext(schema_file)[0]
-    if test == 'dump':  # Convert JADN schema to equivalent formats
-        in_pkg = JADN_SCHEMA_CLASS['jadn']()
-        for out_format in JADN_SCHEMA_CLASS:
-            schema_convert(fn, in_pkg, schema_path, out_format, session_data['output_dir'])
-    elif test == 'load':    # Convert equivalent schema formats to JADN
-        in_pkg = JADN_SCHEMA_CLASS[schema_format]()
-        # in_file = os.path.join(fn, )
-    elif test == 'round_trip':  # Verify lossless conversion from JADN to other format and back
+    in_pkg = JADN_SCHEMA_CLASS['jadn']()
+    out_pkg = schema_convert(fn, in_pkg, schema_path, out_format, session_data['output_dir'])
+    if round_trip == 'jadn':
         pass
+
+
+@pytest.mark.parametrize('schema_path', get_files(ABSTRACT_SCHEMA_DIR))
+def test_abstract_schema_convert(schema_path):
+    """
+    Convert JADN Schema in alternate format to native JADN format
+    """
+    pass
+
+
+@pytest.mark.parametrize('schema_path', get_files(CONCRETE_SCHEMA_DIR))
+def test_concrete_schema_convert(schema_path):
+    pass
+
 
     """
     with pytest.raises(NotImplementedError):
@@ -47,7 +61,7 @@ def test_jadn_schema_convert(session_data, schema_path, schema_format, test):
     """
 
 
-def schema_convert(fn: str, in_pkg: 'JADNCore', in_path: str, out_fmt: str, out_dir: str) -> None:
+def schema_convert(fn: str, in_pkg: 'JADNCore', in_path: str, out_fmt: str, out_dir: str) -> JADNCore:
     with open(in_path, 'r', encoding='utf8') as fp:
         in_pkg.schema_load(fp)
     out_pkg = JADN_SCHEMA_CLASS[out_fmt](in_pkg)
@@ -57,6 +71,7 @@ def schema_convert(fn: str, in_pkg: 'JADNCore', in_path: str, out_fmt: str, out_
     else:
         with pytest.raises(NotImplementedError):
             convert_out(fn, out_fmt, out_pkg, style, out_dir)
+    return out_pkg
 
 
 def convert_out(fn: str, out_format: str, out_pkg: 'JADNCore', style: dict, out_dir: str) -> None:
