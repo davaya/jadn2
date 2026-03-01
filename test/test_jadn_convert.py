@@ -4,7 +4,9 @@ import pytest
 import sys
 from jadn.core import JADNCore
 from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
+from jadn.translate import JSCHEMA, PROTO, XSD
 from jadn.config import style_args, style_fname
+from pathlib import Path
 
 JADN_SCHEMA_DIR = 'schemas/jadn'
 ABSTRACT_SCHEMA_DIR = 'schemas/abstract'
@@ -21,69 +23,71 @@ JADN_SCHEMA_CLASS = {
     'erd': ERD,
     'atree': ATREE,
 }
+CONCRETE_SCHEMA_CLASS = {
+    'json': JSCHEMA,
+    'proto': PROTO,
+    'xsd': XSD,
+}
+
+SCHEMA_CLASS = JADN_SCHEMA_CLASS | CONCRETE_SCHEMA_CLASS
 
 
-def get_files(in_dir: str) -> list[str]:
-    return glob.glob(f'{in_dir}/*')
+def schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str) -> ((str | bytes), JADNCore):
+    in_ext = os.path.splitext(in_path)[1].lstrip('.')
+    in_pkg = SCHEMA_CLASS[in_ext]()
+    if in_ext in {'erd', 'atree'}:
+        return '', in_pkg
+    with open(in_path, 'r', encoding='utf8') as fp:
+        in_pkg.schema_load(fp)
+    out_path = os.path.join(session_data['output_dir'], in_ext + f'.{out_format}')
+    out_pkg = SCHEMA_CLASS[out_format](in_pkg)
+    style = style_args(out_pkg,'', CONFIG_FILE)
+    with open(out_path, 'w', encoding='utf8') as fp:
+        schema_msg = out_pkg.schema_dump(fp, style)
+    return schema_msg, in_pkg
 
 
 @pytest.mark.parametrize('round_trip', ['', 'jadn'])
 @pytest.mark.parametrize('out_format', JADN_SCHEMA_CLASS)
-@pytest.mark.parametrize(' in_path', get_files(JADN_SCHEMA_DIR))
-def test_jadn_schema_convert(session_data, in_path, out_format, round_trip):
+@pytest.mark.parametrize('in_path', Path(JADN_SCHEMA_DIR).glob('*'), ids=lambda p: p.name)
+def test_jadn_schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str):
     """
     Convert native JADN schema to equivalent alternate JADN format
     """
-
-    in_ext = os.path.splitext(in_path)[1].lstrip('.')
-    in_pkg = JADN_SCHEMA_CLASS[in_ext]()
-    with open(in_path, 'r', encoding='utf8') as fp:
-        in_pkg.schema_load(fp)
-    out_path = os.path.join(session_data['output_dir'], in_ext + f'.{out_format}')
-    out_pkg = JADN_SCHEMA_CLASS[out_format](in_pkg)
-    style = style_args(out_pkg,'', CONFIG_FILE)
-    with open(out_path, 'w', encoding='utf8') as fp:
-        schema_str = out_pkg.schema_dump(fp, style)
+    schema_msg, in_pkg = schema_convert(session_data, in_path, out_format, round_trip)
 
     if round_trip == 'jadn':
-        pass
+        check_pkg = JADN_SCHEMA_CLASS[out_format]()
+        if out_format in {'erd', 'atree'}:
+            with pytest.raises(NotImplementedError):
+                check_pkg.schema_loads(schema_msg)
+        else:
+            check_pkg.schema_loads(schema_msg)
+            assert check_pkg.schema == in_pkg.schema
 
 
-@pytest.mark.parametrize('schema_path', get_files(ABSTRACT_SCHEMA_DIR))
-def test_abstract_schema_convert(schema_path):
+@pytest.mark.parametrize('out_format', ['jadn'])
+@pytest.mark.parametrize('in_path', Path(ABSTRACT_SCHEMA_DIR).glob('*'), ids=lambda p: p.name)
+def test_abstract_schema_convert(session_data, in_path, out_format):
     """
     Convert JADN Schema in alternate format to native JADN format
     """
-    pass
+    schema_convert(session_data, in_path, out_format, round_trip='jadn')
 
 
-@pytest.mark.parametrize('schema_path', get_files(CONCRETE_SCHEMA_DIR))
-def test_concrete_schema_convert(schema_path):
-    pass
-
-
+@pytest.mark.parametrize('out_format', CONCRETE_SCHEMA_CLASS)
+@pytest.mark.parametrize('in_path', Path(JADN_SCHEMA_DIR).glob('*'), ids=lambda p: p.name)
+def test_jadn_schema_translate_out(session_data: dict, in_path: str, out_format: str):
     """
-    with pytest.raises(NotImplementedError):
-        in_pkg.schema_load(fp)
+    Convert native JADN schema to equivalent alternate JADN format
     """
+    schema_msg, in_pkg = schema_convert(session_data, in_path, out_format, '')
 
-"""
-def schema_convert(fn: str, in_pkg: 'JADNCore', in_path: str, out_fmt: str, out_dir: str) -> JADNCore:
-    with open(in_path, 'r', encoding='utf8') as fp:
-        in_pkg.schema_load(fp)
-    out_pkg = JADN_SCHEMA_CLASS[out_fmt](in_pkg)
-    style = style_args(out_pkg, out_fmt, '', CONFIG_FILE)  # need out_pkg
-    if out_fmt in {'jadn', 'jidl', 'xasd', 'md', 'erd', 'atree'}:
-        convert_out(fn, out_fmt, out_pkg, style, out_dir)
-    else:
-        with pytest.raises(NotImplementedError):
-            convert_out(fn, out_fmt, out_pkg, style, out_dir)
-    return out_pkg
-"""
 
-def convert_out(fn: str, out_format: str, out_pkg: 'JADNCore', style: dict, out_dir: str) -> None:
-    if out_dir:
-        with open(os.path.join(out_dir, style_fname(fn, out_format, style)), 'w', encoding='utf8') as fp:
-            out_pkg.schema_dump(fp, style)
-    else:
-        out_pkg.schema_dump(sys.stdout, style)
+@pytest.mark.parametrize('out_format', {'jadn'})
+@pytest.mark.parametrize('in_path', Path(CONCRETE_SCHEMA_DIR).glob('*'), ids=lambda p: p.name)
+def test_jadn_schema_translate_in(session_data: dict, in_path: str, out_format: str):
+    """
+    Convert native JADN schema to equivalent alternate JADN format
+    """
+    schema_msg, in_pkg = schema_convert(session_data, in_path, out_format, '')

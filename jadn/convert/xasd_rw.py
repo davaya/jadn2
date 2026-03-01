@@ -27,7 +27,7 @@ class XASD(JADNCore):
             elif element.tag == 'Types':
                 for el in element:
                     types.append(_get_type(self, el))
-        self.schema = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = source
         self.schema_load_finish()
 

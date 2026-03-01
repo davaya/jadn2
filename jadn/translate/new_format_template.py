@@ -9,6 +9,7 @@ class FOO(JADNCore):
     def style(self) -> dict:
         # Return all output style options for <foo> with default values
         return {
+            'data_format': 'foo',  # Data format / schema file extension - Required
             'option1': 'sanitize',
             'option2': 42
         }

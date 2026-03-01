@@ -6,7 +6,9 @@ Translate JADN abstract schema to/from Concise Data Definition Language (CDDL), 
 
 class CDDL(JADNCore):
     def style(self) -> dict:
-        return {}
+        return {
+            'data_format': 'cddl',  # Data format / schema file extension
+        }
 
     def schema_loads(self, doc: str, source: dict=None) -> None:
         self.schema = {'meta': {}, 'types': []}

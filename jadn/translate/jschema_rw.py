@@ -12,6 +12,7 @@ class JSCHEMA(JADNCore):
     def style(self) -> dict:
         # Return default column positions
         return {
+            'data_format': 'json',  # Data format / schema file extension
             'size': 'verbose',      # verbose: Record -> object, property/enum -> name
                                     # compact: Record -> array,  property/enum -> name
                                     # concise: Record -> array,  property/enum -> id

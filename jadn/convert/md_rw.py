@@ -37,7 +37,7 @@ class MD(JADNCore):
                     fields = types[-1][Fields]
                 elif t:
                     assert t == 'D', f'Unexpected line {t}: "{v}"'
-        self.schema = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = source
         self.schema_load_finish()
 

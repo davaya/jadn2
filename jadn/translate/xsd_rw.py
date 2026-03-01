@@ -10,7 +10,9 @@ Translate JADN abstract schema to XML schema definition (XSD)
 class XSD(JADNCore):
 
     def style(self) -> dict:
-        return {}
+        return {
+            'data_format': 'xsd',  # Data format / schema file extension
+        }
 
     def schema_loads(self, xml_str: str, source: dict=None) -> None:
         tree = etree.parse(BytesIO(xml_str.encode('utf8')))

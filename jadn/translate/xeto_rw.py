@@ -6,7 +6,9 @@ Translate JADN abstract schema to/from Haystack Extensible Explicitly Typed Obje
 
 class XETO(JADNCore):
     def style(self) -> dict:
-        return {}
+        return {
+            'data_format': 'xeto',  # Data format / schema file extension
+        }
 
     def schema_loads(self, doc: str, source: dict=None) -> None:
         self.schema = {'meta': {}, 'types': []}

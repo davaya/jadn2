@@ -50,9 +50,8 @@ class JIDL(JADNCore):
                 elif t == 'T':
                     types.append(v)
                     fields = types[-1][Fields]
-        self.schema = {'meta': meta, 'types': types}
+        self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = source
-        self.format = 'jidl'          # data format / file extension for this instance
         self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:

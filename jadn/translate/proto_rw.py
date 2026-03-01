@@ -6,7 +6,9 @@ Translate JADN abstract schema to Protocol Buffers
 
 class PROTO(JADNCore):
     def style(self) -> dict:
-        return {}
+        return {
+            'data_format': 'proto',  # Data format / schema file extension
+        }
 
     def schema_loads(self, doc: str, source: str=None) -> None:
         self.schema = {'meta': {}, 'types': []}
