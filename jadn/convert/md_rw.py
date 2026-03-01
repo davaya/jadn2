@@ -13,6 +13,7 @@ class MD(JADNCore):
     def style(self) -> dict:
         # Return default column positions
         return {
+            'data_format': 'md',  # Data format / schema file extension
             'pad': True,    # Use one space horizontal padding
             'links': True   # Retain Markdown links: [text](link)
         }

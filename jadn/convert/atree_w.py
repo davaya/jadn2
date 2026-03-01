@@ -13,6 +13,7 @@ class ATREE(JADNCore):
     def style(self) -> dict:
         # Return default column positions
         return {
+            'data_format': 'atree',     # Data format / schema file extension
             'draw': 'light',            # blank, ascii, light, heavy, double
             'detail': 'conceptual',     # conceptual (name), logical (name+type), information (name+type+options)
         }

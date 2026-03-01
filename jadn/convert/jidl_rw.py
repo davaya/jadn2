@@ -24,6 +24,7 @@ class JIDL(JADNCore):
     def style(self) -> dict:
         # Return default column positions
         return {
+            'data_format': 'jidl',  # Data format / schema file extension
             'meta': 12,     # Width of meta name column
             'id': 4,        # Width of Field Id column
             'name': 16,     # Width of Field Name column
@@ -51,6 +52,7 @@ class JIDL(JADNCore):
                     fields = types[-1][Fields]
         self.schema = {'meta': meta, 'types': types}
         self.source = source
+        self.format = 'jidl'          # data format / file extension for this instance
         self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:

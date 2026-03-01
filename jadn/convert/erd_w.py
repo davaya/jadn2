@@ -13,6 +13,7 @@ class ERD(JADNCore):
     def style(self) -> dict:
         # Return diagram appearance options
         return {
+            'data_format': 'erd',       # Data format / schema file extension
             'graph': 'plantuml',        # diagram language: graphviz, plantuml
             'detail': 'conceptual',     # Level of detail: conceptual, logical, information
             'links': True,              # Show link edges (dashed)

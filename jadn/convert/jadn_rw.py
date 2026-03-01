@@ -13,8 +13,10 @@ from typing import Any
 # to load METASCHEMA class variable
 # =========================================================
 class JADN(JADNCore):
+
     def style(self) -> dict:
         return {
+            'data_format': 'jadn',  # Data format / schema file extension
             'strip': True
         }
 

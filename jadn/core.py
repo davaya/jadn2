@@ -96,19 +96,58 @@ class JADNCore:
             print(' *')
 
     def style(self) -> dict:
+        """
+
+        :return:
+        :rtype:
+        """
         return {}
 
     def schema_loads(self, message: str | bytes, source: str=None) -> None:
+        """
+
+        :param message:
+        :type message:
+        :param source:
+        :type source:
+        :return:
+        :rtype:
+        """
         raise NotImplementedError(f'{self.__class__.__name__} schema load not implemented')
 
     def schema_load(self, fp: TextIO | BinaryIO) -> None:
+        """
+
+        :param fp:
+        :type fp:
+        :return:
+        :rtype:
+        """
         self.schema_loads(fp.read(), fp.name)
 
     def schema_dumps(self, style: dict=None) -> str | bytes:
+        """
+
+        :param style:
+        :type style:
+        :return:
+        :rtype:
+        """
         raise NotImplementedError(f'{self.__class__.__name__} schema dump not implemented')
 
-    def schema_dump(self, fp: TextIO | BinaryIO, style: dict=None) -> None:
-        fp.write(self.schema_dumps(style))
+    def schema_dump(self, fp: TextIO | BinaryIO, style: dict=None) -> str | bytes:
+        """
+
+        :param fp:
+        :type fp:
+        :param style:
+        :type style:
+        :return:
+        :rtype:
+        """
+        message = self.schema_dumps(style)
+        fp.write(message)
+        return message
 
     def schema_load_finish(self) -> None:
         """

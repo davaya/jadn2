@@ -2,12 +2,11 @@ import json
 import os
 
 
-def style_args(self, format: str, args: str, config: str = '') -> dict:
+def style_args(self, args: str, config: str = '') -> dict:
     """
     Combine style options from command line options, user config file, and format-defined defaults
 
-    :param pkg: JADN schema package instance
-    :param format: name of serialized (lexical) format
+    :param self: package instance with all format-defined style options
     :param args: arguments from command line in a double-quoted string
     :param config: name of JSON configuration file containing default arguments per format
     """
@@ -19,7 +18,7 @@ def style_args(self, format: str, args: str, config: str = '') -> dict:
     config_opts = {}
     if os.path.isfile(config):
         with open(config) as fp:
-            config_opts = json.load(fp).get('style', {}).get(format, {})    # get args from "style" section
+            config_opts = json.load(fp).get('style', {}).get(format_opts['data_format'], {})    # get args from "style" section
     assert not (x := set(config_opts) - set(format_opts)), f'Invalid style options {x} from {fp.name}'
     try:
         cli_opts = {(x := arg.split(':'))[0].strip(): _fixbool(x[1].strip()) for arg in args.split(',') if arg}
