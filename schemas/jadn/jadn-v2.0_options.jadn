@@ -29,7 +29,7 @@
       [97,  "abstract",    "Boolean", [], "a - Inheritance: abstract, non-instantiatable"],
       [114, "restricts",   "String",  [], "r - Inheritance: restriction - subset of referenced type"],
       [101, "extends",     "String",  [], "e - Inheritance: extension - superset of referenced type"],
-      [102, "final",       "Boolean", [], " - Inheritance: final - cannot have subtype"],
+      [102, "final",       "Boolean", [], "f - Inheritance: final - cannot have subtype"],
       [65,  "attr",        "Boolean", [], "A - Value may be serialized as an XML attribute"]
     ]],
     ["AllFieldOptions", "Choice", [], "", [

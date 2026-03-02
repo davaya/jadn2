@@ -319,7 +319,7 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         if o := opts.pop(opt, None):
             txt += (' ' + opt)
 
-    for opt in ('extends', 'restricts'):
+    for opt in ('extends', 'restricts', 'tagString'):
         if o := opts.pop(opt, None):
             txt += f' {opt}({o})'
 

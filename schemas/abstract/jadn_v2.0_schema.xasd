@@ -100,7 +100,8 @@
     </Type>
     <Type name="FieldOptions" type="Map" tagString="JADNOpts" extends="TypeOptions">
       <Field fid="91" name="minOccurs" type="Integer" minInclusive="0" minOccurs="0">[: min cardinality, default = 1, 0 = field is optional</Field>
-      <Field fid="93" name="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
+      <Field fi
+             d="93" name="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
       <Field fid="38" name="tagId" type="Integer" minInclusive="1" minOccurs="0">&: field that specifies the type of this field</Field>
       <Field fid="60" name="dir" type="Boolean" minOccurs="0"><: pointer enumeration treats field as a collection</Field>
       <Field fid="75" name="key" type="Boolean" minOccurs="0">K: field is the primary key for TypeName</Field>
@@ -208,42 +209,42 @@
       <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
       <Field fid="67" name="combine" type="Combine" minOccurs="0"></Field>
     </Type>
-    <Type name="JADNOpts" type="Enumerated">JADN type and field option IDs/Names for tag-string serialization
-      <Item id="61" value="id">'=', Boolean: Enumerated type and Choice/Map/Record keys are ID not Name</Item>
-      <Item id="42" value="valueType">'*', TypeRef: Value type for ArrayOf and MapOf</Item>
-      <Item id="43" value="keyType">'+', TypeRef: Key type for MapOf</Item>
-      <Item id="35" value="enum">'#', TypeRef: enumeration derived from Array/Choice/Map/Record type</Item>
-      <Item id="62" value="pointer">'>', TypeRef: enumeration of pointers derived from Array/Choice/Map/Record type</Item>
-      <Item id="37" value="pattern">'%', String: regular expression that a string must match</Item>
-      <Item id="117" value="default">'u', *: Default value</Item>
-      <Item id="118" value="const">'v', *: Constant value</Item>
-      <Item id="119" value="minExclusive">'w', *: minimum numeric/string value, excluding bound</Item>
-      <Item id="120" value="maxExclusive">'x', *: maximum numeric/string value, excluding bound</Item>
-      <Item id="121" value="minInclusive">'y', *: minimum numeric/string value</Item>
-      <Item id="122" value="maxInclusive">'z', *: maximum numeric/string value</Item>
-      <Item id="123" value="minLength">'{', Integer: minimum byte or text string length, collection item count</Item>
-      <Item id="125" value="maxLength">'}', Integer: maximum byte or text string length, collection item count</Item>
-      <Item id="113" value="unique">'q', Boolean: ArrayOf instance must not contain duplicates (ordered set)</Item>
-      <Item id="115" value="set">'s', Boolean: ArrayOf instance is unordered and unique (set)</Item>
-      <Item id="98" value="unordered">'b', Boolean: ArrayOf instance is unordered and not unique (bag)</Item>
-      <Item id="111" value="sequence">'o', Boolean: Map, MapOf or Record instance is ordered and unique (ordered keys)</Item>
-      <Item id="48" value="nillable">'0', Boolean: Instance may have no value, represented by nil, null, None, etc.</Item>
-      <Item id="67" value="combine">'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff)</Item>
-      <Item id="47" value="format">'/', Format: semantic validation keyword, may affect serialization</Item>
-      <Item id="69" value="scale">'E', Integer: fixed point scale factor n, serialized int = value * 10^n</Item>
-      <Item id="116" value="tagString">'t', TypeRef: use referenced type for tag-string serialization</Item>
-      <Item id="97" value="abstract">'a', Boolean: Inheritance: non-instantiatable</Item>
-      <Item id="114" value="restricts">'r', TypeRef: Inheritance: subset of referenced type</Item>
-      <Item id="101" value="extends">'e', TypeRef: Inheritance: superset of referenced type</Item>
-      <Item id="102" value="final">f', Boolean: Inheritance: cannot have subtype</Item>
-      <Item id="65" value="attr">'A', Boolean: Value may be serialized as an XML attribute</Item>
-      <Item id="84" value="typeOpts">'T', --Sentinel--: preceding items are Type Options, following items are Field Options</Item>
-      <Item id="91" value="minOccurs">'[', Integer: min cardinality, default = 1, 0 = field is optional</Item>
-      <Item id="93" value="maxOccurs">']', Integer: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Item>
-      <Item id="38" value="tagId">'&', Integer: field that specifies the type of this field</Item>
-      <Item id="60" value="dir">'<', Boolean: pointer enumeration treats field as a collection</Item>
-      <Item id="75" value="key">'K', Boolean: field is the primary key for TypeName</Item>
-      <Item id="76" value="link">'L', Boolean: field is a link (foreign key) to an instance of FieldType</Item>
+    <Type name="JADNOpts" type="Map">JADN type and field option IDs/Names for tag-string serialization
+      <Field fid="61" name="id" type="Boolean" minOccurs="0">= - Enumerated type and Choice/Map/Record keys are ID not Name</Field>
+      <Field fid="42" name="valueType" type="TypeRef" minOccurs="0">* - Value type for ArrayOf and MapOf</Field>
+      <Field fid="43" name="keyType" type="TypeRef" minOccurs="0">+ - Key type for MapOf</Field>
+      <Field fid="35" name="enum" type="TypeRef" minOccurs="0"># - enumeration derived from Array/Choice/Map/Record type</Field>
+      <Field fid="62" name="pointer" type="TypeRef" minOccurs="0">> - enumeration of pointers derived from Array/Choice/Map/Record type</Field>
+      <Field fid="37" name="pattern" type="Regex" minOccurs="0">% - regular expression that a string must match</Field>
+      <Field fid="117" name="default" type="Any" minOccurs="0">u - Default value</Field>
+      <Field fid="118" name="const" type="Any" minOccurs="0">v - Constant value</Field>
+      <Field fid="119" name="minExclusive" type="Any" minOccurs="0">w - minimum numeric/string value, excluding bound</Field>
+      <Field fid="120" name="maxExclusive" type="Any" minOccurs="0">x - maximum numeric/string value, excluding bound</Field>
+      <Field fid="121" name="minInclusive" type="Any" minOccurs="0">y - minimum numeric/string value</Field>
+      <Field fid="122" name="maxInclusive" type="Any" minOccurs="0">z - maximum numeric/string value</Field>
+      <Field fid="123" name="minLength" type="Integer" minOccurs="0">{ - minimum byte or text string length, collection item count</Field>
+      <Field fid="125" name="maxLength" type="Integer" minOccurs="0">} - maximum byte or text string length, collection item count</Field>
+      <Field fid="113" name="unique" type="Boolean" minOccurs="0">q - ArrayOf instance must not contain duplicates</Field>
+      <Field fid="115" name="set" type="Boolean" minOccurs="0">s - ArrayOf instance is unordered and unique (set)</Field>
+      <Field fid="98" name="unordered" type="Boolean" minOccurs="0">b - ArrayOf instance is unordered and not unique (bag)</Field>
+      <Field fid="111" name="sequence" type="Boolean" minOccurs="0">o - Map, MapOr or Record instance is ordered and unique (ordered set)</Field>
+      <Field fid="48" name="nillable" type="Boolean" minOccurs="0">0 - Instance may have no value, represented by nil, null, None, etc</Field>
+      <Field fid="67" name="combine" type="Combine" minOccurs="0">C - Choice instance is a logical combination (anyOf, allOf, oneOf)</Field>
+      <Field fid="47" name="format" type="Format" minOccurs="0">/ - Semantic validation keyword, may affect serialization</Field>
+      <Field fid="69" name="scale" type="Integer" minOccurs="0">E - fixed point scale factor n, serialized int = value * 10^n</Field>
+      <Field fid="116" name="tagString" type="TypeRef" minOccurs="0">t - Use referenced type for tag-string serialization</Field>
+      <Field fid="97" name="abstract" type="Boolean" minOccurs="0">a - Inheritance: abstract, non-instantiatable</Field>
+      <Field fid="114" name="restricts" type="TypeRef" minOccurs="0">r - Inheritance: restriction - subset of referenced type</Field>
+      <Field fid="101" name="extends" type="TypeRef" minOccurs="0">e - Inheritance: extension - superset of referenced type</Field>
+      <Field fid="102" name="final" type="Boolean" minOccurs="0">f - Inheritance: final - cannot have subtype</Field>
+      <Field fid="65" name="attr" type="Boolean" minOccurs="0">A - Value may be serialized as an XML attribute</Field>
+      <Field fid="84" name="typeOpts" type="String" minOccurs="0">T - *Sentinel*: preceding are Type Options, following are Field Options</Field>
+      <Field fid="91" name="minOccurs" type="Integer" minOccurs="0">[ - min cardinality, default = 1, 0 = field is optional</Field>
+      <Field fid="93" name="maxOccurs" type="Integer" minOccurs="0">] - max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
+      <Field fid="38" name="tagId" type="Integer" minOccurs="0">& - field that specifies the type of this field</Field>
+      <Field fid="60" name="dir" type="Boolean" minOccurs="0">< - pointer enumeration treats field as a collection</Field>
+      <Field fid="75" name="key" type="Boolean" minOccurs="0">K - field is the primary key for TypeName</Field>
+      <Field fid="76" name="link" type="Boolean" minOccurs="0">L - field is a link (foreign key) to an instance of FieldType</Field>
     </Type>
     <Type name="Format" type="String" pattern="^[a-zA-Z0-9]{1,16}+$"></Type>
     <Type name="Description" type="Choice" combine="3">
@@ -259,6 +260,13 @@
       <Item id="2" value="anyOf"></Item>
       <Item id="3" value="oneOf"></Item>
       <Item id="4" value="diff"></Item>
+    </Type>
+    <Type name="Any" type="Choice" combine="oneOf">Any primitive type
+      <Field fid="1" name="binary" type="Binary"></Field>
+      <Field fid="2" name="boolean" type="Boolean"></Field>
+      <Field fid="3" name="integer" type="Integer"></Field>
+      <Field fid="4" name="number" type="Number"></Field>
+      <Field fid="5" name="string" type="String"></Field>
     </Type>
   </Types>
 </Schema>

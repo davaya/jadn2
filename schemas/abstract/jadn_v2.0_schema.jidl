@@ -98,7 +98,7 @@ Field = Array
    4  FieldOptions(tagId[field_type]) optional           // field_options::
    5  Description optional                               // field_description::
 
-FieldOptions = Map extends(TypeOptions) ?{'tagString': 'JADNOpts'}?
+FieldOptions = Map extends(TypeOptions) tagString(JADNOpts)
   91 minOccurs        Integer=[0, *] optional            // [: min cardinality, default = 1, 0 = field is optional
   93 maxOccurs        Integer=[0, *] optional            // ]: max cardinality, default = 1, <0 = inherited or none, not 1 = array
   38 tagId            Integer=[1, *] optional            // &: field that specifies the type of this field
@@ -106,7 +106,7 @@ FieldOptions = Map extends(TypeOptions) ?{'tagString': 'JADNOpts'}?
   75 key              Boolean optional                   // K: field is the primary key for TypeName
   76 link             Boolean optional                   // L: field is a link (foreign key) to an instance of FieldType
 
-BinaryOpts = Map ?{'tagString': 'JADNOpts'}?
+BinaryOpts = Map tagString(JADNOpts)
   47 format           Format optional
  123 minLength        Integer optional
  125 maxLength        Integer optional
@@ -115,14 +115,14 @@ BinaryOpts = Map ?{'tagString': 'JADNOpts'}?
   48 nillable         Boolean optional
   65 attr             Boolean optional
 
-BooleanOpts = Map ?{'tagString': 'JADNOpts'}?
+BooleanOpts = Map tagString(JADNOpts)
   47 format           Format optional
  117 default          Boolean optional
  118 const            Boolean optional
   48 nillable         Boolean optional
   65 attr             Boolean optional
 
-IntegerOpts = Map ?{'tagString': 'JADNOpts'}?
+IntegerOpts = Map tagString(JADNOpts)
   47 format           Format optional
   69 scale            Integer optional
  121 minInclusive     Integer optional
@@ -134,7 +134,7 @@ IntegerOpts = Map ?{'tagString': 'JADNOpts'}?
   48 nillable         Boolean optional
   65 attr             Boolean optional
 
-NumberOpts = Map ?{'tagString': 'JADNOpts'}?
+NumberOpts = Map tagString(JADNOpts)
   47 format           Format optional
  121 minInclusive     Number optional
  122 maxInclusive     Number optional
@@ -145,7 +145,7 @@ NumberOpts = Map ?{'tagString': 'JADNOpts'}?
   48 nillable         Boolean optional
   65 attr             Boolean optional
 
-StringOpts = Map ?{'tagString': 'JADNOpts'}?
+StringOpts = Map tagString(JADNOpts)
   47 format           Format optional
  121 minInclusive     String optional
  122 maxInclusive     String optional
@@ -159,19 +159,19 @@ StringOpts = Map ?{'tagString': 'JADNOpts'}?
   48 nillable         Boolean optional
   65 attr             Boolean optional
 
-AllOpts = Map ?{'tagString': 'JADNOpts'}?
+AllOpts = Map tagString(JADNOpts)
   48 nillable         Boolean optional
   97 abstract         Boolean optional
  101 extends          TypeRef optional
  114 restricts        TypeRef optional
  102 final            Boolean optional
 
-ArrayOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+ArrayOpts = Map extends(AllOpts) tagString(JADNOpts)
   47 format           Format optional
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
 
-ArrayOfOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+ArrayOfOpts = Map extends(AllOpts) tagString(JADNOpts)
   42 valueType        TypeRef
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
@@ -179,71 +179,71 @@ ArrayOfOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
  115 set              Boolean optional
   98 unordered        Boolean optional
 
-MapOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+MapOpts = Map extends(AllOpts) tagString(JADNOpts)
   61 id               Boolean optional
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
  116 tagString        String optional
 
-MapOfOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+MapOfOpts = Map extends(AllOpts) tagString(JADNOpts)
   43 keyType          TypeRef
   42 valueType        TypeRef
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
 
-RecordOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+RecordOpts = Map extends(AllOpts) tagString(JADNOpts)
  123 minLength        Integer=[0, *] optional
  125 maxLength        Integer=[0, *] optional
  111 sequence         Boolean optional
 
-EnumeratedOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+EnumeratedOpts = Map extends(AllOpts) tagString(JADNOpts)
   61 id               Boolean optional
   35 enum             TypeRef optional
   62 pointer          TypeRef optional
   65 attr             Boolean optional
 
-ChoiceOpts = Map extends(AllOpts) ?{'tagString': 'JADNOpts'}?
+ChoiceOpts = Map extends(AllOpts) tagString(JADNOpts)
   61 id               Boolean optional
   67 combine          Combine optional
 
-JADNOpts = Enumerated                                    // JADN type and field option IDs/Names for tag-string serialization
-  61 id                                                  // '=', Boolean: Enumerated type and Choice/Map/Record keys are ID not Name
-  42 valueType                                           // '*', TypeRef: Value type for ArrayOf and MapOf
-  43 keyType                                             // '+', TypeRef: Key type for MapOf
-  35 enum                                                // '#', TypeRef: enumeration derived from Array/Choice/Map/Record type
-  62 pointer                                             // '>', TypeRef: enumeration of pointers derived from Array/Choice/Map/Record type
-  37 pattern                                             // '%', String: regular expression that a string must match
- 117 default                                             // 'u', *: Default value
- 118 const                                               // 'v', *: Constant value
- 119 minExclusive                                        // 'w', *: minimum numeric/string value, excluding bound
- 120 maxExclusive                                        // 'x', *: maximum numeric/string value, excluding bound
- 121 minInclusive                                        // 'y', *: minimum numeric/string value
- 122 maxInclusive                                        // 'z', *: maximum numeric/string value
- 123 minLength                                           // '{', Integer: minimum byte or text string length, collection item count
- 125 maxLength                                           // '}', Integer: maximum byte or text string length, collection item count
- 113 unique                                              // 'q', Boolean: ArrayOf instance must not contain duplicates (ordered set)
- 115 set                                                 // 's', Boolean: ArrayOf instance is unordered and unique (set)
-  98 unordered                                           // 'b', Boolean: ArrayOf instance is unordered and not unique (bag)
- 111 sequence                                            // 'o', Boolean: Map, MapOf or Record instance is ordered and unique (ordered keys)
-  48 nillable                                            // '0', Boolean: Instance may have no value, represented by nil, null, None, etc.
-  67 combine                                             // 'C', Combine: Choice is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff)
-  47 format                                              // '/', Format: semantic validation keyword, may affect serialization
-  69 scale                                               // 'E', Integer: fixed point scale factor n, serialized int = value * 10^n
- 116 tagString                                           // 't', TypeRef: use referenced type for tag-string serialization
-  97 abstract                                            // 'a', Boolean: Inheritance: non-instantiatable
- 114 restricts                                           // 'r', TypeRef: Inheritance: subset of referenced type
- 101 extends                                             // 'e', TypeRef: Inheritance: superset of referenced type
- 102 final                                               // f', Boolean: Inheritance: cannot have subtype
-  65 attr                                                // 'A', Boolean: Value may be serialized as an XML attribute
-  84 typeOpts                                            // 'T', --Sentinel--: preceding items are Type Options, following items are Field Options
-  91 minOccurs                                           // '[', Integer: min cardinality, default = 1, 0 = field is optional
-  93 maxOccurs                                           // ']', Integer: max cardinality, default = 1, <0 = inherited or none, not 1 = array
-  38 tagId                                               // '&', Integer: field that specifies the type of this field
-  60 dir                                                 // '<', Boolean: pointer enumeration treats field as a collection
-  75 key                                                 // 'K', Boolean: field is the primary key for TypeName
-  76 link                                                // 'L', Boolean: field is a link (foreign key) to an instance of FieldType
+JADNOpts = Map                                           // JADN type and field option IDs/Names for tag-string serialization
+  61 id               Boolean optional                   // = - Enumerated type and Choice/Map/Record keys are ID not Name
+  42 valueType        TypeRef optional                   // * - Value type for ArrayOf and MapOf
+  43 keyType          TypeRef optional                   // + - Key type for MapOf
+  35 enum             TypeRef optional                   // # - enumeration derived from Array/Choice/Map/Record type
+  62 pointer          TypeRef optional                   // > - enumeration of pointers derived from Array/Choice/Map/Record type
+  37 pattern          Regex optional                     // % - regular expression that a string must match
+ 117 default          Any optional                       // u - Default value
+ 118 const            Any optional                       // v - Constant value
+ 119 minExclusive     Any optional                       // w - minimum numeric/string value, excluding bound
+ 120 maxExclusive     Any optional                       // x - maximum numeric/string value, excluding bound
+ 121 minInclusive     Any optional                       // y - minimum numeric/string value
+ 122 maxInclusive     Any optional                       // z - maximum numeric/string value
+ 123 minLength        Integer optional                   // { - minimum byte or text string length, collection item count
+ 125 maxLength        Integer optional                   // } - maximum byte or text string length, collection item count
+ 113 unique           Boolean optional                   // q - ArrayOf instance must not contain duplicates
+ 115 set              Boolean optional                   // s - ArrayOf instance is unordered and unique (set)
+  98 unordered        Boolean optional                   // b - ArrayOf instance is unordered and not unique (bag)
+ 111 sequence         Boolean optional                   // o - Map, MapOr or Record instance is ordered and unique (ordered set)
+  48 nillable         Boolean optional                   // 0 - Instance may have no value, represented by nil, null, None, etc
+  67 combine          Combine optional                   // C - Choice instance is a logical combination (anyOf, allOf, oneOf)
+  47 format           Format optional                    // / - Semantic validation keyword, may affect serialization
+  69 scale            Integer optional                   // E - fixed point scale factor n, serialized int = value * 10^n
+ 116 tagString        TypeRef optional                   // t - Use referenced type for tag-string serialization
+  97 abstract         Boolean optional                   // a - Inheritance: abstract, non-instantiatable
+ 114 restricts        TypeRef optional                   // r - Inheritance: restriction - subset of referenced type
+ 101 extends          TypeRef optional                   // e - Inheritance: extension - superset of referenced type
+ 102 final            Boolean optional                   // f - Inheritance: final - cannot have subtype
+  65 attr             Boolean optional                   // A - Value may be serialized as an XML attribute
+  84 typeOpts         String optional                    // T - *Sentinel*: preceding are Type Options, following are Field Options
+  91 minOccurs        Integer optional                   // [ - min cardinality, default = 1, 0 = field is optional
+  93 maxOccurs        Integer optional                   // ] - max cardinality, default = 1, <0 = inherited or none, not 1 = array
+  38 tagId            Integer optional                   // & - field that specifies the type of this field
+  60 dir              Boolean optional                   // < - pointer enumeration treats field as a collection
+  75 key              Boolean optional                   // K - field is the primary key for TypeName
+  76 link             Boolean optional                   // L - field is a link (foreign key) to an instance of FieldType
 
 Format = String{pattern="^[a-zA-Z0-9]{1,16}+$"}
 
@@ -260,3 +260,10 @@ Combine = Enumerated                                     // Untagged Union combi
    2 anyOf
    3 oneOf
    4 diff
+
+Any = Choice(oneOf)                                      // Any primitive type
+   1  Binary                                             // binary::
+   2  Boolean                                            // boolean::
+   3  Integer                                            // integer::
+   4  Number                                             // number::
+   5  String                                             // string::

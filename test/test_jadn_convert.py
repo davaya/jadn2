@@ -33,13 +33,14 @@ SCHEMA_CLASS = JADN_SCHEMA_CLASS | CONCRETE_SCHEMA_CLASS
 
 
 def schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str) -> ((str | bytes), JADNCore):
-    in_ext = os.path.splitext(in_path)[1].lstrip('.')
+    in_fn = os.path.split(in_path)[1]
+    in_ext = os.path.splitext(in_fn)[1].lstrip('.')
     in_pkg = SCHEMA_CLASS[in_ext]()
     if in_ext in {'erd', 'atree'}:
         return '', in_pkg
     with open(in_path, 'r', encoding='utf8') as fp:
         in_pkg.schema_load(fp)
-    out_path = os.path.join(session_data['output_dir'], in_ext + f'.{out_format}')
+    out_path = os.path.join(session_data['output_dir'], in_fn.replace('.', '_') + f'.{out_format}')
     out_pkg = SCHEMA_CLASS[out_format](in_pkg)
     style = style_args(out_pkg,'', CONFIG_FILE)
     with open(out_path, 'w', encoding='utf8') as fp:
