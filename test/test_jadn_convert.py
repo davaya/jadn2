@@ -54,6 +54,7 @@ def schema_convert(session_data: dict, in_path: str, out_format: str, round_trip
 def test_jadn_schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str):
     """
     Convert native JADN schema to equivalent alternate JADN format
+    If round_trip is "jadn", convert alternate format back to native JADN and compare to original
     """
     schema_msg, in_pkg = schema_convert(session_data, in_path, out_format, round_trip)
 
