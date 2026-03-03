@@ -1,9 +1,17 @@
 import os
 import json
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
-    FieldID, FieldName, FieldType, FieldOptions, PYTHON_TYPES, has_fields, is_builtin
+    FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
 
+
+PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
+    'Binary': bytes,
+    'Boolean': bool,
+    'Integer': int,
+    'Number': float,
+    'String': str,
+}
 
 # =========================================================
 # Define JADN schema static load function because it's needed to load METASCHEMA,
@@ -31,7 +39,7 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
     :return: schema dict value: {meta, types}
     """
     def set_type(o_type: str, o_val: str, base_type: str) -> Any:
-        ot = o_type if o_type != 'Type' else base_type
+        ot = o_type if o_type != 'BType' else base_type
         return PYTHON_TYPES[ot](o_val)
 
     """
@@ -55,6 +63,14 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
     def load_tagstrings(tag_strings: list[str], base_type: str) -> dict[str, str]:
         """
         Convert JSON-serialized list of tagString-serialized TypeOptions and FieldOptions to dict format
+
+        :param tag_srings: List of tag-value strings
+        :param base_type: core_type for TypeOptions, field_type for FieldOptions
+        :return: option dict {option-name: value}
+
+        OPT_NAME is the option conversion table pre-computed from Metaschema's JADNType
+          {option_id: (option_name, value_type)}
+        If value_type is the reserved name "BType", value string is converted to the base type containing the option
         """
         return {(x := self.OPT_NAME[ord(s[0])])[0]: set_type(x[1], s[1:], base_type) for s in tag_strings}
 

@@ -40,14 +40,6 @@ PRIMITIVE_TYPES = (
     'String',
 )
 
-PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
-    'Binary': bytes,
-    'Boolean': bool,
-    'Integer': int,
-    'Number': float,
-    'String': str,
-}
-
 COMPOUND_TYPES = (
     'Array',
     'ArrayOf',          # (value_type): instance is a container but definition has no fields
@@ -251,11 +243,3 @@ EXTENSIONS = {
 
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',
               'copyright', 'license', 'namespaces', 'roots', 'config')    # Display order
-
-"""
-# Precomputed constants
-OPTS = (TYPE_OPTIONS | FIELD_OPTIONS)  # Defined Option table: {id: (name, type, sort_order)}
-OPTX = {v[0]: k for k, v in OPTS.items()}  # Generated Option reverse index: {name: id}
-OPTO = {v[0]: v[2] for k, v in OPTS.items()}  # Generated canonical option sort order {name: order}
-OPTT = {v[0] for v in TYPE_OPTIONS.values()}    # Set of Type Option names
-"""
