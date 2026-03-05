@@ -20,7 +20,7 @@ class JADN(JADNCore):
         }
 
     def schema_loads(self, jadn_str: str, source: str=None) -> None:
-        schema = jadn_schema_loads(self, jadn_str)
+        schema = jadn_schema_loads(jadn_str, self.OPT_NAME)
         self.schema = schema
         self.source = source
         self.schema_load_finish()

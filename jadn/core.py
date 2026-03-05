@@ -17,28 +17,29 @@ PYTHON_TYPES = {            # Programming language types used to hold instances 
 # and using the class method would be recursive.
 # =========================================================
 
-def jadn_schema_loads(self, jadn_str: str) -> dict:
+
+def jadn_schema_loads(jadn_str: str, opt_name: dict[int, str]) -> dict:
     """
     Load a logical JADN schema from a JSON string.
 
     For each type definition, fill in column defaults and convert options from tagString list to dict.
 
-    :param self: pre-computed option tag-to-name lookup table
     :param jadn_str: {meta, types} in JSON-serialized format
+    :param opt_name: pre-computed option tag-to-name lookup table
     :return: schema dict value: {meta, types}
     """
     def load_tagstrings(tag_strings: list[str]) -> dict[str, str]:
         """
-        Convert JSON-serialized list of tagString-serialized TypeOptions and FieldOptions to dict format
+        Convert list of tagString-serialized TypeOptions and FieldOptions to dict
 
-        :param tag_srings: List of tag-value strings
-        :return: option dict {option-name: string value}
+        :param tag_strings: List of tag:value (option_id:string-value) strings
+        :return: option dict {option_name: string-value}
 
-        OPT_NAME is the option conversion table pre-computed from Metaschema's JADNType:
-          {option_id: (option_name, value_type)}
+        OPT_NAME is the option ID-to-name lookup table pre-computed from Metaschema's JADNType:
+          {option_id: option_name}
           value_type is not used here, it allows any class to convert option string values to typed values
         """
-        return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tag_strings}
+        return {opt_name[ord(s[0])]: s[1:] for s in tag_strings}
 
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
@@ -63,7 +64,7 @@ class JADNCore:
     def __init__(self, pkg: 'JADNCore'=None) -> None:
         self.schema = None          # original schema
         self.source = None          # source of original schema
-        self.full_schema = None     # schema with shortcuts expanded for data validation
+        self.run_schema = None      # schema with shortcuts expanded for data validation
         if pkg is not None:
             assert pkg.__class__.__bases__ == self.__class__.__bases__      # pkg must be a subclass of JADNCore
             self.__dict__.update(pkg.__dict__)      # Copy all instance variables from pkg (shallow)
@@ -93,7 +94,7 @@ class JADNCore:
                 f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
             # With option tables in place, load metaschema as with any JADN schema
-            JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
+            JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
             set_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
 
