@@ -211,6 +211,7 @@ def typestr2jadn(self, typestring: str) -> tuple:
             topts.update(opts[0] if op in self.TYPE_OPTS else {})
             fopts.update(opts[0] if op in self.FIELD_OPTS else {})
     if rest := m.group(4):
+        """
         # Matches     group(3) = [   group(7) = ]   group(8) = rest
         # [x,y] rest  group(4) = x   group(6) = y
         # [x] rest    group(4) = x
@@ -225,6 +226,22 @@ def typestr2jadn(self, typestring: str) -> tuple:
                 y = y if (y := m.group(6)) else x
                 lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(3)]
                 hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(7)]
+                topts.update({lo: fn(x)})
+                topts.update(({hi: fn(y)} if y != '*' else {}))
+        else:
+        """
+        #  Matches [ anything ] rest
+        #   group  1    2     3  4
+        rangepat = r'^\s*=\s*(\[)(.*?)(\])(.*)$'
+        if m := re.match(rangepat, rest):
+            rest = m.group(4)
+            fn = {'String': str, 'Integer': int, 'Number': float}[tname]
+            # if x := m.group(2):
+            #    topts.update({'const': fn(x)})
+            if x := m.group(2):
+                y = y if (y := m.group(6)) else x
+                lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(1)]
+                hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(3)]
                 topts.update({lo: fn(x)})
                 topts.update(({hi: fn(y)} if y != '*' else {}))
         else:

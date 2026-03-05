@@ -4,14 +4,6 @@ from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
 
-PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
-    'Binary': bytes,
-    'Boolean': bool,
-    'Integer': int,
-    'Number': float,
-    'String': str,
-}
-
 # =========================================================
 # Define JADN schema static load function because it's needed to load METASCHEMA,
 # and using the class method would be recursive.
@@ -175,9 +167,18 @@ def set_option_types(type_defs: list, type_table: dict[str, str]) -> None:
     """
     Convert JADN option values in a type definition from strings to types
     """
+
+    VALUE_TYPES = {  # Programming language types used to hold instances of Primitive types
+        'Binary': lambda x: bytes.fromhex(x),
+        'Boolean': lambda x: True,
+        'Integer': int,
+        'Number': float,
+        'String': str,
+    }
+
     def set_type(o_type: str, o_val: str, base_type: str) -> Any:
         ot = o_type if o_type != 'BType' else base_type
-        return PYTHON_TYPES[ot](o_val)
+        return VALUE_TYPES[ot](o_val)
 
     def set_otype(opts: dict, base_type: str, t_table: dict) -> None:
         op = {k: set_type(t_table[k], v, base_type) for k, v in opts.items()}
