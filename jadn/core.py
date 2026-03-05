@@ -4,7 +4,6 @@ from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
 
-
 PYTHON_TYPES = {            # Programming language types used to hold instances of Primitive types
     'Binary': bytes,
     'Boolean': bool,
@@ -18,16 +17,6 @@ PYTHON_TYPES = {            # Programming language types used to hold instances 
 # and using the class method would be recursive.
 # =========================================================
 
-
-def set_otype(fopts: dict, ftype: str, otype: dict):
-    def _st(val: str, t: str):
-        return PYTHON_TYPES[t](val)
-
-    for k, v in fopts.items():
-        fopts[k] = _st(v, otype[k]) if k in otype else _st(v, ftype)
-    pass
-
-
 def jadn_schema_loads(self, jadn_str: str) -> dict:
     """
     Load a logical JADN schema from a JSON string.
@@ -38,53 +27,30 @@ def jadn_schema_loads(self, jadn_str: str) -> dict:
     :param jadn_str: {meta, types} in JSON-serialized format
     :return: schema dict value: {meta, types}
     """
-    def set_type(o_type: str, o_val: str, base_type: str) -> Any:
-        ot = o_type if o_type != 'BType' else base_type
-        return PYTHON_TYPES[ot](o_val)
-
-    """
-     Convert option strings to typed values
-
-     def opt(s: str) -> tuple[str, str]:
-         t = OPT_NAME[ord(s[0])]
-         if t[0] == 'format':
-             return s, ''
-         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
-         if f == type(b''):
-             f = bytes.fromhex
-         return (t[0],
-                 True if f is bool else
-                 {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
-                 f(s[1:]))
-         return self.OPT_NAME[ord(s[0])][0], s[1:]
-     return dict(opt(s) for s in tstrings)
-     """
-
-    def load_tagstrings(tag_strings: list[str], base_type: str) -> dict[str, str]:
+    def load_tagstrings(tag_strings: list[str]) -> dict[str, str]:
         """
         Convert JSON-serialized list of tagString-serialized TypeOptions and FieldOptions to dict format
 
         :param tag_srings: List of tag-value strings
-        :param base_type: core_type for TypeOptions, field_type for FieldOptions
-        :return: option dict {option-name: value}
+        :return: option dict {option-name: string value}
 
-        OPT_NAME is the option conversion table pre-computed from Metaschema's JADNType
+        OPT_NAME is the option conversion table pre-computed from Metaschema's JADNType:
           {option_id: (option_name, value_type)}
-        If value_type is the reserved name "BType", value string is converted to the base type containing the option
+          value_type is not used here, it allows any class to convert option string values to typed values
         """
-        return {(x := self.OPT_NAME[ord(s[0])])[0]: set_type(x[1], s[1:], base_type) for s in tag_strings}
+        return {self.OPT_NAME[ord(s[0])]: s[1:] for s in tag_strings}
 
     schema = json.loads(jadn_str)
     tdef = [None, None, [], '', []]  # [TypeName, CoreType, TypeOptions, TypeDesc, Fields]
     for td in schema['types']:
         td += tdef[len(td):len(tdef)]
-        td[TypeOptions] = load_tagstrings(td[TypeOptions], td[CoreType])
+        td[TypeOptions] = load_tagstrings(td[TypeOptions])
         for fd in td[Fields]:
             # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
             fdef = [None, '', ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
             fd += fdef[len(fd):len(fdef)]
-            if td[CoreType] != 'Enumerated':
-                fd[FieldOptions] = load_tagstrings(fd[FieldOptions], fd[FieldType])
+            if has_fields(td[CoreType]):
+                fd[FieldOptions] = load_tagstrings(fd[FieldOptions])
     return schema
 
 
@@ -115,8 +81,9 @@ class JADNCore:
             tx = {td[TypeName]: td for td in schema['types']}
             opts = tx['JADNOpts'][Fields]
 
-            JADNCore.OPT_NAME = {i[FieldID]: (i[FieldName], i[FieldType]) for i in opts}     # ID to Name lookup
-            JADNCore.OPT_ID = {i[FieldName]: i[FieldID] for i in opts}       # Name to ID lookup
+            JADNCore.OPT_NAME = {i[FieldID]: i[FieldName] for i in opts}    # ID to Name lookup
+            JADNCore.OPT_ID = {i[FieldName]: i[FieldID] for i in opts}      # Name to ID lookup
+            JADNCore.OPT_TYPE = {i[FieldName]: i[FieldType] for i in opts}  # Name to value type lookup
             JADNCore.OPT_ORDER = {i[FieldName]: n for n, i in enumerate(opts, start=1)}     # Name to position
 
             to = self.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
@@ -128,16 +95,11 @@ class JADNCore:
             # With option tables in place, load metaschema as with any JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(self, jadn_str)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
+            set_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
 
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
-
-            fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
-            for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
-                if ts := td[TypeOptions].get('tagString'):
-                    for fd in td[Fields]:
-                        set_otype(fd[FieldOptions], fd[FieldType], fo_type)
 
     def style(self) -> dict:
         """
@@ -199,7 +161,7 @@ class JADNCore:
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
-        pass
+        set_option_types(self.schema['types'], self.OPT_TYPE)
 
     def schema_validate(self) -> None:
         """
@@ -208,9 +170,67 @@ class JADNCore:
         pass
 
 
+def set_option_types(type_defs: list, type_table: dict[str, str]) -> None:
+    """
+    Convert JADN option values in a type definition from strings to types
+    """
+    def set_type(o_type: str, o_val: str, base_type: str) -> Any:
+        ot = o_type if o_type != 'BType' else base_type
+        return PYTHON_TYPES[ot](o_val)
+
+    def set_otype(opts: dict, base_type: str, t_table: dict) -> None:
+        op = {k: set_type(t_table[k], v, base_type) for k, v in opts.items()}
+        opts.update(op)
+
+    for tdef in type_defs:
+        set_otype(tdef[TypeOptions], tdef[CoreType], type_table)
+        if has_fields(tdef[CoreType]):
+            for fd in tdef[Fields]:
+                set_otype(fd[FieldOptions], fd[FieldType], type_table)
+
+    """
+    for td in schema['types']:
+        td += tdef[len(td):len(tdef)]
+        td[TypeOptions] = load_tagstrings(td[TypeOptions])
+        for fd in td[Fields]:
+            # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
+            fdef = [None, '', ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
+            fd += fdef[len(fd):len(fdef)]
+            if has_fields(td[CoreType]):
+                fd[FieldOptions] = load_tagstrings(fd[FieldOptions])
+    """
+
+    """
+    fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
+    for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
+        if ts := td[TypeOptions].get('tagString'):
+            for fd in td[Fields]:
+                set_otype(fd[FieldOptions], fd[FieldType], fo_type)
+    """
+
+    """
+     Convert option strings to typed values
+        :param base_type: core_type for TypeOptions, field_type for FieldOptions
+        If value_type is the reserved name "BType", value string is converted to the base type containing the option
+
+     def opt(s: str) -> tuple[str, str]:
+         t = OPT_NAME[ord(s[0])]
+         if t[0] == 'format':
+             return s, ''
+         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
+         if f == type(b''):
+             f = bytes.fromhex
+         return (t[0],
+                 True if f is bool else
+                 {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
+                 f(s[1:]))
+         return self.OPT_NAME[ord(s[0])][0], s[1:]
+     return dict(opt(s) for s in tstrings)
+     """
     # =========================================================
     # Support Functions
     # =========================================================
+
 
 def build_deps(self) -> dict[str, list[list[str]]]:
     """

@@ -9,15 +9,14 @@ from typing import Any
 
 # =========================================================
 # JADN-format methods
-# jadn_schema_loads static function is defined in jadn.core because it is needed
-# to load METASCHEMA class variable
+# jadn_schema_loads static function is defined in jadn.core because Core class uses it to load METASCHEMA
 # =========================================================
 class JADN(JADNCore):
 
     def style(self) -> dict:
         return {
             'data_format': 'jadn',  # Data format / schema file extension
-            'strip': True
+            'strip': False          # If True, strip description column from JADN output
         }
 
     def schema_loads(self, jadn_str: str, source: str=None) -> None:
@@ -43,7 +42,7 @@ class JADN(JADNCore):
                 kv = v.popitem()
                 return chr(self.OPT_ID[kv[0]]) + kv[1]
 
-            def strs(k: str, v: Any) -> str:
+            def strs(k: str, v: Any) -> str:    # TODO: fix boolean False encoding
                 v = '' if isinstance(v, bool) else\
                     v.hex() if isinstance(v, bytes) else\
                     dictopt(v) if isinstance(v, dict) else\
