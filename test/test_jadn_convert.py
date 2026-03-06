@@ -35,6 +35,7 @@ SCHEMA_CLASS = JADN_SCHEMA_CLASS | CONCRETE_SCHEMA_CLASS
 def schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str) -> ((str | bytes), JADNCore):
     in_fn = os.path.split(in_path)[1]
     in_ext = os.path.splitext(in_fn)[1].lstrip('.')
+    assert in_ext in set(SCHEMA_CLASS), f'Unsupported file type {in_path}'
     in_pkg = SCHEMA_CLASS[in_ext]()
     if in_ext in {'erd', 'atree'}:
         return '', in_pkg

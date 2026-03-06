@@ -15,12 +15,12 @@
   <Types>
     <Type name="Schema" type="Record">Definition of a JADN package
       <Field fid="1" name="meta" type="Metadata" minOccurs="0">Information about this package</Field>
-      <Field fid="2" name="types" type="Type" unique="" maxOccurs="-1">Types defined in this package</Field>
+      <Field fid="2" name="types" type="Type" unique="True" maxOccurs="-1">Types defined in this package</Field>
     </Type>
     <Type name="Metadata" type="Map">Information about this package
       <Field fid="1" name="package" type="Namespace">Unique name/version of this package</Field>
-      <Field fid="2" name="namespaces" type="PrefixNs" unique="" minOccurs="0" maxOccurs="-1">Referenced packages</Field>
-      <Field fid="3" name="roots" type="TypeName" unique="" minOccurs="0" maxOccurs="-1">Roots of the type tree(s) in this package</Field>
+      <Field fid="2" name="namespaces" type="PrefixNs" unique="True" minOccurs="0" maxOccurs="-1">Referenced packages</Field>
+      <Field fid="3" name="roots" type="TypeName" unique="True" minOccurs="0" maxOccurs="-1">Roots of the type tree(s) in this package</Field>
       <Field fid="4" name="config" type="Config" minOccurs="0">Configuration variables</Field>
       <Field fid="5" name="jadn_version" type="Namespace" minOccurs="0">JADN Metaschema package</Field>
       <Field fid="6" name="version" type="String" minLength="1" minOccurs="0">Incrementing version within package</Field>
@@ -100,8 +100,7 @@
     </Type>
     <Type name="FieldOptions" type="Map" tagString="JADNOpts" extends="TypeOptions">
       <Field fid="91" name="minOccurs" type="Integer" minInclusive="0" minOccurs="0">[: min cardinality, default = 1, 0 = field is optional</Field>
-      <Field fi
-             d="93" name="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
+      <Field fid="93" name="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
       <Field fid="38" name="tagId" type="Integer" minInclusive="1" minOccurs="0">&: field that specifies the type of this field</Field>
       <Field fid="60" name="dir" type="Boolean" minOccurs="0"><: pointer enumeration treats field as a collection</Field>
       <Field fid="75" name="key" type="Boolean" minOccurs="0">K: field is the primary key for TypeName</Field>
@@ -255,7 +254,7 @@
       <Field fid="1" name="md" type="String">MarkDown text</Field>
       <Field fid="2" name="xml" type="String">XML annotation</Field>
     </Type>
-    <Type name="Combine" type="Enumerated" id="">Untagged Union combining function
+    <Type name="Combine" type="Enumerated" id="True">Untagged Union combining function
       <Item id="1" value="allOf"></Item>
       <Item id="2" value="anyOf"></Item>
       <Item id="3" value="oneOf"></Item>

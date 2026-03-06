@@ -98,31 +98,18 @@ def _get_type(self, e: ET.Element) -> list:
     def aname(k: str) -> str:   # un-mangle XML attribute name to /format
         return k.replace('_', '/')
 
-    def atype(k: str, v: str, t: str) -> Union[bool, int, float, str]:
-        if k not in OPTX:
-            return v
-        atype = x[1] if (x := OPTS[OPTX[k]]) else t
-        return PYTHON_TYPES[atype if atype else t](v)
-
     def gettext(el: ET.Element) -> str:
         return el.text.strip() if el.text is not None else ''
 
     assert e.tag == 'Type'
-    at = {aname(k): atype(k, v, e.get('type', '')) for k, v in e.items()}
+    at = {aname(k): v for k, v in e.items()}
     fields = []
     for f in e:
-        fa = {aname(k): atype(k, v, f.get('type', '')) for k, v in f.items()}
+        fa = {aname(k): v for k, v in f.items()}
         if f.tag == 'Field':
             fields.append([int(fa.pop('fid')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
         elif f.tag == 'Item':
-            fields.append([int(fa.pop('fid')), fa.pop('value'), gettext(f)])
+            fields.append([int(fa.pop('id')), fa.pop('value'), gettext(f)])
 
     type = [at.pop('name'), at.pop('type'), at, gettext(e), fields]
     return type
-
-
-# =========================================================
-# Diagnostics
-# =========================================================
-if __name__ == '__main__':
-    pass
