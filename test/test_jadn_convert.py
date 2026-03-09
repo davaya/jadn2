@@ -1,7 +1,5 @@
-import glob
 import os
 import pytest
-import sys
 from jadn.core import JADNCore
 from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
 from jadn.translate import JSCHEMA, PROTO, XSD

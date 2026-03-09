@@ -181,7 +181,7 @@ def parseopt(optstr: str) -> tuple:
     return m1.group(1) if m1.group(2) is None else {m1.group(1): m1.group(2)}
 
 
-def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], dict[str, str]]:
+def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str]]:
     """
     Parse a "typestring" to JADN CoreType, TypeOptions and FieldOptions
 
@@ -193,7 +193,6 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], dict[str, 
     :rtype:
     """
     topts = {}
-    fopts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 TypeRef TODO: Use $TypeRef from self
     p_id = r'(#?)'                                  # 2 'id'
     p_func = r'(?:\(([^)]+)\))?'                    # 3 'keyType', 'valueType', 'enum', 'pointer', 'tagId'
@@ -254,10 +253,10 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], dict[str, 
         p_inherit = r'\s+(restricts|extends)\((.+)\)'
         for opt in re.findall(p_inherit, rest):     # Extends/Restricts type inheritance
             topts.update({opt[0]: opt[1]})
-    return tname, topts, fopts
+    return tname, topts
 
 
-def jadn2typestr(self, tname: str, topts: dict, fopts: dict) -> str:
+def jadn2typestr(self, tname: str, topts: dict) -> str:
     """
     Convert typename and options to string
     """
@@ -366,30 +365,34 @@ def jadn2fielddef(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         if tagid := fopts.get('tagId', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == int(tagid)][0]
             tf = f'(tagId[{tf if tf else tagid}])'
-        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', topts, fopts)
+        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', topts)
         fnot = '!' if 'not' in fopts else ''
         ftyperef = f'key({ft})' if 'key' in fopts else f'link({ft})' if 'link' in fopts else fnot + ft
         fmult = multiplicity_str(fopts)
     return fname, ftyperef, fmult, fdesc
 
 
-def fielddef2jadn(self, fid: int, fname: str, fstr: str, fmult: str, fdesc: str) -> list:
-    def fopts_s2d(olist: list) -> dict:
-        fd = {}
-        for o in olist:
-            k, v, _ = self.FIELD_OPTS[ord(o[0])]
-            fd[k] = o[1:]
-        return fd
-
+def fielddef2jadn(self, fid: int, fname: str, fstr: str, fdesc: str) -> list:
     ftyperef = ''
     fo = {}
     if fstr:
+        fmult = ''  # figure out fmult
+        """
+        pattern = fr'^{p_id}{pn}{p_fstr}{p_range}$'
+        if m := re.match(pattern, line):
+            m_range = '0..1' if m.group(5) else m.group(4)  # Convert 'optional' to range
+            return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), m.group(3),
+                                      m_range if m_range else '', desc)
+        """
+        # handle Enumerated
+        if core_type == 'Enumerated':
+            return [fid, fname, fdesc]
+
         if m := re.match(r'^(link|key)\((.*)\)$', fstr):
             fo = {m.group(1).lower(): True}
             fstr = m.group(2)
-        ftyperef, topts, fopts = typestr2jadn(self, fstr)
+        ftyperef, fopts = typestr2jadn(self, fstr)
         # Field is one of: enum#, enum, field#, field
-        fo.update(topts)                   # Copy type options (if any) into field options (JADN extension)
         if fname.endswith('/'):
             fo.update({'dir': True})
             fname = fname.rstrip('/')
@@ -415,7 +418,7 @@ def fielddef2jadn(self, fid: int, fname: str, fstr: str, fmult: str, fdesc: str)
             if m := re.match(r'^([^:]+)::\s*(.*)$', fdesc):
                 fname = m.group(1)
                 fdesc = m.group(2)
-    return [fid, fname, ftyperef, fo, fdesc] if ftyperef else [fid, fname, fdesc]
+    return [fid, fname, ftyperef, fopts, fdesc]
 
 
 def get_config(schema: dict) -> dict:
