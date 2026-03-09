@@ -75,7 +75,7 @@ class JIDL(JADNCore):
 
         wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
         for td in self.schema['types']:
-            tdef = f'{td[TypeName]} = {jadn2typestr(self, td[CoreType], td[TypeOptions])}'
+            tdef = f'{td[TypeName]} = {jadn2typestr(self, td[CoreType], td[TypeOptions], {})}'
             tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
             idt = id_type(td)
@@ -130,11 +130,19 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
                 if m := re.match(pattern, line):
                     return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), '', '', desc)
             else:  # Parse Field
+                p_fn = r'\s+(\S+)'  # Field Name
+                if m := re.match(fr'^{p_id}{p_fn}(.+)$', line):
+                    tdef = typestr2jadn(self, m.group(3))
+                    return 'F', [m.group(1), m.group(2), tdef[0], tdef[1], tdef[2]]
+
+                """
                 pattern = fr'^{p_id}{pn}{p_fstr}{p_range}$'
                 if m := re.match(pattern, line):
                     m_range = '0..1' if m.group(5) else m.group(4)  # Convert 'optional' to range
                     return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), m.group(3),
                                               m_range if m_range else '', desc)
+                """
+
         else:
             raise_error(f'JIDL Load - field with no type: {repr(line)}')
 

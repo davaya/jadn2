@@ -88,7 +88,7 @@ class JADNCore:
             # With option tables in place, load metaschema as with any JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
-            set_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
+            load_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
 
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
@@ -151,10 +151,11 @@ class JADNCore:
     def schema_load_finish(self) -> None:
         """
         Common schema-load post-processing
+          * load Config options from meta instance
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
-        set_option_types(self.schema['types'], self.OPT_TYPE)
+        load_option_types(self.schema['types'], self.OPT_TYPE)  # Convert option strings to typed values
 
     def schema_validate(self) -> None:
         """
@@ -163,78 +164,56 @@ class JADNCore:
         pass
 
 
-def set_option_types(type_defs: list, type_table: dict[str, str]) -> None:
+def load_option_types(type_defs: list, type_table: dict[str, str]) -> None:
     """
-    Convert JADN option values in a type definition from strings to types
+    Convert JADN option values in type definitions from strings to typed variables
     """
 
-    VALUE_TYPES = {  # Programming language types used to hold instances of Primitive types
-        'Binary': lambda x: bytes.fromhex(x),
-        'Boolean': lambda x: True,
-        'Integer': int,
-        'Number': float,
-        'String': str,
-    }
+    def str_to_val(vtype: str, literal: str) -> Any:
+        vtypes = {
+            'Integer': int,
+            'Number': float,
+            'String': str,
+        }
+        return bytes.fromhex(literal[2:]) if vtype == 'Binary'\
+            else True if vtype == 'Boolean'\
+            else vtypes[vtype](literal)
 
-    def set_type(o_type: str, o_val: str, base_type: str) -> Any:
-        ot = o_type if o_type != 'BType' else base_type
-        return VALUE_TYPES[ot](o_val)
-
-    def set_otype(opts: dict, base_type: str, t_table: dict) -> None:
-        op = {k: set_type(t_table[k], v, base_type) for k, v in opts.items()}
+    def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
+        op = {k: str_to_val(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
         opts.update(op)
 
     for tdef in type_defs:
-        set_otype(tdef[TypeOptions], tdef[CoreType], type_table)
+        load_otype(tdef[TypeOptions], tdef[CoreType], type_table)
         if has_fields(tdef[CoreType]):
             for fd in tdef[Fields]:
-                set_otype(fd[FieldOptions], fd[FieldType], type_table)
+                load_otype(fd[FieldOptions], fd[FieldType], type_table)
 
+
+def dump_option_types(type_defs: list, type_table: dict[str, str]) ->None:
     """
-    for td in schema['types']:
-        td += tdef[len(td):len(tdef)]
-        td[TypeOptions] = load_tagstrings(td[TypeOptions])
-        for fd in td[Fields]:
-            # [ItemID, ItemValue, ItemDesc] or [FieldID, FieldName, FieldType, FieldOptions, FieldDesc]
-            fdef = [None, '', ''] if td[CoreType] == 'Enumerated' else [None, None, None, [], '']
-            fd += fdef[len(fd):len(fdef)]
-            if has_fields(td[CoreType]):
-                fd[FieldOptions] = load_tagstrings(fd[FieldOptions])
+    Convert JADN option values in type definitions from typed variables to strings
     """
 
-    """
-    fo_type = {v[FieldName]: v[FieldType] for v in self.TYPE_X['FieldOptions'][Fields]}
-    for td in self.METASCHEMA['types']:  # Cconvert option strings to typed values
-        if ts := td[TypeOptions].get('tagString'):
-            for fd in td[Fields]:
-                set_otype(fd[FieldOptions], fd[FieldType], fo_type)
-    """
+    def val_to_str(vtype: str, val: Any) -> str:
+        return f'0x{val.hex()}' if vtype == 'Binary' else str(val)
 
-    """
-     Convert option strings to typed values
-        :param base_type: core_type for TypeOptions, field_type for FieldOptions
-        If value_type is the reserved name "BType", value string is converted to the base type containing the option
+    def dump_otype(opts: dict, base_type: str, t_table: dict) -> None:
+        op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
+        opts.update(op)
 
-     def opt(s: str) -> tuple[str, str]:
-         t = OPT_NAME[ord(s[0])]
-         if t[0] == 'format':
-             return s, ''
-         f = PYTHON_TYPES[core_type if t[1] is None else t[1]]
-         if f == type(b''):
-             f = bytes.fromhex
-         return (t[0],
-                 True if f is bool else
-                 {'enum': s[2:]} if s[1] == chr(JADNCore.OPT_ID['enum']) else
-                 f(s[1:]))
-         return self.OPT_NAME[ord(s[0])][0], s[1:]
-     return dict(opt(s) for s in tstrings)
-     """
+    for tdef in type_defs:
+        dump_otype(tdef[TypeOptions], tdef[CoreType], type_table)
+        if has_fields(tdef[CoreType]):
+            for fd in tdef[Fields]:
+                dump_otype(fd[FieldOptions], fd[FieldType], type_table)
+
+
     # =========================================================
     # Support Functions
     # =========================================================
 
-
-def build_deps(self) -> dict[str, list[list[str]]]:
+def build_deps(self) -> dict[str, list[tuple[str, str]]]:
     """
     Build a Dependency dict: {TypeName: [Dep1, Dep2, ...]}
     Returns dependencies for each type in order and a list of all referenced types.
@@ -242,7 +221,7 @@ def build_deps(self) -> dict[str, list[list[str]]]:
     multiple roots indicate disconnected items or hierarchies,
     and no roots indicate a dependency cycle.
     """
-    def get_refs(tdef: list) -> list[list[str]]:  # Return all type references from a type definition
+    def get_refs(tdef: list) -> list[tuple[str, str]]:  # Return all type references from a type definition
         """
         # Options whose value is/has a type name: strip option id
         oids = [JADN.OPTX['keyType'], JADN.OPTX['valueType'], JADN.OPTX['extends'], JADN.OPTX['restricts']]
@@ -264,7 +243,7 @@ def build_deps(self) -> dict[str, list[list[str]]]:
                         'L' if {'link'} & fo else                   # Link (foreign key) in container instance
                         'C')                                        # Value in container instance
                     refs.append((f[FieldType], ref_type))
-                # Get references from field (using fake TypeDefinition)
+                # Get references from TypeOptions in field using fake TypeDefinition
                 refs += get_refs(['', f[FieldType], f[FieldOptions], '', []])
         return refs
 

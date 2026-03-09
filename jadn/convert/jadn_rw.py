@@ -2,7 +2,7 @@ import json
 from copy import deepcopy
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     ItemID, ItemValue, FieldType, FieldOptions
-from jadn.core import JADNCore, jadn_schema_loads
+from jadn.core import JADNCore, jadn_schema_loads, dump_option_types
 from numbers import Number
 from typing import Any
 
@@ -54,6 +54,7 @@ class JADN(JADNCore):
 
         schema_copy = {'meta': x} if (x := self.schema.get('meta')) else {}
         schema_copy.update({'types': deepcopy(self.schema['types'])})
+        # dump_option_types(schema_copy['types'], self.OPT_TYPE)
 
         for td in schema_copy['types']:
             # Clean up field defs

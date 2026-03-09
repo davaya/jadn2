@@ -15,8 +15,8 @@
     ]],
 
     ["Defaults", "Record", [], "Primitive typed constants", [
-      [1, "bin1", "Binary", ["u00010203466f6f"], "default: ....Foo"],
-      [2, "bin2", "Binary", ["vc0a80001"], "const: 192.168.0.1"],
+      [1, "bin1", "Binary", ["u0x00010203466f6f"], "default: ....Foo"],
+      [2, "bin2", "Binary", ["v0xc0a80001"], "const: 192.168.0.1"],
       [3, "bool1", "Boolean", ["u"], "default: True"],
       [4, "bool2", "Boolean", [], "const: required = False"],
       [5, "int1", "Integer", ["u42"], "default"],
@@ -44,7 +44,7 @@
       [1, "cde", "Integer", ["v8"], "=[constant] (minInclusive=maxInclusive)"],
       [7, "fgh", "String", ["vFred"], "=[constant]"],
       [3, "efg", "String", ["uFred", "{3", "}9", "[0"], "Length 3-9, ?=[default value]"],
-      [2, "ghi", "Binary", ["v000102032d466f6f"], "constant"]
+      [2, "ghi", "Binary", ["v0x000102032d466f6f"], "constant"]
     ]],
 
     ["NilOpts", "Record", [], "Nillable Types", [
@@ -52,7 +52,7 @@
       [2, "int", "Integer", ["y2", "z9", "[0"], "Optional = nillable = absent in map, null in array"],
       [3, "num", "Number", ["v5"], "Required + not nillable + absent = invalid"],
       [4, "str", "String", ["uFred", "0"], "default ignored if field is required"],
-      [5, "octets", "Binary", ["v00", "0"], "b'0' != b'' != null"],
+      [5, "octets", "Binary", ["v0x00", "0"], "b'0' != b'' != null"],
       [6, "array", "Acoll", ["0"], "[] != null"],
       [7, "map", "Mcoll", ["0"], "{} != null"]
     ]],

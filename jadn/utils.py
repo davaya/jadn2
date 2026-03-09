@@ -181,20 +181,26 @@ def parseopt(optstr: str) -> tuple:
     return m1.group(1) if m1.group(2) is None else {m1.group(1): m1.group(2)}
 
 
-def typestr2jadn(self, typestring: str) -> tuple:
+def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], dict[str, str]]:
+    """
+    Parse a "typestring" to JADN CoreType, TypeOptions and FieldOptions
+
+    :param self:
+    :type self:
+    :param typestring:
+    :type typestring:
+    :return:
+    :rtype:
+    """
     topts = {}
     fopts = {}
-    p_name = r'\s*(!?[-.:\w]+)'                     # 1 type name TODO: Use $TypeRef
+    p_name = r'\s*(!?[-.:\w]+)'                     # 1 TypeRef TODO: Use $TypeRef from self
     p_id = r'(#?)'                                  # 2 'id'
     p_func = r'(?:\(([^)]+)\))?'                    # 3 'keyType', 'valueType', 'enum', 'pointer', 'tagId'
-    p_lengthpat = r'\{(.*)\}'                       # 4 'minLength', 'maxLength', 'pattern'
-    p_format = r'\s+(\/\w[-\w]*)'                   # 5 'format'
-    p_flag = r'\s+(unique|set|unordered|sequence|abstract|final)'    # 6 rest: flags
-    p_attr = r'\s+(restricts|extends)\((.+)\)'      # 6 rest: TODO: parse extends/restricts separately for better error
     pattern = fr'^{p_name}{p_id}{p_func}(.*?)\s*$'
     m = re.match(pattern, typestring)
     if m is None:
-        raise_error(f'TypeString2JADN: "{typestring}" does not match pattern {pattern}')
+        raise_error(f'TypeString2JADN: "{typestring}" is not "TypeRef [#] [(funct)]"')
     tname = m.group(1)
     topts.update({'id': True} if m.group(2) else {})
     if m.group(3):                      # Parens: (keyType, valueType), enum(), pointer(), tagId(), choice() options
@@ -208,43 +214,24 @@ def typestr2jadn(self, typestring: str) -> tuple:
             topts.update({'combine': opts[0]})
         else:
             op = [k for k in opts[0]][0]
-            topts.update(opts[0] if op in self.TYPE_OPTS else {})
-            fopts.update(opts[0] if op in self.FIELD_OPTS else {})
+            assert f'unexpected function options {tname} {op}'
     if rest := m.group(4):
-        """
-        # Matches     group(3) = [   group(7) = ]   group(8) = rest
-        # [x,y] rest  group(4) = x   group(6) = y
-        # [x] rest    group(4) = x
-        # x rest      group(2) = x
-        rangepat = r'^\s*=\s*(([-\d.]+)|([\[(])([-\d.]+)(\s*,\s*([-*\d.]+))?([])]))(.*)$'
-        if m := re.match(rangepat, rest):
-            rest = m.group(8)
-            fn = {'Integer': int, 'Number': float}[tname]
-            if x := m.group(2):
-                topts.update({'const': fn(x)})
-            elif x := m.group(4):
-                y = y if (y := m.group(6)) else x
-                lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(3)]
-                hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(7)]
-                topts.update({lo: fn(x)})
-                topts.update(({hi: fn(y)} if y != '*' else {}))
-        else:
-        """
-        #  Matches [ anything ] rest
-        #   group  1    2     3  4
-        rangepat = r'^\s*=\s*(\[)(.*?)(\])(.*)$'
-        if m := re.match(rangepat, rest):
+        #  Matches: = [ any ] rest     default:  = (x)   const:  = [x]  range:  = ([x,y)]
+        #   group     1  2  3  4
+        p_value = r'^\s*=\s*(?:(\[|\()(.+?)(\]|\)))(.*)$'
+        if m := re.match(p_value, rest):    # 'const', 'default', 'min(In|Ex)clusive', 'max(In|Ex)clusive'
             rest = m.group(4)
-            fn = {'String': str, 'Integer': int, 'Number': float}[tname]
-            # if x := m.group(2):
-            #    topts.update({'const': fn(x)})
-            if x := m.group(2):
-                y = y if (y := m.group(6)) else x
+            p_range = r'^(.+?),(.+?)$'
+            if r := re.match(p_range, m.group(2)):
                 lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(1)]
                 hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(3)]
-                topts.update({lo: fn(x)})
-                topts.update(({hi: fn(y)} if y != '*' else {}))
+                topts.update({lo: r.group(1)})
+                topts.update({hi: r.group(2)})
+            else:
+                op = {'[': 'const', '(': 'default'}[m.group(1)]
+                topts.update({op: m.group(2)})
         else:
+            p_lengthpat = r'\{(.*)\}'  # 4 'minLength', 'maxLength', 'pattern'
             for opt in re.findall(p_lengthpat, rest):
                 if m := re.match('pattern=\"(.+)\"', opt):
                     topts.update({'pattern': m.group(1)})
@@ -255,17 +242,22 @@ def typestr2jadn(self, typestring: str) -> tuple:
                     topts.update({} if b == '*' else {'maxLength': int(b)})
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
-        for opt in re.findall(p_format, rest):
-            # topts.update({opt: ''})
+
+        p_format = r'\s+(\/\w[-\w]*)'
+        for opt in re.findall(p_format, rest):      # 'format' option
             topts.update({'format': opt[1:]})
-        for opt in re.findall(p_flag, rest):
+
+        p_flag = r'\s+(unique|set|unordered|sequence|attr|nillable|abstract|final)'
+        for opt in re.findall(p_flag, rest):        # Boolean options - True if present
             topts.update({opt: True})
-        for opt in re.findall(p_attr, rest):
+
+        p_inherit = r'\s+(restricts|extends)\((.+)\)'
+        for opt in re.findall(p_inherit, rest):     # Extends/Restricts type inheritance
             topts.update({opt[0]: opt[1]})
     return tname, topts, fopts
 
 
-def jadn2typestr(self, tname: str, topts: dict) -> str:
+def jadn2typestr(self, tname: str, topts: dict, fopts: dict) -> str:
     """
     Convert typename and options to string
     """
@@ -285,8 +277,7 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         hs = '*' if hi == MAX_DEFAULT else '.' if hi == MAX_UNLIMITED else str(hi)
         return f'{{{lo}..{hs}}}' if lo != 0 or hs != '*' else ''
 
-    # Value range (double-ended) - default is [*..*]
-    # constant: [val]
+    # Value range (double-ended): default min and max is [*..*]
     # min/max Inclusive: [lo, hi]
     # min/max Exclusive: (lo, hi)
     def _vrange(ops: dict) -> str:
@@ -296,54 +287,53 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         hi = ops.pop('maxInclusive', ops.pop('maxExclusive', '*'))
         return f'={lc}{lo}, {hi}{hc}' if lo != '*' or hi != '*' else ''
 
-    opts = {k:v for k, v in topts.items() if k in self.TYPE_OPTS} # FIELD_OPTIONS not processed.
-    txt = '#' if opts.pop('id', None) else ''   # Remove known options from opts as processed.
+    txt = '#' if topts.pop('id', None) else ''   # Remove known options from topts as processed.
     if tname in ('ArrayOf', 'MapOf'):
-        txt += f"({_kvstr(opts.pop('keyType'))}, " if tname == 'MapOf' else '('
-        txt += f"{_kvstr(opts.pop('valueType'))})"
+        txt += f"({_kvstr(topts.pop('keyType'))}, " if tname == 'MapOf' else '('
+        txt += f"{_kvstr(topts.pop('valueType'))})"
 
-    if v := opts.pop('combine', None):
+    if v := topts.pop('combine', None):
         txt += f'({v})'
 
-    if v := opts.pop('enum', None):
+    if v := topts.pop('enum', None):
         txt += f'(enum[{v}])'
 
-    if v := opts.pop('pointer', None):
+    if v := topts.pop('pointer', None):
         txt += f'(pointer[{v}])'
 
-    if v := opts.pop('pattern', None):
+    if v := topts.pop('pattern', None):
         txt += f'{{pattern="{v}"}}'
 
-    if v := _vrange(opts):
+    if v := _vrange(topts):
         txt += v
 
-    if v := _lrange(opts):
+    if v := _lrange(topts):
         txt += v
 
-    if v := opts.pop('scale', None):
+    if v := topts.pop('scale', None):
         txt += f' E{v}'
 
-    if v := opts.pop('default', None):
-        txt += f'?=[{v}]'
+    if v := topts.pop('default', None):
+        txt += f'=({v})'
 
-    if v := opts.pop('const', None):
+    if v := topts.pop('const', None):
         txt += f'=[{v}]'
 
-    if v := opts.pop('format', None):
+    if v := topts.pop('format', None):
         txt += (' /' + v)
 
     for opt in ('unique', 'set', 'unordered', 'sequence', 'attr', 'nillable', 'abstract', 'final'):
-        if o := opts.pop(opt, None):
+        if o := topts.pop(opt, None):
             txt += (' ' + opt)
 
     for opt in ('extends', 'restricts', 'tagString'):
-        if o := opts.pop(opt, None):
+        if o := topts.pop(opt, None):
             txt += f' {opt}({o})'
 
     for opt in ('minOccurs', 'maxOccurs', 'tagId'):
-        opts.pop(opt, None)     # Handled by caller
+        topts.pop(opt, None)     # Handled by caller
 
-    return f"{tname}{txt}{f' ?{opts}?' if opts else ''}"  # Flag unrecognized options
+    return f"{tname}{txt}{f' ?{topts}?' if topts else ''}"  # Flag unrecognized options
 
 
 def multiplicity_str(opts: dict) -> str:
@@ -369,16 +359,17 @@ def jadn2fielddef(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     fmult = ''
 
     if not is_enum:
-        fto = fdef[FieldOptions]       # ?
-        fname += '/' if 'dir' in fto else ''
+        topts = {}
+        fopts = fdef[FieldOptions]       # ?
+        fname += '/' if 'dir' in fopts else ''
         tf = ''
-        if tagid := fto.get('tagId', None):
+        if tagid := fopts.get('tagId', None):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == int(tagid)][0]
             tf = f'(tagId[{tf if tf else tagid}])'
-        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', fto)
-        fnot = '!' if 'not' in fto else ''
-        ftyperef = f'key({ft})' if 'key' in fto else f'link({ft})' if 'link' in fto else fnot + ft
-        fmult = multiplicity_str(fto)
+        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', topts, fopts)
+        fnot = '!' if 'not' in fopts else ''
+        ftyperef = f'key({ft})' if 'key' in fopts else f'link({ft})' if 'link' in fopts else fnot + ft
+        fmult = multiplicity_str(fopts)
     return fname, ftyperef, fmult, fdesc
 
 

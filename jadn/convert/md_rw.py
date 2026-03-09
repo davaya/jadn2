@@ -55,7 +55,7 @@ class MD(JADNCore):
 
         for td in self.schema['types']:
             if len(td) > Fields and td[Fields]:
-                tdef = f'{td[TypeName]} ({jadn2typestr(self, td[CoreType], td[TypeOptions])})'
+                tdef = f'{td[TypeName]} ({jadn2typestr(self, td[CoreType], td[TypeOptions], {})})'
                 tdesc = f'\n{td[TypeDesc]}\n' if td[TypeDesc] else ''
                 text += f'{tdesc}\n**Type: ' + tdef.replace("*", r"\*") + '**\n'
                 idt = td[CoreType] == 'Array' or td[TypeOptions].get('id', False)
@@ -82,7 +82,7 @@ class MD(JADNCore):
                         table.append([str(fd[FieldID]), f'**{fname}**', fdef, fmult, fdesc])
             else:
                 table = [['Type Name', 'Type Definition', 'Description'],
-                         [f'**{td[TypeName]}**', jadn2typestr(self, td[CoreType], td[TypeOptions]), td[TypeDesc]]]
+                         [f'**{td[TypeName]}**', jadn2typestr(self, td[CoreType], td[TypeOptions], {}), td[TypeDesc]]]
             text += f'\n{_format_table(table)}\n\n**********\n'
         return text
 
