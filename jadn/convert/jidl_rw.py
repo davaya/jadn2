@@ -5,7 +5,7 @@ import json
 import re
 from jadn.core import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
-from jadn.utils import (fielddef2jadn, jadn2fielddef, jadn2typestr, typestr2jadn,
+from jadn.utils import (jadn2typestr, jadn2fieldstr, typestr2jadn, fieldstr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
 
 
@@ -53,6 +53,7 @@ class JIDL(JADNCore):
         self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = source
         self.schema_load_finish()
+        pass
 
     def schema_dumps(self, style: dict=None) -> str:
         """
@@ -80,7 +81,7 @@ class JIDL(JADNCore):
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
             idt = id_type(td)
             for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
-                fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
+                fname, fdef, fmult, fdesc = jadn2fieldstr(self, fd, td)
                 if td[CoreType] == 'Enumerated':
                     fdesc = ' // ' + fdesc if fdesc else ''
                     fs = f'{fd[ItemID]:>{w["id"]}} {fname}'
@@ -118,7 +119,7 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
 
         p_type = fr'^{p_tname}{p_assign}{p_tstr}$'
         if m := re.match(p_type, line):
-            btype, topts = typestr2jadn(self, m.group(2))
+            btype, topts, rest = typestr2jadn(self, m.group(2))
             newtype = [m.group(1), btype, topts, desc, []]
             return 'T', newtype
 
@@ -131,7 +132,7 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
             else:  # Parse Field
             """
             if m := re.match(fr'^{p_id}{p_fname}(.*)$', line):
-                return 'F', fielddef2jadn(self, m.group(1), m.group(2), m.group(3), desc)
+                return 'F', fieldstr2jadn(self, tdef, m.group(1), m.group(2), m.group(3), desc)
         else:
             raise_error(f'JIDL Load - field with no type: {repr(line)}')
 

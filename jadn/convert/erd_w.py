@@ -2,7 +2,7 @@ import re
 from jadn.core import JADNCore
 from jadn.definitions import (PRIMITIVE_TYPES, TypeName, CoreType, TypeOptions, Fields,
                               FieldID, FieldName, FieldType, FieldOptions)
-from jadn.utils import jadn2typestr, jadn2fielddef, multiplicity_str
+from jadn.utils import jadn2typestr, jadn2fieldstr, multiplicity_str
 
 
 # =========================================================
@@ -79,7 +79,7 @@ class ERD(JADNCore):
                 fval = fd[FieldName]
             elif s['detail'] == 'information':
                 fl = '{field} ' if s['graph'] == 'plantuml' else ''    # override PlantUML parsing parens as methods
-                fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
+                fname, fdef, fmult, fdesc = jadn2fieldstr(self, fd, td)
                 fdef += '' if fmult == '1' else ' [' + fmult + ']'
                 fval = f'{fd[FieldID]} {fname}' + ('' if td[CoreType] == 'Enumerated' else f' : {fl}{fdef}')
             return {

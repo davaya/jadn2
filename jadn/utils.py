@@ -7,7 +7,8 @@ import copy
 import re
 
 from functools import reduce
-from typing import Any, Union
+from typing import Any
+from jadn.core import dump_option_type
 from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
@@ -181,7 +182,7 @@ def parseopt(optstr: str) -> tuple:
     return m1.group(1) if m1.group(2) is None else {m1.group(1): m1.group(2)}
 
 
-def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str]]:
+def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
     """
     Parse a "typestring" to JADN CoreType, TypeOptions and FieldOptions
 
@@ -211,6 +212,12 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str]]:
             topts.update({'valueType': opts[0]})
         elif tname == 'Choice':
             topts.update({'combine': opts[0]})
+        elif tname == 'Enumerated':
+            topts.update(opts[0])   # enum or pointer
+        elif not is_builtin(tname):
+            pass
+            assert len((o := {k for k in opts[0]}) - self.FIELD_OPTS) == 0,\
+                f'Type options {o} in non-core type: {tname}'
         else:
             op = [k for k in opts[0]][0]
             assert f'unexpected function options {tname} {op}'
@@ -253,10 +260,10 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str]]:
         p_inherit = r'\s+(restricts|extends)\((.+)\)'
         for opt in re.findall(p_inherit, rest):     # Extends/Restricts type inheritance
             topts.update({opt[0]: opt[1]})
-    return tname, topts
+    return tname, topts, rest
 
 
-def jadn2typestr(self, tname: str, topts: dict) -> str:
+def jadn2typestr(self, tname: str, to: dict) -> str:
     """
     Convert typename and options to string
     """
@@ -286,6 +293,8 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         hi = ops.pop('maxInclusive', ops.pop('maxExclusive', '*'))
         return f'={lc}{lo}, {hi}{hc}' if lo != '*' or hi != '*' else ''
 
+    topts = copy.copy(to)   # Don't delete caller's options
+    dump_option_type(topts, tname, self.OPT_TYPE)
     txt = '#' if topts.pop('id', None) else ''   # Remove known options from topts as processed.
     if tname in ('ArrayOf', 'MapOf'):
         txt += f"({_kvstr(topts.pop('keyType'))}, " if tname == 'MapOf' else '('
@@ -329,8 +338,8 @@ def jadn2typestr(self, tname: str, topts: dict) -> str:
         if o := topts.pop(opt, None):
             txt += f' {opt}({o})'
 
-    for opt in ('minOccurs', 'maxOccurs', 'tagId'):
-        topts.pop(opt, None)     # Handled by caller
+    # for opt in ('minOccurs', 'maxOccurs', 'tagId'):
+    #     topts.pop(opt, None)     # Handled by caller
 
     return f"{tname}{txt}{f' ?{topts}?' if topts else ''}"  # Flag unrecognized options
 
@@ -342,83 +351,82 @@ def multiplicity_str(opts: dict) -> str:
     return f'{hi}' if 0 <= hi == lo else f'{lo}..{hs}'  # 0 <= hi and hi == lo
 
 
-def id_type(td: list) -> bool:    # True if FieldName is a label in description
+def id_type(td: list) -> bool:    # Return True if FieldName is a label in description
     return (td[CoreType] == 'Array'
         or td[TypeOptions].get('id', False)
-        or td[TypeOptions].get('combine', False))
+        or 'combine' in td[TypeOptions])
 
 
-def jadn2fielddef(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
+def jadn2fieldstr(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     idtype = id_type(tdef)
     fname = '' if idtype else fdef[FieldName]
     fdesc = f'{fdef[FieldName]}:: ' if idtype else ''
     is_enum = tdef[CoreType] == 'Enumerated'
     fdesc += fdef[ItemDesc if is_enum else FieldDesc]
-    ftyperef = ''
+    ftypestr = ''
     fmult = ''
 
     if not is_enum:
-        topts = {}
         fopts = fdef[FieldOptions]       # ?
         fname += '/' if 'dir' in fopts else ''
         tf = ''
-        if tagid := fopts.get('tagId', None):
+        if tagid := fopts.get('tagId'):
             tf = [f[FieldName] for f in tdef[Fields] if f[FieldID] == int(tagid)][0]
             tf = f'(tagId[{tf if tf else tagid}])'
-        ft = jadn2typestr(self,f'{fdef[FieldType]}{tf}', topts)
-        fnot = '!' if 'not' in fopts else ''
-        ftyperef = f'key({ft})' if 'key' in fopts else f'link({ft})' if 'link' in fopts else fnot + ft
+
+        fto = {k: fopts[k] for k in fopts.keys() - self.FIELD_OPTS}
+        ftypestr = jadn2typestr(self, fdef[FieldType], fto)
+
+        m = re.match(r'^(\w+)(.*)$', ftypestr)
+        ft = m.group(1)
+        ft = f'key({ft})' if 'key' in fopts else f'link({ft})' if 'link' in fopts else ft
+        ftypestr = ft + tf + m.group(2)
+
         fmult = multiplicity_str(fopts)
-    return fname, ftyperef, fmult, fdesc
+    return fname, ftypestr, fmult, fdesc
 
 
-def fielddef2jadn(self, fid: int, fname: str, fstr: str, fdesc: str) -> list:
-    ftyperef = ''
-    fo = {}
-    if fstr:
-        fmult = ''  # figure out fmult
-        """
-        pattern = fr'^{p_id}{pn}{p_fstr}{p_range}$'
-        if m := re.match(pattern, line):
-            m_range = '0..1' if m.group(5) else m.group(4)  # Convert 'optional' to range
-            return 'F', fielddef2jadn(self, int(m.group(1)), m.group(2), m.group(3),
-                                      m_range if m_range else '', desc)
-        """
-        # handle Enumerated
-        if core_type == 'Enumerated':
-            return [fid, fname, fdesc]
+def fieldstr2jadn(self, tdef: list, fid: int, fname: str, fstr: str, fdesc: str) -> list:
+    btype = tdef[CoreType]
+    if id_type(tdef):
+        fstr = fname
+        fname = f'f{fid}'   # Generate field name if not in description
+        if m := re.match(r'^([^:]+)::\s*(.*)$', fdesc):
+            fname = m.group(1)
+            fdesc = m.group(2)
 
-        if m := re.match(r'^(link|key)\((.*)\)$', fstr):
-            fo = {m.group(1).lower(): True}
-            fstr = m.group(2)
-        ftyperef, fopts = typestr2jadn(self, fstr)
-        # Field is one of: enum#, enum, field#, field
-        if fname.endswith('/'):
-            fo.update({'dir': True})
-            fname = fname.rstrip('/')
-        if m := re.match(r'^(\d+)(?:\.\.(\d+|\*))?$', fmult) if fmult else None:
-            groups = m.groups()
-            if maxOccurs := groups[1]:
-                minOccurs = int(groups[0])
-                maxOccurs = -1 if maxOccurs == '*' else int(maxOccurs)
-            else:
-                minOccurs = maxOccurs = int(groups[0])
-            fo.update({'minOccurs': minOccurs} if minOccurs != 1 else {})
-            fo.update({'maxOccurs': maxOccurs} if maxOccurs != 1 else {})
-        elif fmult:
-            fo.update({'minOccurs': -1, 'maxOccurs': -1})
-        fo.update(fopts)
-        # if fopts:
-        #     assert len(fopts) == 1 and fopts[0][0] == JADN.OPTX['tagId']    # Update if additional field options defined
-        #     fo.update({'tagId': fopts[0][1:]})      # if field name, MUST update to id after all fields have been read
-    if fdesc:
-        m = re.match(r'^(?:\s*\/\/)?\s*(.*)$', fdesc)
-        fdesc = m.group(1)
-        if not fname:
-            if m := re.match(r'^([^:]+)::\s*(.*)$', fdesc):
-                fname = m.group(1)
-                fdesc = m.group(2)
-    return [fid, fname, ftyperef, fopts, fdesc]
+    if btype == 'Enumerated':
+        return [int(fid), fname, fdesc]
+
+    fopts = {}
+    if fname.endswith('/'):     # Dir field option
+        fname = fname.rstrip('/')
+        fopts.update({'dir': True})
+
+    ftype = fstr.strip()
+    if m := re.match(r'^\s+(key|link)\((.*)\)(.*)$', fstr):    # Key / Link field options
+        fopts.update({m.group(1).lower(): True})
+        ftype = m.group(2)
+        fstr = ftype + m.group(3)
+
+    m = re.match(f'^(\w+)(.*)', ftype)
+    if is_builtin(m.group(1)):   # Get all TypeOpts if FieldType is a core type
+        ftype, fto, fstr = typestr2jadn(self, fstr)
+        fopts.update(fto)
+
+    if m := re.match(r'^.*\[(\d+)(?:\.\.(\d+|\*|\.))?\]$', fstr) if fstr else None:
+        groups = m.groups()
+        if maxOccurs := groups[1]:
+            minOccurs = int(groups[0])
+            maxOccurs = MAX_DEFAULT if maxOccurs == '*' else MAX_UNLIMITED if maxOccurs == '.' else int(maxOccurs)
+        else:
+            minOccurs = maxOccurs = int(groups[0])
+        fopts.update({'minOccurs': minOccurs} if minOccurs != 1 else {})
+        fopts.update({'maxOccurs': maxOccurs} if maxOccurs != 1 else {})
+    elif m := re.match(r'^.*optional$', fstr):
+        fopts.update({'minOccurs': 0})
+
+    return [int(fid), fname, ftype, fopts, fdesc]
 
 
 def get_config(schema: dict) -> dict:

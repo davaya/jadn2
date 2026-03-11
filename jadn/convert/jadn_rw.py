@@ -44,7 +44,7 @@ class JADN(JADNCore):
 
             def strs(k: str, v: Any) -> str:    # TODO: fix boolean False encoding
                 v = '' if isinstance(v, bool) else\
-                    v.hex() if isinstance(v, bytes) else\
+                    f'0x{v.hex()}' if isinstance(v, bytes) else\
                     dictopt(v) if isinstance(v, dict) else\
                     str(v)
                 return chr(self.OPT_ID[k]) + str(v)

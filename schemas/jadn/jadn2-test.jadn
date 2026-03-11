@@ -43,7 +43,7 @@
       [4, "bcd", "Integer", ["w3", "z6", "u5"], "half-open interval 4-6, default=5"],
       [1, "cde", "Integer", ["v8"], "=[constant] (minInclusive=maxInclusive)"],
       [7, "fgh", "String", ["vFred"], "=[constant]"],
-      [3, "efg", "String", ["uFred", "{3", "}9", "[0"], "Length 3-9, ?=[default value]"],
+      [3, "efg", "String", ["uFred", "{3", "}9", "[0"], "Length 3-9, =(default value)"],
       [2, "ghi", "Binary", ["v0x000102032d466f6f"], "constant"]
     ]],
 
@@ -77,8 +77,9 @@
       [2, "id", "Integer", ["K"], "Record identifier (Primary Key)"],
       [3, "email", "String", [], "Column 3"],
       [4, "phone", "String", [], "Column 4"],
-      [5, "friend", "Keyed", ["L", "[0", "]-1"], "Links to friends (Foreign Keys"],
-      [6, "extra", "Rcoll", ["<"], "Pointer enumeration stops here, not at leaf fields, "]
+      [5, "friend", "Keyed", ["L", "[0", "]-1"], "Links to friends (Foreign Keys)"],
+      [6, "extra", "Rcoll", ["<"], "Pointer enumeration stops here, not at leaf fields, "],
+      [7, "info", "ArrayOf", ["*String", "/uri", "o", "L"], "Links to more info"]
     ]],
 
     ["Acoll", "Array", [], "Sequence: Collection accessed by position (=id)", [

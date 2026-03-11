@@ -94,6 +94,8 @@ class JADNCore:
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
 
+            # TODO: add class (default) and instance (package) config
+
     def style(self) -> dict:
         """
 
@@ -190,23 +192,34 @@ def load_option_types(type_defs: list, type_table: dict[str, str]) -> None:
                 load_otype(fd[FieldOptions], fd[FieldType], type_table)
 
 
+def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
+    """
+
+    :param opts:
+    :type opts:
+    :param base_type:
+    :type base_type:
+    :param t_table:
+    :type t_table:
+    :return:
+    :rtype:
+    """
+    def val_to_str(vtype: str, val: Any) -> str:
+        return f'0x{val.hex()}' if vtype == 'Binary' else str(val)
+
+    op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
+    opts.update(op)
+
+
 def dump_option_types(type_defs: list, type_table: dict[str, str]) ->None:
     """
     Convert JADN option values in type definitions from typed variables to strings
     """
-
-    def val_to_str(vtype: str, val: Any) -> str:
-        return f'0x{val.hex()}' if vtype == 'Binary' else str(val)
-
-    def dump_otype(opts: dict, base_type: str, t_table: dict) -> None:
-        op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
-        opts.update(op)
-
     for tdef in type_defs:
-        dump_otype(tdef[TypeOptions], tdef[CoreType], type_table)
+        dump_option_type(tdef[TypeOptions], tdef[CoreType], type_table)
         if has_fields(tdef[CoreType]):
             for fd in tdef[Fields]:
-                dump_otype(fd[FieldOptions], fd[FieldType], type_table)
+                dump_option_type(fd[FieldOptions], fd[FieldType], type_table)
 
 
     # =========================================================

@@ -2,7 +2,7 @@ import json
 import re
 from jadn.core import JADNCore
 from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
-from jadn.utils import jadn2typestr, typestr2jadn, jadn2fielddef, fielddef2jadn, cleanup_tagid, raise_error
+from jadn.utils import jadn2typestr, typestr2jadn, jadn2fieldstr, fieldstr2jadn, cleanup_tagid, raise_error
 
 
 # =========================================================
@@ -67,7 +67,7 @@ class MD(JADNCore):
                     [['ID', 'Name', 'Type', r'\#', 'Description']]
                 ][table_type]
                 for fd in td[Fields]:
-                    fname, fdef, fmult, fdesc = jadn2fielddef(self, fd, td)
+                    fname, fdef, fmult, fdesc = jadn2fieldstr(self, fd, td)
                     fdef = fdef.replace('*', r'\*')
                     fmult = fmult.replace('*', r'\*')
                     dsc = fdesc.split('::', maxsplit=2)
@@ -133,13 +133,13 @@ def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
             if tdef[CoreType] == 'Enumerated':      # Parse Enumerated Item
                 pattern = fr'^{p_id}{p_fstr}{p_desc}$'
                 if m := re.match(pattern, line):
-                    return 'F', fielddef2jadn(int(m.group(1)), m.group(2), '', '', m.group(3) if m.group(3) else '')
+                    return 'F', fieldstr2jadn(int(m.group(1)), m.group(2), '', '', m.group(3) if m.group(3) else '')
             else:                                   # Parse Field
                 pattern = f'^{p_id}{pn}{p_fstr}{p_range}{p_desc}$'
                 if m := re.match(pattern, line):
                     m_range = '0..1' if m.group(5) else m.group(4)        # Convert 'optional' to range
                     fdesc = m.group(6) if m.group(6) else ''
-                    return 'F', fielddef2jadn(int(m.group(1)), m.group(2), m.group(3), m_range if m_range else '', fdesc)
+                    return 'F', fieldstr2jadn(int(m.group(1)), m.group(2), m.group(3), m_range if m_range else '', fdesc)
         else:
             return 'D', [line]        # Document text (not part of a table)
 
