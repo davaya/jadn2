@@ -220,10 +220,27 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
         else:
             op = [k for k in opts[0]][0]
             assert f'unexpected function options {tname} {op}'
-    if rest := m.group(4):
-        # if m := re.match(r'^(.*?)(\{.*\})(.*)$', rest):
-        if m := re.match(r'^(.*?)([\(\(].*[\]\)])(.*)$', rest):
-            rest = m.group(3)
+
+    rest = m.group(4)
+    while rest:
+        # Process range and default constraints
+        if m := re.match(r'^(.*?)(?:=([\(\[])([^=\n]*)([\)\]]))(.*)$', rest):
+            rest = m.group(1) + m.group(5)
+            #  Matches: = [ lo hi  ]    default:  = (x)   const:  = [x]  range:  = ([x,y)]
+            #   group     1  2  3  4
+            if m.group(3) is not None:
+                lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(1)]
+                hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(4)]
+                topts.update({lo: m.group(2)} if '*' not in m.group(2) else {})
+                topts.update({hi: m.group(3)} if '*' not in m.group(3) else {})
+            else:
+                op = {'[': 'const', '(': 'default'}[r.group(1)]
+                topts.update({op: r.group(2)})
+
+        # Process pattern and size constraints
+        elif m := re.match(r'^(.*?)(\{.*\})(.*)$', rest):
+        # elif m := re.match(r'^(.*?)([\(\(].*[\]\)])(.*)$', rest):
+            rest = m.group(1) + m.group(3)
             for r in re.finditer(r'^\{(.*)\}', m.group(2)):
                 opt = r.group(1)
                 if t := re.match(r'^pattern=\"(.*)\"', opt):
@@ -236,35 +253,28 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
 
-        if m := re.match(r'^(.*?)(=.*[\)\]])(.*)$', typestring):
-            rest = m.group(3)
-            for r in re.finditer(r'=([\[\(])(.*?)(?:,(.*?))?([\]\)])', m.group(2)):
-                #  Matches: = [ lo hi  ]    default:  = (x)   const:  = [x]  range:  = ([x,y)]
-                #   group     1  2  3  4
-                if r.group(3) is not None:
-                    lo = {'[': 'minInclusive', '(': 'minExclusive'}[r.group(1)]
-                    hi = {']': 'maxInclusive', ')': 'maxExclusive'}[r.group(4)]
-                    topts.update({lo: r.group(2)} if '*' not in r.group(2) else {})
-                    topts.update({hi: r.group(3)} if '*' not in r.group(3) else {})
-                else:
-                    op = {'[': 'const', '(': 'default'}[r.group(1)]
-                    topts.update({op: r.group(2)})
 
-        p_format = r'\s+(\/\w[-\w]*)'
-        for opt in re.findall(p_format, rest):      # 'format' option
-            topts.update({'format': opt[1:]})
+        elif m := re.match(r'^$', rest):
+            rest = m.group(1) + m.group(3)
 
-        p_flag = r'\s+(unique|set|unordered|sequence|attr|nillable|abstract|final)'
-        for opt in re.findall(p_flag, rest):        # Boolean options - True if present
-            topts.update({opt: True})
+        elif m := re.match(r'^(\s+)(\/\w[-\w]*)(.*)$', rest):   # format option "/foo"
+            rest = m.group(1) + m.group(3)
+            topts.update({'format': m.group(2)[1:]})
 
-        p_inherit = r'\s+(restricts|extends)\((.+)\)'
-        for opt in re.findall(p_inherit, rest):     # Extends/Restricts type inheritance
-            topts.update({opt[0]: opt[1]})
+        elif m := re.match(r'^(\s+)(unique|set|unordered|sequence|attr|abstract|final)(.*)$', rest):
+            rest = m.group(1) + m.group(3)
+            topts.update({m.group(2): True})    # Boolean options - True if present
 
-        p_scale = r'\s+\^E(-?\d+)'
-        for opt in re.findall(p_scale, rest):
-            topts.update({'scale': opt})
+        elif m := re.match(r'^(\s+)(restricts|extends)\((.+)\)(.*)$', rest):  # Extends/Restricts type inheritance
+            rest = m.group(1) + m.group(4)
+            topts.update({m.group(2): m.group(3)})
+
+        elif m := re.match(r'^(\s+)\^E(-?\d+)(.*)$', rest):   # fixed-point scale factor: ^E<n>
+            rest = m.group(1) + m.group(3)
+            topts.update({'scale': m.group(2)})
+
+        else:
+            raise_error(f'Unprocessed type options {rest} in {typestring}')
 
     return tname, topts, rest
 
