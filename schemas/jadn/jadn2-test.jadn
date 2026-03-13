@@ -78,7 +78,7 @@
       [3, "email", "String", [], "Column 3"],
       [4, "phone", "String", [], "Column 4"],
       [5, "friend", "Keyed", ["L", "[0", "]-1"], "Links to friends (Foreign Keys)"],
-      [6, "extra", "Rcoll", ["<"], "Pointer enumeration stops here, not at leaf fields, "],
+      [6, "extra", "Rcoll", ["<"], "Pointer enumeration stops here, not at leaf fields"],
       [7, "info", "ArrayOf", ["*String", "/uri", "o", "L"], "Links to more info"]
     ]],
 

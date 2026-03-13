@@ -215,39 +215,40 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
         elif tname == 'Enumerated':
             topts.update(opts[0])   # enum or pointer
         elif not is_builtin(tname):
-            pass
             assert len((o := {k for k in opts[0]}) - self.FIELD_OPTS) == 0,\
                 f'Type options {o} in non-core type: {tname}'
         else:
             op = [k for k in opts[0]][0]
             assert f'unexpected function options {tname} {op}'
     if rest := m.group(4):
-        #  Matches: = [ any ] rest     default:  = (x)   const:  = [x]  range:  = ([x,y)]
-        #   group     1  2  3  4
-        p_value = r'^\s*=\s*(?:(\[|\()(.+?)(\]|\)))(.*)$'
-        if m := re.match(p_value, rest):    # 'const', 'default', 'min(In|Ex)clusive', 'max(In|Ex)clusive'
-            rest = m.group(4)
-            p_range = r'^(.+?),(.+?)$'
-            if r := re.match(p_range, m.group(2)):
-                lo = {'[': 'minInclusive', '(': 'minExclusive'}[m.group(1)]
-                hi = {']': 'maxInclusive', ')': 'maxExclusive'}[m.group(3)]
-                topts.update({lo: r.group(1)})
-                topts.update({hi: r.group(2)})
-            else:
-                op = {'[': 'const', '(': 'default'}[m.group(1)]
-                topts.update({op: m.group(2)})
-        else:
-            p_lengthpat = r'\{(.*)\}'  # 4 'minLength', 'maxLength', 'pattern'
-            for opt in re.findall(p_lengthpat, rest):
-                if m := re.match('pattern=\"(.+)\"', opt):
-                    topts.update({'pattern': m.group(1)})
+        # if m := re.match(r'^(.*?)(\{.*\})(.*)$', rest):
+        if m := re.match(r'^(.*?)([\(\(].*[\]\)])(.*)$', rest):
+            rest = m.group(3)
+            for r in re.finditer(r'^\{(.*)\}', m.group(2)):
+                opt = r.group(1)
+                if t := re.match(r'^pattern=\"(.*)\"', opt):
+                    topts.update({'pattern': t.group(1)})
                 elif len(x := opt.split('..', maxsplit=1)) == 2:
                     a, b = x
-                    a = '*' if a != '*' and int(a) == 0 else a   # Default min size = 0
+                    a = '*' if a != '*' and int(a) == 0 else a  # Default min size = 0
                     topts.update({} if a == '*' else {'minLength': int(a)})
                     topts.update({} if b == '*' else {'maxLength': int(b)})
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
+
+        if m := re.match(r'^(.*?)(=.*[\)\]])(.*)$', typestring):
+            rest = m.group(3)
+            for r in re.finditer(r'=([\[\(])(.*?)(?:,(.*?))?([\]\)])', m.group(2)):
+                #  Matches: = [ lo hi  ]    default:  = (x)   const:  = [x]  range:  = ([x,y)]
+                #   group     1  2  3  4
+                if r.group(3) is not None:
+                    lo = {'[': 'minInclusive', '(': 'minExclusive'}[r.group(1)]
+                    hi = {']': 'maxInclusive', ')': 'maxExclusive'}[r.group(4)]
+                    topts.update({lo: r.group(2)} if '*' not in r.group(2) else {})
+                    topts.update({hi: r.group(3)} if '*' not in r.group(3) else {})
+                else:
+                    op = {'[': 'const', '(': 'default'}[r.group(1)]
+                    topts.update({op: r.group(2)})
 
         p_format = r'\s+(\/\w[-\w]*)'
         for opt in re.findall(p_format, rest):      # 'format' option
@@ -260,6 +261,11 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
         p_inherit = r'\s+(restricts|extends)\((.+)\)'
         for opt in re.findall(p_inherit, rest):     # Extends/Restricts type inheritance
             topts.update({opt[0]: opt[1]})
+
+        p_scale = r'\s+\^E(-?\d+)'
+        for opt in re.findall(p_scale, rest):
+            topts.update({'scale': opt})
+
     return tname, topts, rest
 
 
@@ -319,7 +325,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
         txt += v
 
     if v := topts.pop('scale', None):
-        txt += f' E{v}'
+        txt += f' ^E{v}'
 
     if v := topts.pop('default', None):
         txt += f'=({v})'
@@ -330,7 +336,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
     if v := topts.pop('format', None):
         txt += (' /' + v)
 
-    for opt in ('unique', 'set', 'unordered', 'sequence', 'attr', 'nillable', 'abstract', 'final'):
+    for opt in ('unique', 'set', 'unordered', 'sequence', 'attr', 'abstract', 'final'):
         if o := topts.pop(opt, None):
             txt += (' ' + opt)
 
@@ -377,10 +383,11 @@ def jadn2fieldstr(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
         fto = {k: fopts[k] for k in fopts.keys() - self.FIELD_OPTS}
         ftypestr = jadn2typestr(self, fdef[FieldType], fto)
 
-        m = re.match(r'^(\w+)(.*)$', ftypestr)
+        m = re.match(r'^(\S+)(.*)$', ftypestr)
         ft = m.group(1)
         ft = f'key({ft})' if 'key' in fopts else f'link({ft})' if 'link' in fopts else ft
         ftypestr = ft + tf + m.group(2)
+        ftypestr += ' nillable' if fopts.get('nillable', False) else ''
 
         fmult = multiplicity_str(fopts)
     return fname, ftypestr, fmult, fdesc
@@ -410,9 +417,13 @@ def fieldstr2jadn(self, tdef: list, fid: int, fname: str, fstr: str, fdesc: str)
         fstr = ftype + m.group(3)
 
     m = re.match(f'^(\w+)(.*)', ftype)
+    ftype = m.group(1)
     if is_builtin(m.group(1)):   # Get all TypeOpts if FieldType is a core type
         ftype, fto, fstr = typestr2jadn(self, fstr)
         fopts.update(fto)
+    elif t := re.match(r'^\(tagId\[(.+)\]\)(.*)$', m.group(2)):
+        # ftype = m.group(1)
+        fopts.update({'tagId': t.group(1)})    # process tagId
 
     if m := re.match(r'^.*\[(\d+)(?:\.\.(\d+|\*|\.))?\]$', fstr) if fstr else None:
         groups = m.groups()
@@ -423,8 +434,10 @@ def fieldstr2jadn(self, tdef: list, fid: int, fname: str, fstr: str, fdesc: str)
             minOccurs = maxOccurs = int(groups[0])
         fopts.update({'minOccurs': minOccurs} if minOccurs != 1 else {})
         fopts.update({'maxOccurs': maxOccurs} if maxOccurs != 1 else {})
-    elif m := re.match(r'^.*optional$', fstr):
+    elif re.match(r'^.*\soptional$', fstr):
         fopts.update({'minOccurs': 0})
+    elif re.match(r'^.*\snillable$', fstr):
+        fopts.update({'nillable': True})
 
     return [int(fid), fname, ftype, fopts, fdesc]
 
