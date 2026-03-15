@@ -131,8 +131,8 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
                     return 'F', fielddef2jadn(self, m.group(1), m.group(2), '', desc)
             else:  # Parse Field
             """
-            if m := re.match(fr'^{p_id}{p_fname}(.*)$', line):
-                return 'F', fieldstr2jadn(self, tdef, m.group(1), m.group(2), m.group(3), desc)
+            if m := re.match(fr'^{p_id}(.*)$', line):
+                return 'F', fieldstr2jadn(self, tdef, m.group(1), m.group(2), desc)
         else:
             raise_error(f'JIDL Load - field with no type: {repr(line)}')
 

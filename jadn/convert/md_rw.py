@@ -24,7 +24,7 @@ class MD(JADNCore):
         fields = None
         for line in doc.splitlines():
             if line:
-                t, v = _line2jadn(line, types[-1] if types else None)    # Parse a MARKDOWN line
+                t, v = _line2jadn(self, line, types[-1] if types else None)    # Parse a MARKDOWN line
                 if t == 'F':
                     fields.append(v)
                 elif fields:
@@ -115,7 +115,7 @@ p_desc = r'\s*(?:\/\/\s*(.*?)\s*)?'  # Field description, including field name i
 
 
 # Convert MARKDOWN to JADN
-def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
+def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
     if line.split('//', maxsplit=1)[0].strip("` "): # remove backticks and whitespace
         p_meta = r'^\s*([-\w]+):\s*(.+?)\s*$'
         if m := re.match(p_meta, line):
@@ -133,13 +133,13 @@ def _line2jadn(line: str, tdef: list) -> tuple[str, list]:
             if tdef[CoreType] == 'Enumerated':      # Parse Enumerated Item
                 pattern = fr'^{p_id}{p_fstr}{p_desc}$'
                 if m := re.match(pattern, line):
-                    return 'F', fieldstr2jadn(int(m.group(1)), m.group(2), '', '', m.group(3) if m.group(3) else '')
+                    return 'F', fieldstr2jadn(self, tdef, int(m.group(1)), m.group(2), m.group(3) if m.group(3) else '')
             else:                                   # Parse Field
-                pattern = f'^{p_id}{pn}{p_fstr}{p_range}{p_desc}$'
+                pattern = f'^{p_id}{p_fstr}{p_range}{p_desc}$'
                 if m := re.match(pattern, line):
-                    m_range = '0..1' if m.group(5) else m.group(4)        # Convert 'optional' to range
-                    fdesc = m.group(6) if m.group(6) else ''
-                    return 'F', fieldstr2jadn(int(m.group(1)), m.group(2), m.group(3), m_range if m_range else '', fdesc)
+                    fstr = m.group(2) + f' [{m.group(3)}]'
+                    fdesc = m.group(4) if m.group(4) else ''
+                    return 'F', fieldstr2jadn(self, tdef, int(m.group(1)), fstr, fdesc)
         else:
             return 'D', [line]        # Document text (not part of a table)
 

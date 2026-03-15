@@ -6,7 +6,7 @@ from jadn.translate import JSCHEMA, PROTO, XSD
 from jadn.config import style_args, style_fname
 from pathlib import Path
 
-JADN_SCHEMA_DIR = 'schemas2/jadn'
+JADN_SCHEMA_DIR = 'schemas/jadn'
 ABSTRACT_SCHEMA_DIR = 'schemas/abstract'
 CONCRETE_SCHEMA_DIR = 'schemas/concrete'
 CONFIG_FILE = 'apps/jadn_config.json'

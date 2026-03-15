@@ -42,7 +42,7 @@
       [8, "def", "Number", ["y10", "x20"], "half-open interval up to 19.999999"],
       [4, "bcd", "Integer", ["w3", "z6", "u5"], "half-open interval 4-6, default=5"],
       [1, "cde", "Integer", ["v8"], "=[constant] (minInclusive=maxInclusive)"],
-      [7, "fgh", "String", ["vFred"], "=[constant]"],
+      [7, "fgh", "String", ["vFred"], "=[constant] (string in quotes)"],
       [3, "efg", "String", ["uFred", "{3", "}9", "[0"], "Length 3-9, =(default value)"],
       [2, "ghi", "Binary", ["v0x000102032d466f6f"], "constant"]
     ]],
@@ -107,9 +107,10 @@
     ]],
 
     ["Combinations", "Record", [], "Untagged Unions", [
-      [1, "c1", "C1", [], "Only one"],
-      [2, "c2", "C2", [], "One or more"],
-      [3, "c3", "C3", [], "All"]
+      [1, "c1", "C1", [], "oneOf: match only one of types A, B, C"],
+      [2, "c2", "C2", [], "anyOf: first match of types A, B, C"],
+      [3, "c3", "C3", [], "allOf: match all of types A, B, C"],
+      [4, "c4", "C4", [], "diff: match type A but not B, C"]
     ]],
 
     ["C1", "Choice", ["ConeOf"], "Only one - int or any string except keywords",[
@@ -128,6 +129,17 @@
       [1, "c1", "Colors", [], "Specific keywords"],
       [2, "c2", "String", ["}10"], "Any string"],
       [3, "c3", "Integer"]
+    ]],
+
+    ["C4", "Choice", ["Cdiff"], "Any 3 character string except reserved keywords", [
+      [1, "a", "String", ["{3", "}3"], "Must match this"],
+      [2, "b", "Blacklist", [], ".. but not this"]
+    ]],
+
+    ["Blacklist", "Enumerated", [], "Forbidden words", [
+      [1, "foo"],
+      [2, "bar"],
+      [3, "nut"]
     ]],
 
     ["Colors", "Enumerated", [], "Keyword id and string",[
