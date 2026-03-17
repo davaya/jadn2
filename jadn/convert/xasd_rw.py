@@ -2,9 +2,10 @@
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
 from io import BytesIO
-from typing import Union
-from lxml import etree as ET
-from jadn.core import JADNCore
+import re
+import lxml.etree as ET
+import xml.dom.minidom as minidom
+from jadn.core import JADNCore, dump_option_type
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemValue, ItemDesc,
                               FieldID, FieldName, FieldType, FieldDesc, FieldOptions)
 
@@ -32,49 +33,71 @@ class XASD(JADNCore):
         self.schema_load_finish()
 
     def schema_dumps(self, style: dict=None) -> str:
+        """
 
+        :param style:
+        :type style:
+        :return:
+        :rtype:
+        """
         def aname(k: str) -> str:   # Mangle "format" attribute names to be valid XML
             return k.replace('/', '_')
 
-        sp = '  '   # Indentation space per level
-        xasd = '<?xml version="1.0" encoding="UTF-8"?>\n<Schema>\n'
+        def enc_entities(text: str) -> str:
+            return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+        root = ET.Element('Schema')
+        root.set('version', self.METASCHEMA['meta'].get('jadn_version', '2.0'))
+
         if meta := self.schema.get('meta', {}):
-            xasd += f'{sp}<Metadata>\n'
-            # xasd += '\n'.join([f'{4*" "}{k}="{v}"' for k, v in meta.items() if isinstance(v, str)]) + '>\n'
+            e_meta = ET.SubElement(root, 'Metadata')
             for k, v in meta.items():
+                kc = k.capitalize()
                 if k == 'roots':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
+                    e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
-                        xasd += f'{3*sp}<TypeName>{v}</TypeName>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
+                        ET.SubElement(e_k, 'TypeName').text = v
                 elif k == 'namespaces':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
+                    e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
-                        xasd += f'{3*sp}<PrefixNs prefix="{v[0]}">{v[1]}</PrefixNs>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
+                        ET.SubElement(e_k, 'PrefixNs').text = v
                 elif k == 'config':
-                    xasd += f'{2*sp}<{k.capitalize()}>\n'
-                    for k2, v in meta[k].items():
-                        xasd += f'{3*sp}<{k2.strip("$")}>{v}</{k2.strip("$")}>\n'
-                    xasd += f'{2*sp}</{k.capitalize()}>\n'
+                    e_k = ET.SubElement(e_meta, kc)
+                    for v in meta[k]:
+                        for k2 in meta[k].items():
+                            ET.SubElement(e_k, k2[0].strip('$')).text = str(k2[1])
                 else:
-                    xasd += f'{2*sp}<{k.capitalize()}>{meta[k]}</{k.capitalize()}>\n'
-            xasd += f'{sp}</Metadata>\n'
-        xasd += f'{sp}<Types>\n'
+                    e_k = ET.SubElement(e_meta, kc)
+                    e_k.text = v
+
+        e_types = ET.SubElement(root, 'Types')
         for td in self.schema['types']:
-            (ln, end) = ('\n', 2*sp) if td[Fields] else ('', '')
-            to = ''.join([f' {aname(k)}="{v}"' for k, v in td[TypeOptions].items()])
-            xasd += f'{2*sp}<Type name="{td[TypeName]}" type="{td[CoreType]}"{to}>{td[TypeDesc]}{ln}'
+            to = {aname(k): str(v) for k, v in td[TypeOptions].items()}
+            e_td = ET.SubElement(e_types, 'Type', name = td[TypeName], type = td[CoreType], **to)
+            if td[TypeDesc]:
+                e_td.text = enc_entities(td[TypeDesc])
             for fd in td[Fields]:
                 if td[CoreType] == 'Enumerated':
-                    xasd += f'{3*sp}<Item id="{fd[ItemID]}" value="{fd[ItemValue]}">{fd[ItemDesc]}</Item>\n'
+                    e_fd = ET.SubElement(e_td, 'Item', id=str(fd[ItemID]), value=fd[ItemValue])
+                    desc = fd[ItemDesc]
                 else:
-                    fo = ''.join([f' {aname(k)}="{v}"' for k, v in fd[FieldOptions].items()])
-                    xasd += f'{3*sp}<Field fid="{fd[FieldID]}" name="{fd[FieldName]}" type="{fd[FieldType]}"{fo}>{fd[FieldDesc]}</Field>\n'
-            xasd += f'{end}</Type>\n'
-        xasd += f'{sp}</Types>\n'
-        xasd += '</Schema>\n'
-        return xasd
+                    fo = {aname(k): v for k, v in fd[FieldOptions].items()}
+                    dump_option_type(fo, fd[FieldType], self.OPT_TYPE)
+                    e_fd = ET.SubElement(e_td, 'Field', fid=str(fd[FieldID]), fname=fd[FieldName], type=fd[FieldType], **fo)
+                    desc = fd[FieldDesc]
+                if desc:
+                    e_fd.text = enc_entities(desc)
+
+        # lxml pretty_print=True doesn't work for display text.  Use DOM pretty printer instead.
+        xasd = ET.tostring(root, xml_declaration=True, encoding='UTF-8').decode()
+        doc = minidom.parseString(xasd).toprettyxml(indent='  ')
+
+        def merge_txt(s0: str, s1: str) -> tuple[str, str]:     # Merge element text to same line as element
+            return (s1, s0) if (c := s0.strip()).startswith('<') else (s1 + c, '')
+
+        s = '', ''  # Lookahead state: (line(n), line(n+1)
+        return '\n'.join([s[0] for ln in doc.split('\n') if (s := merge_txt(ln, s[1]))[0]]) + '\n'
+
 
 # ========================================================
 # Support functions
@@ -99,7 +122,7 @@ def _get_type(self, e: ET.Element) -> list:
         return k.replace('_', '/')
 
     def gettext(el: ET.Element) -> str:
-        return el.text.strip() if el.text is not None else ''
+        return el.text.strip().replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>') if el.text is not None else ''
 
     assert e.tag == 'Type'
     at = {aname(k): v for k, v in e.items()}
@@ -107,7 +130,7 @@ def _get_type(self, e: ET.Element) -> list:
     for f in e:
         fa = {aname(k): v for k, v in f.items()}
         if f.tag == 'Field':
-            fields.append([int(fa.pop('fid')), fa.pop('name'), fa.pop('type'), fa, gettext(f)])
+            fields.append([int(fa.pop('fid')), fa.pop('fname'), fa.pop('type'), fa, gettext(f)])
         elif f.tag == 'Item':
             fields.append([int(fa.pop('id')), fa.pop('value'), gettext(f)])
 

@@ -79,6 +79,9 @@ class JADNCore:
             JADNCore.OPT_TYPE = {i[FieldName]: i[FieldType] for i in opts}  # Name to value type lookup
             JADNCore.OPT_ORDER = {i[FieldName]: n for n, i in enumerate(opts, start=1)}     # Name to position
 
+            m = tx['Config'][Fields]
+            JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in m}
+
             to = self.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
             JADNCore.TYPE_OPTS = {k for k, v in self.OPT_ORDER.items() if v < to}
             JADNCore.FIELD_OPTS = {k for k, v in self.OPT_ORDER.items() if v > to}
@@ -157,6 +160,7 @@ class JADNCore:
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
+        load_meta_types(self)
         load_option_types(self.schema['types'], self.OPT_TYPE)  # Convert option strings to typed values
 
     def schema_validate(self) -> None:
@@ -166,20 +170,27 @@ class JADNCore:
         pass
 
 
+def str_to_val(vtype: str, literal: str) -> Any:
+    vtypes = {
+        'Integer': int,
+        'Number': float,
+        'String': str,
+    }
+    return bytes.fromhex(literal[2:]) if vtype == 'Binary'\
+        else True if vtype == 'Boolean'\
+        else vtypes[vtype](literal)
+
+
+def load_meta_types(self) -> None:
+    if meta := self.schema.get('meta', {}):
+        for k, v in (c := meta.get('config', {})).items():
+            c[k] = str_to_val(self.META_TYPE[k], v)
+
+
 def load_option_types(type_defs: list, type_table: dict[str, str]) -> None:
     """
     Convert JADN option values in type definitions from strings to typed variables
     """
-
-    def str_to_val(vtype: str, literal: str) -> Any:
-        vtypes = {
-            'Integer': int,
-            'Number': float,
-            'String': str,
-        }
-        return bytes.fromhex(literal[2:]) if vtype == 'Binary'\
-            else True if vtype == 'Boolean'\
-            else vtypes[vtype](literal)
 
     def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
         op = {k: str_to_val(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}

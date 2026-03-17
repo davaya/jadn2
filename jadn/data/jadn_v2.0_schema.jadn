@@ -2,7 +2,8 @@
   "meta": {
     "title": "JADN Metaschema",
     "package": "http://oasis-open.org/openc2/jadn/v2.0/schema",
-    "description": "Syntax of a JSON Abstract Data Notation (JADN) package.",
+    "jadn_version": "2.0",
+    "description": "Syntax of a JSON Abstract Data Notation (JADN) schema package.",
     "license": "CC-BY-4.0",
     "roots": ["Schema"],
     "config": {
@@ -19,7 +20,7 @@
       [2, "namespaces", "PrefixNs", ["[0", "]-1"], "Referenced packages"],
       [3, "roots", "TypeName", ["[0", "]-1"], "Roots of the type tree(s) in this package"],
       [4, "config", "Config", ["[0"], "Configuration variables"],
-      [5, "jadn_version", "Namespace", ["[0"], "JADN Metaschema package"],
+      [5, "jadn_version", "SemVer", ["[0"], "JADN Metaschema version number (in package URI)"],
       [6, "version", "String", ["{1", "[0"], "Incrementing version within package"],
       [7, "title", "String", ["{1", "[0"], "Title"],
       [8, "description", "String", ["{1", "[0"], "Description"],
@@ -41,6 +42,7 @@
       [7, "$NSID", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$"]
     ]],
     ["Namespace", "String", ["/uri"], "Unique name of a package"],
+    ["SemVer", "String", ["%^(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?$"], "Semantic Version Number (x.y.z)"],
     ["NSID", "String", ["%$NSID"], "Namespace prefix matching $NSID"],
     ["TypeName", "String", ["%$TypeName"], "Name of a logical type"],
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],
