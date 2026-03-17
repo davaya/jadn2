@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Schema>
+<?xml version="1.0" ?>
+<Schema version="2.0">
   <Metadata>
     <Title>JADN Metaschema</Title>
     <Package>http://oasis-open.org/openc2/jadn/v2.0/schema</Package>
-    <Description>Syntax of a JSON Abstract Data Notation (JADN) package.</Description>
+    <Jadn_version>2.0</Jadn_version>
+    <Description>Syntax of a JSON Abstract Data Notation (JADN) schema package.</Description>
     <License>CC-BY-4.0</License>
     <Roots>
       <TypeName>Schema</TypeName>
@@ -14,258 +15,259 @@
   </Metadata>
   <Types>
     <Type name="Schema" type="Record">Definition of a JADN package
-      <Field fid="1" name="meta" type="Metadata" minOccurs="0">Information about this package</Field>
-      <Field fid="2" name="types" type="Type" unique="True" maxOccurs="-1">Types defined in this package</Field>
+      <Field fid="1" fname="meta" type="Metadata" minOccurs="0">Information about this package</Field>
+      <Field fid="2" fname="types" type="Type" maxOccurs="-1">Types defined in this package</Field>
     </Type>
     <Type name="Metadata" type="Map">Information about this package
-      <Field fid="1" name="package" type="Namespace">Unique name/version of this package</Field>
-      <Field fid="2" name="namespaces" type="PrefixNs" unique="True" minOccurs="0" maxOccurs="-1">Referenced packages</Field>
-      <Field fid="3" name="roots" type="TypeName" unique="True" minOccurs="0" maxOccurs="-1">Roots of the type tree(s) in this package</Field>
-      <Field fid="4" name="config" type="Config" minOccurs="0">Configuration variables</Field>
-      <Field fid="5" name="jadn_version" type="Namespace" minOccurs="0">JADN Metaschema package</Field>
-      <Field fid="6" name="version" type="String" minLength="1" minOccurs="0">Incrementing version within package</Field>
-      <Field fid="7" name="title" type="String" minLength="1" minOccurs="0">Title</Field>
-      <Field fid="8" name="description" type="String" minLength="1" minOccurs="0">Description</Field>
-      <Field fid="9" name="comment" type="String" minLength="1" minOccurs="0">Comment</Field>
-      <Field fid="10" name="copyright" type="String" minLength="1" minOccurs="0">Copyright notice</Field>
-      <Field fid="11" name="license" type="String" minLength="1" minOccurs="0">SPDX licenseId of this package</Field>
+      <Field fid="1" fname="package" type="Namespace">Unique name/version of this package</Field>
+      <Field fid="2" fname="namespaces" type="PrefixNs" minOccurs="0" maxOccurs="-1">Referenced packages</Field>
+      <Field fid="3" fname="roots" type="TypeName" minOccurs="0" maxOccurs="-1">Roots of the type tree(s) in this package</Field>
+      <Field fid="4" fname="config" type="Config" minOccurs="0">Configuration variables</Field>
+      <Field fid="5" fname="jadn_version" type="SemVer" minOccurs="0">JADN Metaschema version number (in package URI)</Field>
+      <Field fid="6" fname="version" type="String" minLength="1" minOccurs="0">Incrementing version within package</Field>
+      <Field fid="7" fname="title" type="String" minLength="1" minOccurs="0">Title</Field>
+      <Field fid="8" fname="description" type="String" minLength="1" minOccurs="0">Description</Field>
+      <Field fid="9" fname="comment" type="String" minLength="1" minOccurs="0">Comment</Field>
+      <Field fid="10" fname="copyright" type="String" minLength="1" minOccurs="0">Copyright notice</Field>
+      <Field fid="11" fname="license" type="String" minLength="1" minOccurs="0">SPDX licenseId of this package</Field>
     </Type>
     <Type name="PrefixNs" type="Array">Prefix corresponding to a namespace IRI
-      <Field fid="1" name="prefix" type="NSID">Namespace prefix string</Field>
-      <Field fid="2" name="namespace" type="Namespace">Namespace IRI</Field>
+      <Field fid="1" fname="prefix" type="NSID">Namespace prefix string</Field>
+      <Field fid="2" fname="namespace" type="Namespace">Namespace IRI</Field>
     </Type>
     <Type name="Config" type="Map" minLength="1">Config vars override JADN defaults
-      <Field fid="1" name="$MaxBinary" type="Integer" minInclusive="1" minOccurs="0">Package max octets, default = 255</Field>
-      <Field fid="2" name="$MaxString" type="Integer" minInclusive="1" minOccurs="0">Package max characters, default = 255</Field>
-      <Field fid="3" name="$MaxElements" type="Integer" minInclusive="1" minOccurs="0">Package max items/properties, default = 255</Field>
-      <Field fid="4" name="$Sys" type="String" minLength="1" maxLength="1" minOccurs="0">System character for TypeName, default = '.'</Field>
-      <Field fid="5" name="$TypeName" type="String" format="regex" minOccurs="0">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
-      <Field fid="6" name="$FieldName" type="String" format="regex" minOccurs="0">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
-      <Field fid="7" name="$NSID" type="String" format="regex" minOccurs="0">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
+      <Field fid="1" fname="$MaxBinary" type="Integer" minInclusive="1" default="255">Package max octets, default = 255</Field>
+      <Field fid="2" fname="$MaxString" type="Integer" minInclusive="1" default="255">Package max characters, default = 255</Field>
+      <Field fid="3" fname="$MaxElements" type="Integer" minInclusive="1" default="255">Package max items/properties, default = 255</Field>
+      <Field fid="4" fname="$Sys" type="String" minLength="1" maxLength="1" default=".">System character for TypeName, default = '.'</Field>
+      <Field fid="5" fname="$TypeName" type="String" format="regex" default="^[A-Z][-.A-Za-z0-9]{0,63}$">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
+      <Field fid="6" fname="$FieldName" type="String" format="regex" default="^[a-z][_A-Za-z0-9]{0,63}$">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
+      <Field fid="7" fname="$NSID" type="String" format="regex" default="^([A-Za-z][A-Za-z0-9]{0,7})?$">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
     </Type>
     <Type name="Namespace" type="String" format="uri">Unique name of a package</Type>
+    <Type name="SemVer" type="String" pattern="^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$">Semantic Version Number (x.y.z)</Type>
     <Type name="NSID" type="String" pattern="$NSID">Namespace prefix matching $NSID</Type>
     <Type name="TypeName" type="String" pattern="$TypeName">Name of a logical type</Type>
     <Type name="FieldName" type="String" pattern="$FieldName">Name of a field in a structured type</Type>
     <Type name="TypeRef" type="String">Reference to a type, matching ($NSID ':')? $TypeName</Type>
     <Type name="Type" type="Array">Fixed structure for all type definitions
-      <Field fid="1" name="type_name" type="TypeName">Schema-defined type name</Field>
-      <Field fid="2" name="core_type" type="Enumerated" enum="JADN-Type">Core (JADN-defined) type name</Field>
-      <Field fid="3" name="type_options" type="TypeOptions" minOccurs="0" tagId="2">Required/allowed options for core type</Field>
-      <Field fid="4" name="type_description" type="Description" minOccurs="0">Comments/Documentation</Field>
-      <Field fid="5" name="fields" type="JADN-Type" minOccurs="0" tagId="2">Fields, Items, or nothing more for core type</Field>
+      <Field fid="1" fname="type_name" type="TypeName">Schema-defined type name</Field>
+      <Field fid="2" fname="core_type" type="Enumerated" enum="JADN-Type">Core (JADN-defined) type name</Field>
+      <Field fid="3" fname="type_options" type="TypeOptions" minOccurs="0" tagId="2">Required/allowed options for core type</Field>
+      <Field fid="4" fname="type_description" type="Description" minOccurs="0">Comments/Documentation</Field>
+      <Field fid="5" fname="fields" type="JADN-Type" minOccurs="0" tagId="2">Fields, Items, or nothing more for core type</Field>
     </Type>
     <Type name="JADN-Type" type="Choice">Fields applicable for each core type
-      <Field fid="1" name="Binary" type="Empty"></Field>
-      <Field fid="2" name="Boolean" type="Empty"></Field>
-      <Field fid="3" name="Integer" type="Empty"></Field>
-      <Field fid="4" name="Number" type="Empty"></Field>
-      <Field fid="5" name="String" type="Empty"></Field>
-      <Field fid="6" name="Array" type="Fields"></Field>
-      <Field fid="7" name="ArrayOf" type="Empty"></Field>
-      <Field fid="8" name="Map" type="Fields"></Field>
-      <Field fid="9" name="MapOf" type="Empty"></Field>
-      <Field fid="10" name="Record" type="Fields"></Field>
-      <Field fid="11" name="Enumerated" type="Items"></Field>
-      <Field fid="12" name="Choice" type="Fields"></Field>
+      <Field fid="1" fname="Binary" type="Empty"/>
+      <Field fid="2" fname="Boolean" type="Empty"/>
+      <Field fid="3" fname="Integer" type="Empty"/>
+      <Field fid="4" fname="Number" type="Empty"/>
+      <Field fid="5" fname="String" type="Empty"/>
+      <Field fid="6" fname="Array" type="Fields"/>
+      <Field fid="7" fname="ArrayOf" type="Empty"/>
+      <Field fid="8" fname="Map" type="Fields"/>
+      <Field fid="9" fname="MapOf" type="Empty"/>
+      <Field fid="10" fname="Record" type="Fields"/>
+      <Field fid="11" fname="Enumerated" type="Items"/>
+      <Field fid="12" fname="Choice" type="Fields"/>
     </Type>
     <Type name="TypeOptions" type="Choice">Required/allowed options for each core type
-      <Field fid="1" name="Binary" type="BinaryOpts"></Field>
-      <Field fid="2" name="Boolean" type="BooleanOpts"></Field>
-      <Field fid="3" name="Integer" type="IntegerOpts"></Field>
-      <Field fid="4" name="Number" type="NumberOpts"></Field>
-      <Field fid="5" name="String" type="StringOpts"></Field>
-      <Field fid="6" name="Array" type="ArrayOpts"></Field>
-      <Field fid="7" name="ArrayOf" type="ArrayOfOpts"></Field>
-      <Field fid="8" name="Map" type="MapOpts"></Field>
-      <Field fid="9" name="MapOf" type="MapOfOpts"></Field>
-      <Field fid="10" name="Record" type="RecordOpts"></Field>
-      <Field fid="11" name="Enumerated" type="EnumeratedOpts"></Field>
-      <Field fid="12" name="Choice" type="ChoiceOpts"></Field>
+      <Field fid="1" fname="Binary" type="BinaryOpts"/>
+      <Field fid="2" fname="Boolean" type="BooleanOpts"/>
+      <Field fid="3" fname="Integer" type="IntegerOpts"/>
+      <Field fid="4" fname="Number" type="NumberOpts"/>
+      <Field fid="5" fname="String" type="StringOpts"/>
+      <Field fid="6" fname="Array" type="ArrayOpts"/>
+      <Field fid="7" fname="ArrayOf" type="ArrayOfOpts"/>
+      <Field fid="8" fname="Map" type="MapOpts"/>
+      <Field fid="9" fname="MapOf" type="MapOfOpts"/>
+      <Field fid="10" fname="Record" type="RecordOpts"/>
+      <Field fid="11" fname="Enumerated" type="EnumeratedOpts"/>
+      <Field fid="12" fname="Choice" type="ChoiceOpts"/>
     </Type>
-    <Type name="Empty" type="Array" maxLength="0"></Type>
-    <Type name="Items" type="ArrayOf" valueType="Item"></Type>
-    <Type name="Fields" type="ArrayOf" valueType="Field"></Type>
+    <Type name="Empty" type="Array" maxLength="0"/>
+    <Type name="Items" type="ArrayOf" valueType="Item"/>
+    <Type name="Fields" type="ArrayOf" valueType="Field"/>
     <Type name="Item" type="Array">
-      <Field fid="1" name="item_id" type="Integer"></Field>
-      <Field fid="2" name="item_value" type="String" minOccurs="0"></Field>
-      <Field fid="3" name="item_description" type="Description" minOccurs="0"></Field>
+      <Field fid="1" fname="item_id" type="Integer"/>
+      <Field fid="2" fname="item_value" type="String" minOccurs="0"/>
+      <Field fid="3" fname="item_description" type="Description" minOccurs="0"/>
     </Type>
     <Type name="Field" type="Array">
-      <Field fid="1" name="field_id" type="Integer" minInclusive="1"></Field>
-      <Field fid="2" name="field_name" type="FieldName"></Field>
-      <Field fid="3" name="field_type" type="TypeRef"></Field>
-      <Field fid="4" name="field_options" type="FieldOptions" minOccurs="0" tagId="3"></Field>
-      <Field fid="5" name="field_description" type="Description" minOccurs="0"></Field>
+      <Field fid="1" fname="field_id" type="Integer" minInclusive="1"/>
+      <Field fid="2" fname="field_name" type="FieldName"/>
+      <Field fid="3" fname="field_type" type="TypeRef"/>
+      <Field fid="4" fname="field_options" type="FieldOptions" minOccurs="0" tagId="3"/>
+      <Field fid="5" fname="field_description" type="Description" minOccurs="0"/>
     </Type>
     <Type name="FieldOptions" type="Map" tagString="JADNOpts" extends="TypeOptions">
-      <Field fid="91" name="minOccurs" type="Integer" minInclusive="0" minOccurs="0">[: min cardinality, default = 1, 0 = field is optional</Field>
-      <Field fid="93" name="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
-      <Field fid="38" name="tagId" type="Integer" minInclusive="1" minOccurs="0">&: field that specifies the type of this field</Field>
-      <Field fid="60" name="dir" type="Boolean" minOccurs="0"><: pointer enumeration treats field as a collection</Field>
-      <Field fid="75" name="key" type="Boolean" minOccurs="0">K: field is the primary key for TypeName</Field>
-      <Field fid="76" name="link" type="Boolean" minOccurs="0">L: field is a link (foreign key) to an instance of FieldType</Field>
+      <Field fid="91" fname="minOccurs" type="Integer" minInclusive="0" minOccurs="0">[: min cardinality, default = 1, 0 = field is optional</Field>
+      <Field fid="93" fname="maxOccurs" type="Integer" minInclusive="0" minOccurs="0">]: max cardinality, default = 1, &amp;lt;0 = inherited or none, not 1 = array</Field>
+      <Field fid="38" fname="tagId" type="Integer" minInclusive="1" minOccurs="0">&amp;amp;: field that specifies the type of this field</Field>
+      <Field fid="60" fname="dir" type="Boolean" minOccurs="0">&amp;lt;: pointer enumeration treats field as a collection</Field>
+      <Field fid="75" fname="key" type="Boolean" minOccurs="0">K: field is the primary key for TypeName</Field>
+      <Field fid="76" fname="link" type="Boolean" minOccurs="0">L: field is a link (foreign key) to an instance of FieldType</Field>
     </Type>
     <Type name="BinaryOpts" type="Map" tagString="JADNOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="123" name="minLength" type="Integer" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minOccurs="0"></Field>
-      <Field fid="117" name="default" type="Binary" minOccurs="0"></Field>
-      <Field fid="118" name="const" type="Binary" minOccurs="0"></Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="123" fname="minLength" type="Integer" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minOccurs="0"/>
+      <Field fid="117" fname="default" type="Binary" minOccurs="0"/>
+      <Field fid="118" fname="const" type="Binary" minOccurs="0"/>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="BooleanOpts" type="Map" tagString="JADNOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="117" name="default" type="Boolean" minOccurs="0"></Field>
-      <Field fid="118" name="const" type="Boolean" minOccurs="0"></Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="117" fname="default" type="Boolean" minOccurs="0"/>
+      <Field fid="118" fname="const" type="Boolean" minOccurs="0"/>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="IntegerOpts" type="Map" tagString="JADNOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="69" name="scale" type="Integer" minOccurs="0"></Field>
-      <Field fid="121" name="minInclusive" type="Integer" minOccurs="0"></Field>
-      <Field fid="122" name="maxInclusive" type="Integer" minOccurs="0"></Field>
-      <Field fid="119" name="minExclusive" type="Integer" minOccurs="0"></Field>
-      <Field fid="120" name="maxExclusive" type="Integer" minOccurs="0"></Field>
-      <Field fid="117" name="default" type="Integer" minOccurs="0"></Field>
-      <Field fid="118" name="const" type="Integer" minOccurs="0"></Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="69" fname="scale" type="Integer" minOccurs="0"/>
+      <Field fid="121" fname="minInclusive" type="Integer" minOccurs="0"/>
+      <Field fid="122" fname="maxInclusive" type="Integer" minOccurs="0"/>
+      <Field fid="119" fname="minExclusive" type="Integer" minOccurs="0"/>
+      <Field fid="120" fname="maxExclusive" type="Integer" minOccurs="0"/>
+      <Field fid="117" fname="default" type="Integer" minOccurs="0"/>
+      <Field fid="118" fname="const" type="Integer" minOccurs="0"/>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="NumberOpts" type="Map" tagString="JADNOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="121" name="minInclusive" type="Number" minOccurs="0"></Field>
-      <Field fid="122" name="maxInclusive" type="Number" minOccurs="0"></Field>
-      <Field fid="119" name="minExclusive" type="Number" minOccurs="0"></Field>
-      <Field fid="120" name="maxExclusive" type="Number" minOccurs="0"></Field>
-      <Field fid="117" name="default" type="Number" minOccurs="0"></Field>
-      <Field fid="118" name="const" type="Number" minOccurs="0"></Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="121" fname="minInclusive" type="Number" minOccurs="0"/>
+      <Field fid="122" fname="maxInclusive" type="Number" minOccurs="0"/>
+      <Field fid="119" fname="minExclusive" type="Number" minOccurs="0"/>
+      <Field fid="120" fname="maxExclusive" type="Number" minOccurs="0"/>
+      <Field fid="117" fname="default" type="Number" minOccurs="0"/>
+      <Field fid="118" fname="const" type="Number" minOccurs="0"/>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="StringOpts" type="Map" tagString="JADNOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="121" name="minInclusive" type="String" minOccurs="0"></Field>
-      <Field fid="122" name="maxInclusive" type="String" minOccurs="0"></Field>
-      <Field fid="119" name="minExclusive" type="String" minOccurs="0"></Field>
-      <Field fid="120" name="maxExclusive" type="String" minOccurs="0"></Field>
-      <Field fid="37" name="pattern" type="String" format="regex" minOccurs="0"></Field>
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="117" name="default" type="String" minOccurs="0"></Field>
-      <Field fid="118" name="const" type="String" minOccurs="0"></Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="121" fname="minInclusive" type="String" minOccurs="0"/>
+      <Field fid="122" fname="maxInclusive" type="String" minOccurs="0"/>
+      <Field fid="119" fname="minExclusive" type="String" minOccurs="0"/>
+      <Field fid="120" fname="maxExclusive" type="String" minOccurs="0"/>
+      <Field fid="37" fname="pattern" type="String" format="regex" minOccurs="0"/>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="117" fname="default" type="String" minOccurs="0"/>
+      <Field fid="118" fname="const" type="String" minOccurs="0"/>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="AllOpts" type="Map" tagString="JADNOpts">
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0"></Field>
-      <Field fid="97" name="abstract" type="Boolean" minOccurs="0"></Field>
-      <Field fid="101" name="extends" type="TypeRef" minOccurs="0"></Field>
-      <Field fid="114" name="restricts" type="TypeRef" minOccurs="0"></Field>
-      <Field fid="102" name="final" type="Boolean" minOccurs="0"></Field>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0"/>
+      <Field fid="97" fname="abstract" type="Boolean" minOccurs="0"/>
+      <Field fid="101" fname="extends" type="TypeRef" minOccurs="0"/>
+      <Field fid="114" fname="restricts" type="TypeRef" minOccurs="0"/>
+      <Field fid="102" fname="final" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="ArrayOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="47" name="format" type="Format" minOccurs="0"></Field>
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
+      <Field fid="47" fname="format" type="Format" minOccurs="0"/>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
     </Type>
     <Type name="ArrayOfOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="42" name="valueType" type="TypeRef"></Field>
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="113" name="unique" type="Boolean" minOccurs="0"></Field>
-      <Field fid="115" name="set" type="Boolean" minOccurs="0"></Field>
-      <Field fid="98" name="unordered" type="Boolean" minOccurs="0"></Field>
+      <Field fid="42" fname="valueType" type="TypeRef"/>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="113" fname="unique" type="Boolean" minOccurs="0"/>
+      <Field fid="115" fname="set" type="Boolean" minOccurs="0"/>
+      <Field fid="98" fname="unordered" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="MapOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
-      <Field fid="116" name="tagString" type="String" minOccurs="0"></Field>
+      <Field fid="61" fname="id" type="Boolean" minOccurs="0"/>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="111" fname="sequence" type="Boolean" minOccurs="0"/>
+      <Field fid="116" fname="tagString" type="TypeRef" minOccurs="0"/>
     </Type>
     <Type name="MapOfOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="43" name="keyType" type="TypeRef"></Field>
-      <Field fid="42" name="valueType" type="TypeRef"></Field>
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
+      <Field fid="43" fname="keyType" type="TypeRef"/>
+      <Field fid="42" fname="valueType" type="TypeRef"/>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="111" fname="sequence" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="RecordOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="123" name="minLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="125" name="maxLength" type="Integer" minInclusive="0" minOccurs="0"></Field>
-      <Field fid="111" name="sequence" type="Boolean" minOccurs="0"></Field>
+      <Field fid="123" fname="minLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="125" fname="maxLength" type="Integer" minInclusive="0" minOccurs="0"/>
+      <Field fid="111" fname="sequence" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="EnumeratedOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
-      <Field fid="35" name="enum" type="TypeRef" minOccurs="0"></Field>
-      <Field fid="62" name="pointer" type="TypeRef" minOccurs="0"></Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0"></Field>
+      <Field fid="61" fname="id" type="Boolean" minOccurs="0"/>
+      <Field fid="35" fname="enum" type="TypeRef" minOccurs="0"/>
+      <Field fid="62" fname="pointer" type="TypeRef" minOccurs="0"/>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0"/>
     </Type>
     <Type name="ChoiceOpts" type="Map" tagString="JADNOpts" extends="AllOpts">
-      <Field fid="61" name="id" type="Boolean" minOccurs="0"></Field>
-      <Field fid="67" name="combine" type="Combine" minOccurs="0"></Field>
+      <Field fid="61" fname="id" type="Boolean" minOccurs="0"/>
+      <Field fid="67" fname="combine" type="Combine" minOccurs="0"/>
     </Type>
     <Type name="JADNOpts" type="Map">JADN type and field option IDs/Names for tag-string serialization
-      <Field fid="61" name="id" type="Boolean" minOccurs="0">= - Enumerated type and Choice/Map/Record keys are ID not Name</Field>
-      <Field fid="42" name="valueType" type="TypeRef" minOccurs="0">* - Value type for ArrayOf and MapOf</Field>
-      <Field fid="43" name="keyType" type="TypeRef" minOccurs="0">+ - Key type for MapOf</Field>
-      <Field fid="35" name="enum" type="TypeRef" minOccurs="0"># - enumeration derived from Array/Choice/Map/Record type</Field>
-      <Field fid="62" name="pointer" type="TypeRef" minOccurs="0">> - enumeration of pointers derived from Array/Choice/Map/Record type</Field>
-      <Field fid="37" name="pattern" type="Regex" minOccurs="0">% - regular expression that a string must match</Field>
-      <Field fid="117" name="default" type="Any" minOccurs="0">u - Default value</Field>
-      <Field fid="118" name="const" type="Any" minOccurs="0">v - Constant value</Field>
-      <Field fid="119" name="minExclusive" type="Any" minOccurs="0">w - minimum numeric/string value, excluding bound</Field>
-      <Field fid="120" name="maxExclusive" type="Any" minOccurs="0">x - maximum numeric/string value, excluding bound</Field>
-      <Field fid="121" name="minInclusive" type="Any" minOccurs="0">y - minimum numeric/string value</Field>
-      <Field fid="122" name="maxInclusive" type="Any" minOccurs="0">z - maximum numeric/string value</Field>
-      <Field fid="123" name="minLength" type="Integer" minOccurs="0">{ - minimum byte or text string length, collection item count</Field>
-      <Field fid="125" name="maxLength" type="Integer" minOccurs="0">} - maximum byte or text string length, collection item count</Field>
-      <Field fid="113" name="unique" type="Boolean" minOccurs="0">q - ArrayOf instance must not contain duplicates</Field>
-      <Field fid="115" name="set" type="Boolean" minOccurs="0">s - ArrayOf instance is unordered and unique (set)</Field>
-      <Field fid="98" name="unordered" type="Boolean" minOccurs="0">b - ArrayOf instance is unordered and not unique (bag)</Field>
-      <Field fid="111" name="sequence" type="Boolean" minOccurs="0">o - Map, MapOr or Record instance is ordered and unique (ordered set)</Field>
-      <Field fid="48" name="nillable" type="Boolean" minOccurs="0">0 - Instance may have no value, represented by nil, null, None, etc</Field>
-      <Field fid="67" name="combine" type="Combine" minOccurs="0">C - Choice instance is a logical combination (anyOf, allOf, oneOf)</Field>
-      <Field fid="47" name="format" type="Format" minOccurs="0">/ - Semantic validation keyword, may affect serialization</Field>
-      <Field fid="69" name="scale" type="Integer" minOccurs="0">E - fixed point scale factor n, serialized int = value * 10^n</Field>
-      <Field fid="116" name="tagString" type="TypeRef" minOccurs="0">t - Use referenced type for tag-string serialization</Field>
-      <Field fid="97" name="abstract" type="Boolean" minOccurs="0">a - Inheritance: abstract, non-instantiatable</Field>
-      <Field fid="114" name="restricts" type="TypeRef" minOccurs="0">r - Inheritance: restriction - subset of referenced type</Field>
-      <Field fid="101" name="extends" type="TypeRef" minOccurs="0">e - Inheritance: extension - superset of referenced type</Field>
-      <Field fid="102" name="final" type="Boolean" minOccurs="0">f - Inheritance: final - cannot have subtype</Field>
-      <Field fid="65" name="attr" type="Boolean" minOccurs="0">A - Value may be serialized as an XML attribute</Field>
-      <Field fid="84" name="typeOpts" type="String" minOccurs="0">T - *Sentinel*: preceding are Type Options, following are Field Options</Field>
-      <Field fid="91" name="minOccurs" type="Integer" minOccurs="0">[ - min cardinality, default = 1, 0 = field is optional</Field>
-      <Field fid="93" name="maxOccurs" type="Integer" minOccurs="0">] - max cardinality, default = 1, <0 = inherited or none, not 1 = array</Field>
-      <Field fid="38" name="tagId" type="Integer" minOccurs="0">& - field that specifies the type of this field</Field>
-      <Field fid="60" name="dir" type="Boolean" minOccurs="0">< - pointer enumeration treats field as a collection</Field>
-      <Field fid="75" name="key" type="Boolean" minOccurs="0">K - field is the primary key for TypeName</Field>
-      <Field fid="76" name="link" type="Boolean" minOccurs="0">L - field is a link (foreign key) to an instance of FieldType</Field>
+      <Field fid="61" fname="id" type="Boolean" minOccurs="0">= - Enumerated type and Choice/Map/Record keys are ID not Name</Field>
+      <Field fid="42" fname="valueType" type="String" minOccurs="0">* - Value type for ArrayOf and MapOf</Field>
+      <Field fid="43" fname="keyType" type="String" minOccurs="0">+ - Key type for MapOf</Field>
+      <Field fid="35" fname="enum" type="String" minOccurs="0"># - enumeration derived from Array/Choice/Map/Record type</Field>
+      <Field fid="62" fname="pointer" type="String" minOccurs="0">&amp;gt; - enumeration of pointers derived from Array/Choice/Map/Record type</Field>
+      <Field fid="37" fname="pattern" type="String" minOccurs="0">% - regular expression that a string must match</Field>
+      <Field fid="117" fname="default" type="BType" minOccurs="0">u - Default value</Field>
+      <Field fid="118" fname="const" type="BType" minOccurs="0">v - Constant value</Field>
+      <Field fid="119" fname="minExclusive" type="BType" minOccurs="0">w - minimum numeric/string value, excluding bound</Field>
+      <Field fid="120" fname="maxExclusive" type="BType" minOccurs="0">x - maximum numeric/string value, excluding bound</Field>
+      <Field fid="121" fname="minInclusive" type="BType" minOccurs="0">y - minimum numeric/string value</Field>
+      <Field fid="122" fname="maxInclusive" type="BType" minOccurs="0">z - maximum numeric/string value</Field>
+      <Field fid="123" fname="minLength" type="Integer" minOccurs="0">{ - minimum byte or text string length, collection item count</Field>
+      <Field fid="125" fname="maxLength" type="Integer" minOccurs="0">} - maximum byte or text string length, collection item count</Field>
+      <Field fid="113" fname="unique" type="Boolean" minOccurs="0">q - ArrayOf instance must not contain duplicates</Field>
+      <Field fid="115" fname="set" type="Boolean" minOccurs="0">s - ArrayOf instance is unordered and unique (set)</Field>
+      <Field fid="98" fname="unordered" type="Boolean" minOccurs="0">b - ArrayOf instance is unordered and not unique (bag)</Field>
+      <Field fid="111" fname="sequence" type="Boolean" minOccurs="0">o - Map, MapOr or Record instance is ordered and unique (ordered set)</Field>
+      <Field fid="67" fname="combine" type="String" minOccurs="0">C - Choice instance is a logical combination (anyOf, allOf, oneOf)</Field>
+      <Field fid="47" fname="format" type="String" minOccurs="0">/ - Semantic validation keyword, may affect serialization</Field>
+      <Field fid="69" fname="scale" type="Integer" minOccurs="0">E - fixed point scale factor n, serialized int = value * 10^n</Field>
+      <Field fid="116" fname="tagString" type="String" minOccurs="0">t - Use referenced type for tag-string serialization</Field>
+      <Field fid="97" fname="abstract" type="Boolean" minOccurs="0">a - Inheritance: abstract, non-instantiatable</Field>
+      <Field fid="114" fname="restricts" type="String" minOccurs="0">r - Inheritance: restriction - subset of referenced type</Field>
+      <Field fid="101" fname="extends" type="String" minOccurs="0">e - Inheritance: extension - superset of referenced type</Field>
+      <Field fid="102" fname="final" type="Boolean" minOccurs="0">f - Inheritance: final - cannot have subtype</Field>
+      <Field fid="65" fname="attr" type="Boolean" minOccurs="0">A - Value may be serialized as an XML attribute</Field>
+      <Field fid="84" fname="typeOpts" type="String" minOccurs="0">T - *Sentinel*: preceding are Type Options, following are Field Options</Field>
+      <Field fid="91" fname="minOccurs" type="Integer" minOccurs="0">[ - min cardinality, default = 1, 0 = field is optional</Field>
+      <Field fid="93" fname="maxOccurs" type="Integer" minOccurs="0">] - max cardinality, default = 1, &amp;lt;0 = inherited or none, not 1 = array</Field>
+      <Field fid="48" fname="nillable" type="Boolean" minOccurs="0">0 - Instance may have no value, represented by nil, null, None, etc</Field>
+      <Field fid="38" fname="tagId" type="Integer" minOccurs="0">&amp;amp; - field that specifies the type of this field</Field>
+      <Field fid="60" fname="dir" type="Boolean" minOccurs="0">&amp;lt; - pointer enumeration treats field as a collection</Field>
+      <Field fid="75" fname="key" type="Boolean" minOccurs="0">K - field is the primary key for TypeName</Field>
+      <Field fid="76" fname="link" type="Boolean" minOccurs="0">L - field is a link (foreign key) to an instance of FieldType</Field>
     </Type>
-    <Type name="Format" type="String" pattern="^[a-zA-Z0-9]{1,16}+$"></Type>
+    <Type name="Format" type="String" pattern="^[a-zA-Z0-9]{1,16}+$"/>
     <Type name="Description" type="Choice" combine="3">
-      <Field fid="1" name="str" type="String">Text String</Field>
-      <Field fid="2" name="anno" type="Annotation">Type-labeled strings</Field>
+      <Field fid="1" fname="str" type="String">Text String</Field>
+      <Field fid="2" fname="anno" type="Annotation">Type-labeled strings</Field>
     </Type>
     <Type name="Annotation" type="Map">
-      <Field fid="1" name="md" type="String">MarkDown text</Field>
-      <Field fid="2" name="xml" type="String">XML annotation</Field>
+      <Field fid="1" fname="md" type="String">MarkDown text</Field>
+      <Field fid="2" fname="xml" type="String">XML annotation</Field>
     </Type>
     <Type name="Combine" type="Enumerated" id="True">Untagged Union combining function
-      <Item id="1" value="allOf"></Item>
-      <Item id="2" value="anyOf"></Item>
-      <Item id="3" value="oneOf"></Item>
-      <Item id="4" value="diff"></Item>
+      <Item id="1" value="allOf"/>
+      <Item id="2" value="anyOf"/>
+      <Item id="3" value="oneOf"/>
+      <Item id="4" value="diff"/>
     </Type>
     <Type name="Any" type="Choice" combine="oneOf">Any primitive type
-      <Field fid="1" name="binary" type="Binary"></Field>
-      <Field fid="2" name="boolean" type="Boolean"></Field>
-      <Field fid="3" name="integer" type="Integer"></Field>
-      <Field fid="4" name="number" type="Number"></Field>
-      <Field fid="5" name="string" type="String"></Field>
+      <Field fid="1" fname="binary" type="Binary"/>
+      <Field fid="2" fname="boolean" type="Boolean"/>
+      <Field fid="3" fname="integer" type="Integer"/>
+      <Field fid="4" fname="number" type="Number"/>
+      <Field fid="5" fname="string" type="String"/>
     </Type>
   </Types>
 </Schema>
