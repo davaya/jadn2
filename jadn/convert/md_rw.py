@@ -55,7 +55,7 @@ class MD(JADNCore):
 
         for td in self.schema['types']:
             if len(td) > Fields and td[Fields]:
-                tdef = f'{td[TypeName]} ({jadn2typestr(self, td[CoreType], td[TypeOptions], {})})'
+                tdef = f'{td[TypeName]} ({jadn2typestr(self, td[CoreType], td[TypeOptions])})'
                 tdesc = f'\n{td[TypeDesc]}\n' if td[TypeDesc] else ''
                 text += f'{tdesc}\n**Type: ' + tdef.replace("*", r"\*") + '**\n'
                 idt = td[CoreType] == 'Array' or td[TypeOptions].get('id', False)
@@ -82,7 +82,7 @@ class MD(JADNCore):
                         table.append([str(fd[FieldID]), f'**{fname}**', fdef, fmult, fdesc])
             else:
                 table = [['Type Name', 'Type Definition', 'Description'],
-                         [f'**{td[TypeName]}**', jadn2typestr(self, td[CoreType], td[TypeOptions], {}), td[TypeDesc]]]
+                         [f'**{td[TypeName]}**', jadn2typestr(self, td[CoreType], td[TypeOptions]), td[TypeDesc]]]
             text += f'\n{_format_table(table)}\n\n**********\n'
         return text
 
@@ -123,7 +123,7 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
 
         p_type = fr'^{p_tname}{p_assign}{p_tstr}{p_tdesc}$'
         if m := re.match(p_type, line):
-            btype, topts, fo = typestr2jadn(m.group(2))
+            btype, topts, fo = typestr2jadn(m.group(2), m.group(3))
             assert fo == []                     # field options MUST not be included in typedefs
             newtype = [m.group(1), btype, topts, m.group(3) if m.group(3) else '', []]
             return 'T', newtype

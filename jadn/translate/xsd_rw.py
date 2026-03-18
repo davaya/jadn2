@@ -50,7 +50,7 @@ def make_jadn(root: etree.Element) -> dict:
             'documentation': [],
             'fields': [],
         }
-        print(f'{n:>{2*len(path)}} {len(e)} {s["tag"]} {s["attrs"]} {s["val"]}')
+        # print(f'{n:>{2*len(path)}} {len(e)} {s["tag"]} {s["attrs"]} {s["val"]}')
         for n, child in enumerate(path[-1], start=1):
             walk(path + [child], ctx, n)
         process(ctx, s)
@@ -62,67 +62,87 @@ def make_jadn(root: etree.Element) -> dict:
     }
     walk([root], ctx, 1)
     for n, (k, v) in enumerate(ctx['e_count'].items(), start=1):
-        print(f'{n:=4} {k} = {v}')
+        pass
+        # print(f'{n:=4} {k} = {v}')
     return {k: ctx[k] for k in ('meta', 'types')}
 
 
 def process(ctx, s):
     def p_schema(ctx, s):
-        print('## Schema')
+        pass
+        # print('## Schema')
 
     def p_annotation(ctx, s):
-        print('## Annotation')
+        pass
+        # print('## Annotation')
 
     def p_list(ctx, s):
-        print('## List')
+        pass
+        # print('## List')
 
     def p_documentation(ctx, s):
-        print('## Documentation')
+        pass
+        # print('## Documentation')
 
     def p_localterm(ctx, s):
-        print('## LocalTerm')
+        pass
+        # print('## LocalTerm')
 
     def p_appinfo(ctx, s):
-        print('## Appinfo')
+        pass
+        # print('## Appinfo')
 
     def p_import(ctx, s):
-        print('## Import')
+        pass
+        # print('## Import')
 
     def p_attribute(ctx, s):
-        print('## Attribute')
+        pass
+        # print('## Attribute')
 
     def p_element(ctx, s):
-        print('## Element')
+        pass
+        # print('## Element')
 
     def p_simpleType(ctx, s):
-        print('## SimpleType')
+        pass
+        # print('## SimpleType')
 
     def p_simpleContent(ctx, s):
-        print('## SimpleContent')
+        pass
+        # print('## SimpleContent')
 
     def p_complexType(ctx, s):
-        print('## ComplexType')
+        pass
+        # print('## ComplexType')
 
     def p_complexContent(ctx, s):
-        print('## ComplexContent')
+        pass
+        # print('## ComplexContent')
 
     def p_extension(ctx, s):
-        print('## Extension')
+        pass
+        # print('## Extension')
 
     def p_attributeGroup(ctx, s):
-        print('## AttributeGroup')
+        pass
+        # print('## AttributeGroup')
 
     def p_restriction(ctx, s):
-        print('## Restriction')
+        pass
+        # print('## Restriction')
 
     def p_enumeration(ctx, s):
-        print('## Enumeration')
+        pass
+        # print('## Enumeration')
 
     def p_sequence(ctx, s):
-        print('## Sequence')
+        pass
+        # print('## Sequence')
 
     def p_option(ctx, s):
-        print('## Option')
+        pass
+        # print('## Option')
 
     p = {
         'schema': p_schema,

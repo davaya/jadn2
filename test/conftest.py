@@ -1,11 +1,11 @@
 import os
 import pytest
+from test_convert_rt import abs_dir, OUT_DIR
 
-OUT_DIR = 'Out'
 
 @pytest.fixture(scope='session')
 def session_data():
-    print('Performing overall setup')
-    os.makedirs(OUT_DIR, exist_ok=True)
-    yield {'output_dir': OUT_DIR}
+    print(f'Performing overall setup')
+    os.makedirs(abs_dir(OUT_DIR), exist_ok=True)
+    yield {}
     print('Performing overall teardown')
