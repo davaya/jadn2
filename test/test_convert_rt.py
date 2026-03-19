@@ -54,9 +54,9 @@ def test_jadn_schema_convert(session_data: dict, in_path: str, out_format: str, 
 
     if round_trip == 'jadn':
         check_pkg = JADN_SCHEMA_CLASS[out_format]()
-        if out_format in {'erd', 'atree'}:
+        if out_format in {'erd', 'atree'}:  # Verify that write-only (display) formats raise error on load
             with pytest.raises(NotImplementedError):
                 check_pkg.schema_loads(schema_msg)
         else:
-            check_pkg.schema_loads(schema_msg)
+            check_pkg.schema_loads(schema_msg)  # Verify lossless conversion to and from test format
             assert check_pkg.schema == in_pkg.schema

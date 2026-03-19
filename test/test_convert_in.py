@@ -1,3 +1,4 @@
+import os
 import pytest
 from pathlib import Path
 from test_convert_rt import abs_dir, schema_convert, JADN_SCHEMA_CLASS
@@ -11,4 +12,6 @@ def test_abstract_schema_convert(session_data, in_path, out_format):
     """
     Convert JADN Schema in alternate format to native JADN format
     """
-    schema_convert(JADN_SCHEMA_CLASS, in_path, out_format)
+    # Ignore files in display formats
+    if os.path.splitext(os.path.split(in_path)[1])[1].lstrip('.') not in {'ert', 'atree'}:
+        schema_convert(JADN_SCHEMA_CLASS, in_path, out_format)

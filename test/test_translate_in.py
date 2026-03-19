@@ -8,6 +8,8 @@ CONCRETE_SCHEMA_CLASS = {
     'json': JSCHEMA,
     'proto': PROTO,
     'xsd': XSD,
+    # 'cddl': CDDL,
+    # 'xeto': XETO,
 }
 
 
