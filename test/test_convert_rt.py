@@ -27,6 +27,17 @@ def abs_dir(relative_path: str) -> Path:
 
 
 def schema_convert(schema_classes: dict, in_path: Path, out_format: str) -> ((str | bytes), JADNCore):
+    """
+    
+    :param schema_classes:
+    :type schema_classes:
+    :param in_path:
+    :type in_path:
+    :param out_format:
+    :type out_format:
+    :return:
+    :rtype:
+    """
     sclasses = schema_classes | {'jadn': JADN}
     in_fn = os.path.split(in_path)[1]
     in_ext = os.path.splitext(in_fn)[1].lstrip('.')

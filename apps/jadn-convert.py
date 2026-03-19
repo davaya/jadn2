@@ -8,7 +8,7 @@ from jadn.translate import JSCHEMA, XSD, CDDL, PROTO, XETO
 CONFIG = 'jadn_config.json'
 
 
-def convert_schema(out_format: str, style_cmd: str, path: str, in_file: str, out_dir: str) -> None:
+def convert_schema(out_fmt: str, style_cmd: str, in_path: str, in_file: str, out_dir: str) -> None:
     class_ = {
         'jadn': JADN,
         'jidl': JIDL,
@@ -31,28 +31,28 @@ def convert_schema(out_format: str, style_cmd: str, path: str, in_file: str, out
     if ext in class_ and (pkg := class_[ext]()) and 'schema_loads' in dir(pkg):     # Input format has a load method
     # if (pkg := class_.get(ext)()) and 'schema_loads' in dir(pkg):   # Input format has a load method
         # Read schema literal into information value
-        with open(os.path.join(path, in_file), 'r') as fp:
+        with open(os.path.join(in_path, in_file), 'r') as fp:
             pkg.schema_load(fp)
 
         # Validate JADN information value against JADN metaschema
         pkg.schema_validate()
 
         # Serialize information value to schema literal in output format
-        if out_format in class_:
-            style = style_args(class_[out_format](), out_format, style_cmd, CONFIG)    # style from format, config, args
+        if out_fmt in class_:
+            style = style_args(class_[out_fmt](), out_fmt, style_cmd, CONFIG)    # style from format, config, args
             if out_dir:
-                with open(os.path.join(out_dir, style_fname(fn, out_format, style)), 'w', encoding='utf8') as fp:
-                    class_[out_format]().schema_dump(fp, pkg, style)
+                with open(os.path.join(out_dir, style_fname(fn, out_fmt, style)), 'w', encoding='utf8') as fp:
+                    class_[out_fmt]().schema_dump(fp, pkg, style)
             else:
-                class_[out_format]().schema_dump(sys.stdout, pkg, style)
+                class_[out_fmt]().schema_dump(sys.stdout, pkg, style)
         else:
-            print(f'Unknown output format "{out_format}"')
+            print(f'Unknown output format "{out_fmt}"')
             sys.exit(2)
     else:
         print(f'Unknown input format "{ext}" -- ignored')
 
 
-def jadn_convert(input: str, out_dir: str, out_format: str, style: str, recursive: bool) -> None:
+def jadn_convert(input: str, out_dir: str, out_fmt: str, style: str, recursive: bool) -> None:
     """
     Convert JADN schema among multiple formats
 
@@ -72,12 +72,12 @@ def jadn_convert(input: str, out_dir: str, out_format: str, style: str, recursiv
             if not recursive:
                 dirs.clear()
             for in_file in files:
-                convert_schema(out_format, style, in_path, in_file, out_dir)
+                convert_schema(out_fmt, style, in_path, in_file, out_dir)
     else:
         # Otherwise process the named input file
         in_path, in_file = os.path.split(input)
         try:
-            convert_schema(out_format, style, in_path, in_file, out_dir)
+            convert_schema(out_fmt, style, in_path, in_file, out_dir)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)
@@ -95,5 +95,5 @@ if __name__ == '__main__':
     parser.add_argument('out_dir', nargs='?', default=None)
     args = parser.parse_args()
     if args.out_dir:
-        print(args)     # Don't print command line args if schema output is stdout
+        print(args)     # Don't print command line args if output to stdout
     jadn_convert(args.input, args.out_dir, args.f, args.style, args.r)
