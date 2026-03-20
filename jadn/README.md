@@ -1,5 +1,7 @@
 # JADN Install Package
 
+JSON Abstract Data Notation (JADN) is an information modeling language. 
+
 ## Organization
 
 * **definitions.py:** Constants that define the JADN language.

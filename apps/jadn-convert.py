@@ -39,12 +39,12 @@ def convert_schema(out_fmt: str, style_cmd: str, in_path: str, in_file: str, out
 
         # Serialize information value to schema literal in output format
         if out_fmt in class_:
-            style = style_args(class_[out_fmt](), out_fmt, style_cmd, CONFIG)    # style from format, config, args
+            style = style_args(class_[out_fmt](), style_cmd, CONFIG)    # style from format, config, args
             if out_dir:
                 with open(os.path.join(out_dir, style_fname(fn, out_fmt, style)), 'w', encoding='utf8') as fp:
-                    class_[out_fmt]().schema_dump(fp, pkg, style)
+                    class_[out_fmt](pkg).schema_dump(fp, style)
             else:
-                class_[out_fmt]().schema_dump(sys.stdout, pkg, style)
+                class_[out_fmt](pkg).schema_dump(sys.stdout, style)
         else:
             print(f'Unknown output format "{out_fmt}"')
             sys.exit(2)
