@@ -8,7 +8,7 @@ from jadn.translate import JSCHEMA, XSD, CDDL, PROTO, XETO
 CONFIG = 'jadn_config.json'
 
 
-def convert_schema(out_fmt: str, style_cmd: str, in_path: str, in_file: str, out_dir: str) -> None:
+def convert_schema(in_path: str, out_dir: str, out_fmt: str, style_cmd: str) -> None:
     class_ = {
         'jadn': JADN,
         'jidl': JIDL,
@@ -23,28 +23,28 @@ def convert_schema(out_fmt: str, style_cmd: str, in_path: str, in_file: str, out
         'xeto': XETO,
     }
 
+    in_file = os.path.split(in_path)[1]
     if out_dir:
         print(in_file)  # Don't print filename if destination is stdout
 
     fn, ext = os.path.splitext(in_file)
     ext = ext.lstrip('.')
-    if ext in class_ and (pkg := class_[ext]()) and 'schema_loads' in dir(pkg):     # Input format has a load method
-    # if (pkg := class_.get(ext)()) and 'schema_loads' in dir(pkg):   # Input format has a load method
+    if ext in class_ and (in_pkg := class_[ext]()) and 'schema_loads' in dir(in_pkg):     # Input format has a load method
         # Read schema literal into information value
-        with open(os.path.join(in_path, in_file), 'r') as fp:
-            pkg.schema_load(fp)
+        with open(in_path, 'r') as fp:
+            in_pkg.schema_load(fp)
 
         # Validate JADN information value against JADN metaschema
-        pkg.schema_validate()
+        in_pkg.schema_validate()
 
         # Serialize information value to schema literal in output format
         if out_fmt in class_:
             style = style_args(class_[out_fmt](), style_cmd, CONFIG)    # style from format, config, args
             if out_dir:
                 with open(os.path.join(out_dir, style_fname(fn, out_fmt, style)), 'w', encoding='utf8') as fp:
-                    class_[out_fmt](pkg).schema_dump(fp, style)
+                    class_[out_fmt](in_pkg).schema_dump(fp, style)
             else:
-                class_[out_fmt](pkg).schema_dump(sys.stdout, style)
+                class_[out_fmt](in_pkg).schema_dump(sys.stdout, style)
         else:
             print(f'Unknown output format "{out_fmt}"')
             sys.exit(2)
@@ -62,22 +62,21 @@ def jadn_convert(input: str, out_dir: str, out_fmt: str, style: str, recursive: 
     """
 
     # print(f'Installed JADN version: {jadn.__version__}\n')
-
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-
     if os.path.isdir(input):
         # If input is directory, process all files, including contained directories if recursive=True
-        for in_path, dirs, files in os.walk(input):
-            if not recursive:
-                dirs.clear()
-            for in_file in files:
-                convert_schema(out_fmt, style, in_path, in_file, out_dir)
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
+            for in_dir, dirs, files in os.walk(input):
+                if not recursive:
+                    dirs.clear()
+                for in_file in files:
+                    convert_schema(os.path.join(in_dir, in_file), out_dir, out_fmt, style)
+        else:
+            assert False, f'Input {input} is a directory but output directory is not specified'
     else:
         # Otherwise process the named input file
-        in_path, in_file = os.path.split(input)
         try:
-            convert_schema(out_fmt, style, in_path, in_file, out_dir)
+            convert_schema(input, out_dir, out_fmt, style)
         except (FileNotFoundError, AssertionError) as e:
             print(e, file=sys.stderr)
             sys.exit(1)
