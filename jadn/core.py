@@ -74,9 +74,8 @@ class JADNCore:
             JADNCore.TYPE_OPTS = {k for k, v in self.OPT_ORDER.items() if v < to}
             JADNCore.FIELD_OPTS = {k for k, v in self.OPT_ORDER.items() if v > to}
 
-            # Value types for configuration variables
-            m = tx['Config'][Fields]
-            JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in m}
+            # Package configuration variables and types
+            JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in tx['Config'][Fields]}
 
             # With option tables in place, load metaschema as normal JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
@@ -86,8 +85,6 @@ class JADNCore:
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
-
-            # TODO: add class (default) and instance (package) config
 
     def style(self) -> dict:
         """

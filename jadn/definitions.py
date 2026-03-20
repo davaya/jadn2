@@ -30,6 +30,9 @@ FieldType = 2           # Type of the field
 FieldOptions = 3        # An array of zero or more FIELD_OPTIONS (and TYPE_OPTIONS if extended)
 FieldDesc = 4           # A non-normative description of the field
 
+# Max cardinality limit ("maxOccurs" FieldOption) special values
+MAX_DEFAULT = -1        # Upper size limit defaults to JADN or package limit
+MAX_UNSPECIFIED = -2    # Upper size limit is not specified
 
 # Core datatypes
 PRIMITIVE_TYPES = (
@@ -55,30 +58,13 @@ UNION_TYPES = (
 
 CORE_TYPES = PRIMITIVE_TYPES + COMPOUND_TYPES + UNION_TYPES
 
-FIELD_LENGTH = {
-    'Binary': 0,
-    'Boolean': 0,
-    'Integer': 0,
-    'Number': 0,
-    'String': 0,
-    'Enumerated': 3,    # 0 if Enumerated type definition contains enum or pointer option
-    'Choice': 5,
-    'Array': 5,
-    'ArrayOf': 0,
-    'Map': 5,
-    'MapOf': 0,
-    'Record': 5,
-}
-
-MAX_DEFAULT = -1            # maxOccurs sentinel value: Upper size limit defaults to JADN or package limit
-MAX_UNLIMITED = -2          # maxOccurs sentinel value: Upper size limit does not exist
 
 def is_builtin(t: str) -> bool:      # Is a core type
     return t in CORE_TYPES
 
 
 def has_fields(t: str) -> bool:      # Is a type with fields listed in definition
-    return FIELD_LENGTH[t] == 5 if is_builtin(t) else False
+    return t in {'Array', 'Map', 'Record', 'Choice'}
 
 
 # Option "tagged-string" serialization:
@@ -86,48 +72,6 @@ def has_fields(t: str) -> bool:      # Is a type with fields listed in definitio
 #   In JSON serialization, options are represented as a List of ID-value strings where the first character
 #   of the string is the Unicode codepoint (ID) of its key; the remaining characters are its value.
 #   Option tables list the ID: (key name, value type, canonical sort order) of each option:
-
-"""
-TYPE_OPTIONS = {
-    0x3d: ('id', 'Boolean', 1),             #  61 '=', Enumerated type and Choice/Map/Record keys are ID not Name
-    0x2a: ('valueType', 'TypeRef', 2),      #  42 '*', Value type for ArrayOf and MapOf
-    0x2b: ('keyType', 'TypeRef', 3),        #  43 '+', Key type for MapOf
-    0x23: ('enum', 'TypeRef', 4),           #  35 '#', enumeration derived from Array/Choice/Map/Record type
-    0x3e: ('pointer', 'TypeRef', 5),        #  62 '>', enumeration of pointers derived from Array/Choice/Map/Record type
-    0x25: ('pattern', 'String', 6),         #  37 '%', regular expression that a string must match
-    0x75: ('default', None, 7),             # 117 'u', Default value
-    0x76: ('const', None, 8),               # 118 'v', Constant value
-    0x77: ('minExclusive', None, 9),        # 119 'w', minimum numeric/string value, excluding bound
-    0x78: ('maxExclusive', None, 10),       # 120 'x', maximum numeric/string value, excluding bound
-    0x79: ('minInclusive', None, 11),       # 121 'y', minimum numeric/string value
-    0x7a: ('maxInclusive', None, 12),       # 122 'z', maximum numeric/string value
-    0x7b: ('minLength', 'Integer', 13),     # 123 '{', minimum byte or text string length, collection item count
-    0x7d: ('maxLength', 'Integer', 14),     # 125 '}', maximum byte or text string length, collection item count
-    0x71: ('unique', 'Boolean', 15),        # 113 'q', ArrayOf instance must not contain duplicates
-    0x73: ('set', 'Boolean', 16),           # 115 's', ArrayOf instance is unordered and unique (set)
-    0x62: ('unordered', 'Boolean', 17),     #  98 'b', ArrayOf instance is unordered and not unique (bag)
-    0x6f: ('sequence', 'Boolean', 18),      # 111 'o', Map, MapOr or Record instance is ordered and unique (ordered set)
-    0x30: ('nillable', 'Boolean', 19),      #  48 '0', Instance may have no value, represented by nil, null, None, etc.
-    0x43: ('combine', 'Combine', 20),       #  67 'C', Choice instance is a logical combination (1: allOf, 2: anyOf, 3: oneOf, 4: diff")
-    0x2f: ('format', 'Format', 21),         #  47 '/', semantic validation keyword, may affect serialization
-    0x45: ('scale', 'Integer', 22),         #  69 'E', fixed point scale factor n, serialized int = value * 10^n
-    0x74: ('tagString', 'TypeRef', 23),     # 116 't', Map defining tag-string serialization {key: name, type}
-    0x61: ('abstract', 'Boolean', 24),      #  97 'a', Inheritance: abstract, non-instantiatable
-    0x72: ('restricts', 'TypeRef', 25),     # 114 'r', Inheritance: restriction - subset of referenced type
-    0x65: ('extends', 'TypeRef', 26),       # 101 'e', Inheritance: extension - superset of referenced type
-    0x66: ('final', 'Boolean', 27),         # 102 'f', Inheritance: final - cannot have subtype
-    0x41: ('attr', 'Boolean', 28),          #  65 'A', Value may be serialized as an XML attribute
-}
-
-FIELD_OPTIONS = {
-    0x5b: ('minOccurs', 'Integer', 29),     #  91 '[', min cardinality, default = 1, 0 = field is optional
-    0x5d: ('maxOccurs', 'Integer', 30),     #  93 ']', max cardinality, default = 1, <0 = inherited or none, not 1 = array
-    0x26: ('tagId', 'Integer', 31),         #  38 '&', field that specifies the type of this field
-    0x3c: ('dir', 'Boolean', 32),           #  60 '<', pointer enumeration treats field as a collection
-    0x4b: ('key', 'Boolean', 33),           #  75 'K', field is the primary key for TypeName
-    0x4c: ('link', 'Boolean', 34),          #  76 'L', field is a link (foreign key) to an instance of FieldType
-}
-"""
 
 
 REQUIRED_TYPE_OPTIONS = {

@@ -12,7 +12,7 @@ from jadn.core import dump_option_type
 from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
-    DEFAULT_CONFIG, MAX_DEFAULT, MAX_UNLIMITED,
+    DEFAULT_CONFIG, MAX_DEFAULT, MAX_UNSPECIFIED,
     is_builtin, has_fields
 )
 
@@ -208,7 +208,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
     def _lrange(ops: dict) -> str:
         lo = ops.pop('minLength', 0)
         hi = ops.pop('maxLength', MAX_DEFAULT)
-        hs = '*' if hi == MAX_DEFAULT else '.' if hi == MAX_UNLIMITED else str(hi)
+        hs = '*' if hi == MAX_DEFAULT else '.' if hi == MAX_UNSPECIFIED else str(hi)
         return f'{{{lo}..{hs}}}' if lo != 0 or hs != '*' else ''
 
     # Value range (double-ended): default min and max is [*..*]
@@ -469,7 +469,7 @@ def fieldstr2jadn(self, tdef: list, fid: int, fstr: str, fdesc: str) -> list:
     if m := re.match(r'^\s*\[(\d+)(?:\.\.(\d+|\*|\.))?\](.*)$', fstr):
         if maxOccurs := m.group(2):
             minOccurs = int(m.group(1))
-            maxOccurs = MAX_DEFAULT if maxOccurs == '*' else MAX_UNLIMITED if maxOccurs == '.' else int(maxOccurs)
+            maxOccurs = MAX_DEFAULT if maxOccurs == '*' else MAX_UNSPECIFIED if maxOccurs == '.' else int(maxOccurs)
         else:
             minOccurs = maxOccurs = int(m.group(1))
         fopts.update({'minOccurs': minOccurs} if minOccurs != 1 else {})

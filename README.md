@@ -1,9 +1,23 @@
-# DPS Information Model
+# JADN Software
 
-Working aids to support development of the DPS metadata specification:
+JSON Abstract Data Notation (JADN) information model development.
 
-* [Information modeling summary](docs/im-summary.md): Why develop format-agnostic data interchange specifications?
-* Python [package](jadn) (work-in-progress) for processing JADN information models
-* CLI [application](apps) to translate JADN schemas across multiple formats. Includes DPS schema experiments.
-* Example [ISO 3166](geography) geographic country and subdivision data. Complete data for 249 countries
-is available if it turns out to be useful to support DPS geographic restrictions.
+* [apps](apps): Information Modeling applications, currently including a command line (CLI) schema translation tool.
+* [docs](docs): Documentation for developing and using JADN information models.
+* [jadn](jadn): Source for the JADN software package distributed on PyPI. This will eventually be moved
+to its own repository.
+* [schemas](schemas): JADN information models used to illustrate information modeling and test
+the JADN software package.
+* [test](test): Unit test suite for the JADN software package.
+
+Both the CLI application and the unit tests illustrate use of the JADN processing software.
+
+## Quickstart
+
+The [Coordinate schema](schemas/jadn/coordinate.jadn) is a simple "hello world" example information model,
+consisting of a single type definition containing two fields.
+
+Translate it from JADN format (authoritative JSON data) to text format using an example (non-autoritative)
+domain specific language called JADN Information Definition Language (JIDL):
+
+`apps/jadn-convert schemas/jadn/coordinate.jadn -f jidl`

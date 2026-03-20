@@ -2,7 +2,7 @@ import os
 import pytest
 from jadn.core import JADNCore
 from jadn.convert import JADN, JIDL, XASD, MD, ATREE, ERD
-from jadn.config import style_args, style_fname
+from jadn.style import style_args, style_fname
 from pathlib import Path
 
 OUT_DIR = 'test/Out'
