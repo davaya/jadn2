@@ -116,7 +116,7 @@
         network management." The confusion can be partially attributed to the absence of a
         definition of information itself, so this specification begins with two:
       </t>
-      <dl> <!-- https://authors.ietf.org/en/rfcxml-vocabulary#newline -->
+      <dl newline="true"> <!-- https://authors.ietf.org/en/rfcxml-vocabulary#newline -->
       <!-- Omit newline="true" if you want each definition to start on the same line as the corresponding term -->
         <dt>Information (Information Technology):</dt>
         <dd>structured, processed data that has been given context, meaning, and semantics
@@ -128,44 +128,60 @@
           rather than its semantic meaning. It quantifies how much a data point reduces doubt,
           measured in bits.</dd>
       </dl>
-      <!--
       <t>
-        Additional confusion is introduced by conflicts between the term "object" as used
-        by JSON <xref target="RFC7159"></xref> and the Javascript language
-        <xref target="ECMA-262"></xref> upon which it is based. This specification uses "object" as
-        defined by Javascript, not JSON:</t>
-      <dl>
-        <dt>Object:</dt>
-        <dd>implementation of a variable in a programming language. An Object defines
-          a variable type, the value space of that type, and operations supported by
-          variables of that type.</dd>
-      </dl>
-      <t>Javascript defines:</t>
-      <ul spacing="normal">
-        <li>Data Types and Values in Chapter 6. including Null, Boolean,
-          String, Number, BigInt, Object, Enum, List, Record, and Set.</li>
-        <li>Objects in Chapters 20-24, including the Object Object, as well as Boolean,
-          String, Number, BigInt, Array, TypedArray, Map and Set.</li>
-      </ul>
-      <t>
-        The Object Object performs functions (create or type conversion) on other objects
-        within the Javascript language, while the Map object implements associative arrays.
-        The fact that JSON uses the term "object" for Map literals but not Boolean, String,
-        Number, or Array literals is a significant source of confusion:</t>
-      <ul spacing="normal">
-        <li>Information values are objects with type, variable values and operations.</li>
-        <li>Data values are constants with type and no operations.</li>
-      </ul>
-      -->
-      <t>
-        Given a literal value (the fixed sequence of bytes in a document or message,
-        i.e., the "data object" or "data point" in these definitions), the information
-        in that literal can be viewed as the questions it answers. An information
-        model (IM) defines equivalence between literals, and a concise literal
-        such as an RFC 791 IP packet contains the identical information
+        Given a literal value, the information in that literal can be viewed as the
+        questions it answers. An information model (IM) defines equivalence between literals,
+        and a concise literal such as an RFC 791 IP packet contains the identical information
         (both semantics: "What is the source address?" and entropy: "32 bits")
         as an equivalent verbose literal in a format such as JSON or XML.
       </t>
+      <t>
+        A robust IM specification also needs to define Information Value, Data Value,
+        and the relationships between them:
+      </t>
+      <dl newline="true">
+        <dt>Information Value</dt>
+        <dd>
+          the value of a variable in a processing environment.
+        </dd>
+        <dt>Literal</dt>
+        <dd>
+          a fixed sequence of bytes used outside a processing environment.
+          Also known as a Document, Message, File, Stream, Data Value, or Lexical Value.
+          Because literals are immutable they can be hashed or signed for integrity.
+        </dd>
+        <dt>Type</dt>
+        <dd>
+          a data type has three properties: an information value space, a lexical space
+          for each data format, and a small set of functions and relations including ordering
+          of the value space and mappings from each lexical space to the value space.
+          This definition extends XML Schema's Datatype<xref target="XSD-2">XML Schema</xref>
+          Values (both information and data) are instances of Type.
+        </dd>
+        <dt>Object</dt>
+        <dd>
+          the implementation of a variable in a processing environment.
+          An object has a type, a value, and the operations/behavior defined
+          for variables of that type.
+          Objects are instances of Class. Values do not have behavior and are instances
+          of Type.
+          Note that this is not specific to object-oriented programming languages:
+          K&amp;R C has an "int" type and the implementation of int variables has operations
+          such as addition. Also note that the Javascript language
+          <xref target="ECMA-262"></xref> defines Boolean, String, Number,
+          Array, Map and Set objects in chapters 20-24.
+          JSON <xref target="RFC7159"></xref> confusingly uses "object" to refer
+          only to the values of Map objects, not any others. This specification
+          uses object as defined in Javascript, not JSON.
+        </dd>
+        <dt>Data Format</dt>
+        <dd>
+          a named equivalence mapping between information values and literals.
+          More than one data format can be defined for a single media type,
+          for example Record information values can be serialized as either
+          Map or Array literals depending on data format.
+        </dd>
+      </dl>
       <t>For an IM to be useful it must be:</t>
       <ul spacing="normal">
         <li>Abstract: an IM schema is a high level specification that separates information
@@ -181,6 +197,9 @@
           language or data format.
         </li>
       </ul>
+      <t>
+        This specification defines a JADN Schema as a set of Types
+      </t>
 <!--
       <figure anchor="first">
         <name>JADN Format</name>
@@ -415,7 +434,15 @@ int main() {
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.7159.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
         <!-- The recommended and simplest way to include a well known reference -->
-        
+        <reference anchor="XSD-2" target="https://www.w3.org/TR/xmlschema11-2">
+          <front>
+            <title>XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes</title>
+            <author>
+              <organization>W3C</organization>
+            </author>
+            <date year="2012" month="4"/>
+          </front>
+        </reference>
       </references>
  
       <references>
