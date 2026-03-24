@@ -162,9 +162,9 @@
         i.e., the "data object" or "data point" in these definitions), the information
         in that literal can be viewed as the questions it answers. An information
         model (IM) defines equivalence between literals, and a concise literal
-        such as an RFC 791 IP packet contains the identical information (both semantics
-        and entropy - for example, "What is the source address?" and "32 bits" respectively)
-        as an equivalent verbose literal in a format such as XML.
+        such as an RFC 791 IP packet contains the identical information
+        (both semantics: "What is the source address?" and entropy: "32 bits")
+        as an equivalent verbose literal in a format such as JSON or XML.
       </t>
       <t>For an IM to be useful it must be:</t>
       <ul spacing="normal">
@@ -217,19 +217,6 @@ Coordinate = Record                             // GPS Coordinate
   </Types>
 </Schema>
             ]]>
-        </artwork>
-      </figure>
-      <figure anchor="fourth">
-        <name>Markdown Table Format</name>
-        <artwork>
-    GPS Coordinate
-
-    **Type: Coordinate (Record)**
-
-    | ID | Name          | Type                   | \# | Description |
-    |----|---------------|------------------------|----|-------------|
-    | 1  | **latitude**  | Number=[-90.0, 90.0]   | 1  | Latitude    |
-    | 2  | **longitude** | Number=(-180.0, 180.0] | 1  | Longitude   |
         </artwork>
       </figure>
 -->
