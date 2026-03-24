@@ -163,7 +163,8 @@
         in that literal can be viewed as the questions it answers. An information
         model (IM) defines equivalence between literals, and a concise literal
         such as an RFC 791 IP packet contains the identical information (both semantics
-        and entropy) as an equivalent verbose literal in a format such as XML.
+        and entropy - for example, "What is the source address?" and "32 bits" respectively)
+        as an equivalent verbose literal in a format such as XML.
       </t>
       <t>For an IM to be useful it must be:</t>
       <ul spacing="normal">
@@ -171,16 +172,67 @@
           sharing requirements from implementation details.
           This makes an IM desirable for initial conceptual design where details are
           unknown or undecided, and for exposition and publication where they are distracting.
-          For implementation, unambiguous specification of details using schema-independent
-          encoding rules is essential for robustness and interoperability.
+          For implementation, unambiguous specification of translation between information
+          values and literals using schema-independent encoding rules is essential for
+          robustness and interoperability.
         </li>
         <li>Language Independent: an IM defines both information values within a process and
           literals communicated among processes in a way that does not depend on programming
           language or data format.
         </li>
       </ul>
+<!--
+      <figure anchor="first">
+        <name>JADN Format</name>
+        <artwork>
+{
+  "types": [
+    ["Coordinate", "Record", [], "GPS Coordinate", [
+      [1, "latitude", "Number", ["y-90.0", "z90.0"], "Latitude"],
+      [2, "longitude", "Number", ["w-180.0", "z180.0"], "Longitude"]
+    ]]
+  ]
+}
+        </artwork>
+      </figure>
+      <figure anchor="second">
+        <name>JIDL Format</name>
+      <artwork>
+Coordinate = Record                             // GPS Coordinate
+   1 latitude         Number=[-90.0, 90.0]      // Latitude
+   2 longitude        Number=(-180.0, 180.0]    // Longitude
+        </artwork>
+      </figure>
+      <figure anchor="third">
+        <name>XASD Format</name>
+        <artwork>
+            <![CDATA[
+<?xml version="1.0" ?>
+<Schema version="2.0">
+  <Types>
+    <Type name="Coordinate" type="Record">GPS Coordinate
+      <Field fid="1" fname="latitude" type="Number" minInclusive="-90.0" maxInclusive="90.0">Latitude</Field>
+      <Field fid="2" fname="longitude" type="Number" minExclusive="-180.0" maxInclusive="180.0">Longitude</Field>
+    </Type>
+  </Types>
+</Schema>
+            ]]>
+        </artwork>
+      </figure>
+      <figure anchor="fourth">
+        <name>Markdown Table Format</name>
+        <artwork>
+    GPS Coordinate
 
-      
+    **Type: Coordinate (Record)**
+
+    | ID | Name          | Type                   | \# | Description |
+    |----|---------------|------------------------|----|-------------|
+    | 1  | **latitude**  | Number=[-90.0, 90.0]   | 1  | Latitude    |
+    | 2  | **longitude** | Number=(-180.0, 180.0] | 1  | Longitude   |
+        </artwork>
+      </figure>
+-->
       <section anchor="requirements">
       <!-- anchor is an optional attribute -->
         <name>Requirements Language</name>
