@@ -99,7 +99,7 @@
         balances simplicity with extensibility and expressive power. The key feature
         of any IM is equivalence across data formats, and unlike traditional schema
         languages, a JADN schema is itself an information value.
-        This ensures equivalence across schema formats, allowing authors to select
+        This ensures equivalence across schema representations, allowing authors to select
         or design a representation suitable for the application and target audience.
       </t>
     </abstract>
@@ -133,10 +133,10 @@
         questions it answers. An information model (IM) defines equivalence between literals,
         and a concise literal such as an RFC 791 IP packet contains the identical information
         (both semantics: "What is the source address?" and entropy: "32 bits")
-        as an equivalent verbose literal in a format such as JSON or XML.
+        as an equivalent verbose literal in JSON or XML format.
       </t>
       <t>
-        A robust IM specification also needs to define Information Value, Data Value,
+        A robust IM specification also must define Information Value, Data Value,
         and the relationships between them:
       </t>
       <dl newline="true">
@@ -152,34 +152,34 @@
         </dd>
         <dt>Type</dt>
         <dd>
-          a data type has three properties: an information value space, a lexical space
+          definition of the content of a discrete unit of information or data.
+          An IM data type has three properties: an information value space, a literal space
           for each data format, and a small set of functions and relations including ordering
-          of the value space and mappings from each lexical space to the value space.
-          This definition extends XML Schema's Datatype<xref target="XSD-2">XML Schema</xref>
-          Values (both information and data) are instances of Type.
+          of the value space and mappings from each literal space to the value space.
+          This definition extends the <xref target="XSD-2">XML Schema</xref> Datatype to
+          information modeling by including literal spaces and mappings for multiple data formats.
+          Both information and data values are instances of Type.
         </dd>
         <dt>Object</dt>
         <dd>
           the implementation of a variable in a processing environment.
-          An object has a type, a value, and the operations/behavior defined
-          for variables of that type.
-          Objects are instances of Class. Values do not have behavior and are instances
-          of Type.
-          Note that this is not specific to object-oriented programming languages:
-          K&amp;R C has an "int" type and the implementation of int variables has operations
-          such as addition. Also note that the Javascript language
-          <xref target="ECMA-262"></xref> defines Boolean, String, Number,
-          Array, Map and Set objects in chapters 20-24.
-          JSON <xref target="RFC7159"></xref> confusingly uses "object" to refer
-          only to the values of Map objects, not any others. This specification
-          uses object as defined in Javascript, not JSON.
+          An object has a type, a current value, and the behavior defined for variables of that type.
+          Objects are instances of Class.
+          Note that this is not specific to object-oriented programming languages: K&amp;R C has
+          an "int" type and the definition of int variables (the "class") has behavior such as
+          addition and comparison in addition to the value restrictions defined by the type.
+          Also note that the <xref target="ECMA-262">Javascript</xref>
+          language defines Boolean, String, Number, Array, Map and Set objects in chapters 20-24.
+          <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
+          only to the literal values of Map objects, not any others. This specification defines
+          object to include all types as in Javascript, not just Map objects as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
           a named equivalence mapping between information values and literals.
           More than one data format can be defined for a single media type,
-          for example Record information values can be serialized as either
-          Map or Array literals depending on data format.
+          for example Record information values can be represented as either
+          Map or Array literals in the same media type depending on data format.
         </dd>
       </dl>
       <t>For an IM to be useful it must be:</t>
@@ -192,18 +192,41 @@
           values and literals using schema-independent encoding rules is essential for
           robustness and interoperability.
         </li>
-        <li>Language Independent: an IM defines both information values within a process and
-          literals communicated among processes in a way that does not depend on programming
-          language or data format.
+        <li>Language Independent: an IM defines both information values and
+          literals in a way that does not depend on programming language or data format.
         </li>
       </ul>
       <t>
-        This specification defines a JADN Schema as a set of Types
+        An IM can support system development in three ways:
       </t>
-<!--
-      <figure anchor="first">
-        <name>JADN Format</name>
-        <artwork>
+      <ol>
+        <li>Pseudocode: describes message content without mechanically generating or processing anything</li>
+        <li>Template: generates one or more concrete schemas (data models) more consistently than writing DMs directly,
+          while reusing existing message processing software</li>
+        <li>IM: validates and processes message content directly, enabling lossless translation among data formats</li>
+      </ol>
+      <section>
+        <name>Examples</name>
+        <t>
+          The remainder of this specification defines the structure of a JADN schema as a set of
+          fixed-format type definitions along with namespaced package metadata common to all types.
+          The following examples of a simple GPS Coordinate type definition illustrate that a JADN schema
+          is an information value, that the information value is identical regardless of data format,
+          and what that value looks like when represented in multiple data formats.
+          The formats shown are:
+        </t>
+        <ul>
+          <li>JSON data: the normative storage format for JADN schemas</li>
+          <li>XML data: an XML format composed of JADN elements, referred to as "XML Abstract Schema Definition" (XASD)</li>
+          <li>JIDL text: JADN Information Definition Language, an arbitrarily designed and non-normative example
+            domain-specific language.</li>
+          <li>Property Tables: Markdown source for JADN schemas in a popular data standards representation.
+            Tables in HTML or XML markup formats are also possible.</li>
+        </ul>
+        <figure anchor="intro-jadn">
+          <name>JADN Native JSON Format</name>
+          <artwork>
+          <![CDATA[
 {
   "types": [
     ["Coordinate", "Record", [], "GPS Coordinate", [
@@ -212,20 +235,14 @@
     ]]
   ]
 }
-        </artwork>
-      </figure>
-      <figure anchor="second">
-        <name>JIDL Format</name>
-      <artwork>
-Coordinate = Record                             // GPS Coordinate
-   1 latitude         Number=[-90.0, 90.0]      // Latitude
-   2 longitude        Number=(-180.0, 180.0]    // Longitude
-        </artwork>
-      </figure>
-      <figure anchor="third">
-        <name>XASD Format</name>
-        <artwork>
-            <![CDATA[
+          ]]>
+          </artwork>
+        </figure>
+
+        <figure anchor="intro-xasd">
+          <name>JADN XASD Format</name>
+          <artwork>
+          <![CDATA[
 <?xml version="1.0" ?>
 <Schema version="2.0">
   <Types>
@@ -235,10 +252,36 @@ Coordinate = Record                             // GPS Coordinate
     </Type>
   </Types>
 </Schema>
-            ]]>
-        </artwork>
-      </figure>
--->
+          ]]>
+          </artwork>
+        </figure>
+
+        <figure anchor="intro-jidl">
+          <name>JADN IDL Format</name>
+          <artwork>
+          <![CDATA[
+Coordinate = Record                             // GPS Coordinate
+   1 latitude         Number=[-90.0, 90.0]      // Latitude
+   2 longitude        Number=(-180.0, 180.0]    // Longitude
+          ]]>
+          </artwork>
+        </figure>
+
+        <figure anchor="intro-table-md">
+          <name>JADN Markdown Table Format</name>
+          <artwork>
+          <![CDATA[
+**Type: Coordinate (Record):** GPS Coordinate
+
+| ID | Name          | Type                   | \# | Description |
+|----|---------------|------------------------|----|-------------|
+| 1  | **latitude**  | Number=[-90.0, 90.0]   | 1  | Latitude    |
+| 2  | **longitude** | Number=(-180.0, 180.0] | 1  | Longitude   |
+          ]]>
+          </artwork>
+        </figure>
+      </section>
+
       <section anchor="requirements">
       <!-- anchor is an optional attribute -->
         <name>Requirements Language</name>
@@ -518,7 +561,7 @@ int main() {
     <section anchor="Contributors" numbered="false">
       <!-- a Contributors section is optional -->
       <name>Contributors</name>
-      <t>Thanks to all of the contributors.</t>
+      <t>Thanks to all the contributors.</t>
       <contact fullname="Jane Doe" initials="J" surname="Doe"><!-- https://authors.ietf.org/en/rfcxml-vocabulary#contact-->
         <!-- including contact information for contributors is optional -->
         <organization>Acme</organization>
