@@ -136,23 +136,24 @@
         as an equivalent verbose literal in JSON or XML format.
       </t>
       <t>
-        A robust IM specification also must define Information Value, Data Value,
+        An implementable IM specification must also define Information Value, Data Value,
         and the relationships between them:
       </t>
       <dl newline="true">
         <dt>Information Value</dt>
         <dd>
-          the value of a variable in a processing environment.
+          the value of a variable (a typed unit of state) in a processing environment.
         </dd>
         <dt>Literal</dt>
         <dd>
-          a fixed sequence of bytes used outside a processing environment.
+          a fixed sequence of bytes usable outside a processing environment.
           Also known as a Document, Message, File, Stream, Data Value, or Lexical Value.
-          Because literals are immutable they can be hashed or signed for integrity.
+          Because literals are immutable they can be compared for equality and
+          hashed or signed for integrity.
         </dd>
         <dt>Type</dt>
         <dd>
-          definition of the content of a discrete unit of information or data.
+          definition of the content of an information or data value.
           An IM data type has three properties: an information value space, a literal space
           for each data format, and a small set of functions and relations including ordering
           of the value space and mappings from each literal space to the value space.
@@ -163,7 +164,7 @@
         <dt>Object</dt>
         <dd>
           the implementation of a variable in a processing environment.
-          An object has a type, a current value, and the behavior defined for variables of that type.
+          An IM object has a type, a current value, and the behavior defined for variables of that type.
           Objects are instances of Class.
           Note that this is not specific to object-oriented programming languages: K&amp;R C has
           an "int" type and the definition of int variables (the "class") has behavior such as
@@ -182,45 +183,43 @@
           Map or Array literals in the same media type depending on data format.
         </dd>
       </dl>
-      <t>For an IM to be useful it must be:</t>
-      <ul spacing="normal">
-        <li>Abstract: an IM schema is a high level specification that separates information
-          sharing requirements from implementation details.
-          This makes an IM desirable for initial conceptual design where details are
-          unknown or undecided, and for exposition and publication where they are distracting.
-          For implementation, unambiguous specification of translation between information
-          values and literals using schema-independent encoding rules is essential for
-          robustness and interoperability.
-        </li>
-        <li>Language Independent: an IM defines both information values and
-          literals in a way that does not depend on programming language or data format.
-        </li>
-      </ul>
+      <t>For an IM to be useful it must be abstract and language-independent.
+        An abstract schema is a high level specification that separates information
+        sharing requirements from implementation details.
+        This is desirable for initial conceptual design where details are unknown or
+        undecided, and for exposition and publication where they are distracting.
+        But robust implementation requires unambiguous specification of schema-independent
+        encoding rules to translate between information values and messages.
+        An IM defines both information values and message representations in a way
+        that does not depend on programming language or data format.
+      </t>
       <t>
-        An IM can support system development in three ways:
+        An IM can be used to support system development in three ways:
       </t>
       <ol>
         <li>Pseudocode: describes message content without mechanically generating or processing anything</li>
-        <li>Template: generates one or more concrete schemas (data models) more consistently than writing DMs directly,
-          while reusing existing message processing software</li>
-        <li>IM: validates and processes message content directly, enabling lossless translation among data formats</li>
+        <li>Template: generates one or more concrete schemas (data models) more consistently than writing
+          DMs directly, while reusing existing message processing software</li>
+        <li>IM: validates and processes message content directly, enabling lossless translation among data formats.
+          This specification defines the required observable result of lossless round-trip translation,
+          not necessarily an optimal algorithm for achieving that result.
+        </li>
       </ol>
       <section>
         <name>Examples</name>
         <t>
           The remainder of this specification defines the structure of a JADN schema as a set of
-          fixed-format type definitions along with namespaced package metadata common to all types.
-          The following examples of a simple GPS Coordinate type definition illustrate that a JADN schema
-          is an information value, that the information value is identical regardless of data format,
-          and what that value looks like when represented in multiple data formats.
+          fixed-layout type definitions along with namespaced package metadata common to all types.
+          The following example representations of a simple GPS Coordinate type definition illustrate
+          that a JADN schema is an information value, that the information value is identical regardless
+          of data format, and what that value looks like when represented in equivalent data formats.
           The formats shown are:
         </t>
         <ul>
           <li>JSON data: the normative storage format for JADN schemas</li>
-          <li>XML data: an XML format composed of JADN elements, referred to as "XML Abstract Schema Definition" (XASD)</li>
-          <li>JIDL text: JADN Information Definition Language, an arbitrarily designed and non-normative example
-            domain-specific language.</li>
-          <li>Property Tables: Markdown source for JADN schemas in a popular data standards representation.
+          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD)</li>
+          <li>JIDL text: JADN Information Definition Language, an example non-normative domain-specific language.</li>
+          <li>Property Tables: a popular data standards publication format, shown as Markdown source.
             Tables in HTML or XML markup formats are also possible.</li>
         </ul>
         <figure anchor="intro-jadn">
@@ -268,7 +267,7 @@ Coordinate = Record                             // GPS Coordinate
         </figure>
 
         <figure anchor="intro-table-md">
-          <name>JADN Markdown Table Format</name>
+          <name>JADN Property Table, Markdown Format</name>
           <artwork>
           <![CDATA[
 **Type: Coordinate (Record):** GPS Coordinate
