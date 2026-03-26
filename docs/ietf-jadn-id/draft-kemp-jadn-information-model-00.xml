@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
      draft-rfcxml-general-template-annotated-00
   
      This template includes examples of most of the features of RFCXML with comments explaining 
@@ -194,6 +194,22 @@
         that does not depend on programming language or data format.
       </t>
       <t>
+        A JADN schema is composed exclusively of type definitions, not a mixture of types
+        and other mechanisms sometimes called classes in other data modeling approaches.
+        Every type has the identical five-column structure:
+      </t>
+      <sourcecode>
+        <![CDATA[
+[TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
+        ]]>
+      </sourcecode>
+      <t>
+        as defined in the remainder of this specification. This uniform structure along
+        with a namespaced package header makes a JADN IM easy to process. Currently-defined
+        TypeOptions and FieldOptions provide significant expressive power, and unlimited namespace
+        for new options enables easy extensibility.
+      </t>
+      <t>
         An IM can be used to support system development in three ways:
       </t>
       <ol>
@@ -208,8 +224,6 @@
       <section>
         <name>Examples</name>
         <t>
-          The remainder of this specification defines the structure of a JADN schema as a set of
-          fixed-layout type definitions along with namespaced package metadata common to all types.
           The following example representations of a simple GPS Coordinate type definition illustrate
           that a JADN schema is an information value, that the information value is identical regardless
           of data format, and what that value looks like when represented in equivalent data formats.
@@ -218,7 +232,7 @@
         <ul>
           <li>JSON data: the normative storage format for JADN schemas</li>
           <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD)</li>
-          <li>JIDL text: JADN Information Definition Language, an example non-normative domain-specific language.</li>
+          <li>Text: JADN Information Definition Language (IDL), an example non-normative domain-specific language.</li>
           <li>Property Tables: a popular data standards publication format, shown as Markdown source.
             Tables in HTML or XML markup formats are also possible.</li>
         </ul>
