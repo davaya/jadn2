@@ -205,9 +205,9 @@
       </sourcecode>
       <t>
         as defined in the remainder of this specification. This uniform structure along
-        with a namespaced package header makes a JADN IM easy to process. Currently-defined
-        TypeOptions and FieldOptions provide significant expressive power, and unlimited namespace
-        for new options enables easy extensibility.
+        with a namespaced package header makes a JADN IM powerful yet easy to process.
+        Currently-defined TypeOptions and FieldOptions provide significant expressive power,
+        and unlimited space for new options enables easy extensibility.
       </t>
       <t>
         An IM can be used to support system development in three ways:
@@ -308,11 +308,82 @@ Coordinate = Record                             // GPS Coordinate
       <!-- The 'Requirements Language' section is optional -->
     </section>
     
-    <section>
-      <name>Body</name>
-      <t>Body text</t>
+    <section anchor="types">
+      <name>Types</name>
+      <section anchor="primitive">
+        <name>Primitive Types</name>
+        <section anchor="binary">
+          <name>Binary</name>
+        </section>
+        <section anchor="boolean">
+          <name>Boolean</name>
+        </section>
+        <section anchor="integer">
+          <name>Integer</name>
+        </section>
+        <section anchor="number">
+          <name>Number</name>
+        </section>
+        <section anchor="string">
+          <name>String</name>
+        </section>
+      </section>
+      <section anchor="collections">
+        <name>Collection Types</name>
+        <section anchor="multiplicities">
+          <name>Multiplicities</name>
+          <section anchor="sequence">
+            <name>Sequence</name>
+          </section>
+          <section anchor="set">
+            <name>Set</name>
+          </section>
+          <section anchor="orderedSet">
+            <name>OrderedSet</name>
+          </section>
+          <section anchor="bag">
+            <name>Bag</name>
+          </section>
+          <section anchor="mapping">
+            <name>Mapping</name>
+          </section>
+          <section anchor="orderedMapping">
+            <name>OrderedMapping</name>
+          </section>
+        </section>
+        <section anchor="array">
+          <name>Array</name>
+        </section>
+        <section anchor="arrayOf">
+          <name>ArrayOf</name>
+        </section>
+        <section anchor="map">
+          <name>Map</name>
+        </section>
+        <section anchor="mapOf">
+          <name>MapOf</name>
+        </section>
+        <section anchor="record">
+          <name>Record</name>
+        </section>
+      </section>
+      <section anchor="union">
+        <name>Union Types</name>
+        <section anchor="enumerated">
+          <name>Enumerated</name>
+        </section>
+        <section anchor="taggedUnion">
+          <name>Choice (tagged)</name>
+        </section>
+        <section anchor="untaggedUnion">
+          <name>Choice (untagged)</name>
+        </section>
+      </section>
     </section>
-    
+
+    <section anchor="packages">
+      <name>Packages</name>
+    </section>
     <section>
       <name>List Examples</name>
       
