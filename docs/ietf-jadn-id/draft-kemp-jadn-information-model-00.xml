@@ -129,10 +129,10 @@
       </dl>
       <t>
         Given a data value, the information it conveys can be viewed as the questions it answers.
-        An information model (IM) defines equivalence between literals, and a concise literal
+        An information model (IM) defines equivalence between messages, and a concise message
         such as an RFC 791 IP packet contains the identical information
         (both semantics: "What is the source address?" and entropy: "32 bits")
-        as an equivalent verbose literal in JSON or XML format.
+        as an equivalent verbose message in JSON or XML format.
       </t>
       <t>
         An implementable IM specification must also define Information Value, Data Value,
@@ -147,7 +147,7 @@
         <dd>
           a fixed sequence of bytes usable outside a processing environment.
           Also known as a Document, Message, File, Stream, Literal, or Lexical Value.
-          Because literals are immutable they can be compared for equality and
+          Because messages are immutable they can be compared for equality and
           hashed or signed for integrity.
         </dd>
         <dt>Type</dt>
@@ -195,7 +195,7 @@
       <t>
         A JADN schema is composed exclusively of type definitions, not a mixture of types
         and other mechanisms sometimes called classes in other data modeling approaches.
-        Every type has the identical five-item structure:
+        Every type has the identical five-element structure:
       </t>
       <sourcecode>
         <![CDATA[
@@ -308,6 +308,75 @@ Coordinate = Record                             // GPS Coordinate
     
     <section anchor="types">
       <name>Types</name>
+      <t>
+        JADN defines information values and message syntax based on twelve Core types in three categories:
+      </t>
+      <ul>
+        <li><xref target="primitive">Primitive</xref>: Five types whose instances are an atomic value.</li>
+        <li><xref target="collection">Compound</xref>: Five types whose instances are a collection of values.</li>
+        <li><xref target="union">Union</xref>: Two types whose instances are selected from a set of possible values.</li>
+      </ul>
+      <t>Each type definition has five elements:</t>
+      <ol>
+        <li>TypeName: the name of the type being defined.</li>
+        <li>CoreType: The JADN built-in type of the type being defined.</li>
+        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType. Default: empty.</li>
+        <li>TypeDescription: a non-normative comment. Default: empty.</li>
+        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType. Default: empty.</li>
+      </ol>
+      <t>
+        More formally, <xref target="typedef"></xref> shows use of the JADN language as a metaschema to validate
+        its own type definitions. It illustrates references to unseen types that provide lower-level detail
+        without cluttering the main points, the ability of simple options to support precision model design,
+        and the use of IDL as an intuitive if non-standardized presentation format.
+      </t>
+      <t>The following sections define the JADN core types.</t>
+      <figure anchor="typedef">
+        <name>Top-level structure of a JADN type definition, IDL format</name>
+        <artwork>
+        <![CDATA[
+Type = Array                 // Fixed structure for all type definitions
+   1  TypeName                                   // type_name::
+   2  Enumerated(enum[JADN-Type])                // core_type::
+   3  TypeOptions(tagId[core_type]) optional     // type_options::
+   4  Description optional                       // type_description::
+   5  JADN-Type(tagId[core_type]) optional       // fields::
+
+JADN-Type = Choice            // Fields applicable for each core type
+   1 Binary           Empty
+   2 Boolean          Empty
+   3 Integer          Empty
+   4 Number           Empty
+   5 String           Empty
+   6 Array            Fields
+   7 ArrayOf          Empty
+   8 Map              Fields
+   9 MapOf            Empty
+  10 Record           Fields
+  11 Enumerated       Items
+  12 Choice           Fields
+
+Empty = Array{0..0}
+Items = ArrayOf(Item)
+Fields = ArrayOf(Field)
+
+TypeOptions = Choice          // Required/allowed options for each core type
+   1 Binary           BinaryOpts
+   2 Boolean          BooleanOpts
+   3 Integer          IntegerOpts
+   4 Number           NumberOpts
+   5 String           StringOpts
+   6 Array            ArrayOpts
+   7 ArrayOf          ArrayOfOpts
+   8 Map              MapOpts
+   9 MapOf            MapOfOpts
+  10 Record           RecordOpts
+  11 Enumerated       EnumeratedOpts
+  12 Choice           ChoiceOpts
+        ]]>
+        </artwork>
+      </figure>
+
       <section anchor="primitive">
         <name>Primitive Types</name>
         <section anchor="binary">
@@ -326,7 +395,7 @@ Coordinate = Record                             // GPS Coordinate
           <name>String</name>
         </section>
       </section>
-      <section anchor="collections">
+      <section anchor="collection">
         <name>Collection Types</name>
         <section anchor="multiplicity">
           <name>Multiplicity</name>
