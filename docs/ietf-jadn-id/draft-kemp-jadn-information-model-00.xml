@@ -89,18 +89,17 @@
 
     <abstract>
       <t>
-        This document defines JSON Abstract Data Notation (JADN), an information
-        modeling language designed to improve the rigor of Internet technical
-        specifications. Existing standards like ABNF, XSD, and JSON Schema
-        define formal syntax for text and structured data values.
-        But while RFC 3444 and RFC 8477 establish goals for information modeling,
-        adoption remains limited.
-        JADN addresses this by defining a regular information type structure that
-        balances simplicity with extensibility and expressive power. The key feature
-        of any IM is equivalence across data formats, and unlike traditional schema
-        languages, a JADN schema is itself an information value.
-        This ensures equivalence across schema representations, allowing authors to select
-        or design a representation suitable for the application and target audience.
+        This document defines an information modeling language designed to improve the rigor
+        of Internet technical specifications. Existing standards like ABNF, XSD, and JSON Schema
+        define formal syntax for text and structured data values. But while RFC 3444 and RFC 8477
+        establish goals for information modeling, adoption remains limited.
+        JSON Abstract Data Notation (JADN) addresses this by defining a formal syntax for
+        information values using a uniform type structure that balances simplicity with
+        extensibility and expressive power.
+        The key feature of any IM is equivalence across data formats, and unlike traditional
+        schema languages, a JADN schema is itself an information value. This ensures equivalence
+        across schema representations, allowing authors to select or design a representation
+        suitable for the application and target audience.
       </t>
     </abstract>
  
@@ -129,9 +128,9 @@
           measured in bits.</dd>
       </dl>
       <t>
-        Given a literal value, the information in that literal can be viewed as the
-        questions it answers. An information model (IM) defines equivalence between literals,
-        and a concise literal such as an RFC 791 IP packet contains the identical information
+        Given a data value, the information it conveys can be viewed as the questions it answers.
+        An information model (IM) defines equivalence between literals, and a concise literal
+        such as an RFC 791 IP packet contains the identical information
         (both semantics: "What is the source address?" and entropy: "32 bits")
         as an equivalent verbose literal in JSON or XML format.
       </t>
@@ -144,22 +143,22 @@
         <dd>
           the value of a variable (a typed unit of state) in a processing environment.
         </dd>
-        <dt>Literal</dt>
+        <dt>Data Value</dt>
         <dd>
           a fixed sequence of bytes usable outside a processing environment.
-          Also known as a Document, Message, File, Stream, Data Value, or Lexical Value.
+          Also known as a Document, Message, File, Stream, Literal, or Lexical Value.
           Because literals are immutable they can be compared for equality and
           hashed or signed for integrity.
         </dd>
         <dt>Type</dt>
         <dd>
-          definition of the content of an information or data value.
-          An IM data type has three properties: an information value space, a literal space
+          definition of the content of an information or data value of that type.
+          An IM type has three properties: an information value space, a literal space
           for each data format, and a small set of functions and relations including ordering
           of the value space and mappings from each literal space to the value space.
           This definition extends the <xref target="XSD-2">XML Schema</xref> Datatype to
-          information modeling by including literal spaces and mappings for multiple data formats.
-          Both information and data values are instances of Type.
+          information modeling by including the literal spaces and mappings for multiple
+          data formats. Both information and data values are instances of Type.
         </dd>
         <dt>Object</dt>
         <dd>
@@ -167,13 +166,13 @@
           An IM object has a type, a current value, and the behavior defined for variables of that type.
           Objects are instances of Class.
           Note that this is not specific to object-oriented programming languages: K&amp;R C has
-          an "int" type and the definition of int variables (the "class") has behavior such as
-          addition and comparison in addition to the value restrictions defined by the type.
-          Also note that the <xref target="ECMA-262">Javascript</xref>
-          language defines Boolean, String, Number, Array, Map and Set objects in chapters 20-24.
+          an "int" type and its definition of int variables (the "class") has behavior such as
+          addition and comparison in addition to the value restrictions defined by the int type.
+          Also note that <xref target="ECMA-262">Javascript</xref> defines Boolean, String, Number,
+          Array, Map and Set objects in chapters 20-24.
           <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
-          only to the literal values of Map objects, not any others. This specification defines
-          object to include all types as in Javascript, not just Map objects as in JSON.
+          only to the literal values of Map objects, not any others. This specification includes
+          objects of all types as in Javascript, not just Map objects as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
@@ -196,7 +195,7 @@
       <t>
         A JADN schema is composed exclusively of type definitions, not a mixture of types
         and other mechanisms sometimes called classes in other data modeling approaches.
-        Every type has the identical five-column structure:
+        Every type has the identical five-item structure:
       </t>
       <sourcecode>
         <![CDATA[
@@ -204,10 +203,9 @@
         ]]>
       </sourcecode>
       <t>
-        as defined in the remainder of this specification. This uniform structure along
-        with a namespaced package header makes a JADN IM powerful yet easy to process.
-        Currently-defined TypeOptions and FieldOptions provide significant expressive power,
-        and unlimited space for new options enables easy extensibility.
+        This uniform structure along with a namespaced package header makes a JADN IM powerful
+        yet easy to process. Currently-defined TypeOptions and FieldOptions provide significant
+        expressive power, and unlimited space for new options enables easy extensibility.
       </t>
       <t>
         An IM can be used to support system development in three ways:
@@ -330,8 +328,8 @@ Coordinate = Record                             // GPS Coordinate
       </section>
       <section anchor="collections">
         <name>Collection Types</name>
-        <section anchor="multiplicities">
-          <name>Multiplicities</name>
+        <section anchor="multiplicity">
+          <name>Multiplicity</name>
           <section anchor="sequence">
             <name>Sequence</name>
           </section>
@@ -525,7 +523,7 @@ int main() {
             <![CDATA[
  +--------+
  | A box  |
- +--------+          
+ +--------+
             ]]>
           </artwork>
         </artset>      
@@ -574,25 +572,10 @@ int main() {
  
       <references>
         <name>Informative References</name>
-        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3444.xml"/>
 
-        <reference anchor="RFC2119" target="https://www.rfc-editor.org/info/rfc2119">
-        <!-- Manually added reference -->
-          <front>
-            <title>Key words for use in RFCs to Indicate Requirement Levels</title>
-            <author initials="S." surname="Bradner" fullname="S. Bradner">
-              <organization/>
-            </author>
-            <date year="1997" month="March"/>
-            <abstract>
-              <t>In many standards track documents several words are used to signify the requirements in the specification. These words are often capitalized. This document defines these words as they should be interpreted in IETF documents. This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.
-              </t>
-            </abstract>
-          </front>
-          <seriesInfo name="BCP" value="14"/>
-          <seriesInfo name="RFC" value="2119"/>
-          <seriesInfo name="DOI" value="10.17487/RFC2119"/>
-        </reference>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3444.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8477.xml"/>
 
         <reference anchor="ECMA-262">
           <front>
@@ -641,7 +624,7 @@ int main() {
       <t>This template uses extracts from templates written by Pekka Savola, Elwyn Davies and 
         Henrik Levkowetz.</t>
     </section>
-    
+
     <section anchor="Contributors" numbered="false">
       <!-- a Contributors section is optional -->
       <name>Contributors</name>
