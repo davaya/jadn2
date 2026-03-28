@@ -131,7 +131,7 @@
         Given a data value, the information it conveys can be viewed as the questions it answers.
         An information model (IM) defines equivalence between messages, and a concise message
         such as an RFC 791 IP packet contains the identical information
-        (both semantics: "What is the source address?" and entropy: "32 bits")
+        (both semantics: "What is the source address?" and its entropy: "32 bits")
         as an equivalent verbose message in JSON or XML format.
       </t>
       <t>
@@ -163,7 +163,7 @@
         <dt>Object</dt>
         <dd>
           the implementation of a variable in a processing environment.
-          An IM object has a type, a current value, and the behavior defined for variables of that type.
+          An object has a type, a current value, and the behavior defined for variables of that type.
           Objects are instances of Class.
           Note that this is not specific to object-oriented programming languages: K&amp;R C has
           an "int" type and its definition of int variables (the "class") has behavior such as
@@ -171,8 +171,8 @@
           Also note that <xref target="ECMA-262">Javascript</xref> defines Boolean, String, Number,
           Array, Map and Set objects in chapters 20-24.
           <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
-          only to the literal values of Map objects, not any others. This specification includes
-          objects of all types as in Javascript, not just Map objects as in JSON.
+          only to the literal values of Map objects, not any others. Objects in this specification
+          include all types as in Javascript, not just Maps as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
@@ -195,13 +195,20 @@
       <t>
         A JADN schema is composed exclusively of type definitions, not a mixture of types
         and other mechanisms sometimes called classes in other data modeling approaches.
-        Every type has the identical five-element structure:
+        Every type definition has the identical five-element structure:
       </t>
       <sourcecode>
         <![CDATA[
 [TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
         ]]>
       </sourcecode>
+      <ol>
+        <li>TypeName: the name of the type being defined.</li>
+        <li>CoreType: The JADN built-in type of the type being defined.</li>
+        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType (conditional).</li>
+        <li>TypeDescription: a non-normative comment (optional).</li>
+        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
+      </ol>
       <t>
         This uniform structure along with a namespaced package header makes a JADN IM powerful
         yet easy to process. Currently-defined TypeOptions and FieldOptions provide significant
@@ -316,66 +323,15 @@ Coordinate = Record                             // GPS Coordinate
         <li><xref target="collection">Compound</xref>: Five types whose instances are a collection of values.</li>
         <li><xref target="union">Union</xref>: Two types whose instances are selected from a set of possible values.</li>
       </ul>
-      <t>Each type definition has five elements:</t>
-      <ol>
-        <li>TypeName: the name of the type being defined.</li>
-        <li>CoreType: The JADN built-in type of the type being defined.</li>
-        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType. Default: empty.</li>
-        <li>TypeDescription: a non-normative comment. Default: empty.</li>
-        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType. Default: empty.</li>
-      </ol>
       <t>
-        More formally, <xref target="typedef"></xref> shows use of the JADN language as a metaschema to validate
-        its own type definitions. It illustrates references to unseen types that provide lower-level detail
-        without cluttering the main points, the ability of simple options to support precision model design,
-        and the use of IDL as an intuitive if non-standardized presentation format.
+        Types reference other types in a directed acyclic graph (DAG). This allows deferred specification
+        of detail to reduce clutter, and reuse of common types (e.g., Coordinate) in multiple definitions.
+        This is distinguished from tree graphs where content must always be acyclic and denormalized,
+        and from mesh graphs that make no distinction between contained and referenced content.
+        Cross-references in a DAG (links / foreign keys) support cyclic relationships where needed,
+        but are the exception rather than the rule. Data has to live somewhere, and an IM that defines
+        contained values and the sequential structure of documents and messages specifies where to find it.
       </t>
-      <t>The following sections define the JADN core types.</t>
-      <figure anchor="typedef">
-        <name>Top-level structure of a JADN type definition, IDL format</name>
-        <artwork>
-        <![CDATA[
-Type = Array                 // Fixed structure for all type definitions
-   1  TypeName                                   // type_name::
-   2  Enumerated(enum[JADN-Type])                // core_type::
-   3  TypeOptions(tagId[core_type]) optional     // type_options::
-   4  Description optional                       // type_description::
-   5  JADN-Type(tagId[core_type]) optional       // fields::
-
-JADN-Type = Choice            // Fields applicable for each core type
-   1 Binary           Empty
-   2 Boolean          Empty
-   3 Integer          Empty
-   4 Number           Empty
-   5 String           Empty
-   6 Array            Fields
-   7 ArrayOf          Empty
-   8 Map              Fields
-   9 MapOf            Empty
-  10 Record           Fields
-  11 Enumerated       Items
-  12 Choice           Fields
-
-Empty = Array{0..0}
-Items = ArrayOf(Item)
-Fields = ArrayOf(Field)
-
-TypeOptions = Choice          // Required/allowed options for each core type
-   1 Binary           BinaryOpts
-   2 Boolean          BooleanOpts
-   3 Integer          IntegerOpts
-   4 Number           NumberOpts
-   5 String           StringOpts
-   6 Array            ArrayOpts
-   7 ArrayOf          ArrayOfOpts
-   8 Map              MapOpts
-   9 MapOf            MapOfOpts
-  10 Record           RecordOpts
-  11 Enumerated       EnumeratedOpts
-  12 Choice           ChoiceOpts
-        ]]>
-        </artwork>
-      </figure>
 
       <section anchor="primitive">
         <name>Primitive Types</name>
