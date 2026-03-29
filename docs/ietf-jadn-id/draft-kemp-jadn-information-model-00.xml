@@ -142,6 +142,8 @@
         <dt>Information Value</dt>
         <dd>
           the value of a variable (a typed unit of state) in a processing environment.
+          Note that in this document variables are displayed with strings in
+          single quotes to avoid confusion with JSON values.
         </dd>
         <dt>Data Value</dt>
         <dd>
@@ -172,7 +174,7 @@
           Array, Map and Set objects in chapters 20-24.
           <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
           only to the literal values of Map objects, not any others. Objects in this specification
-          include all types as in Javascript, not just Maps as in JSON.
+          include all types as in JavaScript, not just Maps as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
@@ -193,34 +195,13 @@
         that does not depend on programming language or data format.
       </t>
       <t>
-        A JADN schema is composed exclusively of type definitions, not a mixture of types
-        and other mechanisms sometimes called classes in other data modeling approaches.
-        Every type definition has the identical five-element structure:
-      </t>
-      <sourcecode>
-        <![CDATA[
-[TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
-        ]]>
-      </sourcecode>
-      <ol>
-        <li>TypeName: the name of the type being defined.</li>
-        <li>CoreType: The JADN built-in type of the type being defined.</li>
-        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType (conditional).</li>
-        <li>TypeDescription: a non-normative comment (optional).</li>
-        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
-      </ol>
-      <t>
-        This uniform structure along with a namespaced package header makes a JADN IM powerful
-        yet easy to process. Currently-defined TypeOptions and FieldOptions provide significant
-        expressive power, and unlimited space for new options enables easy extensibility.
-      </t>
-      <t>
-        An IM can be used to support system development in three ways:
+        Using an IM can support system development in three ways:
       </t>
       <ol>
-        <li>Pseudocode: describes message content without mechanically generating or processing anything</li>
-        <li>Template: generates one or more concrete schemas (data models) more consistently than writing
-          DMs directly, while reusing existing message processing software</li>
+        <li>Pseudocode: describes message content at a high level without mechanically generating or
+          processing messages</li>
+        <li>Template: generates concrete schemas (data models) more consistently than writing them
+          directly, while reusing existing message processing software</li>
         <li>IM: validates and processes message content directly, enabling lossless translation among data formats.
           This specification defines the required observable result of lossless round-trip translation,
           not necessarily an optimal algorithm for achieving that result.
@@ -236,7 +217,7 @@
         </t>
         <ul>
           <li>JSON data: the normative storage format for JADN schemas</li>
-          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD)</li>
+          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD) language.</li>
           <li>Text: JADN Information Definition Language (IDL), an example non-normative domain-specific language.</li>
           <li>Property Tables: a popular data standards publication format, shown as Markdown source.
             Tables in HTML or XML markup formats are also possible.</li>
@@ -316,28 +297,162 @@ Coordinate = Record                             // GPS Coordinate
     <section anchor="types">
       <name>Types</name>
       <t>
+        A JADN schema is composed exclusively of type definitions, not a mixture of types
+        and other mechanisms sometimes called classes in other data modeling approaches.
+        Every type definition has the identical five-element structure:
+      </t>
+      <sourcecode>
+        <![CDATA[
+[TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
+        ]]>
+      </sourcecode>
+      <ol>
+        <li>TypeName: the name of the type being defined.</li>
+        <li>CoreType: The JADN built-in type of the type being defined.</li>
+        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType (conditional).</li>
+        <li>TypeDescription: a non-normative comment (optional).</li>
+        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
+      </ol>
+      <t>
+        This uniform type structure along with a namespaced package header makes a JADN IM capable
+        yet easy to process. Currently-defined TypeOptions and FieldOptions provide significant
+        expressive power, and unlimited space for new options enables easy extensibility.
+      </t>
+      <t>
+        In a JADN IM types are structured as a directed acyclic graph (DAG). Definitions can be arranged
+        semi-hierarchically for readability, and common types (e.g., Coordinate) can be reused in
+        multiple types. This differs from tree graphs where types must always be acyclic and
+        denormalized, and from mesh graphs that make no distinction between contained and referenced content.
+        Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
+        but are the exception rather than the rule.
+        Data has to live somewhere, and an IM that distinguishes values from references in a serialized
+        message specifies where to find it.
+      </t>
+      <t>
         JADN defines information values and message syntax based on twelve Core types in three categories:
       </t>
       <ul>
-        <li><xref target="primitive">Primitive</xref>: Five types whose instances are an atomic value.</li>
-        <li><xref target="collection">Compound</xref>: Five types whose instances are a collection of values.</li>
-        <li><xref target="union">Union</xref>: Two types whose instances are selected from a set of possible values.</li>
+        <li>
+          <xref target="primitive">Primitive</xref>: Five types where each instance is an atomic value.
+          The Fields array is empty for primitive types.
+        </li>
+        <li>
+          <xref target="collection">Compound</xref>: Five types where each instance is a collection of values.
+          The Fields array is empty for unstructured compound types (ArrayOf, MapOf) and has the same
+          five-element Field structure for all structured compound types (Array, Map, Record).
+        </li>
+        <li>
+          <xref target="union">Union</xref>: Two types where each instance is selected from a set of possible values.
+          The Fields array is a three-element Item structure for the Enumerated type, and the same five-element
+          Field structure for the Choice type.
+        </li>
       </ul>
       <t>
-        Types reference other types in a directed acyclic graph (DAG). This allows deferred specification
-        of detail to reduce clutter, and reuse of common types (e.g., Coordinate) in multiple definitions.
-        This is distinguished from tree graphs where content must always be acyclic and denormalized,
-        and from mesh graphs that make no distinction between contained and referenced content.
-        Cross-references in a DAG (links / foreign keys) support cyclic relationships where needed,
-        but are the exception rather than the rule. Data has to live somewhere, and an IM that defines
-        contained values and the sequential structure of documents and messages specifies where to find it.
+        The Item structure for Enumerated types is:
       </t>
+      <sourcecode>
+        <![CDATA[
+[ItemId, ItemValue, ItemDescription]
+        ]]>
+      </sourcecode>
+      <t>
+        The Field structure for Compound and Union types is:
+      </t>
+      <sourcecode>
+        <![CDATA[
+[FieldId, FieldName, FieldType, [FieldOptions], FieldDescription]
+        ]]>
+      </sourcecode>
+      <t>
+        <xref target="options"></xref> lists all TypeOptions and FieldOptions defined in this specification.
+        Their meaning and usage is described under specific types in the following sections.
+        Each option has a numeric ID, a name, and a value type.  For brevity, options are serialized
+        in JSON format as a list of strings using "TaggedString" encoding. In TaggedStrings, the Unicode
+        codepoint of the first character is the option ID and the remainder of the characters are the
+        string representation of its value.
+      </t>
+      <t>
+        In the GPS Coordinate example, latitude has options serialized in JSON format as ["y-90.0", "z90.0"].
+        From <xref target="options"></xref> the first character "y" (Unicode U+0079 = ID 121) has name
+        "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" indicates
+        that the value type is the base type of the field (Number).
+        The information value of the latitude options is thus {'minInclusive': -90.0, 'maxInclusive': 90.0}:
+      </t>
+      <sourcecode>
+        <![CDATA[
++----+-----------+     TaggedString TypeOption = "y-90.0" (String)
+| ID | Value     |     ID = 121 = U+0079 = lower case "y"
++----+-----------+     Name = "minInclusive", Value = -90.0 (Number)
+        ]]>
+      </sourcecode>
+      <t>
+        Note that the more readable but verbose XASD encoding of latitude:
+        &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;>
+        decodes to the identical information value {'minInclusive': -90.0, 'maxInclusive': 90.0}.
+      </t>
+      <figure anchor="options">
+        <name>TypeOptions and FieldOptions</name>
+        <artwork>
+        <![CDATA[
+  ID TypeOption   Type   ID       Description
+ ___ __________  _______ ___ __________________________________________
+  61 id          Boolean  =: Fields indexed by FieldId, not FieldName
+  42 valueType   String   *: Value type for ArrayOf and MapOf
+  43 keyType     String   +: Key type for MapOf
+  35 enum        String   #: Enumeration derived from structured type
+  62 pointer     String   >: Pointers derived from structured type
+  37 pattern     String   %: String matches Regular expression
+ 117 default       BType  u: Default value
+ 118 const         BType  v: Constant value
+ 119 minExclusive  BType  w: minimum value, excluding bound
+ 120 maxExclusive  BType  x: maximum value, excluding bound
+ 121 minInclusive  BType  y: minimum value
+ 122 maxInclusive  BType  z: maximum value
+ 123 minLength   Integer  {: minimum string length or collection count
+ 125 maxLength   Integer  }: maximum string length or collection count
+ 113 unique      Boolean  q: ArrayOf instance must not have duplicates
+ 115 set         Boolean  s: ArrayOf instance is a Set
+  98 unordered   Boolean  b: ArrayOf instance is a Bag
+ 111 sequence    Boolean  o: Map, MapOf, Record instance is an OrderedSet
+  67 combine     String   C: Choice instance is untagged union combination
+  47 format      String   /: Semantic validation keyword
+  69 scale       Integer  E: Fixed point scale factor, value * 10^n
+ 116 tagString   String   t: Table for tag-string serialization
+  97 abstract    Boolean  a: Abstract - non-instantiatable type
+ 114 restricts   String   r: Restriction - subset of referenced type
+ 101 extends     String   e: Extension - superset of referenced type
+ 102 final       Boolean  f: Final - cannot have subtype
+  65 attr        Boolean  A: Value may be an XML attribute
+
+  ID FieldOption  Type   ID       Description
+ ___ __________  _______ ___ __________________________________________
+  91 minOccurs   Integer  [: min cardinality, default = 1
+  93 maxOccurs   Integer  ]: max cardinality, default = 1
+  48 nillable    Boolean  0: Instance may have no value
+  38 tagId       Integer  &: field that specifies tagged union type
+  60 dir         Boolean  <: pointer enum treats field as collection
+  75 key         Boolean  K: field is the primary key for TypeName
+  76 link        Boolean  L: field links to an instance of FieldType
+        ]]>
+        </artwork>
+      </figure>
 
       <section anchor="primitive">
         <name>Primitive Types</name>
-        <section anchor="binary">
-          <name>Binary</name>
-        </section>
+        <t>
+          JADN defines the following primitive types:
+        </t>
+        <ul>
+          <li><xref target="boolean">Boolean</xref>: foo.</li>
+          <li><xref target="integer">Integer</xref>: foo.</li>
+          <li><xref target="number">Number</xref>: foo.</li>
+          <li><xref target="string">String</xref>: a sequence of characters (Unicode codepoints).</li>
+          <li><xref target="binary">Binary</xref>: a sequence of octets.</li>
+        </ul>
+        <t>
+          ... Primitive types have atomic (undecomposed) values with no Fields.
+          ... meaning is defined outside this specification.
+        </t>
         <section anchor="boolean">
           <name>Boolean</name>
         </section>
@@ -349,6 +464,9 @@ Coordinate = Record                             // GPS Coordinate
         </section>
         <section anchor="string">
           <name>String</name>
+        </section>
+        <section anchor="binary">
+          <name>Binary</name>
         </section>
       </section>
       <section anchor="collection">
