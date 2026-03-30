@@ -363,37 +363,39 @@ Coordinate = Record                             // GPS Coordinate
 [FieldId, FieldName, FieldType, [FieldOptions], FieldDescription]
         ]]>
       </sourcecode>
-      <t>
-        <xref target="options"></xref> lists all TypeOptions and FieldOptions defined in this specification.
-        Their meaning and usage is described under specific types in the following sections.
-        Each option has a numeric ID, a name, and a value type.  For brevity, options are serialized
-        in JSON format as a list of strings using "TaggedString" encoding. In TaggedStrings, the Unicode
-        codepoint of the first character is the option ID and the remainder of the characters are the
-        string representation of its value.
-      </t>
-      <t>
-        In the GPS Coordinate example, latitude has options serialized in JSON format as ["y-90.0", "z90.0"].
-        From <xref target="options"></xref> the first character "y" (U+0079 = ID 121) has name
-        "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" indicates
-        that the value type is the base type of the field (Number).
-        The information value of the latitude options is thus {'minInclusive': -90.0, 'maxInclusive': 90.0}:
-      </t>
-      <sourcecode>
+      <section anchor="optionset">
+        <name>Options</name>
+        <t>
+          <xref target="options"></xref> lists all TypeOptions and FieldOptions defined in this specification.
+          Their meaning and usage is described under specific types in the following sections.
+          Each option has a numeric ID, a name, and a value type.  For brevity, options are serialized
+          in JSON format as a list of strings using "TaggedString" encoding. In TaggedStrings, the Unicode
+          codepoint of the first character is the option ID and the remainder of the characters are the
+          string representation of its value.
+        </t>
+        <t>
+          In the GPS Coordinate example, latitude has options serialized in JSON format as ["y-90.0", "z90.0"].
+          From <xref target="options"></xref> the first character "y" (U+0079 = ID 121) has name
+          "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" indicates
+          that the value type is the base type of the field (Number).
+          The information value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
+        </t>
+        <sourcecode>
         <![CDATA[
 +----+-----------+     TaggedString TypeOption = "y-90.0" (String)
 | ID | Value     |     ID = 121 = U+0079 = lower case "y"
-+----+-----------+     Information: Name = "minInclusive", Value = -90.0 (Number)
++----+-----------+     Info: Name = "minInclusive", Value = -90.0 (Number)
         ]]>
-      </sourcecode>
-      <t>
-        The more verbose XASD encoding of latitude options as attributes:
-        &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
-        carries the identical information value {'minInclusive': -90.0, 'maxInclusive': 90.0}.
-      </t>
-      <figure anchor="options">
-        <name>TypeOptions and FieldOptions</name>
-        <artwork>
-        <![CDATA[
+        </sourcecode>
+        <t>
+          The more verbose XASD encoding of latitude options as attributes:
+          &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
+          carries the identical information value {'minInclusive': -90.0, 'maxInclusive': 90.0}.
+        </t>
+        <figure anchor="options">
+          <name>TypeOptions and FieldOptions</name>
+          <artwork>
+          <![CDATA[
   ID TypeOption   Type   ID       Description
  ___ __________  _______ ___ __________________________________________
   61 id          Boolean  =: Fields indexed by FieldId, not FieldName
@@ -433,9 +435,10 @@ Coordinate = Record                             // GPS Coordinate
   60 dir         Boolean  <: pointer enum treats field as collection
   75 key         Boolean  K: field is the primary key for TypeName
   76 link        Boolean  L: field links to an instance of FieldType
-        ]]>
-        </artwork>
-      </figure>
+          ]]>
+          </artwork>
+        </figure>
+      </section>
 
       <section anchor="primitive">
         <name>Primitive Types</name>
