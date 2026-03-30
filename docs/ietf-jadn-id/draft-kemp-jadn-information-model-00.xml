@@ -142,8 +142,8 @@
         <dt>Information Value</dt>
         <dd>
           the value of a variable (a typed unit of state) in a processing environment.
-          Note that in this document variables are displayed with strings in
-          single quotes to avoid confusion with JSON values.
+          In this document information values are displayed with strings in single quotes
+          to avoid confusion with JSON data values.
         </dd>
         <dt>Data Value</dt>
         <dd>
@@ -170,7 +170,7 @@
           Note that this is not specific to object-oriented programming languages: K&amp;R C has
           an "int" type and its definition of int variables (the "class") has behavior such as
           addition and comparison in addition to the value restrictions defined by the int type.
-          Also note that <xref target="ECMA-262">Javascript</xref> defines Boolean, String, Number,
+          Also note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
           Array, Map and Set objects in chapters 20-24.
           <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
           only to the literal values of Map objects, not any others. Objects in this specification
@@ -325,8 +325,8 @@ Coordinate = Record                             // GPS Coordinate
         denormalized, and from mesh graphs that make no distinction between contained and referenced content.
         Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
         but are the exception rather than the rule.
-        Data has to live somewhere, and an IM that distinguishes values from references in a serialized
-        message specifies where to find it.
+        Data has to live somewhere, and an IM that distinguishes values from references in serialized
+        messages specifies where to find it.
       </t>
       <t>
         JADN defines information values and message syntax based on twelve Core types in three categories:
@@ -356,7 +356,7 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        The Field structure for Compound and Union types is:
+        The Field structure for Compound and Choice types is:
       </t>
       <sourcecode>
         <![CDATA[
@@ -373,7 +373,7 @@ Coordinate = Record                             // GPS Coordinate
       </t>
       <t>
         In the GPS Coordinate example, latitude has options serialized in JSON format as ["y-90.0", "z90.0"].
-        From <xref target="options"></xref> the first character "y" (Unicode U+0079 = ID 121) has name
+        From <xref target="options"></xref> the first character "y" (U+0079 = ID 121) has name
         "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" indicates
         that the value type is the base type of the field (Number).
         The information value of the latitude options is thus {'minInclusive': -90.0, 'maxInclusive': 90.0}:
@@ -382,13 +382,13 @@ Coordinate = Record                             // GPS Coordinate
         <![CDATA[
 +----+-----------+     TaggedString TypeOption = "y-90.0" (String)
 | ID | Value     |     ID = 121 = U+0079 = lower case "y"
-+----+-----------+     Name = "minInclusive", Value = -90.0 (Number)
++----+-----------+     Information: Name = "minInclusive", Value = -90.0 (Number)
         ]]>
       </sourcecode>
       <t>
-        Note that the more readable but verbose XASD encoding of latitude:
-        &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;>
-        decodes to the identical information value {'minInclusive': -90.0, 'maxInclusive': 90.0}.
+        The more verbose XASD encoding of latitude options as attributes:
+        &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
+        carries the identical information value {'minInclusive': -90.0, 'maxInclusive': 90.0}.
       </t>
       <figure anchor="options">
         <name>TypeOptions and FieldOptions</name>
@@ -397,10 +397,10 @@ Coordinate = Record                             // GPS Coordinate
   ID TypeOption   Type   ID       Description
  ___ __________  _______ ___ __________________________________________
   61 id          Boolean  =: Fields indexed by FieldId, not FieldName
-  42 valueType   String   *: Value type for ArrayOf and MapOf
-  43 keyType     String   +: Key type for MapOf
-  35 enum        String   #: Enumeration derived from structured type
-  62 pointer     String   >: Pointers derived from structured type
+  42 valueType   String   *: Value for ArrayOf and MapOf is referenced type
+  43 keyType     String   +: Key for MapOf is referenced type
+  35 enum        String   #: Enumeration derived from referenced type
+  62 pointer     String   >: Pointers derived from referenced type
   37 pattern     String   %: String matches Regular expression
  117 default       BType  u: Default value
  118 const         BType  v: Constant value
@@ -410,19 +410,19 @@ Coordinate = Record                             // GPS Coordinate
  122 maxInclusive  BType  z: maximum value
  123 minLength   Integer  {: minimum string length or collection count
  125 maxLength   Integer  }: maximum string length or collection count
- 113 unique      Boolean  q: ArrayOf instance must not have duplicates
+ 113 unique      Boolean  q: ArrayOf instance is an OrderedSet
  115 set         Boolean  s: ArrayOf instance is a Set
   98 unordered   Boolean  b: ArrayOf instance is a Bag
  111 sequence    Boolean  o: Map, MapOf, Record instance is an OrderedSet
-  67 combine     String   C: Choice instance is untagged union combination
+  67 combine     String   C: Choice instance is an untagged union
   47 format      String   /: Semantic validation keyword
   69 scale       Integer  E: Fixed point scale factor, value * 10^n
  116 tagString   String   t: Table for tag-string serialization
-  97 abstract    Boolean  a: Abstract - non-instantiatable type
- 114 restricts   String   r: Restriction - subset of referenced type
- 101 extends     String   e: Extension - superset of referenced type
- 102 final       Boolean  f: Final - cannot have subtype
-  65 attr        Boolean  A: Value may be an XML attribute
+  97 abstract    Boolean  a: Type is not instantiable as a value
+ 102 final       Boolean  f: Type cannot have subtypes
+ 101 extends     String   e: Type is a superset of referenced type
+ 114 restricts   String   r: Type is a subset of referenced type
+  65 attr        Boolean  A: Data value may be an XML attribute
 
   ID FieldOption  Type   ID       Description
  ___ __________  _______ ___ __________________________________________
