@@ -189,29 +189,67 @@
           the same information value.
         </dd>
       </dl>
-      <t>For an IM to be useful it must be abstract and language-independent.
-        An abstract schema is a high level specification that separates information
-        sharing requirements from implementation details.
-        This is desirable for initial conceptual design where details are unknown or
-        undecided, and for exposition and publication where they are distracting.
-        But robust implementation requires unambiguous specification of schema-independent
-        encoding rules to translate between information values and messages.
-        An IM defines both information values and message representations in a way
-        that does not depend on programming language or data format.
-      </t>
-      <t>
-        Using an IM can support system development in three ways:
-      </t>
-      <ol>
-        <li>Pseudocode: describes message content at a high level without mechanically generating or
-          processing messages</li>
-        <li>Template: generates concrete schemas (data models) more consistently than writing them
-          directly, while reusing existing message processing software</li>
-        <li>IM: validates and processes message content directly, enabling lossless translation among data formats.
-          This specification defines the required observable result of lossless round-trip translation,
-          but not a required algorithm for achieving that result.
-        </li>
-      </ol>
+      <section>
+        <name>Objectives</name>
+        <t>The objectives of JADN are, in roughly decreasing order of importance are:</t>
+        <ol>
+          <li>
+            <t>
+              It must be able to unambiguously define information values in a manner
+              independent of programming language but that supports common programming types.
+            </t>
+            <ul>
+              <li>
+                In particular, associative arrays (a.k.a. maps, dictionaries, hashes) are
+                universally used in modern programming but are not considered data types
+                in UML, ASN.1, or XSD.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <t>
+              It must be able to unambiguously define equivalence between data values
+              in most common data formats used in Internet standards.
+            </t>
+            <ul>
+              <li>
+                The schema must be a high-level specification that separates information
+                sharing requirements from implementation details.
+              </li>
+              <li>
+                The encoding rules that define a data format must be schema-independent
+                to promote re-use and unambiguous to ensure equivalence between representations.
+              </li>
+            </ul>
+          </li>
+          <li>
+            ...
+          </li>
+        </ol>
+        <t>For an IM to be useful it must be abstract and language-independent.
+          An abstract schema is a high level specification that separates information
+          sharing requirements from implementation details.
+          This is desirable for initial conceptual design where details are unknown or
+          undecided, and for exposition and publication where they are distracting.
+          But robust implementation requires unambiguous specification of schema-independent
+          encoding rules to translate between information values and messages.
+          An IM defines both information values and message representations in a way
+          that does not depend on programming language or data format.
+        </t>
+        <t>
+          Using an IM can support system development in three ways:
+        </t>
+        <ol>
+          <li>Pseudocode: describes message content at a high level without mechanically generating or
+            processing messages</li>
+          <li>Template: generates concrete schemas (data models) more consistently than writing them
+            directly, while reusing existing message processing software</li>
+          <li>IM: validates and processes message content directly, enabling lossless translation among data formats.
+            This specification defines the required observable result of lossless round-trip translation,
+            but not a required algorithm for achieving that result.
+          </li>
+        </ol>
+      </section>
       <section>
         <name>Examples</name>
         <t>
