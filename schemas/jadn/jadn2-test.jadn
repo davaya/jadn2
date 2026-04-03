@@ -8,10 +8,12 @@
     ["Test", "Record", [], "Test schema format conversions for all options", [
       [1, "defaults", "Defaults", [], "Default and constant primitive options"],
       [2, "opts", "Options", [], "Type and field options"],
-      [3, "coll", "Collections", [], "Compound types with collection semantics"],
-      [4, "comb", "Combinations", [], "Untagged unions"],
-      [5, "format", "Formats", [], "Semantic validation keywords"],
-      [6, "inherit", "Inherit", [], "Type inheritance"]
+      [3, "sizes", "Sizes", [], "Size options"],
+      [4, "coll", "Collections", [], "Compound types with collection semantics"],
+      [5, "comb", "Combinations", [], "Untagged unions"],
+      [6, "format", "Formats", [], "Semantic validation keywords"],
+      [7, "inherit", "Inherit", [], "Type inheritance"],
+      [8, "longitude", "Longitude", [], "Individual types"]
     ]],
 
     ["Defaults", "Record", [], "Primitive typed constants", [
@@ -36,6 +38,17 @@
       [10, "fields", "ValOpts", ["[0", "&3"], "select value based on 'enum' field"],
       [11, "nil", "NilOpts", ["[0"], "nillable vs. optional values"]
     ]],
+
+    ["Sizes", "Record", [], "Size options", [
+      [1, "s1", "String", ["}3"], "String with up to 3 characters"],
+      [2, "s2", "String", ["{2"], "String with 2 or more characters"],
+      [3, "s3", "String", ["{2", "}3"], "String with 2 or 3 characters"],
+      [4, "s4", "String", ["{2", "}2"], "String with exactly 2 characters"],
+      [5, "s5", "ArrayOf", ["*String", "{2", "}3"], "Array with 2 or 3 elements"],
+      [6, "s6", "ArrayOf", ["*Lstr", "{2", "}3"], "Array with 2 or 3 strings, each 4-5 chars"]
+    ]],
+
+    ["Lstr", "String", ["{4", "}5"], "String with 4 or 5 character length"],
 
     ["ValOpts", "Choice", [], "Options with dependent value types", [
       [9, "abc", "Boolean", ["ufalse"], "TODO: fix default is true/false"],
@@ -167,7 +180,8 @@
 
     ["PixelR", "Record", ["rPixel", "f"], "Restricted type", [
       [2, "green", "String", ["]0"], "deleted field - TODO: min/maxOccurs"]
-    ]]
+    ]],
 
+    ["Longitude", "Number", ["w-180.0", "z180.0"]]
   ]
 }

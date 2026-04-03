@@ -143,7 +143,7 @@
         <dd>
           the value of a variable (a typed unit of state) in a processing environment.
           In this specification information values are displayed with strings in single quotes
-          to avoid confusion with JSON data values.
+          to avoid confusion with similar-looking JSON data values.
         </dd>
         <dt>Data Value</dt>
         <dd>
@@ -183,6 +183,11 @@
           for example Record information values can be represented as either
           Map or Array literals in the same media type depending on data format.
         </dd>
+        <dt>Equivalent</dt>
+        <dd>
+          Two data values are equivalent if and only if they are the same type and are mapped to
+          the same information value.
+        </dd>
       </dl>
       <t>For an IM to be useful it must be abstract and language-independent.
         An abstract schema is a high level specification that separates information
@@ -212,7 +217,7 @@
         <t>
           The following example representations of a simple GPS Coordinate type definition illustrate
           that a JADN schema is an information value, that the information value is identical regardless
-          of data format, and what that value looks like when represented in equivalent data formats.
+          of data format, and what that value looks like when represented as different data values.
           The formats shown are:
         </t>
         <ul>
@@ -325,13 +330,14 @@ Coordinate = Record                             // GPS Coordinate
         and from mesh graphs that make no distinction between contained and referenced content.
         Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
         but are the exception rather than the rule.
-        Data must live somewhere, and an IM that distinguishes values from references in serialized
-        messages specifies where within the message to find it.
+        Data must live somewhere, and only an IM that distinguishes values from references
+        specifies where in a document or message to find it.
       </t>
       <t>
-        The types discussed in this specification are well-known abstract concepts such as "integer",
-        "sequence" and "map"; many other publications provide excellent definitions of these concepts.
-        However, this specification will attempt to describe the abstract concepts well enough that they
+        The types in this specification are well-known abstract concepts such as "integer", "sequence"
+        and "map". They are not exhaustively defined here because many other publications provide excellent
+        definitions of these concepts.
+        However, this specification will attempt to describe these types well enough that they
         can be readily recognized and distinguished from other abstractions with which they may be confused.
       </t>
       <t>
@@ -340,7 +346,7 @@ Coordinate = Record                             // GPS Coordinate
       <ul>
         <li>
           <xref target="primitive">Primitive</xref>: Five types where each instance is an atomic value.
-          The Fields array is empty for primitive types.
+          The Fields array is empty in primitive type definitions.
         </li>
         <li>
           <xref target="collection">Compound</xref>: Five types where each instance is a collection of values.
@@ -394,10 +400,9 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
         </sourcecode>
         <t>
-          The more verbose XASD representation of latitude options as attributes:
+          The more verbose XASD representation of latitude options:
           &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt; is equivalent to the
-          JSON representation because both map to the same information value
-          {'minInclusive': -90.0, 'maxInclusive': 90.0}.
+          to the JSON representation because both are mapped to the same information value.
         </t>
         <figure anchor="options">
           <name>TypeOptions and FieldOptions</name>
@@ -450,24 +455,38 @@ Coordinate = Record                             // GPS Coordinate
       <section anchor="primitive">
         <name>Primitive Types</name>
         <t>
+          A primitive type has no substructure, and specifies an unrestricted space of atomic values
+          without regard to processing mechanisms or data format. Options applicable to each type limit
+          the value space; if more than one option is present the value space is their intersection.
+        </t>
+        <t>
           JADN defines the following primitive types:
         </t>
         <ul>
-          <li><xref target="boolean">Boolean</xref>: foo.</li>
-          <li><xref target="integer">Integer</xref>: foo.</li>
-          <li><xref target="number">Number</xref>: foo.</li>
-          <li><xref target="string">String</xref>: a sequence of characters (Unicode codepoints).</li>
+          <li><xref target="boolean">Boolean</xref>: a value from the set of two possible states.</li>
+          <li><xref target="integer">Integer</xref>: a value from the discrete whole number line.</li>
+          <li><xref target="number">Number</xref>: a value from the continuous real number line.</li>
+          <li><xref target="string">String</xref>: a sequence of characters.</li>
           <li><xref target="binary">Binary</xref>: a sequence of octets.</li>
         </ul>
-        <t>
-          ... Primitive types have atomic (undecomposed) values with no Fields.
-          ... meaning is defined outside this specification.
-        </t>
         <section anchor="boolean">
           <name>Boolean</name>
+          <t>
+            ...
+          </t>
         </section>
         <section anchor="integer">
           <name>Integer</name>
+          <t>
+            An integer is often said to be a number with no fractional part. Integer and number are
+            distinct types, both mathematically and computationally, because a countably infinite set
+            of discrete values is different from a continuum.
+            1.01 has a fractional part, as does 1.00000000001, as does 1 + 10^-n for every non-infinite
+            positive n. For this reason every decimal character string and every IEEE-754 floating point
+            value that represents an integer, regardless of precision, also represents an infinite number
+            of values with a fractional part.  It is impossible for the number type to represent an
+            integer without consuming infinite resources.
+          </t>
         </section>
         <section anchor="number">
           <name>Number</name>
@@ -579,7 +598,71 @@ Coordinate = Record                             // GPS Coordinate
 
     <section anchor="shortcuts">
       <name>Shortcuts</name>
-      <t>...</t>
+      <t>
+        JADN defines a set of core definitions plus several shortcuts that make IM schemas more
+        adaptable or less redundant. Shortcuts are syntactic sugar implemented using options that
+        can be replaced with additional types without affecting functionality.
+        Expanding shortcuts into core definitions simplifies serialization and validation code,
+        and viewing the expanded schema may aid understanding of the IM.
+      </t>
+      <t>
+        The shortcuts and the options used to implement them are:
+      </t>
+      <ul>
+        <li><xref target="s-anonymous" format="title"/>: any TypeOption present in FieldOptions</li>
+        <li><xref target="s-multiplicity" format="title"/>: minOccurs, maxOccurs</li>
+        <li><xref target="s-enumeration" format="title"/>: enum, pointer, dir</li>
+        <li><xref target="s-inheritance" format="title"/>: extends, restricts, abstract, final</li>
+      </ul>
+      <section anchor="s-anonymous">
+        <name>Anonymous Types</name>
+        <t>
+          This shortcut allows fields within a structured type to be defined without a TypeName.
+          Expanding the definition generates an explicitly named type for each anonymous field,
+          moves all TypeOptions included in FieldOptions to the generated type, and replaces
+          FieldType with the TypeName of the generated type.
+          This requires FieldType to be a non-structured CoreType and any TypeOption
+          values included in FieldOptions to apply to FieldType.
+        </t>
+        <t>
+          Example: a structured type with anonymous fields:
+        </t>
+        <sourcecode>
+        <![CDATA[
+Coordinate = Record                   // A GPS coordinate
+  1 latitude   Number=[-90.0, 90.0]   // A Number between -90 and 90 degrees
+  2 longitude  Number=(-180.0, 180.0] // A Number between -180 and 180 degrees
+        ]]>
+        </sourcecode>
+        <t>
+          Expanding the type generates two named types and replaces FieldType with their names.
+          This requires a naming convention for generating path names as discussed in
+          <xref target="packages" format="title"/>. Writing an IM with explicitly named types
+          (e.g., "Longitude") avoids the need for path names.
+        </t>
+        <sourcecode>
+        <![CDATA[
+Coordinate = Record                   // A GPS coordinate
+  1 latitude   Coordinate.latitude    // A Number between -90 and 90 degrees
+  2 longitude  Coordinate.longitude   // A Number between -180 and 180 degrees
+
+Coordinate.latitude = Number=[-90.0, 90.0]
+Coordinate.longitude = Number=(-180.0, 180.0]
+        ]]>
+        </sourcecode>
+      </section>
+      <section anchor="s-multiplicity">
+        <name>Multiplicity</name>
+        <t>...</t>
+      </section>
+      <section anchor="s-enumeration">
+        <name>Derived Enumeration</name>
+        <t>...</t>
+      </section>
+      <section anchor="s-inheritance">
+        <name>Type Inheritance</name>
+        <t>...</t>
+      </section>
     </section>
 
     <section anchor="serialization">
