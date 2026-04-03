@@ -215,17 +215,17 @@
       <section>
         <name>Examples</name>
         <t>
-          The following example representations of a simple GPS Coordinate type definition illustrate
-          that a JADN schema is an information value, that the information value is identical regardless
-          of data format, and what that value looks like when represented as different data values.
+          Example representations of a trivial GPS Coordinate type illustrate that a JADN schema
+          is an information value, that that value can be represented in multiple data formats,
+          and that the information value is identical regardless of format.
           The formats shown are:
         </t>
         <ul>
           <li>JSON data: the normative storage format for JADN schemas</li>
-          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD) language.</li>
+          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD).</li>
           <li>Text: JADN Information Definition Language (IDL), an example non-normative domain-specific language (DSL).</li>
-          <li>Property Tables: a popular data standards publication format, shown as Markdown source.
-            Tables in HTML or XML markup formats are also possible.</li>
+          <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
+            Tables can also be represented in HTML, XML and office document data formats.</li>
         </ul>
         <figure anchor="intro-jadn">
           <name>JADN Native JSON Format</name>
@@ -325,12 +325,12 @@ Coordinate = Record                             // GPS Coordinate
       </t>
       <t>
         JADN IM types are structured as a directed acyclic graph (DAG). Definitions can be arranged
-        semi-hierarchically for readability, and common types can be reused in multiple types.
+        in hierarchical tiers for readability, and common types can be reused in multiple types.
         This differs from tree graphs where types must always be acyclic and denormalized,
         and from mesh graphs that make no distinction between contained and referenced content.
         Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
         but are the exception rather than the rule.
-        Data must live somewhere, and only an IM that distinguishes values from references
+        Data must live somewhere, and only a model that distinguishes values from references
         specifies where in a document or message to find it.
       </t>
       <t>
@@ -355,7 +355,7 @@ Coordinate = Record                             // GPS Coordinate
         </li>
         <li>
           <xref target="union">Union</xref>: Two types where each instance is selected from a set of possible values.
-          The Fields array is a three-element Item structure for the Enumerated type, and the five-element
+          Each Field is a three-element Item structure for the Enumerated type, and the five-element
           Field structure for the Choice type.
         </li>
       </ul>
@@ -380,10 +380,11 @@ Coordinate = Record                             // GPS Coordinate
         <t>
           <xref target="options"></xref> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
-          Each option has a numeric ID, a name, and a value type.  For brevity, options are serialized
-          in JSON format as a list of strings using "TaggedString" encoding. In TaggedStrings, the Unicode
+          Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
+          as a list of strings using "TaggedString" encoding for brevity. In tagged strings the Unicode
           codepoint of the first character is the option ID and the remaining characters are the
-          string representation of its value.
+          string representation of its value. Tagged strings also highlight that options are inherently
+          enumerated, not arbitrary attributes.
         </t>
         <t>
           In the GPS Coordinate example, latitude has options represented in JSON format as ["y-90.0", "z90.0"].
