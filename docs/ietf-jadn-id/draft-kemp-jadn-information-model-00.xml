@@ -481,12 +481,12 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             An integer is often said to be a number with no fractional part. Integer and number are
             distinct types, both mathematically and computationally, because a countably infinite set
-            of discrete values is different from a continuum.
+            of discrete values differs from a continuum.
             1.01 has a fractional part, as does 1.00000000001, as does 1 + 10^-n for every non-infinite
             positive n. For this reason every decimal character string and every IEEE-754 floating point
             value that represents an integer, regardless of precision, also represents an infinite number
-            of values with a fractional part.  It is impossible for the number type to represent an
-            integer without consuming infinite resources.
+            of values with a fractional part.  It is impossible for the number type to uniquely represent
+            an integer without consuming infinite resources.
           </t>
         </section>
         <section anchor="number">
