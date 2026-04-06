@@ -466,11 +466,11 @@ Coordinate = Record                             // GPS Coordinate
           <xref target="options"/> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
           Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
-          as a list of strings using "tagged string" encoding for brevity. In option tagged strings the
-          Unicode codepoint of the first character is the option ID and the remaining characters are the
-          string representation of its value. Tagged strings also highlight that options are inherently
+          as a list of strings using "tagged string" encoding for brevity. In tagged strings for JADN options
+          the Unicode codepoint of the first character is the option ID and the remaining characters are the
+          string representation of its value. Tagged strings highlight that options are inherently
           enumerated, not arbitrarily-named attributes. Tagged string encoding can also be used for general
-          data by defining a translation table similar to <xref target="options"/>.
+          data by defining mapping tables similar to <xref target="options"/>.
         </t>
         <t>
           In the GPS Coordinate example, latitude has options represented in JSON format as ["y-90.0", "z90.0"].
