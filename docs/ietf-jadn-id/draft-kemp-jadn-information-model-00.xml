@@ -90,15 +90,15 @@
     <abstract>
       <t>
         This document defines an information modeling language designed to improve the rigor
-        of Internet technical specifications. Existing standards like ABNF, XSD, and JSON Schema
+        of Internet technical specifications. Existing data standards like ABNF, XSD, and JSON Schema
         define formal syntax for text and structured data values. But while RFC 3444 and RFC 8477
         establish goals for information modeling, adoption remains limited.
         JSON Abstract Data Notation (JADN) addresses this by defining a formal syntax for
-        information values using a uniform type structure that balances simplicity with
-        extensibility and expressive power.
-        The key feature of any IM is equivalence across data formats, and unlike traditional
-        schema languages, a JADN schema is itself an information value. This ensures equivalence
-        across schema representations, allowing authors to select or design a representation
+        information using a uniform type structure that balances simplicity with extensibility
+        and expressive power.
+        The defining feature of any IM is equivalence across data formats, but unlike traditional
+        schema languages, a JADN schema is itself an information value. This mechanism ensures
+        equivalence across schema representations, allowing authors to select or design a representation
         suitable for the application and target audience.
       </t>
     </abstract>
