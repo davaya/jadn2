@@ -606,8 +606,87 @@ Coordinate = Record                             // GPS Coordinate
       </section>
       <section anchor="collection">
         <name>Collection Types</name>
+        <t>
+          An IM collection element is a collection of information values and its equivalent
+          literal data values. The collection element type has two components:
+        </t>
+        <ul>
+          <li>
+            a <strong>semantic</strong> type that characterizes the properties of information values
+            within a processing environment, based on the <xref target="UML"/> "MultiplicityElement".
+          </li>
+          <li>
+            a <strong>compound</strong> type that identifies the data structures used to represent the collection.
+          </li>
+        </ul>
+        <t>
+          These components are equally important, and any IM must specify both collection
+          semantics and collection structure. A JADN CoreType is one of five Compound types,
+          combined with a TypeOption to specify collection semantics.
+          This design decision was based on users' greater familiarity with DMs than with IMs.
+          But it would also be possible for CoreType to specify one of the six Semantic types,
+          combined with TypeOptions to specify the collection data structure.
+        </t>
+        <t>
+          The following section defines six semantic multiplicity types supported by most
+          processing environments, followed by a section for each of the compound data types
+          and the semantic options applicable to each.
+        </t>
         <section anchor="multiplicity">
           <name>Multiplicity</name>
+          <t>
+            <xref target="UML"/> defines MultiplicityElement as specifying the multiplicity of
+            (the valid number of values contained in) the collection, along with four semantic
+            types based on two boolean properties. Because UML does not support mapping data types,
+            JADN defines a third property, <em>isAssociative</em>, to enable that support.
+          </t>
+          <dl>
+            <dt>isOrdered</dt>
+            <dd>
+              if true then the collection of values in an instantiation of this Element
+              is ordered. This ordering implies that there is a mapping from positive integers to
+              the elements of the collection of values.
+              If a MultiplicityElement is not multivalued, then the value for isOrdered has no semantic effect.
+              If false then no assumptions can be made about the order of the values in an instantiation
+              of this Element.
+            </dd>
+            <dt>isUnique</dt>
+            <dd>
+              if true then the collection of values in an instantiation of this Element must
+              be unique. That is, no two values in the collection may be equal, where equality of
+              values is based on value.
+              If a MultiplicityElement is not multivalued, then the value for isUnique has no semantic effect.
+            </dd>
+            <dt>isAssociative</dt>
+            <dd>
+              if true then the Element must be a collection of associations between two values, where one
+              value is a key and each key in an instantiation of this Element must be unique.
+              If false then values are not associated with keys.
+            </dd>
+          </dl>
+          <t>
+            Taken together, the isOrdered, isUnique, and isAssociative properties specify that a collection
+            value is one of six semantic types. Because association keys are unique, the combination of
+            isUnique=false and isAssociative=true is not used.
+          </t>
+          <t>
+            <xref target="semanticTypes"/> shows the semantic type name used for each combination of
+            MultiplicityElement properties, and the compound type(s) that can support that semantic type.
+          </t>
+          <table anchor="semanticTypes">
+            <thead>
+              <tr><th>isOrdered</th><th>isUnique</th><th>isAssociative</th><th>Semantic Type</th><th>Compound Type</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>false</td><td>true</td><td>false</td><td>Set</td><td>ArrayOf</td></tr>
+              <tr><td>true</td><td>true</td><td>false</td><td>OrderedSet</td><td>ArrayOf</td></tr>
+              <tr><td>false</td><td>true</td><td>true</td><td>Map</td><td>ArrayOf, MapOf, Map, Record</td></tr>
+              <tr><td>true</td><td>true</td><td>true</td><td>OrderedMap</td><td>ArrayOf, Record</td></tr>
+              <tr><td>true</td><td>false</td><td>false</td><td>Sequence</td><td>ArrayOf, Array</td></tr>
+              <tr><td>false</td><td>false</td><td>false</td><td>Bag</td><td>ArrayOf</td></tr>
+            </tbody>
+          </table>
+
           <section anchor="sequence">
             <name>Sequence</name>
           </section>
