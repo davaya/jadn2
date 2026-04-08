@@ -172,9 +172,9 @@
           addition and comparison in addition to the value space defined by the int type.
           Also note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
           Array, Map and Set objects in chapters 20-24.
-          <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer
-          only to the values of Map objects, not any others. Objects in this specification
-          have values of all types as in JavaScript, not just Maps as in JSON.
+          <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer only to the literal
+          values of Map objects, not any others. Objects in this specification have values of all
+          types as in JavaScript, not just Maps as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
@@ -229,7 +229,8 @@
                 or be referenced by the data it defines. <xref target="RFC8949">CBOR</xref> has a
                 requirement that "Data must be able to be decoded without a schema description",
                 but CBOR data that includes a CBOR schema is both self-describing and more concise
-                than repeating descriptions in every instance. For the Coordinate example, a JADN
+                than repeating descriptions in every instance. For the
+                <xref target="examples">Coordinate</xref> example, a JADN
                 schema in CBOR format defines "latitude" and "longitude" elements once so that CBOR
                 data can encode coordinate values as Major type 4, a tuple of length 2, not repeatedly
                 including descriptions in every coordinate.
@@ -246,8 +247,8 @@
             <ul>
               <li>
                 The schema must be composed of data types, not classes or objects, because only types
-                define the mapping between external and internal values. Segregating mapping methods into
-                encoding rules allows the schema to be abstract.
+                define the mapping between external data and internal information values.
+                Segregating mapping methods into encoding rules allows the schema to be abstract.
               </li>
               <li>
                 The encoding rules that define a data format must be schema-independent to promote
@@ -263,7 +264,7 @@
             <ul>
               <li>
                 Associative arrays (maps, dictionaries, hashes) are universally used in programming but
-                are not defined as types in UML, ASN.1, or XSD. JADN defines a Map type.
+                are not defined as types in UML, ASN.1, or XSD.
               </li>
               <li>
                 Other common processing types such as sets, ordered maps and unordered lists are used less
@@ -295,9 +296,27 @@
             existing DM languages are non-existent (e.g., IP packets) or insufficient (e.g.,
             JSON Schema's inability to express ordered map semantics).
           </li>
+          <li>
+            <t>
+              There is no requirement for information values to be uniquely encoded. However:
+            </t>
+            <ul>
+              <li>
+                Encoding rules should define a canonical mapping from information to data, to facilitate
+                equivalence verification and extend integrity and authentication mechanisms from data
+                to the information it represents.
+              </li>
+              <li>
+                Encoding rules should define many-to-one mappings, where helpful, from data to information
+                to support the <xref target="RFC1958">Robustness Principle</xref>. Using an IM to validate
+                incoming data against well-defined mappings to a schema is an example of
+                <xref target="RFC9413">Virtuous Intolerance</xref>, not harmful tolerance of the unexpected.
+              </li>
+            </ul>
+          </li>
         </ol>
       </section>
-      <section>
+      <section anchor="examples">
         <name>Examples</name>
         <t>
           Example representations of a trivial GPS Coordinate type illustrate that a JADN schema
@@ -682,7 +701,7 @@ Coordinate = Record                             // GPS Coordinate
       <ul>
         <li><xref target="s-anonymous" format="title"/>: any TypeOption present in FieldOptions</li>
         <li><xref target="s-multiplicity" format="title"/>: minOccurs, maxOccurs</li>
-        <li><xref target="s-enumeration" format="title"/>: enum, path, dir</li>
+        <li><xref target="s-enumeration" format="title"/>: enum, path</li>
         <li><xref target="s-inheritance" format="title"/>: extends, restricts, abstract, final</li>
       </ul>
       <section anchor="s-anonymous">
@@ -710,7 +729,7 @@ Coordinate = Record                   // A GPS coordinate
           This requires a naming convention for generating path names as discussed in
           <xref target="packages" format="title"/>. Path components may be either field IDs
           ("Coordinate.1") or field names ("Coordinate.latitude").
-          Writing an IM using explicitly named types (e.g., "Latitude") avoids using this shortcut.
+          Writing an IM using explicitly named types (e.g., "Latitude") avoids this shortcut.
         </t>
         <sourcecode>
         <![CDATA[
@@ -736,19 +755,138 @@ Coordinate.longitude = Number=(-180.0, 180.0]
         </t>
         <t>
           If an optional field instance with no elements should be represented by an empty list rather
-          than omitted entirely, the IM defines an explicitly-named ArrayOf type in a required field
-          instead of using this shortcut.
+          than omitted entirely, the IM collection type uses an explicitly-named ArrayOf type
+          in a required field.
         </t>
       </section>
       <section anchor="s-enumeration">
-        <name>Derived Enumeration</name>
+        <name>Derived Enumerations</name>
         <t>
-
+          The <em>enum</em> and <em>path</em> options generate a list of items based on the fields
+          of the type named in the option. When expanded, enum copies the field id and name directly
+          from the named type, while path generates a recursive list of pathnames below the named type.
+          The <em>dir</em> field option terminates recursion when expanding the <em>path</em> option
+          and when flattening data values from tree to list structures.
+          Expanding replaces the shortcut Enumerated type with the explicit item list.
+          These options avoid duplicating long field lists, saving space and eliminating potential
+          inconsistency.
         </t>
+        <t>
+          Using the GPS Coordinate example, an Enumerated type with the enum option expands to the
+          same type with an explicit list of fields:
+        </t>
+        <sourcecode>
+        <![CDATA[
+Foo = Enumerated(Enum[Coordinate])
+
+Foo = Enumerated
+  1 latitude
+  2 longitude
+        ]]>
+        </sourcecode>
+        <t>
+          In the Coordinate type the path option yields the same result as enum because both fields
+          are leaf types (Number). But if "latitude" were a hypothetical compound type with additional
+          structure, the result would be a list of pathnames:
+        </t>
+        <sourcecode>
+        <![CDATA[
+Coordinate = Record        // A GPS coordinate
+  1 latitude   Stuff       // lat: a hypothetical structure
+  2 longitude  Longitude   // long: -179.9999 to 180 degrees
+
+Stuff = Record
+  1 bar/       MoreStuff   // "dir" option stops path recursion
+  2 baz        MoreStuff   // otherwise continue to leaf values
+
+MoreStuff = Record
+  1 qux        Integer     // a leaf type
+  2 xyzzy      String      // another leaf type
+
+Longitude = Number=(-180.0, 180.0]  // also a leaf type
+
+==== Expanding the _path_ shortcut yields =====
+
+Foo = Enumerated(Path[Coordinate])
+
+Foo = Enumerated
+  1 latitude.bar
+  2 latitude.baz.qux
+  3 latitude.baz.xyzzy
+  4 longitude
+        ]]>
+        </sourcecode>
       </section>
       <section anchor="s-inheritance">
         <name>Type Inheritance</name>
-        <t>...</t>
+        <t>
+          Class inheritance is complex because it addresses behavior. But because types define
+          immutable value spaces, type inheritance consists of two basic set operations that can
+          be precomputed on a schema rather than being processed at runtime. The <em>extends</em>
+          and <em>restricts</em> shortcuts perform these operations, saving space and improving
+          robustness:
+        </t>
+          <ul>
+          <li>
+            extends: value space is a superset of the base type. If A extends B, A = A ∪ B
+            (union), and every instance of B is also an instance of A.
+          </li>
+          <li>
+            restricts: value space is a subset of the base type. If A restricts B, A = A ∩ B
+            (intersection), and every instance of A is also an instance of B.
+          </li>
+        </ul>
+        <t>
+          Two other options are adopted from class inheritance for completeness:
+        </t>
+        <ul>
+          <li>abstract: type cannot be instantiated as a value.</li>
+          <li>final: type cannot be extended or restricted.</li>
+        </ul>
+        <t>
+          Although the subset rule is the definition of inheritance for all types, in practice inheritance
+          is not useful for primitive types because:
+        </t>
+        <ul>
+          <li>the value space is the universe of possible values and cannot be further extended</li>
+          <li>existing TypeOptions restrict primitive value spaces directly without reference to a base type</li>
+          <li>
+            inherited types such as a String with an analytically-derived regular expression can be
+            impractical, and the identical result can be expressed more intuitively using Choice to "extend"
+            or "restrict" two restricted types without designating either one as the base type:
+          </li>
+        </ul>
+        <sourcecode>
+        <![CDATA[
+Name1 = Choice(anyOf)   // Extend: 2915, a34c, D72F are valid. g16H isn't.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
+
+Name2 = Choice(allOf)   // Restrict: 2915 is valid. a34c, D72F, g16H aren't.
+   1  String{pattern="^[a-z0-9]$"}   // a::
+   2  String{pattern="^[A-Z0-9]$"}   // b::
+        ]]>
+        </sourcecode>
+        <t>
+          In practice inheritance is used to add, remove, or modify the multiplicity of fields in structured
+          compound types. Because Array and Record fields are indexed by position, extending appends new
+          fields at the end. Map fields are indexed by key, so extending Map types requires that field id
+          and name must both be unique but position doesn't matter.
+        </t>
+        <t>Examples:</t>
+        <sourcecode>
+        <![CDATA[
+Entity = Record abstract            // Base type, cannot be instantiated
+  1 id      Integer
+  2 name    String optional
+
+Person = Record extends(Entity)     // Add email address
+  1 email   String /email optional  // Person type has 1 id, 2 name, 3 email
+
+AnonymousPerson = Record restricts(Person)  // Prohibit name
+  2 name    String [0]
+        ]]>
+        </sourcecode>
       </section>
     </section>
 
@@ -783,7 +921,7 @@ Coordinate.longitude = Number=(-180.0, 180.0]
           <ul>
             <li>Indexing Record elements by position or name</li>
             <li>Enumerating data elements by numeric ID or string name / value</li>
-            <li>Defining string formats for non-string information values</li>
+            <li>Defining string formats for non-string types</li>
           </ul>
         <t>
           ...
@@ -856,15 +994,26 @@ Coordinate.longitude = Number=(-180.0, 180.0]
             <date year="2012" month="4"/>
           </front>
         </reference>
+        <reference anchor="UML" target="https://www.omg.org/spec/UML/2.5.1/PDF">
+          <front>
+            <title>Unified Modeling Language, Version 2.5.1</title>
+            <author>
+              <organization>Object Management Group</organization>
+            </author>
+            <date year="2017" month="12"></date>
+          </front>
+        </reference>
       </references>
  
       <references>
         <name>Informative References</name>
 
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.1958.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.3444.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8477.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8610.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9413.xml"/>
 
         <reference anchor="ECMA-262">
           <front>
