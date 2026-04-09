@@ -258,6 +258,30 @@
           </li>
           <li>
             <t>
+              The IM language should be both conceptually simple and easily extensible to promote integration
+              with existing communication mechanisms.
+            </t>
+            <ul>
+              <li>
+                Simplicity includes both structural uniformity and composition using the minimum
+                set of elements needed to be sufficiently comprehensive. Those elements should be mutually
+                exclusive and collectively exhaustive.
+              </li>
+              <li>
+                In addition to its use as pseudocode, an IM can serve as a single source of truth when
+                generating multiple DMs. Simplicity promotes both.
+              </li>
+              <li>
+                An unlimited variety of formally standardized, coalition sponsored, or company
+                developed DM languages are used in the Internet.
+                Translation among DM languages is not necessarily lossless, but a structurally uniform
+                IM language that covers the significant overlap across them simplifies translation to,
+                and reverse engineering from, DMs in those languages.
+              </li>
+            </ul>
+          </li>
+          <li>
+            <t>
               The IM must be comprehensive. Information values must be able to represent message structures
               used in most Internet processing environments.
             </t>
@@ -273,28 +297,8 @@
             </ul>
           </li>
           <li>
-            <t>
-              The IM language should be both conceptually simple and easily extensible to promote integration
-              with existing communication mechanisms.
-            </t>
-            <ul>
-              <li>
-                In addition to its use as pseudocode, an IM can serve as a single source of truth when
-                generating multiple DMs.
-              </li>
-              <li>
-                An unlimited variety of formally standardized, coalition sponsored, or company
-                developed DM languages are used in the Internet.
-                Translation among DM languages is not necessarily lossless, but a structurally uniform
-                IM language that covers the significant overlap across them simplifies translation to,
-                and reverse engineering from, DMs in those languages.
-              </li>
-            </ul>
-          </li>
-          <li>
             The IM language should be usable for modeling data directly, to address cases where
-            existing DM languages are non-existent (e.g., IP packets) or insufficient (e.g.,
-            JSON Schema's inability to express ordered map semantics).
+            DM languages are non-existent or insufficiently capable.
           </li>
           <li>
             <t>
@@ -331,6 +335,12 @@
           <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
             Tables can also be represented in HTML, XML and office document data formats.</li>
         </ul>
+        <t>
+          This specification includes definitions in IDL format without a formal definition of IDL syntax.
+          This apparent paradox is explained by noting that IDL is used as pseudocode to convey information,
+          but it can also be losslessly converted to JSON format which is formally defined. If it is clearer
+          to readers than the equivalent JSON then it has accomplished its purpose.
+        </t>
         <figure anchor="intro-jadn">
           <name>JADN Native JSON Format</name>
           <artwork>
@@ -678,12 +688,12 @@ Coordinate = Record                             // GPS Coordinate
               <tr><th>isOrdered</th><th>isUnique</th><th>isAssociative</th><th>Semantic Type</th><th>Compound Type</th></tr>
             </thead>
             <tbody>
-              <tr><td>false</td><td>true</td><td>false</td><td>Set</td><td>ArrayOf</td></tr>
-              <tr><td>true</td><td>true</td><td>false</td><td>OrderedSet</td><td>ArrayOf</td></tr>
-              <tr><td>false</td><td>true</td><td>true</td><td>Map</td><td>ArrayOf, MapOf, Map, Record</td></tr>
-              <tr><td>true</td><td>true</td><td>true</td><td>OrderedMap</td><td>ArrayOf, Record</td></tr>
-              <tr><td>true</td><td>false</td><td>false</td><td>Sequence</td><td>ArrayOf, Array</td></tr>
-              <tr><td>false</td><td>false</td><td>false</td><td>Bag</td><td>ArrayOf</td></tr>
+              <tr><td>false</td><td>true</td><td>false</td><td><xref target="set" format="title"/></td><td>ArrayOf</td></tr>
+              <tr><td>true</td><td>true</td><td>false</td><td><xref target="orderedSet" format="title"/></td><td>ArrayOf</td></tr>
+              <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td><td>ArrayOf, MapOf, Map, Record</td></tr>
+              <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td><td>ArrayOf, Record</td></tr>
+              <tr><td>true</td><td>false</td><td>false</td><td><xref target="sequence" format="title"/></td><td>ArrayOf, Array</td></tr>
+              <tr><td>false</td><td>false</td><td>false</td><td><xref target="bag" format="title"/></td><td>ArrayOf</td></tr>
             </tbody>
           </table>
 
@@ -699,11 +709,11 @@ Coordinate = Record                             // GPS Coordinate
           <section anchor="bag">
             <name>Bag</name>
           </section>
-          <section anchor="mapping">
-            <name>Mapping</name>
+          <section anchor="maps">
+            <name>Map</name>
           </section>
-          <section anchor="orderedMapping">
-            <name>OrderedMapping</name>
+          <section anchor="orderedMaps">
+            <name>OrderedMap</name>
           </section>
         </section>
         <section anchor="array">
