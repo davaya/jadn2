@@ -227,13 +227,15 @@
               <li>
                 An IM schema can also be encoded in a general data format and can either accompany
                 or be referenced by the data it defines. <xref target="RFC8949">CBOR</xref> has a
-                requirement that "Data must be able to be decoded without a schema description",
-                but CBOR data that includes a CBOR schema is both self-describing and more concise
-                than repeating descriptions in every instance. For the
-                <xref target="examples">Coordinate</xref> example, a JADN
-                schema in CBOR format defines "latitude" and "longitude" elements once so that CBOR
-                data can encode coordinate values as Major type 4, a tuple of length 2, not repeatedly
-                including descriptions in every coordinate.
+                requirement that "Data must be able to be decoded without a schema description".
+                This refers to well-formedness, but the next sentence says "self-describing",
+                referring to validity and tags.
+                CBOR data that includes a CBOR schema is both self-describing and more
+                concise than repeating Item Validity data in every instance.
+                For the <xref target="examples">Coordinate</xref> example, a JADN schema in CBOR
+                format defines "latitude" and "longitude" elements once so that CBOR data can encode
+                coordinate values as Major type 4, a tuple of length 2, not repeatedly including
+                copies of these descriptions in every coordinate.
                 A Coordinate schema in <xref target="RFC8610">CDDL</xref> format is less suitable for
                 this purpose because it is not CBOR data.
               </li>
@@ -248,6 +250,8 @@
               <li>
                 The schema must be composed of data types, not classes or objects, because only types
                 define the mapping between external data and internal information values.
+              </li>
+              <li>
                 Segregating mapping methods into encoding rules allows the schema to be abstract.
               </li>
               <li>
@@ -258,25 +262,26 @@
           </li>
           <li>
             <t>
-              The IM language should be both conceptually simple and easily extensible to promote integration
-              with existing communication mechanisms.
+              The IM language should be both conceptually simple and easily extensible to promote
+              integration with existing communication mechanisms.
             </t>
             <ul>
               <li>
                 Simplicity includes both structural uniformity and composition using the minimum
-                set of elements needed to be sufficiently comprehensive. Those elements should be mutually
-                exclusive and collectively exhaustive.
+                set of elements needed to be sufficiently comprehensive. Those elements should be
+                mutually exclusive and collectively exhaustive.
               </li>
               <li>
-                In addition to its use as pseudocode, an IM can serve as a single source of truth when
-                generating multiple DMs. Simplicity promotes both.
+                In addition to its use as pseudocode, an IM can serve as a single source of truth
+                when generating multiple DMs. Simplicity promotes both.
               </li>
               <li>
                 An unlimited variety of formally standardized, coalition sponsored, or company
                 developed DM languages are used in the Internet.
                 Translation among DM languages is not necessarily lossless, but a structurally uniform
-                IM language that covers the significant overlap across them simplifies translation to,
-                and reverse engineering from, DMs in those languages.
+                IM language that covers the entire intersection and much of the union of their
+                capabilities simplifies translation to, and reverse engineering from, DMs in
+                those languages.
               </li>
             </ul>
           </li>
@@ -433,9 +438,9 @@ Coordinate = Record                             // GPS Coordinate
         <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
       </ol>
       <t>
-        This uniform type structure along with a namespaced package header makes a JADN IM capable
-        yet easy to process. Currently-defined TypeOptions and FieldOptions provide significant
-        expressive power, and unlimited space for new options enables easy extensibility.
+        This uniform type structure along with a namespaced <xref target="packages">package header</xref>
+        makes a JADN IM capable yet easy to process. Currently-defined TypeOptions and FieldOptions provide
+        significant expressive power, and unlimited space for new options enables easy extensibility.
       </t>
       <t>
         JADN IM types are structured as a directed acyclic graph (DAG). Definitions can be arranged
@@ -669,8 +674,10 @@ Coordinate = Record                             // GPS Coordinate
             </dd>
             <dt>isAssociative</dt>
             <dd>
-              if true then the Element must be a collection of associations between two values, where one
-              value is a key and each key in an instantiation of this Element must be unique.
+              If true then the collection of values in an instantiation of this Element
+              is associative. This means that there is an association (mapping) from keys to the elements
+              of the collection of values. Each key is an immutable value of any type, and the keys must be
+              unique within the collection.
               If false then values are not associated with keys.
             </dd>
           </dl>
@@ -682,18 +689,27 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             <xref target="semanticTypes"/> shows the semantic type name used for each combination of
             MultiplicityElement properties, and the compound type(s) that can support that semantic type.
+            Compound types without options (shown in bold) have either Sequence or Map semantics, as
+            expected. But it is fairly common for data modelers to model Map semantics using lists
+            of types with "id" (key) fields.
           </t>
           <table anchor="semanticTypes">
             <thead>
               <tr><th>isOrdered</th><th>isUnique</th><th>isAssociative</th><th>Semantic Type</th><th>Compound Type</th></tr>
             </thead>
             <tbody>
-              <tr><td>false</td><td>true</td><td>false</td><td><xref target="set" format="title"/></td><td>ArrayOf</td></tr>
-              <tr><td>true</td><td>true</td><td>false</td><td><xref target="orderedSet" format="title"/></td><td>ArrayOf</td></tr>
-              <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td><td>ArrayOf, MapOf, Map, Record</td></tr>
-              <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td><td>ArrayOf, Record</td></tr>
-              <tr><td>true</td><td>false</td><td>false</td><td><xref target="sequence" format="title"/></td><td>ArrayOf, Array</td></tr>
-              <tr><td>false</td><td>false</td><td>false</td><td><xref target="bag" format="title"/></td><td>ArrayOf</td></tr>
+              <tr><td>true</td><td>false</td><td>false</td><td><xref target="sequence" format="title"/></td>
+                <td><strong>ArrayOf</strong><br/></td></tr>
+              <tr><td>false</td><td>true</td><td>false</td><td><xref target="set" format="title"/></td>
+                <td>ArrayOf+set</td></tr>
+              <tr><td>true</td><td>true</td><td>false</td><td><xref target="orderedSet" format="title"/></td>
+                <td>ArrayOf+unique</td></tr>
+              <tr><td>false</td><td>false</td><td>false</td><td><xref target="bag" format="title"/></td>
+                <td>ArrayOf+unordered</td></tr>
+              <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td>
+                <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Array</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
+              <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td>
+                <td>ArrayOf+key+unique<br/>MapOf+ikey+ordered<br/>Array+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
             </tbody>
           </table>
 
