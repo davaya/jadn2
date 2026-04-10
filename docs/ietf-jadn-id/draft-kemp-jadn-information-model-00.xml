@@ -622,76 +622,68 @@ Coordinate = Record                             // GPS Coordinate
       <section anchor="collection">
         <name>Collection Types</name>
         <t>
-          An IM collection element is a collection of information values and its equivalent
-          literal data values. The collection element type has two components:
+          An IM collection is a collection of information values and its equivalent
+          literal data values. The collection type has two components:
         </t>
         <ul>
           <li>
-            a <strong>semantic</strong> type that characterizes the properties of information values
-            within a processing environment, based on the <xref target="UML"/> "MultiplicityElement".
+            a <strong>semantic</strong> type that characterizes the properties of collection values
+            within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
-            a <strong>compound</strong> type that identifies the data structures used to represent the collection.
+            a <strong>compound</strong> type that characterizes the data structures used to represent
+            collection values.
           </li>
         </ul>
         <t>
-          These components are equally important, and any IM must specify both collection
-          semantics and collection structure. A JADN CoreType is one of five Compound types,
-          combined with a TypeOption to specify collection semantics.
-          This design decision was based on users' greater familiarity with DMs than with IMs.
-          But it would also be possible for CoreType to specify one of the six Semantic types,
-          combined with TypeOptions to specify the collection data structure.
+          These components are equally important, and any IM must specify both semantics and structure.
+          A JADN CoreType is one of five compound types combined with a TypeOption to specify collection
+          semantics. But it would also be possible for CoreType to specify one of the six semantic types
+          combined with TypeOptions to specify data structure.
         </t>
         <t>
-          The following section defines six semantic multiplicity types supported by most
-          processing environments, followed by a section for each of the compound data types
-          and the semantic options applicable to each.
+          The following section defines collection semantic types supported by most processing environments,
+          followed by sections for each of the compound data types and the options applicable to each.
         </t>
         <section anchor="multiplicity">
           <name>Multiplicity</name>
           <t>
-            <xref target="UML"/> defines MultiplicityElement as specifying the multiplicity of
-            (the valid number of values contained in) the collection, along with four semantic
-            types based on two boolean properties. Because UML does not support mapping data types,
-            JADN defines a third property, <em>isAssociative</em>, to enable that support.
+            <xref target="UML"/> defines MultiplicityElement as specifying collection multiplicity (the valid
+            number of values contained in the collection) and four semantic types based on two Boolean properties.
+            Because UML does not support mapping types, JADN defines a third Boolean property to enable them:
           </t>
           <dl>
             <dt>isOrdered</dt>
             <dd>
-              if true then the collection of values in an instantiation of this Element
-              is ordered. This ordering implies that there is a mapping from positive integers to
-              the elements of the collection of values.
-              If a MultiplicityElement is not multivalued, then the value for isOrdered has no semantic effect.
-              If false then no assumptions can be made about the order of the values in an instantiation
-              of this Element.
+              if true then the collection is ordered. This implies that there is a mapping from positive integers
+              to the values in the collection.
+              If a collection is not multivalued, then the value for isOrdered has no semantic effect.
+              If false then no assumptions can be made about the order of the values.
             </dd>
             <dt>isUnique</dt>
             <dd>
-              if true then the collection of values in an instantiation of this Element must
-              be unique. That is, no two values in the collection may be equal, where equality of
-              values is based on value.
-              If a MultiplicityElement is not multivalued, then the value for isUnique has no semantic effect.
+              if true then the collection must be unique. That is, no two values in the collection may be equal.
+              If a collection is not multivalued, then the value for isUnique has no semantic effect.
             </dd>
             <dt>isAssociative</dt>
             <dd>
-              If true then the collection of values in an instantiation of this Element
-              is associative. This means that there is an association (mapping) from keys to the elements
-              of the collection of values. Each key is an immutable value of any type, and the keys must be
-              unique within the collection.
-              If false then values are not associated with keys.
+              If true then the collection is associative. This means that there is a mapping from keys to the
+              values of the collection, where each key is an immutable value of any type and keys must be unique
+              within the collection.
+              If false then the values are not associated with keys.
             </dd>
           </dl>
           <t>
             Taken together, the isOrdered, isUnique, and isAssociative properties specify that a collection
-            value is one of six semantic types. Because association keys are unique, the combination of
-            isUnique=false and isAssociative=true is not used.
+            value is one of six semantic types. Because keys are unique the combination of isUnique=false
+            and isAssociative=true is not used.
           </t>
           <t>
-            <xref target="semanticTypes"/> shows the semantic type name used for each combination of
-            MultiplicityElement properties, and the compound type(s) that can support that semantic type.
-            Compound types without options (shown in bold) have either Sequence or Map semantics, as
-            expected. But it is fairly common for data modelers to model Map semantics using lists
-            of types with "id" (key) fields.
+            <xref target="semanticTypes"/> shows the name commonly used for each combination of
+            collection properties, and the compound type(s) that can support that semantic type.
+            Compound types without options (shown in bold) have either Sequence or Map semantics as
+            expected. But it is fairly common for data modelers to use other combinations such as using
+            Arrays of data values with "id" fields to represent Map semantics.
           </t>
           <table anchor="semanticTypes">
             <thead>
@@ -709,27 +701,63 @@ Coordinate = Record                             // GPS Coordinate
               <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td>
                 <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Array</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
               <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td>
-                <td>ArrayOf+key+unique<br/>MapOf+ikey+ordered<br/>Array+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
+                <td>ArrayOf+key+ordered<br/>MapOf+ikey+ordered<br/>Array+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
             </tbody>
           </table>
 
           <section anchor="sequence">
             <name>Sequence</name>
+            <t>
+              A Sequence is an ordered collection of values where a value can appear more than once and each value
+              is mapped to a positive integer (its position). Sequences may be combined into a new sequence whose values
+              are the concatenation (in order) of each of the sequences (in order). Adding or removing a value
+              changes the positions of all following values.
+            </t>
           </section>
           <section anchor="set">
             <name>Set</name>
+            <t>
+              A Set is an unordered collection of values where no value appears more than once and no
+              value has a position. Set operations include union, intersection, difference and symmetric difference.
+              Coercing a set into a sequence yields a sequence of values in indeterminate order.
+            </t>
           </section>
           <section anchor="orderedSet">
             <name>OrderedSet</name>
+            <t>
+              An OrderedSet is an ordered collection of values where no value appears more than once.
+              Because values have a position they may be inserted or removed from the collection by either
+              position or value.
+              OrderedSet values may not be directly combined, but must be coerced into and then combined
+              with either Set or Sequence, yielding different results.
+            </t>
           </section>
           <section anchor="bag">
             <name>Bag</name>
+            <t>
+              A Bag (or <xref target="multiset" format="title"/>) is an unordered collection
+              of values where values may appear more than once. A Bag can be instantiated efficiently as
+              a set of unique values with each value mapped to its count.
+              Two bags are equal if they contain the same elements each with the same count.
+              A Sequence, Set, OrderedSet or Bag can be combined into a destination bag by iterating
+              over each value in the sources and incrementing the count of that value in the destination.
+            </t>
           </section>
           <section anchor="maps">
             <name>Map</name>
+            <t>
+              A Map is a collection of key:value pairs where the keys are a Set.
+              Each key and each value may be any type and keys must be immutable.
+              Because Map keys must be unique, a collection of key:value pairs that supports duplicate
+              keys may be modeled as a Set of Map values or a Map of Set values.
+            </t>
           </section>
           <section anchor="orderedMaps">
             <name>OrderedMap</name>
+            <t>
+              An OrderedMap is a collection of key:value pairs where the keys are an OrderedSet.
+              Each key and each value may be any type and keys must be immutable.
+            </t>
           </section>
         </section>
         <section anchor="array">
@@ -1131,28 +1159,16 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
           </front>
         </reference>
 
-        <reference anchor="exampleRefMin">
-        <!-- Example minimum reference -->
+        <reference anchor="multiset">
           <front>
-            <title>Title</title>
-            <author initials="Initials" surname="Surname">
-              <organization/>
+            <title>Multiset</title>
+            <author>
+              <organization>Wolfram</organization>
+              <address><uri>https://mathworld.wolfram.com/Multiset.html</uri></address>
             </author>
-            <date year="2006"/>
           </front>
         </reference>
 
-        <reference anchor="exampleRefOrg" target="http://www.example.com/">
-        <!-- Example reference written by an organization not a person -->
-          <front>
-            <title>Title</title>
-            <author>
-              <organization>Organization</organization>
-            </author>
-            <date year="1984"/>
-          </front>
-        </reference>       
-       
       </references>
     </references>
     
