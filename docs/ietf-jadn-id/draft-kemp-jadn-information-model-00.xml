@@ -168,7 +168,7 @@
           An object has a type, a current value, and the behavior defined for variables of that type.
           Objects are instances of Class.
           Note that this is not specific to object-oriented programming languages: K&amp;R C has
-          an "int" type and its implementation of int variables (the int class) has behavior such as
+          an "int" type, and its implementation of int variables (the int class) has behavior such as
           addition and comparison in addition to the value space defined by the int type.
           Also note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
           Array, Map and Set objects in chapters 20-24.
@@ -256,7 +256,7 @@
               </li>
               <li>
                 The encoding rules that define a data format must be schema-independent to promote
-                data format re-use, and unambiguous to ensure equivalence between formats.
+                data format re-use, and unambiguous to ensure verifiable equivalence.
               </li>
             </ul>
           </li>
@@ -954,10 +954,10 @@ Foo = Enumerated
         <name>Type Inheritance</name>
         <t>
           Class inheritance is complex because it addresses behavior. But because types define
-          immutable value spaces, type inheritance consists of two basic set operations that can
-          be precomputed on a schema rather than being processed at runtime. The <em>extends</em>
-          and <em>restricts</em> shortcuts perform these operations, saving space and improving
-          robustness:
+          immutable value spaces, type inheritance consists of two basic set operations (union
+          and intersection) that can be precomputed on a schema rather than dynamically processing it
+          at runtime. The <em>extends</em> and <em>restricts</em> shortcuts perform these operations,
+          saving space and improving robustness:
         </t>
           <ul>
           <li>
@@ -977,34 +977,35 @@ Foo = Enumerated
           <li>final: type cannot be extended or restricted.</li>
         </ul>
         <t>
-          Although the subset rule is the definition of inheritance for all types, in practice inheritance
+          Although the subset rule authoritatively defines inheritance for all types, it
           is not useful for primitive types because:
         </t>
         <ul>
-          <li>the value space is the universe of possible values and cannot be further extended</li>
-          <li>existing TypeOptions restrict primitive value spaces directly without reference to a base type</li>
+          <li>a primitive value space is the universe of possible values and cannot be further extended</li>
+          <li>existing TypeOptions directly restrict primitive value spaces without designating a base type</li>
           <li>
-            inherited types such as a String with an analytically-derived regular expression can be
-            impractical, and the identical result can be expressed more intuitively using Choice to "extend"
-            or "restrict" two restricted types without designating either one as the base type:
+            the identical result can always be expressed using Choice to "extend" or "restrict" value spaces
+            without designating a base type:
           </li>
         </ul>
         <sourcecode>
         <![CDATA[
-Name1 = Choice(anyOf)   // Extend: 2915, a34c, D72F are valid. g16H isn't.
+Name1 = Choice(anyOf)   // extend: 2915, a34c, D72F are valid. g16H isn't.
    1  String{pattern="^[a-z0-9]$"}   // a::
    2  String{pattern="^[A-Z0-9]$"}   // b::
 
-Name2 = Choice(allOf)   // Restrict: 2915 is valid. a34c, D72F, g16H aren't.
+Name2 = Choice(allOf)   // restrict: 2915 is valid. a34c, D72F, g16H aren't.
    1  String{pattern="^[a-z0-9]$"}   // a::
    2  String{pattern="^[A-Z0-9]$"}   // b::
         ]]>
         </sourcecode>
         <t>
-          In practice inheritance is used to add, remove, or modify the multiplicity of fields in structured
-          compound types. Because Array and Record fields are indexed by position, extending appends new
-          fields at the end. Map fields are indexed by key, so extending Map types requires that field id
-          and name must both be unique but position doesn't matter.
+          In practice inheritance is used to add or remove fields in structured compound types
+          or modify multiplicity in any compound type.
+          Because Array and Record fields are indexed by position, extending appends new
+          fields at the end. Record field names must be unique, but Array field names are only comments.
+          Map fields are indexed by key, so extending Map types requires that both field id and name
+          be unique, but position has no meaning.
         </t>
         <t>Examples:</t>
         <sourcecode>
@@ -1148,23 +1149,21 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8610.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9413.xml"/>
 
-        <reference anchor="ECMA-262">
+        <reference anchor="ECMA-262" target="https://tc39.es/ecma262/">
           <front>
             <title>Standard ECMA-262: ECMAScript Language Specification</title>
             <author>
               <organization>ECMA International</organization>
-              <address><uri>https://tc39.es/ecma262/</uri></address>
             </author>
             <date year="2026" month="March"/>
           </front>
         </reference>
 
-        <reference anchor="multiset">
+        <reference anchor="multiset" target="https://mathworld.wolfram.com/Multiset.html">
           <front>
             <title>Multiset</title>
             <author>
               <organization>Wolfram</organization>
-              <address><uri>https://mathworld.wolfram.com/Multiset.html</uri></address>
             </author>
           </front>
         </reference>
