@@ -215,7 +215,7 @@
           </li>
           <li>
             <t>
-              An IM schema must itself be an information value to support representation in
+              An IM schema must itself be an information value, to support representation in
               multiple formats.
             </t>
             <ul>
@@ -232,12 +232,12 @@
                 referring to validity and tags.
                 CBOR data that includes a CBOR schema is both self-describing and more
                 concise than repeating Item Validity data in every instance.
-                For the <xref target="examples">Coordinate</xref> example, a JADN schema in CBOR
-                format defines "latitude" and "longitude" elements once so that CBOR data can encode
-                coordinate values as Major type 4, a tuple of length 2, not repeatedly including
-                copies of these descriptions in every coordinate.
-                A Coordinate schema in <xref target="RFC8610">CDDL</xref> format is less suitable for
-                this purpose because it is not CBOR data.
+                For example, a JADN schema for <xref target="examples">Coordinate</xref> in CBOR format
+                defines "latitude" and "longitude" fields once so that Coordinate values can be encoded
+                as Major type 4, a tuple of length 2, without repeatedly including copies of the
+                descriptions in every value.
+                A Coordinate schema in <xref target="RFC8610">CDDL</xref> format is not suitable for
+                this purpose because it conflicts with CBOR's compact decoder objective.
               </li>
             </ul>
           </li>
@@ -256,7 +256,7 @@
               </li>
               <li>
                 The encoding rules that define a data format must be schema-independent to promote
-                data format re-use, and unambiguous to ensure verifiable equivalence.
+                data format re-use, and unambiguous to ensure that equivalence is verifiable.
               </li>
             </ul>
           </li>
@@ -273,11 +273,11 @@
               </li>
               <li>
                 In addition to its use as pseudocode, an IM can serve as a single source of truth
-                when generating multiple DMs. Simplicity promotes both.
+                when generating multiple DMs. Simplicity promotes both uses.
               </li>
               <li>
                 An unlimited variety of formally standardized, coalition sponsored, or company
-                developed DM languages are used in the Internet.
+                promoted DM languages are used in the Internet.
                 Translation among DM languages is not necessarily lossless, but a structurally uniform
                 IM language that covers the entire intersection and much of the union of their
                 capabilities simplifies translation to, and reverse engineering from, DMs in
@@ -336,15 +336,19 @@
         <ul>
           <li>JSON data: the normative storage format for JADN schemas</li>
           <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD) language.</li>
-          <li>Text: JADN Information Definition Language (IDL), an example non-normative domain-specific language (DSL).</li>
+          <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
+            Because a JADN schema is an Abstract Syntax Tree (AST) it is uniquely suited to meta programming
+            and projection editing tool support.
+          </li>
           <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
             Tables can also be represented in HTML, XML and office document data formats.</li>
         </ul>
         <t>
-          This specification includes definitions in IDL format without a formal definition of IDL syntax.
-          This apparent paradox is explained by noting that IDL is used as pseudocode to convey information,
-          but it can also be losslessly converted to JSON format which is formally defined. If it is clearer
-          to readers than the equivalent JSON then it has accomplished its purpose.
+          This specification includes definitions in IDL format without formally defining IDL syntax.
+          This apparent paradox is explained by noting that IDL is pseudocode used to convey information,
+          but it can also be losslessly converted to the normative JSON format. If an equivalent
+          IDL is clearer to readers then it has accomplished its purpose even without a published
+          specification.
         </t>
         <figure anchor="intro-jadn">
           <name>JADN Native JSON Format</name>
@@ -627,23 +631,24 @@ Coordinate = Record                             // GPS Coordinate
         </t>
         <ul>
           <li>
-            a <strong>semantic</strong> type that characterizes the properties of collection values
+            a <strong>semantic</strong> type that characterizes the properties of information values
             within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
             a <strong>compound</strong> type that characterizes the data structures used to represent
-            collection values.
+            collection information values.
           </li>
         </ul>
         <t>
           These components are equally important, and any IM must specify both semantics and structure.
-          A JADN CoreType is one of five compound types combined with a TypeOption to specify collection
+          A JADN CoreType is one of five compound types that is combined with a TypeOption to specify
           semantics. But it would also be possible for CoreType to specify one of the six semantic types
           combined with TypeOptions to specify data structure.
         </t>
         <t>
-          The following section defines collection semantic types supported by most processing environments,
-          followed by sections for each of the compound data types and the options applicable to each.
+          The following section defines six collection semantic types supported by most processing
+          environments, followed by sections for each of the compound data types and the options
+          applicable to each.
         </t>
         <section anchor="multiplicity">
           <name>Multiplicity</name>
@@ -683,7 +688,7 @@ Coordinate = Record                             // GPS Coordinate
             collection properties, and the compound type(s) that can support that semantic type.
             Compound types without options (shown in bold) have either Sequence or Map semantics as
             expected. But it is fairly common for data modelers to use other combinations such as using
-            Arrays of data values with "id" fields to represent Map semantics.
+            arrays of data values that have "id" fields to represent Map semantics.
           </t>
           <table anchor="semanticTypes">
             <thead>
@@ -756,7 +761,9 @@ Coordinate = Record                             // GPS Coordinate
             <name>OrderedMap</name>
             <t>
               An OrderedMap is a collection of key:value pairs where the keys are an OrderedSet.
-              Each key and each value may be any type and keys must be immutable.
+              Each key and each value may be any type and keys must be immutable. Note that some
+              programming languages define "order-preserving" mapping types. These are ordered only
+              if two collections with the same elements in a different order compare as unequal.
             </t>
           </section>
         </section>
@@ -920,7 +927,7 @@ Foo = Enumerated
         <t>
           In the Coordinate type the path option yields the same result as enum because both fields
           are leaf types (Number). But if "latitude" were a hypothetical compound type with additional
-          structure, the result would be a list of pathnames:
+          structure, the "path" result would be a list of pathnames:
         </t>
         <sourcecode>
         <![CDATA[
@@ -938,7 +945,7 @@ MoreStuff = Record
 
 Longitude = Number=(-180.0, 180.0]  // also a leaf type
 
-==== Expanding the _path_ shortcut yields =====
+==== Expanding the _path_ shortcut yields: =====
 
 Foo = Enumerated(Path[Coordinate])
 
@@ -955,7 +962,7 @@ Foo = Enumerated
         <t>
           Class inheritance is complex because it addresses behavior. But because types define
           immutable value spaces, type inheritance consists of two basic set operations (union
-          and intersection) that can be precomputed on a schema rather than dynamically processing it
+          and intersection) that can be precomputed on a schema rather than being dynamically processed
           at runtime. The <em>extends</em> and <em>restricts</em> shortcuts perform these operations,
           saving space and improving robustness:
         </t>
@@ -1003,9 +1010,10 @@ Name2 = Choice(allOf)   // restrict: 2915 is valid. a34c, D72F, g16H aren't.
           In practice inheritance is used to add or remove fields in structured compound types
           or modify multiplicity in any compound type.
           Because Array and Record fields are indexed by position, extending appends new
-          fields at the end. Record field names must be unique, but Array field names are only comments.
+          fields at the end. Record field names must be unique, but Array field names are comments
+          with no uniqueness requirement.
           Map fields are indexed by key, so extending Map types requires that both field id and name
-          be unique, but position has no meaning.
+          be unique, but position has no meaning or effect.
         </t>
         <t>Examples:</t>
         <sourcecode>
