@@ -91,12 +91,13 @@
       <t>
         This document defines an information modeling language designed to improve the rigor
         of Internet technical specifications. Existing data standards like ABNF, XSD, and JSON Schema
-        define formal syntax for text and structured data values. But while RFC 3444 and RFC 8477
+        define formal syntax for text and structured data values. But while
+        <xref target="RFC3444"/> and <xref target="RFC8477"/>
         establish goals for information modeling, adoption remains limited.
         JSON Abstract Data Notation (JADN) addresses this by defining a formal syntax for
         information using a uniform type structure that balances simplicity with extensibility
         and expressive power.
-        The defining feature of any IM is equivalence across data formats, but unlike traditional
+        The defining feature of any IM is equivalence across data formats, but unlike traditional IM and DM
         schema languages, a JADN schema is itself an information value. This ensures equivalence
         across schema representations, allowing authors to select or design a representation
         suitable for the application and target audience.
@@ -171,10 +172,9 @@
           an "int" type, and its implementation of int variables (the int class) has behavior such as
           addition and comparison in addition to the value space defined by the int type.
           Also note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
-          Array, Map and Set objects in chapters 20-24.
-          <xref target="RFC7159">JSON</xref> confusingly uses "object" to refer only to the literal
-          values of Map objects, not any others. Objects in this specification have values of all
-          types as in JavaScript, not just Maps as in JSON.
+          Array, Map and Set objects, while <xref target="RFC7159">JSON</xref> confusingly uses
+          "object" to refer only to the literal values of Map objects. In this specification objects
+          have values of all types as in JavaScript, not just Maps as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
@@ -255,8 +255,8 @@
                 Segregating mapping methods into encoding rules allows the schema to be abstract.
               </li>
               <li>
-                The encoding rules that define a data format must be schema-independent to promote
-                data format re-use, and unambiguous to ensure that equivalence is verifiable.
+                The encoding rules that define a data format must be schema-independent, and unambiguous
+                to ensure that equivalence is verifiable.
               </li>
             </ul>
           </li>
@@ -276,7 +276,7 @@
                 when generating multiple DMs. Simplicity promotes both uses.
               </li>
               <li>
-                An unlimited variety of formally standardized, coalition sponsored, or company
+                An unlimited variety of formally standardized, coalition sponsored, and company
                 promoted DM languages are used in the Internet.
                 Translation among DM languages is not necessarily lossless, but a structurally uniform
                 IM language that covers the entire intersection and much of the union of their
@@ -302,7 +302,7 @@
             </ul>
           </li>
           <li>
-            The IM language should be usable for modeling data directly, to address cases where
+            The IM language must be usable for modeling data directly, to address data formats where
             DM languages are non-existent or insufficiently capable.
           </li>
           <li>
@@ -318,8 +318,8 @@
               <li>
                 Encoding rules should define many-to-one mappings, where helpful, from data to information
                 to support the <xref target="RFC1958">Robustness Principle</xref>. Using an IM to validate
-                incoming data against well-defined mappings to a schema is an example of
-                <xref target="RFC9413">Virtuous Intolerance</xref>, not harmful tolerance of the unexpected.
+                incoming data against well-defined mappings to a schema is
+                <xref target="RFC9413">Virtuous Intolerance</xref>.
               </li>
             </ul>
           </li>
@@ -344,11 +344,10 @@
             Tables can also be represented in HTML, XML and office document data formats.</li>
         </ul>
         <t>
-          This specification includes definitions in IDL format without formally defining IDL syntax.
+          This specification includes examples in IDL format without formally defining IDL syntax.
           This apparent paradox is explained by noting that IDL is pseudocode used to convey information,
-          but it can also be losslessly converted to the normative JSON format. If an equivalent
-          IDL is clearer to readers then it has accomplished its purpose even without a published
-          specification.
+          but it can also be losslessly converted to and from the normative JSON format. If an equivalent
+          IDL is clearer to readers then it has accomplished its purpose without a published specification.
         </t>
         <figure anchor="intro-jadn">
           <name>JADN Native JSON Format</name>
@@ -442,9 +441,11 @@ Coordinate = Record                             // GPS Coordinate
         <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
       </ol>
       <t>
-        This uniform type structure along with a namespaced <xref target="packages">package header</xref>
-        makes a JADN IM capable yet easy to process. Currently-defined TypeOptions and FieldOptions provide
-        significant expressive power, and unlimited space for new options enables easy extensibility.
+        This uniform type structure along with namespaced <xref target="packages">package metadata</xref>
+        shared by all types makes a JADN IM capable yet easy to process, in part because well-formedness
+        does not require content validation.
+        Currently-defined TypeOptions and FieldOptions provide significant expressive power, and unlimited
+        space for new options enables easy extensibility.
       </t>
       <t>
         JADN IM types are structured as a directed acyclic graph (DAG). Definitions can be arranged
@@ -597,11 +598,28 @@ Coordinate = Record                             // GPS Coordinate
         <section anchor="boolean">
           <name>Boolean</name>
           <t>
-            ...
+            A Boolean instance has one of two values, denoted true and false. Its value space is the set
+            of those two values, representing a single bit of information. Its literal space typically
+            includes many representations including {true, false}, {1, 0}, or {non-empty, empty} strings
+            or collections. Each data format should designate a single canonical information-to-literal
+            mapping, and as many literal-to-information mappings as make sense for the application.
+            For example, JSON defines the 4-5 -character literals "true" and "false" but a concise JSON
+            data format could specify numeric literals 0 and 1 instead.
+          </t>
+          <t>
+            Options: const, default.
           </t>
         </section>
         <section anchor="integer">
           <name>Integer</name>
+          <t>
+            An Integer instance is a value from the ordered countably infinite set of discrete values
+            {..., -2, -1, 0, 1, 2, ...}.
+          </t>
+          <t>
+            Options: const, default,<br/>
+            maxExclusive, maxInclusive, minExclusive, minInclusive.
+          </t>
           <t>
             An integer is often said to be a number with no fractional part. Integer and number are
             distinct types, both mathematically and computationally, because a countably infinite set
@@ -615,28 +633,54 @@ Coordinate = Record                             // GPS Coordinate
         </section>
         <section anchor="number">
           <name>Number</name>
+          <t>
+            A Number instance is a value from the ordered uncountably infinite set of real numbers.
+          </t>
+          <t>
+            Options: const, default,<br/>
+            maxExclusive, maxInclusive, minExclusive, minInclusive.
+          </t>
         </section>
         <section anchor="string">
           <name>String</name>
+          <t>
+            A String instance is a sequence of characters from a character set.
+          </t>
+          <t>
+            Options: const, default,<br/>
+            maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
+            minLength, maxLength, pattern.
+          </t>
+          <t>
+            Value range options are meaningful only if character set (encoding) or collation order are known.
+          </t>
         </section>
         <section anchor="binary">
           <name>Binary</name>
+          <t>
+            A Binary instance is a sequence of octets.
+          </t>
+          <t>
+            Options: const, default,<br/>
+            maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
+            minLength, maxLength.
+          </t>
         </section>
       </section>
       <section anchor="collection">
         <name>Collection Types</name>
         <t>
           An IM collection is a collection of information values and its equivalent
-          literal data values. The collection type has two components:
+          literal data values. Every collection type has two components:
         </t>
         <ul>
           <li>
-            a <strong>semantic</strong> type that characterizes the properties of information values
-            within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
+            a <strong>semantic</strong> type that characterizes the properties of a collection information
+            value within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
-            a <strong>compound</strong> type that characterizes the data structures used to represent
-            collection information values.
+            a <strong>compound</strong> type that characterizes the data structures used to represent a
+            collection information value.
           </li>
         </ul>
         <t>
@@ -647,8 +691,7 @@ Coordinate = Record                             // GPS Coordinate
         </t>
         <t>
           The following section defines six collection semantic types supported by most processing
-          environments, followed by sections for each of the compound data types and the options
-          applicable to each.
+          environments, followed by sections for each of the compound data types and their options.
         </t>
         <section anchor="multiplicity">
           <name>Multiplicity</name>
@@ -675,7 +718,7 @@ Coordinate = Record                             // GPS Coordinate
               If true then the collection is associative. This means that there is a mapping from keys to the
               values of the collection, where each key is an immutable value of any type and keys must be unique
               within the collection.
-              If false then the values are not associated with keys.
+              If false then values are not associated with keys.
             </dd>
           </dl>
           <t>
