@@ -13,7 +13,7 @@
   "types": [
     ["Schema", "Record", [], "Definition of a JADN package", [
       [1, "meta", "Metadata", ["[0"], "Information about this package"],
-      [2, "types", "Type", ["]-1"], "Types defined in this package"]
+      [2, "types", "ArrayOf", ["*Type"], "Types defined in this package"]
     ]],
     ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
@@ -48,11 +48,11 @@
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],
     ["TypeRef", "String", [], "Reference to a type, matching ($NSID ':')? $TypeName"],
     ["Type", "Array", [], "Fixed structure for all type definitions", [
-      [1, "type_name", "TypeName", [], "Schema-defined type name"],
+      [1, "type_name", "TypeName", ["K"], "Schema-defined type name, collection index"],
       [2, "core_type", "Enumerated", ["#JADN-Type"], "Core (JADN-defined) type name"],
-      [3, "type_options", "TypeOptions", ["[0", "&2"], "Required/allowed options for core type"],
+      [3, "type_options", "TypeOptions", ["[0", "&2"], "Required/allowed options for core_type"],
       [4, "type_description", "Description", ["[0"], "Comments/Documentation"],
-      [5, "fields", "JADN-Type", ["[0", "&2"], "Fields, Items, or nothing more for core type"]
+      [5, "fields", "JADN-Type", ["[0", "&2"], "Fields, Items, or Empty, for core_type"]
     ]],
     ["JADN-Type", "Choice", [], "Fields applicable for each core type", [
       [1, "Binary", "Empty"],
