@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     draft-rfcxml-general-template-annotated-00
-  
-     This template includes examples of most of the features of RFCXML with comments explaining 
-     how to customise them, and examples of how to achieve specific formatting.
-     
-     Documentation is at https://authors.ietf.org/en/templates-and-schemas
--->
 <?xml-model href="rfc7991bis.rnc"?>  <!-- Required for schema validation and schema-aware editing -->
 <!-- <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?> --> 
 <!-- This third-party XSLT can be enabled for direct transformations in XML processors, including most browsers -->
@@ -167,20 +159,19 @@
           the implementation of a variable in a processing environment.
           An object has a type, a current value, and the behavior defined for variables of that type.
           Objects are instances of Class.
-          Note that this is not specific to object-oriented programming languages: K&amp;R C has
+          This is not specific to object-oriented programming languages: K&amp;R C has
           an "int" type, and its implementation of int variables (the int class) has behavior such as
           addition and comparison in addition to the value space defined by the int type.
-          Also note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
+          Note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
           Array, Map and Set objects, while <xref target="RFC7159">JSON</xref> confusingly uses
-          "object" to refer only to the literal values of Map objects. In this specification objects
-          have values of all types as in JavaScript, not just Maps as in JSON.
-          In general English an object is any countable item, not a specific kind.
+          "object" to refer only to the literal values of Map objects. In this specification object
+          includes variables of all types as in JavaScript, not just Maps as in JSON.
         </dd>
         <dt>Data Format</dt>
         <dd>
           a named equivalence mapping between information values and literal data values, implemented as
-          a set of encoding rules. More than one data format can be defined for the same media type to
-          reflect priorities for conciseness or style.
+          a set of encoding rules. More than one data format can be defined for the same media type, to
+          reflect preferences for conciseness or style.
         </dd>
         <dt>Equivalent</dt>
         <dd>
@@ -209,8 +200,8 @@
                 Segregating mapping methods into encoding rules allows the schema to be abstract.
               </li>
               <li>
-                The encoding rules that define a data format must be schema-independent, and bi-directionally
-                unambiguous to ensure that equivalence is verifiable.
+                The encoding rules that define a data format must be bi-directionally unambiguous
+                to ensure that equivalence is verifiable.
               </li>
               <li>
                 Readability for the widest possible audience is JADN's highest priority.
@@ -228,14 +219,14 @@
               <li>
                 Presenting a schema in a format familiar to the audience aids understanding.
                 Schema-specific formats (e.g., property tables, entity relationship diagrams)
-                may be more readable to some audiences than general data formats.
+                may be more understandable to some audiences than general data formats.
               </li>
               <li>
                 An IM schema can also be encoded in a general data format and can either accompany
                 or be referenced by the data it defines. <xref target="RFC8949">CBOR</xref> has an
                 objective that "Data must be able to be decoded without a schema description".
-                This refers to well-formedness, but the next sentence says "self-describing",
-                referring to validity and tags.
+                This refers to well-formedness but also includes "self-describing", referring to
+                validity and tags.
                 CBOR data that includes a JADN schema in CBOR format is both self-describing and more
                 concise than repeating Item Validity data in every instance.
                 A schema in <xref target="RFC8610">CDDL</xref> format is not suitable for
@@ -266,7 +257,7 @@
           <li>
             <t>
               The IM language should be both conceptually simple and easily extensible to promote
-              integration with existing communication mechanisms.
+              integration with existing data modeling approaches.
             </t>
             <ul>
               <li>
@@ -275,7 +266,7 @@
                 mutually exclusive and collectively exhaustive.
               </li>
               <li>
-                In addition to its use as pseudocode, an IM can serve as a single source of truth
+                In addition to its use as pseudocode, an IM serves as a single source of truth
                 when generating multiple DMs. Simplicity promotes both uses.
               </li>
               <li>
@@ -335,18 +326,12 @@
           <li>JSON data: the normative storage format for JADN schemas</li>
           <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD) language.</li>
           <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
-            Because a JADN schema is an Abstract Syntax Tree (AST) it is uniquely suited to meta programming
-            and projection editing tool support.
+            Because a JADN schema is an Abstract Syntax Tree (AST), meta programming and projection editing
+            tooling is particularly applicable.
           </li>
           <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
             Tables can also be represented in HTML, XML and office document data formats.</li>
         </ul>
-        <t>
-          This specification includes examples in IDL format without formally defining IDL syntax.
-          This apparent paradox is explained by noting that IDL is pseudocode used to convey information,
-          but it can also be losslessly converted to and from the normative JSON format. If an equivalent
-          IDL is clearer to readers then it has accomplished its purpose without a standardized specification.
-        </t>
         <figure anchor="intro-jadn">
           <name>JADN Native JSON Format</name>
           <artwork>
@@ -423,12 +408,12 @@ Coordinate = Record                             // GPS Coordinate
       <name>Types</name>
       <t>
         A JADN schema is composed exclusively of types, not a mixture of types and other mechanisms
-        variously called classes or objects in other data modeling approaches. Schemas are organized
-        in packages where a <xref target="packages">package</xref> optionally defines metadata shared
+        variously called classes or objects in other data modeling approaches. Types are organized
+        in schema packages where a <xref target="packages">package</xref> optionally defines metadata shared
         by all types, including a namespace to support cross-package type references using qualified names.
       </t>
       <t>
-        The top-level structure of a JADN schema package is, in JSON format:
+        The top-level structure of a JADN package is:
       </t>
       <sourcecode>
         <![CDATA[
@@ -439,7 +424,7 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        Every Type in the types array has the identical five-element structure,
+        Every JADN Type has the identical five-element structure,
         which can be verified as well-formed without validating element content:
       </t>
       <sourcecode>
@@ -461,11 +446,11 @@ Coordinate = Record                             // GPS Coordinate
       </t>
       <t>
         JADN defines information values and message syntax based on twelve Core types in three categories,
-        denoting well-known abstract concepts such as "integer", "sequence" and "map".
-        They are not exhaustively defined here because many other publications provide excellent
-        definitions of these concepts.
-        However, this specification will attempt to describe these types well enough that they
-        can be readily recognized and distinguished from other abstractions with which they may be confused.
+        based on well-known abstract concepts such as "integer", "sequence" and "map".
+        These concepts are not exhaustively defined here because many other publications provide excellent
+        definitions.
+        However, this specification will attempt to describe them well enough that they can be readily
+        recognized and distinguished from other abstractions with which they may be confused.
       </t>
       <t>
         The JADN Core types are:
@@ -503,9 +488,9 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        Types are organized as a directed acyclic graph (DAG) from top-level root node(s) down to
-        leaf nodes that are not further decomposed. Definitions can be arranged
-        in hierarchical tiers for readability, and common types can be reused in multiple types.
+        JADN types form a directed acyclic graph (DAG) from top-level root node(s) down to
+        leaf nodes that are not further decomposed. Definitions can be arranged in hierarchical
+        tiers for readability, and types can be referenced from multiple definitions.
         This differs from tree graphs where types must always be acyclic and denormalized,
         and from mesh graphs that make no distinction between contained and referenced content.
         Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
@@ -519,10 +504,10 @@ Coordinate = Record                             // GPS Coordinate
           <xref target="options"/> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
           Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
-          as a list of strings using "tagged string" encoding for brevity. In tagged strings for JADN options
-          the Unicode codepoint of the first character is the option ID and the remaining characters are the
-          string representation of its value. Tagged strings highlight that options are inherently
-          enumerated, not arbitrarily-named attributes. Tagged string encoding can also be used for general
+          as a list of strings using "tagged string" encoding for brevity. In tagged strings the Unicode
+          codepoint of the first character is the option ID and the remaining characters are the
+          string representation of its value. Tagged strings highlight that options are enumerated,
+          not arbitrarily-named attributes. Tagged string encoding can also be used for general
           data by defining mapping tables similar to <xref target="options"/>.
         </t>
         <t>
@@ -540,9 +525,8 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
         </sourcecode>
         <t>
-          The more verbose XASD representation of latitude options:
-          &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt; is equivalent to the
-          to the JSON representation because both are mapped to the same information value.
+          The more verbose XASD representation: &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
+          is equivalent to the to the JSON representation because both are mapped to the same information value.
         </t>
         <figure anchor="options">
           <name>TypeOptions and FieldOptions</name>
@@ -841,6 +825,7 @@ Coordinate = Record                             // GPS Coordinate
         </section>
         <section anchor="array">
           <name>Array</name>
+          <t>Options: x, y.</t>
         </section>
         <section anchor="map">
           <name>Map</name>
@@ -874,12 +859,40 @@ Coordinate = Record                             // GPS Coordinate
         </table>
         <section anchor="enumerated">
           <name>Enumerated</name>
+          <t>
+            An Enumerated type defines an explicitly listed set of values, a vocabulary. It is formally
+            a degenerate tagged union of unit type because it defines the tags of a tagged union
+            with no additional information. In a full tagged union, the tag identifies the type of the
+            following data. In an enum, the tag is the data.
+          </t>
+          <t>Options: id.</t>
+          <t>
+            JADN tags include both numeric ID and equivalent string value, allowing either to be used.
+            The <em>id</em> option specifies that an Enumerated information value is an item_id, otherwise
+            it is an item_value that may be represented by the id depending on data format.
+          </t>
         </section>
         <section anchor="taggedUnion">
-          <name>Choice</name>
+          <name>Choice - tagged</name>
+          <t>
+            The Choice type without a <em>combine</em> option is a tagged union. Its value is a tag
+            that selects a type from the specified set of fields and an instance of the selected type.
+          </t>
+          <t>Options: id.</t>
         </section>
         <section anchor="untaggedUnion">
-          <name>Choice(combine)</name>
+          <name>Choice(combine) - untagged</name>
+          <t>
+            The Choice type with a <em>combine</em> option is an untagged union. Its value is an
+            instanced of a logical combination of field types specified by that option:
+          </t>
+          <ul>
+            <li>1 (allOf): value must be an instance of all field types.</li>
+            <li>2 (anyOf): value must be an instance of any field type, tried in field order until a match is found.</li>
+            <li>3 (oneOf): value must be an instance of one field type and no others.</li>
+            <li>4 (diff): value must be an instance of the first field type and no others.</li>
+          </ul>
+          <t>Options: combine.</t>
         </section>
       </section>
       <section anchor="typeRequirements">
@@ -891,8 +904,10 @@ Coordinate = Record                             // GPS Coordinate
     <section anchor="packages">
       <name>Packages</name>
       <t>
-        A JADN package is the mechanism used to organize IM types into groups.
-        It serves as a namespace, meaning types within a package must have unique names,
+        A package organizes IM types into a group
+
+        ... meaning types within a package must have unique names ...
+
         and supports modularization by breaking down large models into manageable subunits,
         including libraries of sharable types.
       </t>

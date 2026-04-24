@@ -17,7 +17,7 @@
     ]],
     ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
-      [2, "namespaces", "PrefixNs", ["[0", "]-1"], "Referenced packages"],
+      [2, "namespaces", "PrefixMap", ["[0", "]-1"], "External reference qualifiers"],
       [3, "roots", "TypeName", ["[0", "]-1"], "Roots of the type tree(s) in this package"],
       [4, "config", "Config", ["[0"], "Configuration variables"],
       [5, "jadn_version", "SemVer", ["[0"], "JADN Metaschema version number (in package URI)"],
@@ -28,8 +28,8 @@
       [10, "copyright", "String", ["{1", "[0"], "Copyright notice"],
       [11, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"]
     ]],
-    ["PrefixNs", "Array", [], "Prefix corresponding to a namespace IRI", [
-      [1, "prefix", "NSID", [], "Namespace prefix string"],
+    ["PrefixMap", "Array", [], "Prefix corresponding to a namespace IRI", [
+      [1, "prefix", "Prefix", [], "Namespace prefix string"],
       [2, "namespace", "Namespace", [], "Namespace IRI"]
     ]],
     ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
@@ -39,14 +39,14 @@
       [4, "$Sys", "String", ["{1", "}1", "u."], "System character for TypeName, default = '.'"],
       [5, "$TypeName", "String", ["/regex", "u^[A-Z][-.A-Za-z0-9]{0,63}$"], "Default = ^[A-Z][-.A-Za-z0-9]{0,63}$"],
       [6, "$FieldName", "String", ["/regex", "u^[a-z][_A-Za-z0-9]{0,63}$"], "Default = ^[a-z][_A-Za-z0-9]{0,63}$"],
-      [7, "$NSID", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$"]
+      [7, "$Prefix", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$"]
     ]],
     ["Namespace", "String", ["/uri"], "Unique name of a package"],
     ["SemVer", "String", ["%^(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?$"], "Semantic Version Number (x.y.z)"],
-    ["NSID", "String", ["%$NSID"], "Namespace prefix matching $NSID"],
+    ["Prefix", "String", ["%$Prefix"], "Namespace prefix matching $Prefix"],
     ["TypeName", "String", ["%$TypeName"], "Name of a logical type"],
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],
-    ["TypeRef", "String", [], "Reference to a type, matching ($NSID ':')? $TypeName"],
+    ["TypeRef", "String", [], "Reference to a type, matching ($Prefix ':')? $TypeName"],
     ["Type", "Array", [], "Fixed structure for all type definitions", [
       [1, "type_name", "TypeName", ["K"], "Schema-defined type name, collection index"],
       [2, "core_type", "Enumerated", ["#JADN-Type"], "Core (JADN-defined) type name"],
