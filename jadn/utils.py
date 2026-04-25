@@ -261,7 +261,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
     if v := topts.pop('format', None):
         txt += (' /' + v)
 
-    for opt in ('unique', 'set', 'unordered', 'sequence', 'attr', 'abstract', 'final'):
+    for opt in ('unique', 'set', 'unordered', 'ordered', 'attr', 'abstract', 'final'):
         if o := topts.pop(opt, None):
             txt += (' ' + opt)
 
@@ -404,7 +404,7 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
             rest = m.group(2)
             topts.update({'format': m.group(1)[1:]})
 
-        elif m := re.match(r'^\s*(unique|set|unordered|sequence|attr|abstract|final)(.*)$', rest):
+        elif m := re.match(r'^\s*(unique|set|unordered|ordered|attr|abstract|final)(.*)$', rest):
             rest = m.group(2)
             topts.update({m.group(1): True})    # Boolean options - True if present
 

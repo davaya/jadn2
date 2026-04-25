@@ -182,7 +182,7 @@
       [61, "id", "Boolean", ["[0"]],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
-      [111, "sequence", "Boolean", ["[0"]],
+      [111, "ordered", "Boolean", ["[0"]],
       [116, "tagString", "TypeRef", ["[0"]]
     ]],
     ["MapOfOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
@@ -190,12 +190,12 @@
       [42, "valueType", "TypeRef"],
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
-      [111, "sequence", "Boolean", ["[0"]]
+      [111, "ordered", "Boolean", ["[0"]]
     ]],
     ["RecordOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [123, "minLength", "Integer", ["y0", "[0"]],
       [125, "maxLength", "Integer", ["y0", "[0"]],
-      [111, "sequence", "Boolean", ["[0"]]
+      [111, "ordered", "Boolean", ["[0"]]
     ]],
     ["EnumeratedOpts", "Map", ["tJADNOpts", "eAllOpts"], "", [
       [61, "id", "Boolean", ["[0"]],
@@ -222,11 +222,11 @@
       [122, "maxInclusive", "BType",  ["[0"], "z - maximum numeric/string value"],
       [123, "minLength",   "Integer", ["[0"], "{ - minimum byte or text string length, collection item count"],
       [125, "maxLength",   "Integer", ["[0"], "} - maximum byte or text string length, collection item count"],
-      [113, "unique",      "Boolean", ["[0"], "q - ArrayOf instance must not contain duplicates"],
+      [113, "unique",      "Boolean", ["[0"], "q - ArrayOf instance is ordered and unique (orderedSet)"],
       [115, "set",         "Boolean", ["[0"], "s - ArrayOf instance is unordered and unique (set)"],
       [98,  "unordered",   "Boolean", ["[0"], "b - ArrayOf instance is unordered and not unique (bag)"],
-      [111, "sequence",    "Boolean", ["[0"], "o - Map, MapOr or Record instance is ordered and unique (ordered set)"],
-      [67,  "combine",     "String",  ["[0"], "C - Choice instance is a logical combination (anyOf, allOf, oneOf)"],
+      [111, "ordered",     "Boolean", ["[0"], "o - Map, MapOf or Record instance is ordered and unique (orderedMap)"],
+      [67,  "combine",     "String",  ["[0"], "C - Choice instance is a logical combination (anyOf, allOf, oneOf, diff)"],
       [47,  "format",      "String",  ["[0"], "/ - Semantic validation keyword, may affect serialization"],
       [69,  "scale",       "Integer", ["[0"], "E - fixed point scale factor n, serialized int = value * 10^n"],
       [116, "tagString",   "String",  ["[0"], "t - Use referenced type for tag-string serialization"],

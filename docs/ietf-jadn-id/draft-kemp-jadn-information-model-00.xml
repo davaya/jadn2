@@ -513,8 +513,8 @@ Coordinate = Record                             // GPS Coordinate
         <t>
           In the GPS Coordinate example, latitude has options represented in JSON format as ["y-90.0", "z90.0"].
           From <xref target="options"/> the first character "y" (U+0079 = ID 121) has name
-          "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" indicates
-          that the value type is the base type of the field (Number).
+          "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" is a
+          JADN-reserved keyword indicating that the value type is the base type of the field (Number).
           The information value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
         </t>
         <sourcecode>
@@ -551,7 +551,7 @@ Coordinate = Record                             // GPS Coordinate
  113 unique      Boolean  q: ArrayOf instance is an OrderedSet
  115 set         Boolean  s: ArrayOf instance is a Set
   98 unordered   Boolean  b: ArrayOf instance is a Bag
- 111 sequence    Boolean  o: Map, MapOf, Record instance is an OrderedSet
+ 111 ordered     Boolean  o: Map, MapOf, Record instance is an OrderedMap
   67 combine     Integer  C: Choice instance is an untagged union
   47 format      String   /: Semantic validation keyword
   69 scale       Integer  E: Fixed point scale factor, value * 10^n
@@ -605,7 +605,7 @@ Coordinate = Record                             // GPS Coordinate
             data format could specify numeric literals 1 and 0 instead.
           </t>
           <t>
-            Options: const, default.
+            Options: const, default, format.
           </t>
         </section>
         <section anchor="integer">
@@ -615,7 +615,7 @@ Coordinate = Record                             // GPS Coordinate
             {..., -2, -1, 0, 1, 2, ...}.
           </t>
           <t>
-            Options: const, default,<br/>
+            Options: const, default, format, scale,<br/>
             maxExclusive, maxInclusive, minExclusive, minInclusive.
           </t>
           <t>
@@ -635,7 +635,7 @@ Coordinate = Record                             // GPS Coordinate
             A Number instance is a value from the ordered uncountably infinite space of real numbers.
           </t>
           <t>
-            Options: const, default,<br/>
+            Options: const, default, format,<br/>
             maxExclusive, maxInclusive, minExclusive, minInclusive.
           </t>
         </section>
@@ -645,9 +645,9 @@ Coordinate = Record                             // GPS Coordinate
             A String instance is a sequence of characters from a character set.
           </t>
           <t>
-            Options: const, default,<br/>
+            Options: const, default, format, pattern,<br/>
             maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
-            minLength, maxLength, pattern.
+            minLength, maxLength.
           </t>
           <t>
             Value range options are meaningful only if character set (encoding) or collation order are known.
@@ -659,7 +659,7 @@ Coordinate = Record                             // GPS Coordinate
             A Binary instance is a sequence of octets.
           </t>
           <t>
-            Options: const, default,<br/>
+            Options: const, default, format,<br/>
             maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
             minLength, maxLength.
           </t>
@@ -673,41 +673,24 @@ Coordinate = Record                             // GPS Coordinate
         </t>
         <ul>
           <li>
-            a <strong>semantic</strong> type that characterizes the properties of a collection information
+            a <strong>semantic</strong> type that characterizes the properties of an information
             value within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
-            a <strong>compound</strong> type that characterizes the data structures used to represent a
+            a <strong>compound</strong> type that characterizes the data structure used to represent a
             collection information value.
           </li>
         </ul>
         <t>
-          These components are equally important, and any IM must specify both semantics and structure.
+          These components are equally important, and any IM must specify both
+          <xref target="multiplicity">semantics</xref> and
+          <xref target="compound">structure</xref>.
           A JADN CoreType is one of five compound types that is combined with a TypeOption to specify
           semantics. But it would also be possible for CoreType to specify one of the six semantic types
           combined with TypeOptions to specify data structure.
         </t>
-        <t>
-          The following section defines six collection semantic types supported by most processing
-          environments, followed by sections defining each of the compound data types and their options:
-        </t>
-        <ul>
-          <li>
-            Structured compound types <xref target="array" format="title"/>, <xref target="map" format="title"/> and
-            <xref target="record" format="title"/> define the type of each element individually, by position,
-            key, or both. Each field defines the association between the identifier (position and/or key) and
-            the field type. All structured types have the <xref target="maps" format="title"/> sematic type
-            by default but may include the <em>ordered</em> option for <xref target="orderedMaps" format="title"/>
-            semantics.
-          </li>
-          <li>
-            Unstructured compound types <xref target="arrayOf" format="title"/> and <xref target="mapOf"/> have
-            common field types rather than individually-defined fields. ArrayOf is a generic collection that can
-            be designated as any semantic type.
-          </li>
-        </ul>
         <section anchor="multiplicity">
-          <name>Multiplicity</name>
+          <name>Collection Semantic Types</name>
           <t>
             <xref target="UML"/> defines MultiplicityElement as specifying collection multiplicity (the valid
             number of values contained in the collection) and four semantic types based on two Boolean properties.
@@ -742,17 +725,18 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             <xref target="semanticTypes"/> shows the name commonly used for each combination of
             collection properties, and the compound type(s) that can support that semantic type.
-            Compound types without options (shown in bold) have either Sequence or Map semantics as
-            expected. But it is fairly common for data modelers to use other combinations such as using
-            arrays of data values that have "id" fields to represent Map semantics.
+            Compound types without options (shown in bold) have either Sequence or Map semantics.
+            But it is fairly common for data modelers to use other combinations such as using
+            arrays of data values with "id" fields to represent Map semantics.
           </t>
           <table anchor="semanticTypes">
+            <name>Semantic and Compound Types</name>
             <thead>
               <tr><th>isOrdered</th><th>isUnique</th><th>isAssociative</th><th>Semantic Type</th><th>Compound Type</th></tr>
             </thead>
             <tbody>
               <tr><td>true</td><td>false</td><td>false</td><td><xref target="sequence" format="title"/></td>
-                <td><strong>ArrayOf</strong><br/></td></tr>
+                <td><strong>ArrayOf</strong><br/><strong>Array</strong><br/></td></tr>
               <tr><td>false</td><td>true</td><td>false</td><td><xref target="set" format="title"/></td>
                 <td>ArrayOf+set</td></tr>
               <tr><td>true</td><td>true</td><td>false</td><td><xref target="orderedSet" format="title"/></td>
@@ -760,9 +744,9 @@ Coordinate = Record                             // GPS Coordinate
               <tr><td>false</td><td>false</td><td>false</td><td><xref target="bag" format="title"/></td>
                 <td>ArrayOf+unordered</td></tr>
               <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td>
-                <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Array</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
+                <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
               <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td>
-                <td>ArrayOf+key+ordered<br/>MapOf+ikey+ordered<br/>Array+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
+                <td>ArrayOf+key+ordered<br/>MapOf+ikey+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
             </tbody>
           </table>
 
@@ -823,21 +807,108 @@ Coordinate = Record                             // GPS Coordinate
             </t>
           </section>
         </section>
-        <section anchor="array">
-          <name>Array</name>
-          <t>Options: x, y.</t>
-        </section>
-        <section anchor="map">
-          <name>Map</name>
-        </section>
-        <section anchor="record">
-          <name>Record</name>
-        </section>
-        <section anchor="arrayOf">
-          <name>ArrayOf(valueType)</name>
-        </section>
-        <section anchor="mapOf">
-          <name>MapOf(keyType, valueType)</name>
+        <section anchor="compound">
+          <name>Compound Types</name>
+          <t>
+            A JADN compound type specifies the data value used to represent collection information.
+          </t>
+          <ul>
+            <li>
+              Structured compound types <xref target="array" format="title"/>, <xref target="map" format="title"/> and
+              <xref target="record" format="title"/> define the type of each element individually, by position,
+              key, or both. Each field defines the association between the identifier (position and/or key) and
+              the field type. All structured types have the <xref target="maps" format="title"/> sematic type
+              by default but may include the <em>ordered</em> option for <xref target="orderedMaps" format="title"/>
+              semantics.
+            </li>
+            <li>
+              Unstructured compound types <xref target="arrayOf" format="title"/> and
+              <xref target="mapOf" format="title"/> have uniform field types rather than individually-defined fields.
+              ArrayOf is a generic collection structure that can be designated as representing any semantic type.
+            </li>
+            <li>
+              The <em>minLength</em> and <em>maxLength</em> options specify the
+              minimum and maximum number of elements in any collection information value. Element
+              <xref target="primitive">defaults</xref> and other options may affect the length of data
+              values that represent the collection.
+            </li>
+          </ul>
+          <section anchor="array">
+            <name>Array</name>
+            <t>
+              The Array type defines a collection of individually-typed elements where each element has a position:
+            </t>
+            <ul>
+              <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
+              <li>FieldName is a comment that describes the element but does not exist in the collection value.</li>
+              <li>
+                Semantics is a <xref target="sequence" format="title"/> of values, each with a type,
+                commonly referred to as a <em>struct</em>.
+              </li>
+            </ul>
+            <t>
+              Applications may refer to Array fields directly by position or define a mnemonic label to refer to
+              each field. Because field names do not exist in Array values, applications may use FieldName or
+              choose arbitrary position mnemonics without affecting interoperability.
+            </t>
+            <t>Options: minLength, maxLength, format.</t>
+            <t>
+              The <xref target="semanticFormats" format="section">format</xref> option is a semantic validation
+              keyword that defines the valid information values of each element in the struct and its
+              representation as a data value.
+            </t>
+          </section>
+          <section anchor="map">
+            <name>Map</name>
+            <t>
+              The Map type defines a collection of individually-typed elements where each element has a key:
+            </t>
+            <ul>
+              <li>FieldId is the numeric key of each element, arbitrary but unique within the collection.</li>
+              <li>
+                FieldName is the string key of each element, following the <xref target="packages" format="title"/>
+                naming convention and unique within the collection.
+              </li>
+              <li>
+                Semantics is a <xref target="map" format="title"/> of values, each with a key and a type.
+              </li>
+              <li>
+                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
+                does not exist in element values but may be used as a mnemonic label for FieldId.
+              </li>
+            </ul>
+            <t>
+              Options: minLength, maxLength, id, ordered, tagString.
+            </t>
+          </section>
+          <section anchor="record">
+            <name>Record</name>
+            <t>
+              The Record type defines a collection of individually-typed elements where each element has
+              both a position and a key:
+            </t>
+            <ul>
+              <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
+              <li>
+                FieldName is the string key of each element, following the <xref target="packages" format="title"/>
+                naming convention and unique within the collection.
+              </li>
+              <li>Semantics is a <xref target="map" format="title"/> of values, each with a key and a type.</li>
+              <li>
+                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
+                does not exist in element values but may be used as a mnemonic label for FieldId.
+              </li>
+            </ul>
+            <t>
+              Options: minLength, maxLength, ordered.
+            </t>
+          </section>
+          <section anchor="arrayOf">
+            <name>ArrayOf(valueType)</name>
+          </section>
+          <section anchor="mapOf">
+            <name>MapOf(keyType, valueType)</name>
+          </section>
         </section>
       </section>
       <section anchor="union">
