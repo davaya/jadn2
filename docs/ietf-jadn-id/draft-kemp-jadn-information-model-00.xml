@@ -574,6 +574,37 @@ Coordinate = Record                             // GPS Coordinate
           ]]>
           </artwork>
         </figure>
+        <section anchor="fieldOptions">
+          <name>FieldOptions</name>
+          <t>
+            TypeOptions apply to specific types, but FieldOptions apply to the individual fields of
+            structured <xref target="compound" format="title"/> types independently of FieldType.
+            The FieldOptions are:
+          </t>
+          <ul>
+            <li>
+              minOccurs, maxOccurs: specify the <xref target="s-multiplicity" format="title"/> shortcut.
+            </li>
+            <li>
+              nillable: specifies that the field's information value space includes the <em>null</em> value
+              in addition to the values specified by its type. Every <xref target="s-multiplicity" format="title">
+              optional</xref> field without a default value is also nillable, but no required field without the
+              nillable option may have a <em>null</em> value.
+            </li>
+            <li>
+              tagId:
+            </li>
+            <li>
+              dir:
+            </li>
+            <li>
+              key:
+            </li>
+            <li>
+              link:
+            </li>
+          </ul>
+        </section>
       </section>
 
       <section anchor="primitive">
@@ -783,7 +814,7 @@ Coordinate = Record                             // GPS Coordinate
               A Bag (or <xref target="MULTISET" format="title"/>) is an unordered collection
               of values where values may appear more than once. A Bag can be instantiated efficiently as
               a set of unique values with each value mapped to its count.
-              Two bags are equal if they contain the same elements each with the same count.
+              Two Bags are equal if they contain the same elements each with the same count.
               A Sequence, Set, OrderedSet or Bag can be combined into a destination Bag by iterating
               over each value in the sources and incrementing the count of that value in the destination.
             </t>
@@ -801,7 +832,7 @@ Coordinate = Record                             // GPS Coordinate
             <name>OrderedMap</name>
             <t>
               An OrderedMap is a collection of key:value pairs where the keys are an OrderedSet.
-              Each key and each value may be any type and keys must be immutable. Note that some
+              Each key and each value may be any type and keys must be immutable. Some
               programming languages define "order-preserving" mapping types. These are ordered only
               if two collections with the same elements in a different order compare as unequal.
             </t>
@@ -842,8 +873,8 @@ Coordinate = Record                             // GPS Coordinate
               <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
               <li>FieldName is a comment that describes the element but does not exist in the collection value.</li>
               <li>
-                Semantics is a <xref target="sequence" format="title"/> of values, each with a type,
-                commonly referred to as a <em>struct</em>.
+                The information value is a <xref target="sequence" format="title"/> of elements, each with a
+                position and type, commonly referred to as a <em>struct</em>.
               </li>
             </ul>
             <t>
@@ -852,11 +883,13 @@ Coordinate = Record                             // GPS Coordinate
               choose arbitrary position mnemonics without affecting interoperability.
             </t>
             <t>Options: minLength, maxLength, format.</t>
-            <t>
-              The <xref target="semanticFormats" format="section">format</xref> option is a semantic validation
-              keyword that defines the valid information values of each element in the struct and its
-              representation as a data value.
-            </t>
+            <ul>
+              <li>
+                The <xref target="semanticFormats">format</xref> option is a semantic validation
+                keyword that defines the valid information values of the struct and its
+                representation as a data value.
+              </li>
+            </ul>
           </section>
           <section anchor="map">
             <name>Map</name>
@@ -866,20 +899,32 @@ Coordinate = Record                             // GPS Coordinate
             <ul>
               <li>FieldId is the numeric key of each element, arbitrary but unique within the collection.</li>
               <li>
-                FieldName is the string key of each element, following the <xref target="packages" format="title"/>
-                naming convention and unique within the collection.
+                FieldName is the string key of each element, following the <xref target="packages" format="title">
+                $FieldName</xref> naming convention and unique within the collection.
               </li>
               <li>
-                Semantics is a <xref target="map" format="title"/> of values, each with a key and a type.
-              </li>
-              <li>
-                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
-                does not exist in element values but may be used as a mnemonic label for FieldId.
+                By default the information value is a <xref target="maps" format="title"/> of elements,
+                each with a key and type.
               </li>
             </ul>
             <t>
               Options: minLength, maxLength, id, ordered, tagString.
             </t>
+            <ul>
+              <li>
+                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
+                does not exist in element values but may be used as a mnemonic label for FieldId.
+              </li>
+              <li>
+                The <em>ordered</em> option specifies that the information value is an
+                <xref target="orderedMaps" format="title"/> of elements.
+              </li>
+              <li>
+                The <em>tagString</em> option references a translation table similar to <xref target="options"/>
+                that defines a collection of IDs, Names and Types that a data format can use to represent a Map
+                information value as a list of <xref target="optionset">tagged strings</xref>.
+              </li>
+            </ul>
           </section>
           <section anchor="record">
             <name>Record</name>
@@ -890,24 +935,82 @@ Coordinate = Record                             // GPS Coordinate
             <ul>
               <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
               <li>
-                FieldName is the string key of each element, following the <xref target="packages" format="title"/>
-                naming convention and unique within the collection.
+                FieldName is the string key of each element, following the <xref target="packages">
+                $FieldName</xref> naming convention and unique within the collection.
               </li>
-              <li>Semantics is a <xref target="map" format="title"/> of values, each with a key and a type.</li>
               <li>
-                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
-                does not exist in element values but may be used as a mnemonic label for FieldId.
+                By default the information value is a <xref target="maps" format="title"/> of elements,
+                each with a position, key, and type.
               </li>
             </ul>
             <t>
               Options: minLength, maxLength, ordered.
             </t>
+            <ul>
+              <li>
+                The <em>ordered</em> option specifies that the information value is an
+                <xref target="orderedMaps" format="title"/> of elements.
+              </li>
+            </ul>
           </section>
           <section anchor="arrayOf">
-            <name>ArrayOf(valueType)</name>
+            <name>ArrayOf</name>
+            <t>
+              The ArrayOf type defines a collection of elements of the same type.
+              The required <em>valueType</em> option specifies the type of all collection elements.
+              The semantic type depends on both collection options and the type specified by valueType.
+            </t>
+            <t>
+              Options: valueType (required),<br/>
+              minLength, maxLength,<br/>
+              unique, set, unordered,<br/>
+              ordered.
+            </t>
+            <ul>
+              <li>
+                If valueType is an Array, Map or Record type with no
+                <xref target="fieldOptions">key</xref> field,
+                ArrayOf specifies a <xref target="sequence" format="title"/> of table rows, with
+                the columns defined by valueType fields and the rows indexed by position.
+                No collection semantic options are valid.
+              </li>
+              <li>
+                If valueType is an Array, Map or Record type with a
+                <xref target="fieldOptions">key</xref> field, by default the information value
+                is a <xref target="maps" format="title"/> of table rows, with
+                columns defined by valueType fields and the rows indexed by both key and position.
+                The <em>ordered</em> option specifies that the information value is an
+                <xref target="orderedMaps" format="title"/> of of table rows where order is significant.
+              </li>
+              <li>
+                For all other valueTypes the information value is a
+                <xref target="sequence" format="title"/> of values by default.
+                A <em>unique</em>, <em>set</em>, or <em>unordered</em> option
+                specifies that the information value is an
+                <xref target="orderedSet" format="title"/>,
+                <xref target="set" format="title"/>, or
+                <xref target="bag" format="title"/> respectively.
+              </li>
+            </ul>
           </section>
           <section anchor="mapOf">
-            <name>MapOf(keyType, valueType)</name>
+            <name>MapOf</name>
+            <t>
+              The MapOf type defines a collection of <xref target="maps" format="title"/> elements
+              with the same key and value types.
+              The required <em>keyType</em> option specifies the type of all element keys.
+              The required <em>valueType</em> option specifies the type of all element values.
+            </t>
+            <t>
+              Options: keyType (required), valueType (required),<br/>
+              minLength, maxLength, ordered.
+            </t>
+            <ul>
+              <li>
+                The <em>ordered</em> option specifies that the information value is an
+                <xref target="orderedMaps" format="title"/> of elements.
+              </li>
+            </ul>
           </section>
         </section>
       </section>
@@ -1139,7 +1242,7 @@ Foo = Enumerated
           at runtime. The <em>extends</em> and <em>restricts</em> shortcuts perform these operations,
           saving space and improving robustness:
         </t>
-          <ul>
+        <ul>
           <li>
             extends: value space is a superset of the base type. If A extends B, A = A ∪ B
             (union), and every instance of B is also an instance of A.
@@ -1233,11 +1336,11 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
           A JADN IM is based on several equivalence mechanisms that can be included
           in any data format. This enables a single IM to ... CBOR goals ...
         </t>
-          <ul>
-            <li>Indexing Record elements by position or name</li>
-            <li>Enumerating data elements by numeric ID or string name / value</li>
-            <li>Defining string formats for non-string types</li>
-          </ul>
+        <ul>
+          <li>Indexing Record elements by position or name</li>
+          <li>Enumerating data elements by numeric ID or string name / value</li>
+          <li>Defining string formats for non-string types</li>
+        </ul>
         <t>
           ...
         </t>
