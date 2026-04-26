@@ -424,21 +424,28 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        Every JADN Type has the identical five-element structure,
-        which can be verified as well-formed without validating element content:
+        Every JADN Type has the identical five-element structure, which can be verified as being well-formed
+        without validating element content:
       </t>
-      <sourcecode>
-        <![CDATA[
-[TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
-        ]]>
-      </sourcecode>
       <ol>
         <li>TypeName: the name of the type being defined.</li>
         <li>CoreType: The JADN built-in type of the type being defined.</li>
-        <li>TypeOptions: a set of zero or more TypeOption values applicable to the CoreType (conditional).</li>
+        <li>TypeOptions: a set of zero or more TypeOption values applicable to CoreType (conditional).</li>
         <li>TypeDescription: a non-normative comment (optional).</li>
-        <li>Fields: an array of zero or more Item or Field definitions as applicable to the CoreType (conditional).</li>
+        <li>
+          Fields: an array of zero or more <xref target="type-item">Item</xref> or
+          <xref target="type-field">Field</xref> definitions as applicable to CoreType (conditional).
+        </li>
       </ol>
+      <figure anchor="type">
+        <name>JADN Type Definition</name>
+        <artwork>
+        <![CDATA[
+[TypeName, CoreType, [TypeOptions], TypeDescription, [Fields]]
+        ]]>
+        </artwork>
+      </figure>
+
       <t>
         This uniform structure makes a JADN schema capable yet easy to process.
         Currently-defined TypeOptions and FieldOptions provide significant expressive power, and unlimited
@@ -474,24 +481,32 @@ Coordinate = Record                             // GPS Coordinate
       <t>
         The Item structure for Enumerated types is:
       </t>
-      <sourcecode>
+      <figure anchor="type-item">
+        <name>Item Definition</name>
+        <artwork>
         <![CDATA[
 [ItemId, ItemValue, ItemDescription]
         ]]>
-      </sourcecode>
+        </artwork>
+      </figure>
+
       <t>
         The Field structure for Compound and Choice types is:
       </t>
-      <sourcecode>
+      <figure anchor="type-field">
+        <name>Field Definition</name>
+        <artwork>
         <![CDATA[
 [FieldId, FieldName, FieldType, [FieldOptions], FieldDescription]
         ]]>
-      </sourcecode>
+        </artwork>
+      </figure>
+
       <t>
         JADN types form a directed acyclic graph (DAG) from top-level root node(s) down to
         leaf nodes that are not further decomposed. Definitions can be arranged in hierarchical
         tiers for readability, and types can be referenced from multiple definitions.
-        This differs from tree graphs where types must always be acyclic and denormalized,
+        This differs from tree graphs where types are always acyclic and denormalized,
         and from mesh graphs that make no distinction between contained and referenced content.
         Cross-references (links / foreign keys) in a DAG support cyclic relationships where needed,
         but are the exception rather than the rule.
@@ -504,11 +519,12 @@ Coordinate = Record                             // GPS Coordinate
           <xref target="options"/> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
           Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
-          as a list of strings using "tagged string" encoding for brevity. In tagged strings the Unicode
-          codepoint of the first character is the option ID and the remaining characters are the
-          string representation of its value. Tagged strings highlight that options are enumerated,
-          not arbitrarily-named attributes. Tagged string encoding can also be used for general
-          data by defining mapping tables similar to <xref target="options"/>.
+          as a list of strings using <xref target="taggedString" format="title"/> encoding for brevity.
+          In tagged strings the Unicode codepoint of the first character is the option ID and the remaining
+          characters are the string representation of its value.
+          Tagged strings highlight that options are enumerated, not arbitrarily-named attributes.
+          Tagged string encoding can also be used for general data by defining mapping tables similar to
+          <xref target="options"/>.
         </t>
         <t>
           In the GPS Coordinate example, latitude has options represented in JSON format as ["y-90.0", "z90.0"].
@@ -517,13 +533,17 @@ Coordinate = Record                             // GPS Coordinate
           JADN-reserved keyword indicating that the value type is the base type of the field (Number).
           The information value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
         </t>
-        <sourcecode>
-        <![CDATA[
-+----+-----------+     TaggedString TypeOption = "y-90.0" (String)
+        <figure anchor="taggedString">
+          <name>Tagged String</name>
+          <artwork>
+          <![CDATA[
++----+-----------+     Tagged String TypeOption = "y-90.0" (String)
 | ID | Value     |     ID = 121 = U+0079 = lower case "y"
 +----+-----------+     Info: Name = "minInclusive", Value = -90.0 (Number)
-        ]]>
-        </sourcecode>
+          ]]>
+          </artwork>
+        </figure>
+
         <t>
           The more verbose XASD representation: &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
           is equivalent to the to the JSON representation because both are mapped to the same information value.
@@ -555,7 +575,7 @@ Coordinate = Record                             // GPS Coordinate
   67 combine     Integer  C: Choice instance is an untagged union
   47 format      String   /: Semantic validation keyword
   69 scale       Integer  E: Fixed point scale factor, value * 10^n
- 116 tagString   String   t: Table for tag-string serialization
+ 116 tagString   String   t: Table for tagged-string serialization
   97 abstract    Boolean  a: Type is not instantiable as a value
  102 final       Boolean  f: Type cannot have subtypes
  101 extends     String   e: Type is a superset of referenced type
@@ -777,7 +797,7 @@ Coordinate = Record                             // GPS Coordinate
               <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td>
                 <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
               <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td>
-                <td>ArrayOf+key+ordered<br/>MapOf+ikey+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
+                <td>ArrayOf+key+ordered<br/>MapOf+ktype+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
             </tbody>
           </table>
 
@@ -795,7 +815,7 @@ Coordinate = Record                             // GPS Coordinate
             <t>
               A Set is an unordered collection of values where no value appears more than once and no
               value has a position. Set operations include union, intersection, difference and symmetric difference.
-              Coercing a set into a sequence yields a sequence of values in indeterminate order.
+              Coercing a set into a sequence yields a sequence of values in unspecified order.
             </t>
           </section>
           <section anchor="orderedSet">
@@ -847,34 +867,33 @@ Coordinate = Record                             // GPS Coordinate
             <li>
               Structured compound types <xref target="array" format="title"/>, <xref target="map" format="title"/> and
               <xref target="record" format="title"/> define the type of each element individually, by position,
-              key, or both. Each field defines the association between the identifier (position and/or key) and
-              the field type. All structured types have the <xref target="maps" format="title"/> sematic type
-              by default but may include the <em>ordered</em> option for <xref target="orderedMaps" format="title"/>
-              semantics.
+              key, or both. Each <xref target="type-field">Field</xref> defines the association between the
+              identifier (position and/or key) and the field type.
             </li>
             <li>
               Unstructured compound types <xref target="arrayOf" format="title"/> and
               <xref target="mapOf" format="title"/> have uniform field types rather than individually-defined fields.
-              ArrayOf is a generic collection structure that can be designated as representing any semantic type.
+              ArrayOf is a generic collection structure that can represent any semantic type.
             </li>
             <li>
               The <em>minLength</em> and <em>maxLength</em> options specify the
               minimum and maximum number of elements in any collection information value. Element
-              <xref target="primitive">defaults</xref> and other options may affect the length of data
+              <xref target="primitive">defaults</xref> may affect the length of data
               values that represent the collection.
             </li>
           </ul>
           <section anchor="array">
             <name>Array</name>
             <t>
-              The Array type defines a collection of individually-typed elements where each element has a position:
+              The Array type defines a collection of individually-typed elements where each element has
+              a position, commonly referred to as a <em>struct</em>:
             </t>
             <ul>
               <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
               <li>FieldName is a comment that describes the element but does not exist in the collection value.</li>
               <li>
                 The information value is a <xref target="sequence" format="title"/> of elements, each with a
-                position and type, commonly referred to as a <em>struct</em>.
+                position and type.
               </li>
             </ul>
             <t>
@@ -917,7 +936,7 @@ Coordinate = Record                             // GPS Coordinate
               </li>
               <li>
                 The <em>ordered</em> option specifies that the information value is an
-                <xref target="orderedMaps" format="title"/> of elements.
+                <xref target="orderedMaps" format="title"/> of elements ordered by FieldId.
               </li>
               <li>
                 The <em>tagString</em> option references a translation table similar to <xref target="options"/>
@@ -1008,7 +1027,9 @@ Coordinate = Record                             // GPS Coordinate
             <ul>
               <li>
                 The <em>ordered</em> option specifies that the information value is an
-                <xref target="orderedMaps" format="title"/> of elements.
+                <xref target="orderedMaps" format="title"/> of elements. This requires that keyType has
+                a defined ordering, unlike the structured <xref target="map" format="title"/> type where
+                FieldId ensures that field order is always defined.
               </li>
             </ul>
           </section>
@@ -1021,7 +1042,7 @@ Coordinate = Record                             // GPS Coordinate
           Like Compound types, Enumerated and Tagged Union types have fields individually identified by tag,
           where the tag consists of an integer FieldID and a string ItemValue or FieldName, each of which
           is local to and unique within the type definition.
-          Union types define a set of tags, types or both
+          Union types define a set of tags, types or both.
         </t>
         <table>
           <thead><tr><th>Type</th><th>Tag</th><th>Type</th><th>Definition</th></tr></thead>
@@ -1207,7 +1228,7 @@ Foo = Enumerated
         </t>
         <sourcecode>
         <![CDATA[
-Coordinate = Record        // A GPS coordinate
+FakeCoordinate = Record    // A GPS coordinate
   1 latitude   Stuff       // lat: a hypothetical structure
   2 longitude  Longitude   // long: -179.9999 to 180 degrees
 
@@ -1223,7 +1244,7 @@ Longitude = Number=(-180.0, 180.0]  // also a leaf type
 
 ==== Expanding the _path_ shortcut yields: =====
 
-Foo = Enumerated(Path[Coordinate])
+Foo = Enumerated(Path[FakeCoordinate])
 
 Foo = Enumerated
   1 latitude.bar
@@ -1236,10 +1257,10 @@ Foo = Enumerated
       <section anchor="s-inheritance">
         <name>Type Inheritance</name>
         <t>
-          Class inheritance is complex because it addresses behavior. But because types define
-          immutable value spaces, type inheritance consists of two basic set operations (union
-          and intersection) that can be precomputed on a schema rather than being dynamically processed
-          at runtime. The <em>extends</em> and <em>restricts</em> shortcuts perform these operations,
+          Class inheritance is complex and dynamic because it addresses behavior. But because types define
+          immutable value spaces, type inheritance consists of two basic set operations (union and
+          intersection) that can be precomputed on a schema rather than being processed at runtime.
+          The <em>extends</em> and <em>restricts</em> shortcuts perform these schema operations,
           saving space and improving robustness:
         </t>
         <ul>
