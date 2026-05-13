@@ -152,7 +152,8 @@
           of the value space and mappings from each literal space to the value space.
           This definition extends the <xref target="XSD-2">XML Schema</xref> Datatype to
           information modeling by including the literal spaces and mappings for multiple
-          data formats. Both information and data values are instances of Type.
+          data formats. Every information value has a Type and every data value is an instance
+          of Type.
         </dd>
         <dt>Object</dt>
         <dd>
@@ -162,7 +163,7 @@
           This is not specific to object-oriented programming languages: K&amp;R C has
           an "int" type, and its implementation of int variables (the int class) has behavior such as
           addition and comparison in addition to the value space defined by the int type.
-          Note that <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
+          <xref target="ECMA-262">JavaScript</xref> defines Boolean, String, Number,
           Array, Map and Set objects, while <xref target="RFC7159">JSON</xref> confusingly uses
           "object" to refer only to the literal values of Map objects. In this specification object
           includes variables of all types as in JavaScript, not just Maps as in JSON.
@@ -270,8 +271,8 @@
                 when generating multiple DMs. Simplicity promotes both uses.
               </li>
               <li>
-                An unlimited variety of formally standardized, coalition sponsored, and company
-                promoted DM languages are used in the Internet.
+                An unlimited variety of formally-standardized, coalition-sponsored, and
+                company-promoted DM languages are used in the Internet.
                 Translation among DM languages is not necessarily lossless, but a structurally uniform
                 IM language that covers the entire intersection and much of the union of their
                 capabilities simplifies translation to, and reverse engineering from, DMs in
@@ -316,25 +317,31 @@
       </section>
       <section anchor="examples">
         <name>Examples</name>
-        <t>
-          Example representations of a trivial GPS Coordinate type illustrate that a JADN schema
-          is an information value, that that value can be represented in multiple data formats,
-          and that the information value is identical regardless of format.
-          The formats shown are:
-        </t>
-        <ul>
-          <li>JSON data: the normative storage format for JADN schemas</li>
-          <li>XML data: an XML format composed of JADN elements, called XML Abstract Schema Definition (XASD) language.</li>
-          <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
-            Because a JADN schema is an Abstract Syntax Tree (AST), meta programming and projection editing
-            tooling is particularly applicable.
-          </li>
-          <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
-            Tables can also be represented in HTML, XML and office document data formats.</li>
-        </ul>
-        <figure anchor="intro-jadn">
-          <name>JADN Native JSON Format</name>
-          <artwork>
+          <t>A JADN schema and the data it defines are each representation-independent information values.</t>
+        <section anchor="examples-schema">
+          <name>Schema</name>
+          <t>
+            Example representations of a trivial GPS Coordinate type illustrate that a JADN schema
+            is an information value, that that value can be represented in multiple data formats,
+            and that the information value is identical regardless of format.
+            The formats shown are:
+          </t>
+          <ul>
+            <li>JSON data: the normative storage format for JADN schemas</li>
+            <li>
+              XML data: an XML format composed of JADN-defined elements, called XML Abstract Schema Definition
+              (XASD) language.
+            </li>
+            <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
+              Because a JADN schema is an Abstract Syntax Tree (AST), meta programming and projection editing
+              tooling is particularly applicable to JADN IDLs.
+            </li>
+            <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
+              Tables can also be represented in HTML, XML and office document data formats.</li>
+          </ul>
+          <figure anchor="intro-jadn">
+            <name>JADN Native JSON Format</name>
+            <artwork>
           <![CDATA[
 {
   "types": [
@@ -345,12 +352,12 @@
   ]
 }
           ]]>
-          </artwork>
-        </figure>
+            </artwork>
+          </figure>
 
-        <figure anchor="intro-xasd">
-          <name>JADN XASD Format</name>
-          <artwork>
+          <figure anchor="intro-xasd">
+            <name>JADN XASD Format</name>
+            <artwork>
           <![CDATA[
 <?xml version="1.0" ?>
 <Schema version="2.0">
@@ -362,23 +369,23 @@
   </Types>
 </Schema>
           ]]>
-          </artwork>
-        </figure>
+            </artwork>
+          </figure>
 
-        <figure anchor="intro-jidl">
-          <name>JADN IDL Format</name>
-          <artwork>
+          <figure anchor="intro-jidl">
+            <name>JADN IDL Format</name>
+            <artwork>
           <![CDATA[
 Coordinate = Record                             // GPS Coordinate
    1 latitude         Number=[-90.0, 90.0]      // Latitude
    2 longitude        Number=(-180.0, 180.0]    // Longitude
           ]]>
-          </artwork>
-        </figure>
+            </artwork>
+          </figure>
 
-        <figure anchor="intro-table-md">
-          <name>JADN Property Table, Markdown Format</name>
-          <artwork>
+          <figure anchor="intro-table-md">
+            <name>JADN Property Table, Markdown Format</name>
+            <artwork>
           <![CDATA[
 **Type: Coordinate (Record):** GPS Coordinate
 
@@ -387,8 +394,66 @@ Coordinate = Record                             // GPS Coordinate
 | 1  | **latitude**  | Number=[-90.0, 90.0]   | 1  | Latitude    |
 | 2  | **longitude** | Number=(-180.0, 180.0] | 1  | Longitude   |
           ]]>
-          </artwork>
-        </figure>
+            </artwork>
+          </figure>
+        </section>
+        <section anchor="examples-data">
+          <name>Data</name>
+          <t>
+            A single information value of type Coordinate (for example 38.8895, -77.0352) is processed
+            using an object containing two floating point variables, but details of the object aside
+            from its value and equality with other values of the same type are immaterial.
+            That value can be serialized using multiple dialects of XML, JSON, YAML, raw binary, CBOR,
+            and other data formats.
+          </t>
+          <t>XML:</t>
+          <sourcecode>
+  1.  &lt;Coordinate latitude="38.8895" longitude="-77.0352"&gt;&lt;/Coordinate&gt;
+
+  2.  &lt;Coordinate&gt;
+        &lt;Latitude&gt;38.8895&lt;/Latitude&gt;
+        &lt;Longitude&gt;-77.0352&lt;/Longitude&gt;
+      &lt;/Coordinate&gt;
+
+  3.  &lt;Coordinate&gt;38.8895, -77.0352&lt;/Coordinate&gt;
+          </sourcecode>
+          <t>JSON:</t>
+          <sourcecode>
+  1.  {"latitude": 38.8895, "longitude": -77.0352}
+
+  2.  {1: 38.8895, 2: -77.0352}
+
+  3.  [38.8895, -77.0352]
+
+  4.  "38.8895, -77.0352"
+          </sourcecode>
+          <t>YAML:</t>
+          <sourcecode>
+  1.  ---
+      latitude: 38.8895
+      longitude: -77.0352
+
+  2.  ---
+      1: 38.8895
+      2: -77.0352
+
+  3.  ---
+      - 38.8895
+      - -77.0352
+
+  4.  38.8895, -77.0352
+          </sourcecode>
+          <t>Binary - 8 bytes, two IEEE 754 floats:</t>
+          <sourcecode>
+  1.  421B8ED9 C29A1206
+          </sourcecode>
+          <t>CBOR - 11 bytes, two floats:</t>
+          <sourcecode>
+  1.  82                # array(2)
+         FA 421B8ED9    # primitive(1109102297)
+         FA C29A1206    # primitive(3264877062)
+          </sourcecode>
+        </section>
       </section>
 
       <section anchor="requirements">
@@ -534,7 +599,7 @@ Coordinate = Record                             // GPS Coordinate
           The information value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
         </t>
         <figure anchor="taggedString">
-          <name>Tagged String</name>
+          <name>Tagged String Attribute Format</name>
           <artwork>
           <![CDATA[
 +----+-----------+     Tagged String TypeOption = "y-90.0" (String)
@@ -555,10 +620,10 @@ Coordinate = Record                             // GPS Coordinate
   ID TypeOption   Type   ID       Description
  ___ __________  _______ ___ __________________________________________
   61 id          Boolean  =: Fields are indexed by FieldId, not FieldName
-  42 valueType   String   *: Value for ArrayOf and MapOf is referenced type
-  43 keyType     String   +: Key for MapOf is referenced type
-  35 enum        String   #: Enumeration derived from referenced type
-  62 path        String   >: Path names derived from referenced type
+  42 valueType   String   *: Value for ArrayOf and MapOf is the named type
+  43 keyType     String   +: Key for MapOf is the named type
+  35 enum        String   #: Enumerated type derived from the named type
+  62 path        String   >: Pathname Enumerated derived from named type
   37 pattern     String   %: String matches regular expression
  117 default       BType  u: Default value
  118 const         BType  v: Constant value
@@ -566,8 +631,8 @@ Coordinate = Record                             // GPS Coordinate
  120 maxExclusive  BType  x: maximum value, excluding bound
  121 minInclusive  BType  y: minimum value
  122 maxInclusive  BType  z: maximum value
- 123 minLength   Integer  {: minimum string length or collection count
- 125 maxLength   Integer  }: maximum string length or collection count
+ 123 minLength   Integer  {: minimum char/byte count or collection count
+ 125 maxLength   Integer  }: maximum char/byte count or collection count
  113 unique      Boolean  q: ArrayOf instance is an OrderedSet
  115 set         Boolean  s: ArrayOf instance is a Set
   98 unordered   Boolean  b: ArrayOf instance is a Bag
@@ -586,7 +651,7 @@ Coordinate = Record                             // GPS Coordinate
  ___ __________  _______ ___ __________________________________________
   91 minOccurs   Integer  [: min cardinality, default = 1
   93 maxOccurs   Integer  ]: max cardinality, default = 1
-  48 nillable    Boolean  0: Instance may have no value
+  48 nillable    Boolean  0: Instance may have null value
   38 tagId       Integer  &: field that specifies tagged union type
   60 dir         Boolean  <: flattened field type may be a collection
   75 key         Boolean  K: field is the primary key for TypeName
@@ -594,6 +659,23 @@ Coordinate = Record                             // GPS Coordinate
           ]]>
           </artwork>
         </figure>
+        <section>
+          <name>TypeOptions</name>
+          <t>
+            Type options applicable to individual CoreTypes are defined in the section for that type.
+            Type options applicable to multiple CoreTypes are:
+          </t>
+          <ul>
+            <li>
+              extends, restricts, abstract, final: specifies a <xref target="s-inheritance">
+              Type Inheritance</xref> shortcut.
+            </li>
+            <li>
+              format: specifies a <xref target="semanticFormats">semantic validation keyword</xref>
+              applicable to CoreType.
+            </li>
+          </ul>
+        </section>
         <section anchor="fieldOptions">
           <name>FieldOptions</name>
           <t>
@@ -612,16 +694,24 @@ Coordinate = Record                             // GPS Coordinate
               nillable option may have a <em>null</em> value.
             </li>
             <li>
-              tagId:
+              tagId: specifies a field within a structured type to use as the tag in a
+              <xref target="taggedUnion" format="title"/> field.
+              The tagId option often references a <xref target="s-enumeration" format="title"/> field, allowing
+              one or more tagged unions to share the tag field.
             </li>
             <li>
-              dir:
+              dir: nested information values have a flattened equivalent, analogous to a recursive list of
+              file pathnames.
+              The dir option stops the flattening recursion, allowing the field to contain nested values,
+              analogous to directories.
             </li>
             <li>
-              key:
+              key: identifies a field as being an id (index or primary key) for a value of the defined type.
+              Key values must be unique over the scope of an index.
             </li>
             <li>
-              link:
+              link: identifies a field as being a cross-reference (link or foreign key) to instances of
+              FieldType. The FieldType of the referenced key field is the type of the link value.
             </li>
           </ul>
         </section>
@@ -644,6 +734,30 @@ Coordinate = Record                             // GPS Coordinate
           <li><xref target="string">String</xref>: a sequence of characters.</li>
           <li><xref target="binary">Binary</xref>: a sequence of octets.</li>
         </ul>
+        <t>
+          Type options applicable to multiple Primitive CoreTypes are:
+        </t>
+        <ul>
+          <li>
+            const: value is fixed, equivalent to minInclusive = maxInclusive. Value contains zero bits of information.
+          </li>
+          <li>
+            <t>default: when this type is an <xref target="s-multiplicity">optional</xref> member of a
+              <xref target="collection">Collection</xref>:</t>
+            <ul>
+              <li>
+                encoding information elements that have the default value omits data elements where possible.
+              </li>
+              <li>decoding missing data elements populates information elements with the default value.</li>
+            </ul>
+            <t>
+              Collections encoded as arrays omit trailing optional elements but must preserve the positions
+              of all collection elements. Collections encoded as maps omit keys with default values.
+            </t>
+          </li>
+          <li>maxExclusive, maxInclusive, minExclusive, minInclusive:</li>
+          <li>attr:</li>
+        </ul>
         <section anchor="boolean">
           <name>Boolean</name>
           <t>
@@ -652,8 +766,8 @@ Coordinate = Record                             // GPS Coordinate
             includes many representations including {true, false}, {1, 0}, or {non-empty, empty} strings
             or collections. Each data format should designate a single canonical information-to-literal
             mapping, and as many literal-to-information mappings as make sense for the application.
-            For example, JSON defines the 4-5-character literals true and false but a concise JSON
-            data format could specify numeric literals 1 and 0 instead.
+            For example, JSON defines the 4-5-character literals <em>true</em> and <em>false</em> but
+            a concise JSON data format could specify numeric literals 1 and 0 instead.
           </t>
           <t>
             Options: const, default, format.
@@ -666,10 +780,6 @@ Coordinate = Record                             // GPS Coordinate
             {..., -2, -1, 0, 1, 2, ...}.
           </t>
           <t>
-            Options: const, default, format, scale,<br/>
-            maxExclusive, maxInclusive, minExclusive, minInclusive.
-          </t>
-          <t>
             An integer is often said to be a number with no fractional part. Integer and number are
             distinct types, both mathematically and computationally, because a countably infinite set
             of discrete values differs from a continuum.
@@ -678,6 +788,10 @@ Coordinate = Record                             // GPS Coordinate
             value that represents an integer, regardless of precision, also represents an infinite number
             of real values with a fractional part. It is impossible for the number type to uniquely represent
             an integer without consuming infinite resources.
+          </t>
+          <t>
+            Options: const, default, format, scale,<br/>
+            maxExclusive, maxInclusive, minExclusive, minInclusive.
           </t>
         </section>
         <section anchor="number">
@@ -728,7 +842,7 @@ Coordinate = Record                             // GPS Coordinate
             value within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
-            a <strong>compound</strong> type that characterizes the data structure used to represent a
+            a <strong>compound</strong> type that characterizes the data value used to represent a
             collection information value.
           </li>
         </ul>
