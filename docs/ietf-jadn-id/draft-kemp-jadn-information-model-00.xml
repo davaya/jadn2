@@ -333,7 +333,7 @@
               (XASD) language.
             </li>
             <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
-              Because a JADN schema is an Abstract Syntax Tree (AST), meta programming and projection editing
+              Because a JADN schema is an Abstract Syntax Tree (AST), metaprogramming and projection editing
               tooling is particularly applicable to JADN IDLs.
             </li>
             <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
@@ -584,7 +584,7 @@ Coordinate = Record                             // GPS Coordinate
           <xref target="options"/> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
           Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
-          as a list of strings using <xref target="taggedString" format="title"/> encoding for brevity.
+          as a list of strings using <xref target="taggedString">Tagged String</xref> encoding for brevity.
           In tagged strings the Unicode codepoint of the first character is the option ID and the remaining
           characters are the string representation of its value.
           Tagged strings highlight that options are enumerated, not arbitrarily-named attributes.
@@ -755,8 +755,26 @@ Coordinate = Record                             // GPS Coordinate
               of all collection elements. Collections encoded as maps omit keys with default values.
             </t>
           </li>
-          <li>maxExclusive, maxInclusive, minExclusive, minInclusive:</li>
-          <li>attr:</li>
+          <li>
+            <t>minInclusive, maxInclusive, minExclusive, maxExclusive: <em>value range</em> options.
+              Each option value must be a member of the value space of CoreType.
+              It is an error for:</t>
+            <ul>
+              <li>minInclusive and minExclusive to be specified in the same type.</li>
+              <li>maxInclusive and maxExclusive to be specified in the same type.</li>
+              <li>minInclusive to be greater than maxInclusive.</li>
+              <li>minInclusive to be greater than or equal to maxExclusive.</li>
+              <li>minExclusive to be greater than or equal to maxInclusive.</li>
+              <li>minExclusive to be greater than or equal to maxExclusive.</li>
+            </ul>
+          </li>
+          <li>
+            attr: specifies that a value should be encoded as an XML attribute when using an XML data format.
+            Ignored by non-XML formats, and may be ignored by specific XML data formats.
+            Elements are required for non-primitive content and preferred for primitive content.
+            Attributes are preferred for descriptive data about content, e.g., image metadata,
+            unique identifiers, units.
+          </li>
         </ul>
         <section anchor="boolean">
           <name>Boolean</name>
@@ -786,22 +804,36 @@ Coordinate = Record                             // GPS Coordinate
             1.01 has a fractional part, as does 1.00000000001, as does 1 + 10^-n for every non-infinite
             positive n. For this reason every decimal character string and every IEEE-754 floating point
             value that represents an integer, regardless of precision, also represents an infinite number
-            of real values with a fractional part. It is impossible for the number type to uniquely represent
+            of real values with a fractional part. It is impossible for the Number type to uniquely represent
             an integer without consuming infinite resources.
           </t>
+          <t>These options apply to the Integer type:</t>
+          <ul>
+            <li>
+              scale: defines a <xref target="SI-UNITS">unit prefix</xref>, a fixed-point decimal scale factor.
+              It supports integer-valued fractional quantities (such as time or currency) that eliminate the
+              accumulating rounding errors possible with floating-point values. A scale option value of N
+              indicates a factor of 10^-N: an Integer currency value with scale=2 is a number of centi-dollars
+              (cents), or with scale=5 it is a number of milli-cents.
+            </li>
+          </ul>
           <t>
-            Options: const, default, format, scale,<br/>
-            maxExclusive, maxInclusive, minExclusive, minInclusive.
+            Options: const, default, format,<br/>
+            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>,
+            scale.
           </t>
         </section>
         <section anchor="number">
           <name>Number</name>
           <t>
             A Number instance is a value from the ordered uncountably infinite space of real numbers.
+            This illustrates a fundamental difference between information and data modeling:
+            the <xref target="XSD-2">XSD</xref> data model's <em>float</em> value space is a subset of
+            the rational numbers, and its values can only approximate irrationals.
           </t>
           <t>
             Options: const, default, format,<br/>
-            maxExclusive, maxInclusive, minExclusive, minInclusive.
+            minInclusive, maxInclusive, minExclusive, maxExclusive.
           </t>
         </section>
         <section anchor="string">
@@ -809,10 +841,22 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             A String instance is a sequence of characters from a character set.
           </t>
+          <t>These options apply to the String type:</t>
+          <ul>
+            <li>
+              pattern: specifies an unanchored regular expression in an unspecified language.
+              <xref target="XSD-2">XSD</xref> Appendix G discusses regex languages, but aside
+              from requiring explicit anchors ("^" and "$") if needed, this specification does not
+              require a particular regex language.
+            </li>
+            <li>
+              minLength, maxLength: specifies the minimum and maximum number of characters.
+            </li>
+          </ul>
           <t>
-            Options: const, default, format, pattern,<br/>
-            maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
-            minLength, maxLength.
+            Options: const, default, format,<br/>
+            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
+            pattern, minLength, maxLength.
           </t>
           <t>
             Value range options are meaningful only if character set (encoding) or collation order are known.
@@ -823,9 +867,15 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             A Binary instance is a sequence of octets.
           </t>
+          <t>These options apply to the Binary type:</t>
+          <ul>
+            <li>
+              minLength, maxLength: specifies the minimum and maximum number of octets.
+            </li>
+          </ul>
           <t>
             Options: const, default, format,<br/>
-            maxExclusive, maxInclusive, minExclusive, minInclusive,<br/>
+            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
             minLength, maxLength.
           </t>
         </section>
@@ -1040,9 +1090,7 @@ Coordinate = Record                             // GPS Coordinate
                 each with a key and type.
               </li>
             </ul>
-            <t>
-              Options: minLength, maxLength, id, ordered, tagString.
-            </t>
+            <t>These options apply to the Map type:</t>
             <ul>
               <li>
                 The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
@@ -1058,6 +1106,10 @@ Coordinate = Record                             // GPS Coordinate
                 information value as a list of <xref target="optionset">tagged strings</xref>.
               </li>
             </ul>
+            <t>
+              Options: minLength, maxLength,<br/>
+              id, ordered, tagString.
+            </t>
           </section>
           <section anchor="record">
             <name>Record</name>
@@ -1584,6 +1636,15 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
             <title>Multiset</title>
             <author>
               <organization>Wolfram</organization>
+            </author>
+          </front>
+        </reference>
+
+        <reference anchor="SI-UNITS" target="https://www.nist.gov/pml/owm/metric-si-prefixes">
+          <front>
+            <title>Metric (SI) Prefixes</title>
+            <author>
+              <organization>NIST Physical Measurement Laboratory</organization>
             </author>
           </front>
         </reference>
