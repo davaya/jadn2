@@ -141,12 +141,12 @@
         <dd>
           a fixed sequence of bytes usable outside a processing environment.
           Also known as a Document, Message, File, Stream, Literal, or Lexical Value.
-          Because messages are immutable they can be compared for equality and
+          Because documents are immutable they can be compared for equality and
           hashed or signed for integrity.
         </dd>
         <dt>Type</dt>
         <dd>
-          definition of the possible content of an information or data value.
+          a definition of the possible content of an information or data value.
           An IM type has three properties: an information value space, a literal space
           for each data format, and a small set of functions and relations including ordering
           of the value space and mappings from each literal space to the value space.
@@ -317,7 +317,7 @@
       </section>
       <section anchor="examples">
         <name>Examples</name>
-          <t>A JADN schema and the data it defines are each representation-independent information values.</t>
+          <t>A JADN schema and the values it defines are each representation-independent information values.</t>
         <section anchor="examples-schema">
           <name>Schema</name>
           <t>
@@ -327,14 +327,14 @@
             The formats shown are:
           </t>
           <ul>
-            <li>JSON data: the normative storage format for JADN schemas</li>
+            <li>JSON data: the normative storage format for JADN schemas.</li>
             <li>
               XML data: an XML format composed of JADN-defined elements, called XML Abstract Schema Definition
               (XASD) language.
             </li>
             <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
               Because a JADN schema is an Abstract Syntax Tree (AST), metaprogramming and projection editing
-              tooling is particularly applicable to JADN IDLs.
+              DSL tooling is particularly applicable.
             </li>
             <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
               Tables can also be represented in HTML, XML and office document data formats.</li>
@@ -404,11 +404,11 @@ Coordinate = Record                             // GPS Coordinate
             using an object containing two floating point variables, but details of the object aside
             from its value and equality with other values of the same type are immaterial.
             That value can be serialized using multiple dialects of XML, JSON, YAML, raw binary, CBOR,
-            and other data formats.
+            and other data formats:
           </t>
           <t>XML:</t>
           <sourcecode>
-  1.  &lt;Coordinate latitude="38.8895" longitude="-77.0352"&gt;&lt;/Coordinate&gt;
+  1.  &lt;Coordinate latitude="38.8895" longitude="-77.0352"/&gt;
 
   2.  &lt;Coordinate&gt;
         &lt;Latitude&gt;38.8895&lt;/Latitude&gt;
@@ -685,7 +685,7 @@ Coordinate = Record                             // GPS Coordinate
           </t>
           <ul>
             <li>
-              minOccurs, maxOccurs: specify the <xref target="s-multiplicity" format="title"/> shortcut.
+              minOccurs, maxOccurs: specify the <xref target="s-multiplicity">Multiplicity</xref> shortcut.
             </li>
             <li>
               nillable: specifies that the field's information value space includes the <em>null</em> value
@@ -695,9 +695,9 @@ Coordinate = Record                             // GPS Coordinate
             </li>
             <li>
               tagId: specifies a field within a structured type to use as the tag in a
-              <xref target="taggedUnion" format="title"/> field.
-              The tagId option often references a <xref target="s-enumeration" format="title"/> field, allowing
-              one or more tagged unions to share the tag field.
+              <xref target="taggedUnion">Tagged Choice</xref> field.
+              The tagId option often references a <xref target="s-enumeration">Derived Enumeration</xref>
+              field, allowing one or more tagged unions to select values based on the same tag.
             </li>
             <li>
               dir: nested information values have a flattened equivalent, analogous to a recursive list of
@@ -810,16 +810,17 @@ Coordinate = Record                             // GPS Coordinate
           <t>These options apply to the Integer type:</t>
           <ul>
             <li>
-              scale: defines a <xref target="SI-UNITS">unit prefix</xref>, a fixed-point decimal scale factor.
-              It supports integer-valued fractional quantities (such as time or currency) that eliminate the
-              accumulating rounding errors possible with floating-point values. A scale option value of N
-              indicates a factor of 10^-N: an Integer currency value with scale=2 is a number of centi-dollars
-              (cents), or with scale=5 it is a number of milli-cents.
+              scale: an option value n specifies a fixed point exponential scale factor of 10^-n,
+              as in <xref target="SI-UNITS">SI unit prefixes</xref>.
+              It supports exact integer-valued fractional quantities that eliminate floating-point
+              rounding errors.
+              For example, a dollar-denominated Integer currency value with scale=2 is the number of
+              centi-dollars (cents), or with scale=5 it is the number of milli-cents.
             </li>
           </ul>
           <t>
             Options: const, default, format,<br/>
-            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>,
+            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
             scale.
           </t>
         </section>
@@ -828,8 +829,8 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             A Number instance is a value from the ordered uncountably infinite space of real numbers.
             This illustrates a fundamental difference between information and data modeling:
-            the <xref target="XSD-2">XSD</xref> data model's <em>float</em> value space is a subset of
-            the rational numbers, and its values can only approximate irrationals.
+            Number's value space includes all real numbers, while <xref target="XSD-2">XSD</xref>'s
+            <em>float</em> value space is a subset of rational numbers and excludes all irrationals.
           </t>
           <t>
             Options: const, default, format,<br/>
@@ -844,10 +845,10 @@ Coordinate = Record                             // GPS Coordinate
           <t>These options apply to the String type:</t>
           <ul>
             <li>
-              pattern: specifies an unanchored regular expression in an unspecified language.
-              <xref target="XSD-2">XSD</xref> Appendix G discusses regex languages, but aside
-              from requiring explicit anchors ("^" and "$") if needed, this specification does not
-              require a particular regex language.
+              pattern: specifies an unanchored regular expression.
+              <xref target="XSD-2">XSD</xref> Appendix G discusses regular expression languages,
+              but this specification does constrain the language other than requiring expressions
+              to include explicit anchors ("^" and "$") if needed.
             </li>
             <li>
               minLength, maxLength: specifies the minimum and maximum number of characters.
@@ -1234,7 +1235,7 @@ Coordinate = Record                             // GPS Coordinate
           </t>
         </section>
         <section anchor="taggedUnion">
-          <name>Choice - tagged</name>
+          <name>Tagged Choice</name>
           <t>
             The Choice type without a <em>combine</em> option is a tagged union. Its value is a tag
             that selects a type from the specified set of fields and an instance of the selected type.
@@ -1242,7 +1243,7 @@ Coordinate = Record                             // GPS Coordinate
           <t>Options: id.</t>
         </section>
         <section anchor="untaggedUnion">
-          <name>Choice(combine) - untagged</name>
+          <name>Untagged Choice</name>
           <t>
             The Choice type with a <em>combine</em> option is an untagged union. Its value is an
             instanced of a logical combination of field types specified by that option:
