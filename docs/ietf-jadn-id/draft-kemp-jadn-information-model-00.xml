@@ -489,8 +489,8 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        Every JADN Type has the identical five-element structure, which can be verified as being well-formed
-        without validating element content:
+        Every <xref target="type">JADN Type definition</xref> has the identical five-element structure,
+        which can be verified as being well-formed without validating element content:
       </t>
       <ol>
         <li>TypeName: the name of the type being defined.</li>
@@ -847,8 +847,8 @@ Coordinate = Record                             // GPS Coordinate
             <li>
               pattern: specifies an unanchored regular expression.
               <xref target="XSD-2">XSD</xref> Appendix G discusses regular expression languages,
-              but this specification does constrain the language other than requiring expressions
-              to include explicit anchors ("^" and "$") if needed.
+              but this specification does not constrain the language other than requiring
+              expressions to include explicit anchors ("^" and "$") if needed.
             </li>
             <li>
               minLength, maxLength: specifies the minimum and maximum number of characters.
@@ -902,8 +902,13 @@ Coordinate = Record                             // GPS Coordinate
           <xref target="multiplicity">semantics</xref> and
           <xref target="compound">structure</xref>.
           A JADN CoreType is one of five compound types that is combined with a TypeOption to specify
-          semantics. But it would also be possible for CoreType to specify one of the six semantic types
+          semantics. But it would also be possible for an IM to specify one of the six semantic types
           combined with TypeOptions to specify data structure.
+        </t>
+        <t>
+          Data modeling languages are often unable to define the significance of
+          <xref target="ORDER">collection order</xref>. Separating semantics from structure allows an
+          IM to express the full semantic range using a limited set of data types.
         </t>
         <section anchor="multiplicity">
           <name>Collection Semantic Types</name>
@@ -1212,11 +1217,12 @@ Coordinate = Record                             // GPS Coordinate
           Union types define a set of tags, types or both.
         </t>
         <table>
+          <name>Union Types</name>
           <thead><tr><th>Type</th><th>Tag</th><th>Type</th><th>Definition</th></tr></thead>
           <tbody>
             <tr><td>Enumerated</td><td>Yes</td><td>-</td><td>Vocabulary, a set of tags</td></tr>
-            <tr><td>Choice</td><td>Yes</td><td>Yes</td><td>Tagged union, a set of tag:type pairs</td></tr>
-            <tr><td>Choice(combine)</td><td>-</td><td>Yes</td><td>Untagged union, a logical combination of types</td></tr>
+            <tr><td>Tagged Choice</td><td>Yes</td><td>Yes</td><td>Tagged union, a set of tag:type pairs</td></tr>
+            <tr><td>Untagged Choice</td><td>-</td><td>Yes</td><td>Untagged union, a logical combination of types</td></tr>
           </tbody>
         </table>
         <section anchor="enumerated">
@@ -1245,15 +1251,23 @@ Coordinate = Record                             // GPS Coordinate
         <section anchor="untaggedUnion">
           <name>Untagged Choice</name>
           <t>
-            The Choice type with a <em>combine</em> option is an untagged union. Its value is an
-            instanced of a logical combination of field types specified by that option:
+            The Choice type with a <em>combine</em> option is an untagged union. The option value specifies the
+            logical combination of field types used to classify validity:
           </t>
           <ul>
             <li>1 (allOf): value must be an instance of all field types.</li>
-            <li>2 (anyOf): value must be an instance of any field type, tried in field order until a match is found.</li>
+            <li>2 (anyOf): value must be an instance of any field type, tried in field order until a match succeeds.</li>
             <li>3 (oneOf): value must be an instance of one field type and no others.</li>
             <li>4 (diff): value must be an instance of the first field type and no others.</li>
           </ul>
+          <t>
+            The anyOf and oneOf options classify the specific FieldType matched in addition to a Boolean
+            valid/invalid result. For example, if a Choice(anyOf) type includes both a "PhoneType" Enumerated
+            field (e.g., "Home", "Office", "Mobile") and a String field for other types, PhoneType must appear
+            first, otherwise the value "Home" will be classified as an instance of String, not PhoneType.
+            A Choice(oneOf) type with the same fields will always classify the value "Home" as invalid
+            regardless of field order.
+          </t>
           <t>Options: combine.</t>
         </section>
       </section>
@@ -1638,6 +1652,16 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
             <author>
               <organization>Wolfram</organization>
             </author>
+          </front>
+        </reference>
+
+        <reference anchor="ORDER" target="https://www.balisage.net/Proceedings/vol26/html/LaFontaine01/BalisageVol26-LaFontaine01.html">
+          <front>
+            <title>Element order is always important in XML, except when it isn't</title>
+            <author fullname="Robin La Fontaine">
+              <organization>DeltaXML</organization>
+            </author>
+            <date year="2021" month="August"/>
           </front>
         </reference>
 

@@ -4,6 +4,14 @@ from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
 
+
+def data_dir() -> str:
+    """
+    Return directory containing JADN schema files
+    """
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+
+
 # =========================================================
 # Define JADN schema static load function because it's needed to load METASCHEMA,
 # Cannot use class method to initialize class.
@@ -53,8 +61,7 @@ class JADNCore:
 
         # If this is the first instance, pre-compute class variables from metaschema definitions
         if JADNCore.METASCHEMA is None:
-            data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-            meta_file = os.path.join(data_dir, 'jadn_v2.0_schema.jadn')
+            meta_file = os.path.join(data_dir(), 'jadn_v2.0_schema.jadn')
             with open(meta_file, encoding='utf8') as fp:
                 jadn_str = fp.read()
             schema = json.loads(jadn_str)
