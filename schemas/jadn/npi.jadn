@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "package": "http://jadn-im.cc/v2/schema/npi/",
+    "title": "ISO 24366 Natural Person Identifier schema"
+  },
+  "types": [
+    ["NPI", "String", ["%^[A-Z0-9]{13,13}[0-9]{2,2}$"], "Opaque Person unique identifier"],
+    ["NPI-Info", "Record", [], "Natural Person ID Data Record", [
+      [1, "legalName", "PersonName", [], "Name components"],
+      [2, "altName", "AltName", ["[0", "]-1"], "Aliases with type"],
+      [3, "dateOfBirth", "Date", [], "Date of Birth"],
+      [4, "countryOfBirth", "Country", [], "Country of Birth"],
+      [5, "phone", "Phone", ["[0", "]-1"], "Phone numbers with type"],
+      [6, "email", "Email", ["[0", "]-1"], "Email addresses with type"],
+      [7, "citizenship", "Country", ["]-1"], "Citizenship(s) held"],
+      [8, "physicalAddr", "Physical", ["]-1"], "Physical addresses with type"],
+      [9, "jurisdictionalId", "JurisdictionalId", ["]-1"], "Jurisdictional ID(s) with type"],
+      [10, "gender", "Gender", ["[0", "]-1"], "Gender (error - spec says multiple)"]
+    ]],
+    ["PersonName", "Array", [], "Name components",[
+      [1, "surname", "String", [], "Family/Last/Only name"],
+      [2, "middleName", "String", ["[0", "]-1"], "Middle name(s)"],
+      [3, "givenName", "String", [], "First name"]
+    ]],
+    ["AltName", "Array", [], "Alternative names", [
+      [1, "type", "AltNameType"],
+      [2, "name", "String"]
+    ]],
+    ["AltNameType", "Enumerated", [], "", [
+      [1, "known_as"],
+      [2, "maiden_name"],
+      [3, "alias"],
+      [4, "nickname"]
+    ]],
+    ["Date", "String", ["/date"], "Calendar date"],
+    ["Phone", "Array", [], "Phone number with type",[
+      [1, "type", "PhoneType"],
+      [2, "number", "PhoneNumber"]
+    ]],
+    ["PhoneNumber", "String", ["%^[-0-9\\(\\)]{10,15}$"]],
+    ["PhoneType", "Enumerated", [], "Phone number type", [
+      [1, "home"],
+      [2, "work"],
+      [3, "mobile"]
+    ]],
+    ["Email", "Array", [], "Email address with type", [
+      [1, "type", "EmailType"],
+      [2, "addr", "String"]
+    ]],
+    ["EmailType", "Enumerated", [], "Email address type", [
+      [1, "personal"],
+      [2, "work"]
+    ]],
+    ["Physical", "Array", [], "Physical street address with type", [
+      [1, "type", "PhysicalAddrType"],
+      [2, "addr", "PhysicalAddr"]
+    ]],
+    ["PhysicalAddr", "Record", [], "Physical address", [
+      [1, "street1", "String", [], "Street address 1"],
+      [2, "street2", "String", ["[0"], "Street address 2"],
+      [3, "city", "String", [], "City"],
+      [4, "state", "State", [], "State"],
+      [5, "zip", "Zip", [], "Zip code"]
+    ]],
+    ["State", "String", ["%^[A-Z]{2,2}$"]],
+    ["Zip", "String", ["%^\\d{5,5}$"]],
+    ["PhysicalAddrType", "Enumerated", [], "", [
+      [1, "home"],
+      [2, "office"]
+    ]],
+    ["JurisdictionalId", "Array", [], "Jurisdictional ID with type", [
+      [1, "idType", "IdType", [], "Type of ID"],
+      [2, "subject", "String", [], "Personal identifier"],
+      [3, "issuer", "Country", [], "Issuing jurisdiction"]
+    ]],
+    ["IdType", "Enumerated", [], "Credential type", [
+      [1, "passport"],
+      [2, "drivers_license"]
+    ]],
+    ["Gender", "Enumerated", [], "Gender", [
+      [1, "male"],
+      [2, "female"],
+      [3, "other"],
+      [4, "not_disclosed"]
+    ]],
+    ["Country", "Enumerated", [], "ISO-3166 Country Codes (excerpt from 250)", [
+      [4, "AF", "Afghanistan"],
+      [10, "AQ", "Antarctica"],
+      [32, "AR", "Argentina"],
+      [51, "AM", "Armenia"],
+      [533, "AW", "Aruba"],
+      [36, "AU", "Australia"],
+      [40, "AT", "Austria"],
+      [44, "BS", "Bahamas (the)"],
+      [48, "BH", "Bahrain"],
+      [50, "BD", "Bangladesh"],
+      [52, "BB", "Barbados"],
+      [56, "BE", "Belgium"],
+      [70, "BA", "Bosnia and Herzegovina"],
+      [76, "BR", "Brazil"],
+      [116, "KH", "Cambodia"],
+      [124, "CA", "Canada"],
+      [136, "KY", "Cayman Islands (the)"],
+      [152, "CL", "Chile"],
+      [156, "CN", "China"],
+      [170, "CO", "Colombia"],
+      [188, "CR", "Costa Rica"],
+      [191, "HR", "Croatia"],
+      [192, "CU", "Cuba"],
+      [196, "CY", "Cyprus"],
+      [203, "CZ", "Czechia"],
+      [384, "CI", "Côte d'Ivoire"],
+      [208, "DK", "Denmark"],
+      [214, "DO", "Dominican Republic (the)"],
+      [218, "EC", "Ecuador"],
+      [818, "EG", "Egypt"],
+      [222, "SV", "El Salvador"],
+      [238, "FK", "Falkland Islands (the) [Malvinas]"],
+      [246, "FI", "Finland"],
+      [250, "FR", "France"],
+      [268, "GE", "Georgia"],
+      [276, "DE", "Germany"],
+      [292, "GI", "Gibraltar"],
+      [300, "GR", "Greece"],
+      [304, "GL", "Greenland"],
+      [308, "GD", "Grenada"],
+      [320, "GT", "Guatemala"],
+      [332, "HT", "Haiti"],
+      [336, "VA", "Holy See (the)"],
+      [340, "HN", "Honduras"],
+      [344, "HK", "Hong Kong"],
+      [348, "HU", "Hungary"],
+      [352, "IS", "Iceland"],
+      [356, "IN", "India"],
+      [360, "ID", "Indonesia"],
+      [364, "IR", "Iran (Islamic Republic of)"],
+      [368, "IQ", "Iraq"],
+      [372, "IE", "Ireland"],
+      [833, "IM", "Isle of Man"],
+      [376, "IL", "Israel"],
+      [380, "IT", "Italy"],
+      [388, "JM", "Jamaica"],
+      [392, "JP", "Japan"],
+      [400, "JO", "Jordan"],
+      [404, "KE", "Kenya"],
+      [296, "KI", "Kiribati"],
+      [408, "KP", "Korea (the Democratic People's Republic of)"],
+      [410, "KR", "Korea (the Republic of)"],
+      [414, "KW", "Kuwait"],
+      [418, "LA", "Lao People's Democratic Republic (the)"],
+      [428, "LV", "Latvia"],
+      [422, "LB", "Lebanon"],
+      [434, "LY", "Libya"],
+      [438, "LI", "Liechtenstein"],
+      [440, "LT", "Lithuania"],
+      [442, "LU", "Luxembourg"],
+      [484, "MX", "Mexico"],
+      [528, "NL", "Netherlands (Kingdom of the)"],
+      [540, "NC", "New Caledonia"],
+      [554, "NZ", "New Zealand"],
+      [578, "NO", "Norway"],
+      [512, "OM", "Oman"],
+      [586, "PK", "Pakistan"],
+      [275, "PS", "Palestine, State of"],
+      [591, "PA", "Panama"],
+      [604, "PE", "Peru"],
+      [608, "PH", "Philippines (the)"],
+      [616, "PL", "Poland"],
+      [620, "PT", "Portugal"],
+      [630, "PR", "Puerto Rico"],
+      [634, "QA", "Qatar"],
+      [642, "RO", "Romania"],
+      [643, "RU", "Russian Federation (the)"],
+      [682, "SA", "Saudi Arabia"],
+      [702, "SG", "Singapore"],
+      [710, "ZA", "South Africa"],
+      [724, "ES", "Spain"],
+      [752, "SE", "Sweden"],
+      [756, "CH", "Switzerland"],
+      [158, "TW", "Taiwan (Province of China)"],
+      [764, "TH", "Thailand"],
+      [804, "UA", "Ukraine"],
+      [784, "AE", "United Arab Emirates (the)"],
+      [826, "GB", "United Kingdom of Great Britain and Northern Ireland (the)"],
+      [581, "UM", "United States Minor Outlying Islands (the)"],
+      [840, "US", "United States of America (the)"],
+      [862, "VE", "Venezuela (Bolivarian Republic of)"],
+      [704, "VN", "Viet Nam"],
+      [92, "VG", "Virgin Islands (British)"],
+      [850, "VI", "Virgin Islands (U.S.)"]
+    ]]
+  ]
+}

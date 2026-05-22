@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "http://oasis-open.org/openc2/jadn/v2.0/schema",
+  "$id": "http://jadn-im.cc/jadn/v2.0/schema/jadn-structure",
   "description": "Validates structure of a JADN schema, does not check values",
   "$ref": "#/$defs/Schema",
   "$defs": {
@@ -12,46 +12,7 @@
       "additionalProperties": false,
       "properties": {
         "meta": {
-          "type": "object",
-          "required": [
-            "package"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "package": {
-              "$ref": "#/$defs/Uri"
-            },
-            "version": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "comment": {
-              "type": "string"
-            },
-            "copyright": {
-              "type": "string"
-            },
-            "license": {
-              "type": "string"
-            },
-            "namespaces": {
-              "$ref": "#/$defs/Namespaces"
-            },
-            "roots": {
-              "$ref": "#/$defs/Roots"
-            },
-            "config": {
-              "$ref": "#/$defs/Config"
-            },
-            "jadn_version": {
-              "type": "string"
-            }
-          }
+          "$ref": "#/$defs/Metadata"
         },
         "types": {
           "type": "array",
@@ -62,6 +23,19 @@
         }
       }
     },
+    "Metadata": {
+      "type": "object",
+      "required": [
+        "package"
+      ],
+      "properties": {
+        "package": {"$ref": "#/$defs/Uri"},
+        "namespaces": {"$ref": "#/$defs/Namespaces"},
+        "roots": {"$ref": "#/$defs/Roots"},
+        "config": {"$ref": "#/$defs/Config"}
+      },
+      "unevaluatedProperties": {"type": "string"}
+    },
     "Namespaces": {
       "type": "array",
       "items": {"$ref": "#/$defs/PrefixNs"}
@@ -69,7 +43,7 @@
     "PrefixNs": {
       "type": "array",
       "prefixItems": [
-        {"$ref": "#/$defs/NSID"},
+        {"$ref": "#/$defs/Prefix"},
         {"$ref": "#/$defs/Uri"}
       ]
     },
@@ -90,6 +64,8 @@
         "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
+    "Prefix": {"type": "string", "minLength": 1},
+    "Uri": {"type": "string", "minLength": 1},
     "Type": {
       "type": "array",
       "minItems": 2,
@@ -102,6 +78,18 @@
         {"$ref": "#/$defs/Fields"}
       ]
     },
+    "TypeName": {"type": "string", "minLength": 1},
+    "CoreType": {
+      "type": "string",
+      "enum": ["Binary", "Boolean", "Integer", "Number", "String",
+               "Array", "ArrayOf", "Map", "MapOf", "Record",
+               "Enumerated", "Choice"]
+    },
+    "Options": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "Description": {"type": "string"},
     "Fields": {
       "type": "array",
       "items": {
@@ -117,10 +105,11 @@
       "maxItems": 3,
       "prefixItems": [
         {"type": "integer"},
-        {"type": "string"},
+        {"$ref": "#/$defs/ItemValue"},
         {"$ref": "#/$defs/Description"}
       ]
     },
+    "ItemValue": {"type": "string"},
     "Field": {
       "type": "array",
       "minItems": 3,
@@ -133,33 +122,7 @@
         {"$ref": "#/$defs/Description"}
       ]
     },
-    "NSID": {
-      "type": "string"
-    },
-    "Uri": {
-      "type": "string"
-    },
-    "TypeName": {
-      "type": "string"
-    },
-    "TypeRef": {
-      "type": "string"
-    },
-    "FieldName": {
-      "type": "string"
-    },
-    "CoreType": {
-      "type": "string",
-      "enum": ["Binary", "Boolean", "Integer", "Number", "String",
-               "Array", "ArrayOf", "Map", "MapOf", "Record",
-               "Enumerated", "Choice"]
-    },
-    "Options": {
-      "type": "array",
-      "items": {"type": "string"}
-    },
-    "Description": {
-      "type": "string"
-    }
+    "FieldName": {"type": "string", "minLength": 1},
+    "TypeRef": {"type": "string", "minLength": 1}
   }
 }

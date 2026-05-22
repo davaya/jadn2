@@ -408,20 +408,27 @@ Coordinate = Record                             // GPS Coordinate
           </t>
           <t>XML:</t>
           <sourcecode>
-  1.  &lt;Coordinate latitude="38.8895" longitude="-77.0352"/&gt;
+  1a. &lt;Coordinate latitude="38.8895" longitude="-77.0352"/&gt;
+  1b. &lt;Coordinate longitude="-77.0352" latitude="38.8895"/&gt;
 
-  2.  &lt;Coordinate&gt;
+  2a. &lt;Coordinate&gt;
         &lt;Latitude&gt;38.8895&lt;/Latitude&gt;
         &lt;Longitude&gt;-77.0352&lt;/Longitude&gt;
+      &lt;/Coordinate&gt;
+  2b. &lt;Coordinate&gt;
+        &lt;Longitude&gt;-77.0352&lt;/Longitude&gt;
+        &lt;Latitude&gt;38.8895&lt;/Latitude&gt;
       &lt;/Coordinate&gt;
 
   3.  &lt;Coordinate&gt;38.8895, -77.0352&lt;/Coordinate&gt;
           </sourcecode>
           <t>JSON:</t>
           <sourcecode>
-  1.  {"latitude": 38.8895, "longitude": -77.0352}
+  1a. {"latitude": 38.8895, "longitude": -77.0352}
+  1b. {"longitude": -77.0352, "latitude": 38.8895}
 
-  2.  {1: 38.8895, 2: -77.0352}
+  2a. {1: 38.8895, 2: -77.0352}
+  2b. {2: -77.0352, 1: 38.8895}
 
   3.  [38.8895, -77.0352]
 

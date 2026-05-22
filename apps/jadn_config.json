@@ -1,5 +1,8 @@
 {
   "style": {
+    "atree": {
+      "detail": "conceptual"
+    },
     "jidl": {
       "name": 16,
       "desc": 56
