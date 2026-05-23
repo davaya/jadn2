@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "JADN Metaschema",
-    "package": "http://jadn-im.cc/jadn/v2.0/schema/jadn",
+    "package": "http://jadn-im.cc/v2.0/schema/jadn",
     "jadn_version": "2.0",
     "description": "Syntax of a JSON Abstract Data Notation (JADN) schema package.",
     "license": "CC-BY-4.0",
@@ -17,10 +17,10 @@
     ]],
     ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
-      [2, "namespaces", "PrefixMap", ["[0", "]-1"], "External reference qualifiers"],
+      [2, "prefixes", "Prefixes", ["[0"], "External reference qualifiers"],
       [3, "roots", "TypeName", ["[0", "]-1"], "Roots of the type tree(s) in this package"],
       [4, "config", "Config", ["[0"], "Configuration variables"],
-      [5, "jadn_version", "SemVer", ["[0"], "JADN Metaschema version number (in package URI)"],
+      [5, "jadn_version", "Namespace", ["[0"], "JADN Metaschema package"],
       [6, "version", "String", ["{1", "[0"], "Incrementing version within package"],
       [7, "title", "String", ["{1", "[0"], "Title"],
       [8, "description", "String", ["{1", "[0"], "Description"],
@@ -28,9 +28,10 @@
       [10, "copyright", "String", ["{1", "[0"], "Copyright notice"],
       [11, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"]
     ]],
-    ["PrefixMap", "Array", [], "Prefix corresponding to a namespace IRI", [
-      [1, "prefix", "Prefix", [], "Namespace prefix string"],
-      [2, "namespace", "Namespace", [], "Namespace IRI"]
+    ["Prefixes", "ArrayOf", ["*Prefix", "{1"]],
+    ["Prefix", "Array", [], "Prefix corresponding to a namespace IRI", [
+      [1, "px", "Prefix", [], "Namespace prefix string"],
+      [2, "ns", "Namespace", [], "Namespace IRI"]
     ]],
     ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
       [1, "$MaxBinary", "Integer", ["y1", "u255"], "Package max octets, default = 255"],
@@ -42,7 +43,6 @@
       [7, "$Prefix", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$"]
     ]],
     ["Namespace", "String", ["/uri"], "Unique name of a package"],
-    ["SemVer", "String", ["%^(\\d+)(?:\\.(\\d+)(?:\\.(\\d+))?)?$"], "Semantic Version Number (x.y.z)"],
     ["Prefix", "String", ["%$Prefix"], "Namespace prefix matching $Prefix"],
     ["TypeName", "String", ["%$TypeName"], "Name of a logical type"],
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],

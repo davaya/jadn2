@@ -1,6 +1,6 @@
 {
   "meta": {
-    "package": "http://jadn-im.cc/v2/schema/npi/",
+    "package": "http://example.com/schema/npi",
     "title": "ISO 24366 Natural Person Identifier schema"
   },
   "types": [

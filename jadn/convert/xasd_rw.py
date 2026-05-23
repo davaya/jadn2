@@ -57,10 +57,11 @@ class XASD(JADNCore):
                     e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
                         ET.SubElement(e_k, 'TypeName').text = v
-                elif k == 'namespaces':
+                elif k == 'prefixes':
                     e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
-                        ET.SubElement(e_k, 'PrefixNs').text = v
+                        attrs = {'px': v[0], 'ns': v[1]}
+                        ET.SubElement(e_k, 'Prefix', attrs)
                 elif k == 'config':
                     e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
@@ -108,8 +109,8 @@ def _get_meta(el: ET.Element) -> dict:
     for e in el:
         if e.tag == 'Roots':
             meta['roots'] = [v.text for v in e]
-        elif e.tag == 'Namespaces':
-            meta['namespaces'] = [[v.get('prefix'), v.text] for v in e]
+        elif e.tag == 'Prefixes':
+            meta['prefixes'] = [[p.attrib['px'], p.attrib['ns']] for p in e]
         elif e.tag == 'Config':
             meta['config'] = {'$' + v.tag: v.text for v in e}
         else:

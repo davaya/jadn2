@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "title": "JADN Schema Metadata Test",
+    "package": "http://example.org/tests/jadn-metadata",
+    "jadn_version": "http://jadn-im.cc/v2.0/schema/jadn",
+    "description": "JADN Schema test vector - all metadata fields",
+    "license": "CC-BY-4.0",
+    "roots": [
+      "Data"
+    ],
+    "prefixes": [
+      ["gj", "urn:ietf:rfc:7946"],
+      ["x509", "urn:oid:2.5.1.7.9"],
+      ["jss", "https://json-schema.org/draft/2020-12/meta/core"],
+      ["xsd", "http://www.w3.org/2001/XMLSchema#"],
+      ["qudt", "https://qudt.org/schema/shacl/qudt/"]
+    ],
+    "version": "0.3.1-rc2",
+    "comment": "TODO: fix all the bugs",
+    "copyright": "©2020-2026 Example LLC.",
+    "config": {
+      "$MaxString": 80,
+      "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$",
+      "$TypeName": "^[A-Z][-.A-Za-z0-9]{0,63}$",
+      "$MaxBinary": 42,
+      "$Prefix": "^([A-Za-z][A-Za-z0-9]{0,7})?$",
+      "$MaxElements": 16,
+      "$Sys": "%"
+    }
+  },
+  "types": [
+    ["Data", "String"]
+  ]
+}

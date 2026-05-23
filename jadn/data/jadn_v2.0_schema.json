@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "http://jadn-im.cc/jadn/v2.0/schema/jadn-structure",
+  "$id": "http://jadn-im.cc/v2.0/schema/jadn-structure",
   "description": "Validates structure of a JADN schema, does not check values",
   "$ref": "#/$defs/Schema",
   "$defs": {
@@ -30,20 +30,20 @@
       ],
       "properties": {
         "package": {"$ref": "#/$defs/Uri"},
-        "namespaces": {"$ref": "#/$defs/Namespaces"},
+        "prefixes": {"$ref": "#/$defs/Prefixes"},
         "roots": {"$ref": "#/$defs/Roots"},
         "config": {"$ref": "#/$defs/Config"}
       },
       "unevaluatedProperties": {"type": "string"}
     },
-    "Namespaces": {
+    "Prefixes": {
       "type": "array",
-      "items": {"$ref": "#/$defs/PrefixNs"}
+      "items": {"$ref": "#/$defs/Prefix"}
     },
-    "PrefixNs": {
+    "Prefix": {
       "type": "array",
       "prefixItems": [
-        {"$ref": "#/$defs/Prefix"},
+        {"$ref": "#/$defs/Px"},
         {"$ref": "#/$defs/Uri"}
       ]
     },
@@ -61,10 +61,10 @@
         "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
         "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
         "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$NSID": {"type": "string", "minLength": 1, "maxLength": 127}
+        "$Prefix": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
-    "Prefix": {"type": "string", "minLength": 1},
+    "Px": {"type": "string", "minLength": 1},
     "Uri": {"type": "string", "minLength": 1},
     "Type": {
       "type": "array",

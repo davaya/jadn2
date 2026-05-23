@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "JADNv2 Test Schema",
-    "package": "http://example.org/jadn-test/",
+    "title": "JADN Schema Types Test",
+    "package": "http://example.org/tests/jadn-types",
     "roots": ["Test"]
   },
   "types": [

@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "title": "JADN Schema Metadata Test with errors",
+    "package": "http://example.org/tests/jadn-metadata-err",
+    "jadn_version": "http://jadn-im.cc/v2.0/schema/jadn",
+    "description": "JADN Schema test vector - all metadata fields",
+    "comment": "Malformed namespaces - should be array",
+    "license": "CC-BY-4.0",
+    "roots": [
+      "Data"
+    ],
+    "prefixes": ""
+  },
+  "types": [
+    ["Data", "String"]
+  ]
+}
