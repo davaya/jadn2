@@ -64,9 +64,8 @@ class XASD(JADNCore):
                         ET.SubElement(e_k, 'Prefix', attrs)
                 elif k == 'config':
                     e_k = ET.SubElement(e_meta, kc)
-                    for v in meta[k]:
-                        for k2 in meta[k].items():
-                            ET.SubElement(e_k, k2[0].strip('$')).text = str(k2[1])
+                    for v in meta[k].items():
+                        ET.SubElement(e_k, v[0].strip('$')).text = str(v[1])
                 else:
                     e_k = ET.SubElement(e_meta, kc)
                     e_k.text = v

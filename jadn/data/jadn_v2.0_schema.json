@@ -38,12 +38,12 @@
     },
     "Prefixes": {
       "type": "array",
-      "items": {"$ref": "#/$defs/Prefix"}
+      "items": {"$ref": "#/$defs/PxNs"}
     },
-    "Prefix": {
+    "PxNs": {
       "type": "array",
       "prefixItems": [
-        {"$ref": "#/$defs/Px"},
+        {"$ref": "#/$defs/Prefix"},
         {"$ref": "#/$defs/Uri"}
       ]
     },
@@ -64,7 +64,7 @@
         "$Prefix": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
-    "Px": {"type": "string", "minLength": 1},
+    "Prefix": {"type": "string", "minLength": 1},
     "Uri": {"type": "string", "minLength": 1},
     "Type": {
       "type": "array",
