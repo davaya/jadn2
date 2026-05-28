@@ -1287,23 +1287,121 @@ Coordinate = Record                             // GPS Coordinate
     <section anchor="packages">
       <name>Packages</name>
       <t>
-        A package organizes IM types into a group
-
-        ... meaning types within a package must have unique names ...
-
-        and supports modularization by breaking down large models into manageable subunits,
-        including libraries of sharable types.
+        The fundamental unit of a JADN schema is the <xref target="schemaPackage">Package</xref>.
+        A package contains a collection of type definitions and optional metadata applicable to all
+        definitions in the collection.
+        Packages enable modularization, allowing large models to be composed of manageable subunits.
       </t>
-      <t>
-        JADN packaging is based on XML namespaces:
-      </t>
-      <ul>
-        <li>A namespace is identified by a Uniform Resource Identifier (URI),
-          which is a unique name, not necessarily a link to a network resource.</li>
-        <li>...</li>
-      </ul>
-      <section anchor="pkgMetadata">
-        <name>Metadata</name>
+      <figure anchor="schemaPackage">
+        <name>JADN Schema Package</name>
+        <artwork>
+        <![CDATA[
+Schema = Record                            // Definition of a JADN package
+   1 meta         Metadata optional        // Information about this package
+   2 types        ArrayOf(Type) set        // Types defined in this package
+
+Metadata = Map                             // Information about this pkg
+   1 package      Namespace                // Unique name/version of pkg
+   2 prefixes     Prefixes optional        // External reference qualifiers
+   3 roots        Roots optional           // Root(s) of the type graph
+   4 config       Config optional          // Configuration variables
+   5 jadn_version Namespace optional       // JADN Metaschema pkg
+   6 version      String{1..*} optional    // Increment within namespace
+   7 title        String{1..*} optional    // Title
+   8 description  String{1..*} optional    // Description
+   9 comment      String{1..*} optional    // Comment
+  10 copyright    String{1..*} optional    // Copyright notice
+  11 license      String{1..*} optional    // SPDX licenseId of this pkg
+
+Namespace = String /uri                    // Unique name of a package
+
+Prefixes = ArrayOf(PxNs){1..*} set         // Set of prefix,namespace pairs
+
+PxNs = Array                               // Prefix for a namespace IRI
+   1  Prefix                               // px:: Namespace prefix string
+   2  key(Namespace)                       // ns:: Namespace IRI
+
+Prefix = String{pattern="$Prefix"}         // Namespace prefix
+
+Roots = ArrayOf(TypeName) set              // Unreferenced type definitions
+
+Config = Map{1..*}                              // Override JADN defaults
+   1 $MaxBinary   Integer=[1,*]=(255) optional  // Max octets
+   2 $MaxString   Integer=[1,*]=(255) optional  // Max characters
+   3 $MaxElements Integer=[1,*]=(255) optional  // Max members
+   4 $Sys         String{1..1}=(".") optional   // TypeName system character
+   5 $TypeName    String=("^[A-Z][-.A-Za-z0-9]{0,63}$") /regex optional
+   6 $FieldName   String=("^[a-z][_A-Za-z0-9]{0,63}$") /regex optional
+   7 $Prefix      String=("^([A-Za-z][A-Za-z0-9]{0,7})?$") /regex optional
+        ]]>
+        </artwork>
+      </figure>
+      <section anchor="Metadata">
+        <name>Package Metadata</name>
+        <t>Metadata includes functional values that affect schema processing and annotation values
+          that describe the package without affecting function.
+        </t>
+        <t>Functional metadata:</t>
+        <ul>
+          <li>
+            <t>
+              package: the namespace of this schema package, a URI that uniquely identifies the package
+              and qualifies the names of its types. It is a query term used to resolve references to external
+              resources, and is not expected to be directly dereferenceable even if its scheme is a transfer
+              protocol such as http:// or ftp://. The namespace MUST NOT contain a file extension to avoid
+              conflating the package unique ID with document names.
+            </t>
+            <t>Metadata is optional in a schema package, and if present "package" is its only required value.</t>
+          </li>
+          <li>
+            <t>
+              prefix: a short alias used in a package to associate a type name with a specific namespace URI.
+              Prefixes are used in TypeRef values to reference types defined in other packages; JADN does not
+              define a TypeRef syntax that uses the namespace URI directly. Namespaces may also reference
+              external resources of any kind, where user-defined reference types specify the syntax. All
+              namespaces regardless of URI scheme are unique IDs with no requirement to be dereferenceable.
+            </t>
+            <t>Example prefix instances:</t>
+            <sourcecode>
+            <![CDATA[
+  "prefixes": [
+    ["jadn", "http://jadn-im.cc/v2.0/schema/jadn"],
+    ["foo", "http://www.example.com/im-schemas/widget39443"],
+    ["gj", "urn:ietf:rfc:7946"],
+    ["x509", "urn:oid:2.5.1.7.9"],
+    ["jss", "https://json-schema.org/draft/2020-12/meta/core"],
+    ["xs", "http://www.w3.org/2001/XMLSchema#"],
+    ["qudt", "https://qudt.org/schema/shacl/qudt/"]
+  ]
+            ]]>
+            </sourcecode>
+            <t>... only name, may or may not reference a web resource ...</t>
+            <ul>
+              <li>jadn: the JADN version 2.0 metaschema</li>
+              <li>foo: </li>
+              <li>gj: GeoJSON RFC</li>
+              <li>x509: ITU-T ASN.1 module defining identity and attribute certificates</li>
+              <li>jss: JSON Schema, dereferencing returns core metaschema</li>
+              <li>xs: XML Schema, dereferencing returns an HTML namespace document containing resources ...</li>
+              <li>
+                qudt: QUDT (Quantities, Units, Dimensions and Data Types) ontology, dereferencing returns the RDF/OWL
+                ontology document.
+              </li>
+            </ul>
+          </li>
+          <li>roots:</li>
+          <li>config:</li>
+          <li>jadn_version:</li>
+          <li>version:</li>
+        </ul>
+        <t>Annotation metadata:</t>
+        <ul>
+          <li>title:</li>
+          <li>description:</li>
+          <li>comment:</li>
+          <li>copyright:</li>
+          <li>license:</li>
+        </ul>
       </section>
       <section anchor="pkgRequirements">
         <name>Package Requirements</name>

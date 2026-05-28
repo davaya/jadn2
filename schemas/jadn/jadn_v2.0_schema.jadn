@@ -2,7 +2,6 @@
   "meta": {
     "title": "JADN Metaschema",
     "package": "http://jadn-im.cc/v2.0/schema/jadn",
-    "jadn_version": "2.0",
     "description": "Syntax of a JSON Abstract Data Notation (JADN) schema package.",
     "license": "CC-BY-4.0",
     "roots": ["Schema"],
@@ -13,12 +12,12 @@
   "types": [
     ["Schema", "Record", [], "Definition of a JADN package", [
       [1, "meta", "Metadata", ["[0"], "Information about this package"],
-      [2, "types", "ArrayOf", ["*Type"], "Types defined in this package"]
+      [2, "types", "ArrayOf", ["*Type", "s"], "Types defined in this package"]
     ]],
     ["Metadata", "Map", [], "Information about this package", [
       [1, "package", "Namespace", [], "Unique name/version of this package"],
       [2, "prefixes", "Prefixes", ["[0"], "External reference qualifiers"],
-      [3, "roots", "TypeName", ["[0", "]-1"], "Roots of the type tree(s) in this package"],
+      [3, "roots", "Roots", ["[0"], "Root(s) of the type graph in this package"],
       [4, "config", "Config", ["[0"], "Configuration variables"],
       [5, "jadn_version", "Namespace", ["[0"], "JADN Metaschema package"],
       [6, "version", "String", ["{1", "[0"], "Incrementing version within package"],
@@ -28,22 +27,23 @@
       [10, "copyright", "String", ["{1", "[0"], "Copyright notice"],
       [11, "license", "String", ["{1", "[0"], "SPDX licenseId of this package"]
     ]],
+    ["Namespace", "String", ["/uri"], "Unique name of a package"],
     ["Prefixes", "ArrayOf", ["*PxNs", "{1", "s"], "Set of prefix,namespace pairs"],
     ["PxNs", "Array", [], "Prefix corresponding to a namespace IRI", [
       [1, "px", "Prefix", [], "Namespace prefix string"],
-      [2, "ns", "Namespace", [], "Namespace IRI"]
+      [2, "ns", "Namespace", ["K"], "Namespace IRI"]
     ]],
-    ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
-      [1, "$MaxBinary", "Integer", ["y1", "u255"], "Package max octets, default = 255"],
-      [2, "$MaxString", "Integer", ["y1", "u255"], "Package max characters, default = 255"],
-      [3, "$MaxElements", "Integer", ["y1", "u255"], "Package max items/properties, default = 255"],
-      [4, "$Sys", "String", ["{1", "}1", "u."], "System character for TypeName, default = '.'"],
-      [5, "$TypeName", "String", ["/regex", "u^[A-Z][-.A-Za-z0-9]{0,63}$"], "Default = ^[A-Z][-.A-Za-z0-9]{0,63}$"],
-      [6, "$FieldName", "String", ["/regex", "u^[a-z][_A-Za-z0-9]{0,63}$"], "Default = ^[a-z][_A-Za-z0-9]{0,63}$"],
-      [7, "$Prefix", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$"], "Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$"]
-    ]],
-    ["Namespace", "String", ["/uri"], "Unique name of a package"],
     ["Prefix", "String", ["%$Prefix"], "Namespace prefix matching $Prefix"],
+    ["Roots", "ArrayOf", ["*TypeName", "s"], "Unreferenced type definitions"],
+    ["Config", "Map", ["{1"], "Config vars override JADN defaults", [
+      [1, "$MaxBinary", "Integer", ["y1", "u255", "[0"], "Package max octets, default = 255"],
+      [2, "$MaxString", "Integer", ["y1", "u255", "[0"], "Package max characters, default = 255"],
+      [3, "$MaxElements", "Integer", ["y1", "u255", "[0"], "Package max items/properties, default = 255"],
+      [4, "$Sys", "String", ["{1", "}1", "u.", "[0"], "System character for TypeName, default = '.'"],
+      [5, "$TypeName", "String", ["/regex", "u^[A-Z][-.A-Za-z0-9]{0,63}$", "[0"], "TypeName pattern"],
+      [6, "$FieldName", "String", ["/regex", "u^[a-z][_A-Za-z0-9]{0,63}$", "[0"], "FieldName pattern"],
+      [7, "$Prefix", "String", ["/regex", "u^([A-Za-z][A-Za-z0-9]{0,7})?$", "[0"], "Namespace Prefix pattern"]
+    ]],
     ["TypeName", "String", ["%$TypeName"], "Name of a logical type"],
     ["FieldName", "String", ["%$FieldName"], "Name of a field in a structured type"],
     ["TypeRef", "String", [], "Reference to a type, matching ($Prefix ':')? $TypeName"],

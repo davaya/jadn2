@@ -89,7 +89,12 @@
       "type": "array",
       "items": {"type": "string", "minLength": 1}
     },
-    "Description": {"type": "string"},
+    "Description": {
+      "anyOf": [
+        {"type": "string"},
+        {"type": "object"}
+      ]
+    },
     "Fields": {
       "type": "array",
       "items": {
@@ -104,24 +109,26 @@
       "minItems": 2,
       "maxItems": 3,
       "prefixItems": [
-        {"type": "integer"},
+        {"$ref": "#/$defs/ItemId"},
         {"$ref": "#/$defs/ItemValue"},
         {"$ref": "#/$defs/Description"}
       ]
     },
-    "ItemValue": {"type": "string"},
     "Field": {
       "type": "array",
       "minItems": 3,
       "maxItems": 5,
       "prefixItems": [
-        {"type": "integer"},
+        {"$ref": "#/$defs/FieldId"},
         {"$ref": "#/$defs/FieldName"},
         {"$ref": "#/$defs/TypeRef"},
         {"$ref": "#/$defs/Options"},
         {"$ref": "#/$defs/Description"}
       ]
     },
+    "ItemId": {"type": "integer"},
+    "ItemValue": {"type": "string"},
+    "FieldId": {"type": "integer"},
     "FieldName": {"type": "string", "minLength": 1},
     "TypeRef": {"type": "string", "minLength": 1}
   }

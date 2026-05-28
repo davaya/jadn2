@@ -9,10 +9,12 @@
       "Data"
     ],
     "prefixes": [
+      ["jadn", "http://jadn-im.cc/v2.0/schema/jadn"],
+      ["foo", "http://www.example.com/im-schemas/widget39443"],
       ["gj", "urn:ietf:rfc:7946"],
       ["x509", "urn:oid:2.5.1.7.9"],
       ["jss", "https://json-schema.org/draft/2020-12/meta/core"],
-      ["xsd", "http://www.w3.org/2001/XMLSchema#"],
+      ["xs", "http://www.w3.org/2001/XMLSchema#"],
       ["qudt", "https://qudt.org/schema/shacl/qudt/"]
     ],
     "version": "0.3.1-rc2",
