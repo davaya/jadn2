@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "http://jadn-im.cc/v2.0/schema/jadn-structure",
+  "$id": "http://jadn-im.cc/schema/v2.0/jadn-structure",
   "description": "Validates structure of a JADN schema, does not check values",
   "$ref": "#/$defs/Schema",
   "$defs": {

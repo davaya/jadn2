@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "JADN Metaschema",
-    "package": "http://jadn-im.cc/v2.0/schema/jadn",
+    "package": "http://jadn-im.cc/schema/v2.0/jadn",
     "description": "Syntax of a JSON Abstract Data Notation (JADN) schema package.",
     "license": "CC-BY-4.0",
     "roots": ["Schema"],

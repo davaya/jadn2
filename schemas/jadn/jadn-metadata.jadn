@@ -2,14 +2,14 @@
   "meta": {
     "title": "JADN Schema Metadata Test",
     "package": "http://example.org/tests/jadn-metadata",
-    "jadn_version": "http://jadn-im.cc/v2.0/schema/jadn",
+    "jadn_version": "http://jadn-im.cc/schema/v2.0/jadn",
     "description": "JADN Schema test vector - all metadata fields",
     "license": "CC-BY-4.0",
     "roots": [
       "Data"
     ],
     "prefixes": [
-      ["jadn", "http://jadn-im.cc/v2.0/schema/jadn"],
+      ["jadn", "http://jadn-im.cc/schema/v2.0/jadn"],
       ["foo", "http://www.example.com/im-schemas/widget39443"],
       ["gj", "urn:ietf:rfc:7946"],
       ["x509", "urn:oid:2.5.1.7.9"],

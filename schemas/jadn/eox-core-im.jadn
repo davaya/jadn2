@@ -1,7 +1,7 @@
 {
   "meta": {
     "package": "https://docs.oasis-open.org/openeox/v1.0/schema/core",
-    "jadn_version": "http://jadn-im.cc/v2.0/schema/jadn",
+    "jadn_version": "http://jadn-im.cc/schema/v2.0/jadn",
     "title": "EoX Information - Core",
     "description": "The schema for representing End-of-Life (EoL), End-of-Security-Support (EoSSec) and other End-of information in OpenEoX.",
     "roots": ["Root"],

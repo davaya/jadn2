@@ -645,8 +645,7 @@ Coordinate = Record                             // GPS Coordinate
   98 unordered   Boolean  b: ArrayOf instance is a Bag
  111 ordered     Boolean  o: Map, MapOf, Record instance is an OrderedMap
   67 combine     Integer  C: Choice instance is an untagged union
-  47 format      String   /: Semantic validation keyword
-  69 scale       Integer  E: Fixed point scale factor, value * 10^n
+  47 format      Map      /: Semantic validation keywords
  116 tagString   String   t: Table for tagged-string serialization
   97 abstract    Boolean  a: Type is not instantiable as a value
  102 final       Boolean  f: Type cannot have subtypes
@@ -1284,6 +1283,39 @@ Coordinate = Record                             // GPS Coordinate
       </section>
     </section>
 
+    <section anchor="semanticKeywords">
+      <name>Semantic Validation Keywords</name>
+      <t>move abstraction to intro/objectives, details in xref semanticKeywords</t>
+      <t>
+        IM's small set of core types independent of both processing and representation is key to abstraction<br/>
+        IM separates value space from literal space.<br/>
+        Literal to value mapping supplies rigorous detail applied to rigorous abstract types<br/>
+        Semantic Validation Keywords 1) apply to a specific core type, 2) define the value space for instances of
+        that type (validation), and 3) specify operations (semantics) applicable to instances of that type.
+      </t>
+      <t>
+        complex numbers, quaternions and tensors - struct and operations<br/>
+        time - Integer and Array (struct_tm) are different types with different semantics
+        Integer time has units (seconds), range (/i64) and scale (/s3), Integer geologic time /mya keyword specifies
+        units (single-ended million years ago), range (/u16) and scale (/s1 for 39.2 mya). /mya not defined
+        for Number because 39.28469 mya is precision without accuracy for even the smallest (/f16 - half-precision)
+        floating point representation. Precision effect of modeling discrete and continuous mathematical spaces as
+        Integer and Number as computationally distinct types.
+      </t>
+      <t>entailment: some formats may entail others - /mya entails unsigned but not range</t>
+      <t>JSON discussion of +/-0 and floating point NaNs, /f# specifies finite value space including specials,
+        complete or simple captured in data format, not schema. Number with no /f# has no specials</t>
+      <t>
+        format MUST have a Map value to support /mya and /u16 on same type - scale can be a format rather than
+        a separate option type, define taggedString table, xasd can use composite taggedString single format
+        attribute.
+      </t>
+      <t>JADN defined keywords - xref. Define and import other keyword namespaces (XSD, JSON Schema,
+        domain-specific (e.g., /mya). Must be unique to include with no prefix.<br/>
+        Human or AI skill to translate qudt into IM types/keywords.
+      </t>
+    </section>
+
     <section anchor="packages">
       <name>Packages</name>
       <t>
@@ -1300,18 +1332,18 @@ Schema = Record                            // Definition of a JADN package
    1 meta         Metadata optional        // Information about this package
    2 types        ArrayOf(Type) set        // Types defined in this package
 
-Metadata = Map                             // Information about this pkg
-   1 package      Namespace                // Unique name/version of pkg
+Metadata = Map                             // Information about this package
+   1 package      Namespace                // Unique name/version of package
    2 prefixes     Prefixes optional        // External reference qualifiers
    3 roots        Roots optional           // Root(s) of the type graph
    4 config       Config optional          // Configuration variables
-   5 jadn_version Namespace optional       // JADN Metaschema pkg
-   6 version      String{1..*} optional    // Increment within namespace
+   5 jadn_version Namespace optional       // JADN Metaschema namespace
+   6 version      String{1..*} optional    // Increment within pkg namespace
    7 title        String{1..*} optional    // Title
    8 description  String{1..*} optional    // Description
    9 comment      String{1..*} optional    // Comment
   10 copyright    String{1..*} optional    // Copyright notice
-  11 license      String{1..*} optional    // SPDX licenseId of this pkg
+  11 license      String{1..*} optional    // SPDX licenseId of this package
 
 Namespace = String /uri                    // Unique name of a package
 
@@ -1346,27 +1378,36 @@ Config = Map{1..*}                              // Override JADN defaults
           <li>
             <t>
               package: the namespace of this schema package, a URI that uniquely identifies the package
-              and qualifies the names of its types. It is a query term used to resolve references to external
-              resources, and is not expected to be directly dereferenceable even if its scheme is a transfer
-              protocol such as http:// or ftp://. The namespace MUST NOT contain a file extension to avoid
-              conflating the package unique ID with document names.
+              and qualifies the names of its types.  The URI does not identify documents that represent
+              the package and does not include a file extension. It is a query value used to resolve
+              package references independently of filename or location, not a locator even if its scheme
+              is a transfer protocol such as http:// or ftp://.
+              Package namespaces should follow versioning best practices to ensure robustness and
+              maintainability.
             </t>
-            <t>Metadata is optional in a schema package, and if present "package" is its only required value.</t>
+            <t>
+              Metadata is optional in a schema package, and if present "package" is its only required value.
+            </t>
           </li>
           <li>
             <t>
-              prefix: a short alias used in a package to associate a type name with a specific namespace URI.
-              Prefixes are used in TypeRef values to reference types defined in other packages; JADN does not
-              define a TypeRef syntax that uses the namespace URI directly. Namespaces may also reference
-              external resources of any kind, where user-defined reference types specify the syntax. All
-              namespaces regardless of URI scheme are unique IDs with no requirement to be dereferenceable.
+              prefix: a short alias used to qualify a local TypeName with a namespace URI.
+              Prefixes are used in TypeRef values to reference types defined in other packages;
+              JADN does not define a TypeRef syntax that uses the namespace URI directly.
             </t>
-            <t>Example prefix instances:</t>
+            <t>
+              Namespaces may also reference external resources of any kind, where user-defined types specify
+              the reference syntax with or without a prefix. All namespace URIs are unique IDs; they may or
+              may not be locators. A web server may return file not found or a document in any media
+              type over a secure protocol when dereferencing any namespace URI.
+            </t>
+            <t>Example prefix values. The first two are JADN package namespaces, the rest identify other
+              external resources, illustrating various naming and versioning approaches:</t>
             <sourcecode>
             <![CDATA[
   "prefixes": [
-    ["jadn", "http://jadn-im.cc/v2.0/schema/jadn"],
-    ["foo", "http://www.example.com/im-schemas/widget39443"],
+    ["jadn", "http://jadn-im.cc/schema/v2.0/jadn"],
+    ["acme", "http://www.example.com/im-schemas/widget39443"],
     ["gj", "urn:ietf:rfc:7946"],
     ["x509", "urn:oid:2.5.1.7.9"],
     ["jss", "https://json-schema.org/draft/2020-12/meta/core"],
@@ -1375,21 +1416,41 @@ Config = Map{1..*}                              // Override JADN defaults
   ]
             ]]>
             </sourcecode>
-            <t>... only name, may or may not reference a web resource ...</t>
             <ul>
-              <li>jadn: the JADN version 2.0 metaschema</li>
-              <li>foo: </li>
-              <li>gj: GeoJSON RFC</li>
-              <li>x509: ITU-T ASN.1 module defining identity and attribute certificates</li>
-              <li>jss: JSON Schema, dereferencing returns core metaschema</li>
-              <li>xs: XML Schema, dereferencing returns an HTML namespace document containing resources ...</li>
               <li>
-                qudt: QUDT (Quantities, Units, Dimensions and Data Types) ontology, dereferencing returns the RDF/OWL
-                ontology document.
+                jadn: the JADN version 2.0 metaschema URI. The namespace URI has no file extension.
+              </li>
+              <li>
+                acme: a user-defined JADN schema. The "example.com" organization is assumed to be
+                authoritative for the namespace.</li>
+              <li>
+                gj: the GeoJSON RFC specifies a JSON geospatial data interchange format in prose without
+                including a machine-readable schema. Although the RFC can be referenced its
+                type definitions are not usable without translation to a supported IM or DM language.
+              </li>
+              <li>
+                x509: the ITU-T ASN.1 module defining the identity and attribute certificate framework.
+                ASN.1 is an abstract schema definition language, and types defined within an ASN.1 module
+                can be referenced using a prefix notation, e.g., "x509:TBSCertificate" or "x509:Validity".
+              </li>
+              <li>
+                jss: the JSON Schema core metaschema. The namespace URI has no file extension and
+                dereferencing it returns the core metaschema JSON document.
+              </li>
+              <li>
+                xs: XML Schema resources. Dereferencing the URI returns an HTML document that links to
+                multiple resources identified within the namespace.</li>
+              <li>
+                qudt: the QUDT (Quantities, Units, Dimensions and Data Types) ontology. Dereferencing returns
+                the ontology document in RDF/OWL format.
               </li>
             </ul>
           </li>
-          <li>roots:</li>
+          <li>
+            roots: list of unreferenced type names in the package. This is redundant, but is included as
+            a convenience so that applications do not need to build a dependency list and as a check to
+            flag types that may be undefined or unneeded.
+          </li>
           <li>config:</li>
           <li>jadn_version:</li>
           <li>version:</li>
@@ -1668,22 +1729,70 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
           <t>...</t>
         </section>
       </section>
-      <section anchor="semanticFormats">
-        <name>Semantic Format Keywords</name>
-        <t>...</t>
-        <section anchor="jadnFormats">
-          <name>JADN Formats</name>
-          <t>...</t>
-        </section>
-        <section anchor="xsdFormats">
-          <name>XSD Formats</name>
-          <t>...</t>
-        </section>
-        <section anchor="jschemaFormats">
-          <name>JSON Schema Formats</name>
-          <t>...</t>
-        </section>
-      </section>
+    </section>
+
+    <section anchor="semanticValidation">
+      <name>JADN Semantic Validation Keywords</name>
+      <t>
+        The format option specifies a set of semantic validation keywords applicable to a type.
+        Each keyword is defined for one or more CoreTypes, and its semantics is that of the value type.
+        For example, the /timestamp keyword is defined for the String and Integer types, and comparing
+        two String representations yields different results than comparing two Integer representations.
+      </t>
+      <t>
+        Each keyword definition has a name and value type, like each JADN TypeOption definition.
+      </t>
+    </section>
+
+    <section anchor="ontologies">
+      <name>Relationship to Ontologies</name>
+      <t><em>Ed Note: Raw bot output confuses IM and DM, rewrite for accuracy</em></t>
+      <t>
+        There is significant overlap between information models and ontologies. They serve different purposes but
+        the overlap allows interaction between them.
+      </t>
+      <ul>
+        <li>
+          <t>
+            An information model defines the structure, relationships, and rules for a specific domain's
+            data — focused on how information is organized and exchanged in a system. It's typically created
+            for a particular application or standard (e.g., a healthcare system, a network management protocol).
+          </t>
+          <ul>
+            <li>Concerned with data structure and semantics in a bounded context</li>
+            <li>Often tied to an implementation or exchange format (JSON, XML, UML class diagrams)</li>
+            <li>Examples: CIM (Common Information Model for power grids), HL7 FHIR, UML models</li>
+          </ul>
+        </li>
+        <li>
+          <t>
+            An ontology formally represents knowledge about a domain — the concepts, their properties,
+            and the logical relationships between them. It's designed to be shared, reusable,
+            and machine-reasoned over.
+          </t>
+          <ul>
+            <li>Concerned with meaning and logic, not just structure</li>
+            <li>Built for interoperability across systems, enabling inference</li>
+            <li>Usually expressed in OWL, RDF, or Description Logics</li>
+            <li>Examples: Gene Ontology, SNOMED CT, schema.org</li>
+          </ul>
+        </li>
+      </ul>
+      <t>
+        Key Differences at a Glance
+        Dimension | Information Model | Ontology
+        Primary goal | Structure data for exchange | Represent knowledge for reasoning
+        Formality | Moderate (schema-level) | High (logic-based)
+        Reusability | Often domain/system-specific | Designed for broad reuse
+        Reasoning support | Limited | Built-in (inference, entailment)
+        Typical users | Software engineers, architects | Knowledge engineers, AI/semantic web
+        Expression language | UML, XSD, JSON Schema | OWL, RDF, Description Logic
+      </t>
+      <t>
+        The Overlap
+        Both describe concepts and relationships in a domain. In practice, ontologies are often used to define the semantics of an information model — so an information model might say "a Patient has a birthDate field," while an ontology would say "Patient is a subclass of Person, and birthDate is a functional property with range xsd:date, and no Person can have more than one."
+        A useful mental shortcut: information models answer "what shape is the data?" while ontologies answer "what does the data mean?"
+      </t>
     </section>
 
     <section anchor="IANA">
