@@ -83,7 +83,7 @@
       <t>
         This document defines an information modeling language designed to improve the rigor
         of Internet technical specifications. Existing data standards like ABNF, XSD, and JSON Schema
-        define formal syntax for text and structured data values. But while
+        define formal syntax for text and structured data. But while
         <xref target="RFC3444"/> and <xref target="RFC8477"/>
         establish goals for information modeling, adoption remains limited.
         JSON Abstract Data Notation (JADN) addresses this by defining a formal syntax for
@@ -120,39 +120,40 @@
           measured in bits.</dd>
       </dl>
       <t>
-        Given a data value, the information it conveys can be viewed as the questions it answers.
+        Given a literal value, the information it conveys can be viewed as the questions it answers.
         An information model (IM) defines equivalence between messages in different formats,
         and a concise message such as an RFC 791 IP packet contains the identical information
         (both semantics: "What is the source address?" and its entropy: "32 bits")
         as an equivalent verbose message in JSON or XML format.
       </t>
       <t>
-        An implementable IM specification must also define Information Value, Data Value,
+        An implementable IM specification must also define Value, Literal,
         and the relationships between them:
       </t>
       <dl newline="true">
-        <dt>Information Value</dt>
+        <dt>Value</dt>
         <dd>
-          the value of a variable (a typed unit of state) in a processing environment.
-          In this specification information values are displayed with strings in single quotes
-          to distinguish them from similar-looking JSON data values.
+          the value of a variable (a typed unit of state) that represents information in a
+          processing environment.
+          In this specification values are displayed with strings in single quotes
+          to distinguish them from similar-looking JSON literals.
         </dd>
-        <dt>Data Value</dt>
+        <dt>Literal</dt>
         <dd>
           a fixed sequence of bytes usable outside a processing environment.
-          Also known as a Document, Message, File, Stream, Literal, or Lexical Value.
+          Also known as a Document, Message, File, Stream, or Lexical Value.
           Because documents are immutable they can be compared for equality and
           hashed or signed for integrity.
         </dd>
         <dt>Type</dt>
         <dd>
-          a definition of the possible content of an information or data value.
-          An IM type has three properties: an information value space, a literal space
+          a definition of the possible content of a value or literal.
+          An IM type has three properties: a value space, a literal space
           for each data format, and a small set of functions and relations including ordering
           of the value space and mappings from each literal space to the value space.
           This definition extends the <xref target="XSD-2">XML Schema</xref> Datatype to
           information modeling by including the literal spaces and mappings for multiple
-          data formats. Every information value has a Type and every data value is an instance
+          data formats. Every value has a Type and every literal is an instance
           of Type.
         </dd>
         <dt>Object</dt>
@@ -170,14 +171,14 @@
         </dd>
         <dt>Data Format</dt>
         <dd>
-          a named equivalence mapping between information values and literal data values, implemented as
+          a named equivalence mapping between values and literals, implemented as
           a set of encoding rules. More than one data format can be defined for the same media type, to
           reflect preferences for conciseness or style.
         </dd>
         <dt>Equivalent</dt>
         <dd>
-          Two data values are equivalent if and only if they are the same type and are mapped to
-          the same information value.
+          Two literals are equivalent if and only if they are the same type and are mapped to
+          the same value.
         </dd>
       </dl>
       <section>
@@ -195,7 +196,7 @@
               </li>
               <li>
                 The IM is a high-level definition of structured information that can be used as formal
-                pseudocode in documentation and standards even if it is not used to process data.
+                pseudocode in documentation and standards even if it is not used directly to process data.
               </li>
               <li>
                 Segregating mapping methods into encoding rules allows the schema to be abstract.
@@ -240,13 +241,13 @@
           </li>
           <li>
             <t>
-              The IM must unambiguously define equivalence between information values used in most processing
-              environments and data values in most data formats used in Internet standards.
+              The IM must unambiguously define equivalence between values used in most processing
+              environments and literals in most data formats used in Internet standards.
             </t>
             <ul>
               <li>
                 The schema must be composed of data types, not classes or objects, because only types
-                define the mapping between external data and internal information values.
+                define the mapping between external data and internal values.
               </li>
               <li>
                 Associative arrays (maps, dictionaries, hashes) are universally used in programming but
@@ -290,17 +291,17 @@
             </t>
             <ul>
               <li>
-                There is no DM language available to validate <xref target="RFC791">IP Packets</xref>.
+                There is no standard DM language available to validate <xref target="RFC791">IP Packets</xref>.
               </li>
               <li>
                 JSON Schema does not define ordered maps, e.g., document sections indexed by both name
-                and position such that front matter must appear before back matter.
+                and position such that front matter must appear before back matter, or unordered lists.
               </li>
             </ul>
           </li>
           <li>
             <t>
-              There is no requirement for information values to be uniquely encoded. However:
+              There is no requirement for values to be uniquely encoded. However:
             </t>
             <ul>
               <li>
@@ -320,13 +321,13 @@
       </section>
       <section anchor="examples">
         <name>Examples</name>
-          <t>A JADN schema and the values it defines are each representation-independent information values.</t>
+          <t>A JADN schema value and the values it defines are each representation-independent.</t>
         <section anchor="examples-schema">
           <name>Schema</name>
           <t>
             Example representations of a trivial GPS Coordinate type illustrate that a JADN schema
-            is an information value, that that value can be represented in multiple data formats,
-            and that the information value is identical regardless of format.
+            is a value, that that value can be represented in multiple data formats,
+            and that the value is identical regardless of format.
             The formats shown are:
           </t>
           <ul>
@@ -344,8 +345,8 @@
             <li>Entity Relationship Diagrams: a diagram format widely used in database design, traditionally
               categorized into three detail levels - Conceptual, Logical and Physical. Information modeling
               defines a fourth Information level between Logical and Physical, expressing all the detail
-              of a Physical diagram relevant to Information values (e.g., data types, keys) without detail
-              related to Data transmission and storage.
+              of a Physical diagram relevant to information values (e.g., data types, keys) without detail
+              related to data transmission and storage.
             </li>
           </ul>
           <figure anchor="intro-jadn">
@@ -409,7 +410,7 @@ Coordinate = Record                             // GPS Coordinate
         <section anchor="examples-data">
           <name>Data</name>
           <t>
-            A single information value of type Coordinate (for example 38.8895, -77.0352) is processed
+            A single value of type Coordinate (for example 38.8895, -77.0352) is processed
             using an object containing two floating point variables, but details of object behavior aside
             from its value are immaterial.
             That value can be serialized using multiple dialects of XML, JSON, YAML, raw binary, CBOR,
@@ -505,8 +506,8 @@ Coordinate = Record                             // GPS Coordinate
         ]]>
       </sourcecode>
       <t>
-        Every <xref target="type">JADN Type definition</xref> has the identical five-element structure,
-        which can be verified as being well-formed without validating element content:
+        Every <xref target="type">JADN Type definition</xref> has the identical five-member structure,
+        which can be verified as being well-formed without validating content:
       </t>
       <ol>
         <li>TypeName: the name of the type being defined.</li>
@@ -533,7 +534,7 @@ Coordinate = Record                             // GPS Coordinate
         space for new options enables easy extensibility.
       </t>
       <t>
-        JADN defines information values and message syntax based on twelve Core types in three categories,
+        JADN defines values and message syntax based on twelve Core types in three categories,
         based on well-known abstract concepts such as "integer", "sequence" and "map".
         These concepts are not exhaustively defined here because many other publications provide excellent
         definitions.
@@ -551,11 +552,11 @@ Coordinate = Record                             // GPS Coordinate
         <li>
           <xref target="collection">Compound</xref>: Five types where each instance is a collection of values.
           The Fields array is empty for unstructured compound types (ArrayOf, MapOf) and has the same
-          five-element Field structure for all structured compound types (Array, Map, Record).
+          five-member Field structure for all structured compound types (Array, Map, Record).
         </li>
         <li>
           <xref target="union">Union</xref>: Two types where each instance is selected from a set of possible values.
-          Each Field is a three-element Item structure for the Enumerated type, and the five-element
+          Each Field is a three-member Item structure for the Enumerated type, and the five-member
           Field structure for the Choice type.
         </li>
       </ul>
@@ -603,8 +604,8 @@ Coordinate = Record                             // GPS Coordinate
           as a list of strings using <xref target="taggedString">Tagged String</xref> encoding for brevity.
           In tagged strings the Unicode codepoint of the first character is the option ID and the remaining
           characters are the string representation of its value.
-          Tagged strings highlight that options are enumerated, not arbitrarily-named attributes.
-          Tagged string encoding can also be used for general data by defining mapping tables similar to
+          Tagged string tables highlight that options are enumerated, not arbitrarily-named attributes.
+          Tagged string encoding can also be used for general data by defining tables similar to
           <xref target="options"/>.
         </t>
         <t>
@@ -612,7 +613,7 @@ Coordinate = Record                             // GPS Coordinate
           From <xref target="options"/> the first character "y" (U+0079 = ID 121) has name
           "minInclusive", the remaining characters are the value string "-90.0", and the type "BType" is a
           JADN-reserved keyword indicating that the value type is the base type of the field (Number).
-          The information value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
+          The value of the latitude options is {'minInclusive': -90.0, 'maxInclusive': 90.0}:
         </t>
         <figure anchor="taggedString">
           <name>Tagged String Attribute Format</name>
@@ -627,7 +628,7 @@ Coordinate = Record                             // GPS Coordinate
 
         <t>
           The more verbose XASD representation: &lt;type="Number" minInclusive="-90.0" maxInclusive="90.0"&gt;
-          is equivalent to the to the JSON representation because both are mapped to the same information value.
+          is equivalent to the to the JSON representation because both are mapped to the same value.
         </t>
         <figure anchor="options">
           <name>TypeOptions and FieldOptions</name>
@@ -660,7 +661,7 @@ Coordinate = Record                             // GPS Coordinate
  102 final       Boolean  f: Type cannot have subtypes
  101 extends     String   e: Type is a superset of referenced type
  114 restricts   String   r: Type is a subset of referenced type
-  65 attr        Boolean  A: Data value may be an XML attribute
+  65 attr        Boolean  A: Literal may be an XML attribute
 
   ID FieldOption  Type   ID       Description
  ___ __________  _______ ___ __________________________________________
@@ -718,7 +719,7 @@ Coordinate = Record                             // GPS Coordinate
             </li>
             <li>
               <strong>nillable:</strong>
-              specifies that the field's information value space includes the <em>null</em> value
+              specifies that the field's value space includes the <em>null</em> value
               in addition to the values specified by its type. Every <xref target="s-multiplicity" format="title">
               optional</xref> field without a default value is also nillable, but no required field without the
               nillable option may have a <em>null</em> value.
@@ -784,13 +785,13 @@ Coordinate = Record                             // GPS Coordinate
             </t>
             <ul>
               <li>
-                encoding information elements that have the default value omits data elements where possible.
+                encoding member values that have the default value omits literal members where possible.
               </li>
-              <li>decoding missing data elements populates information elements with the default value.</li>
+              <li>decoding missing literal members populates member values with the default value.</li>
             </ul>
             <t>
-              Collections encoded as arrays omit trailing optional elements but must preserve the positions
-              of all collection elements. Collections encoded as maps omit keys with default values.
+              Collections encoded as arrays omit trailing optional members but must preserve the positions
+              of all collection members. Collections encoded as maps omit members with default values.
             </t>
           </li>
           <li>
@@ -918,8 +919,8 @@ Coordinate = Record                             // GPS Coordinate
       <section anchor="collection">
         <name>Collection Types</name>
         <t>
-          An IM collection is a collection of information values and its equivalent
-          literal data values. Every collection type has two components:
+          An IM collection is a collection of values and its equivalent
+          literals. Every collection type has two components:
         </t>
         <ul>
           <li>
@@ -927,8 +928,8 @@ Coordinate = Record                             // GPS Coordinate
             value within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
-            a <strong>compound</strong> type that characterizes the data value used to represent a
-            collection information value.
+            a <strong>compound</strong> type that characterizes the literals used to represent a
+            collection value.
           </li>
         </ul>
         <t>
@@ -982,7 +983,7 @@ Coordinate = Record                             // GPS Coordinate
             collection properties, and the compound type(s) that can support that semantic type.
             Compound types without options (shown in bold) have either Sequence or Map semantics.
             But it is fairly common for data modelers to use other combinations such as using
-            arrays of data values with "id" fields to represent Map semantics.
+            array literals with "id" fields to represent Map semantics.
           </t>
           <table anchor="semanticTypes">
             <name>Semantic and Compound Types</name>
@@ -1038,7 +1039,7 @@ Coordinate = Record                             // GPS Coordinate
               A Bag (or <xref target="MULTISET" format="title"/>) is an unordered collection
               of values where values may appear more than once. A Bag can be instantiated efficiently as
               a set of unique values with each value mapped to its count.
-              Two Bags are equal if they contain the same elements each with the same count.
+              Two Bags are equal if they contain the same members each with the same count.
               A Sequence, Set, OrderedSet or Bag can be combined into a destination Bag by iterating
               over each value in the sources and incrementing the count of that value in the destination.
             </t>
@@ -1058,19 +1059,19 @@ Coordinate = Record                             // GPS Coordinate
               An OrderedMap is a collection of key:value pairs where the keys are an OrderedSet.
               Each key and each value may be any type and keys must be immutable. Some
               programming languages define "order-preserving" mapping types. These are ordered only
-              if two collections with the same elements in a different order compare as unequal.
+              if two collections with the same members in a different order compare as unequal.
             </t>
           </section>
         </section>
         <section anchor="compound">
           <name>Compound Types</name>
           <t>
-            A JADN compound type specifies the data value used to represent collection information.
+            A JADN compound type specifies the data used to represent collection information.
           </t>
           <ul>
             <li>
               Structured compound types <xref target="array" format="title"/>, <xref target="map" format="title"/> and
-              <xref target="record" format="title"/> define the type of each element individually, by position,
+              <xref target="record" format="title"/> define the type of each member individually, by position,
               key, or both. Each <xref target="type-field">Field</xref> defines the association between the
               identifier (position and/or key) and the field type.
             </li>
@@ -1080,23 +1081,22 @@ Coordinate = Record                             // GPS Coordinate
               ArrayOf is a generic collection structure that can represent any semantic type.
             </li>
             <li>
-              The <em>minLength</em> and <em>maxLength</em> options specify the
-              minimum and maximum number of elements in any collection information value. Element
-              <xref target="primitive">defaults</xref> may affect the length of data
-              values that represent the collection.
+              The <em>minLength</em> and <em>maxLength</em> options specify the minimum and maximum number
+              of collection members. Member <xref target="primitive">defaults</xref> may affect the length
+              of literals that represent the collection.
             </li>
           </ul>
           <section anchor="array">
             <name>Array</name>
             <t>
-              The Array type defines a collection of individually-typed elements where each element has
+              The Array type defines a collection of individually-typed members where each member has
               a position, commonly referred to as a <em>struct</em>:
             </t>
             <ul>
-              <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
-              <li>FieldName is a comment that describes the element but does not exist in the collection value.</li>
+              <li>FieldId is the position of each member, numbered sequentially starting at 1.</li>
+              <li>FieldName is a comment that describes the member but does not exist in the collection value.</li>
               <li>
-                The information value is a <xref target="sequence" format="title"/> of elements, each with a
+                The value is a <xref target="sequence" format="title"/> of members, each with a
                 position and type.
               </li>
             </ul>
@@ -1109,41 +1109,40 @@ Coordinate = Record                             // GPS Coordinate
             <ul>
               <li>
                 The <xref target="semanticValidation">format</xref> option is a semantic validation
-                keyword that defines the valid information values of the struct and its
-                representation as a data value.
+                keyword that defines the valid values of the struct and its literal representations.
               </li>
             </ul>
           </section>
           <section anchor="map">
             <name>Map</name>
             <t>
-              The Map type defines a collection of individually-typed elements where each element has a key:
+              The Map type defines a collection of individually-typed members where each member has a key:
             </t>
             <ul>
-              <li>FieldId is the numeric key of each element, arbitrary but unique within the collection.</li>
+              <li>FieldId is the numeric key of each member, arbitrary but unique within the collection.</li>
               <li>
-                FieldName is the string key of each element, following the <xref target="packages" format="title">
+                FieldName is the string key of each member, following the <xref target="packages" format="title">
                 $FieldName</xref> naming convention and unique within the collection.
               </li>
               <li>
-                By default the information value is a <xref target="maps" format="title"/> of elements,
+                By default the value is a <xref target="maps" format="title"/> of members,
                 each with a key and type.
               </li>
             </ul>
             <t>These options apply to the Map type:</t>
             <ul>
               <li>
-                The <em>id</em> option specifies that elements are identified only by FieldId and that FieldName
-                does not exist in element values but may be used as a mnemonic label for FieldId.
+                The <em>id</em> option specifies that members are identified only by FieldId and that FieldName
+                does not exist in member values but may be used as a mnemonic label for FieldId.
               </li>
               <li>
-                The <em>ordered</em> option specifies that the information value is an
-                <xref target="orderedMaps" format="title"/> of elements ordered by FieldId.
+                The <em>ordered</em> option specifies that the value is an
+                <xref target="orderedMaps" format="title"/> of members ordered by FieldId.
               </li>
               <li>
                 The <em>tagString</em> option references a translation table similar to <xref target="options"/>
                 that defines a collection of IDs, Names and Types that a data format can use to represent a Map
-                information value as a list of <xref target="optionset">tagged strings</xref>.
+                value as a list of <xref target="optionset">tagged strings</xref>.
               </li>
             </ul>
             <t>
@@ -1154,17 +1153,17 @@ Coordinate = Record                             // GPS Coordinate
           <section anchor="record">
             <name>Record</name>
             <t>
-              The Record type defines a collection of individually-typed elements where each element has
+              The Record type defines a collection of individually-typed members where each member has
               both a position and a key:
             </t>
             <ul>
-              <li>FieldId is the position of each element, numbered sequentially starting at 1.</li>
+              <li>FieldId is the position of each member, numbered sequentially starting at 1.</li>
               <li>
-                FieldName is the string key of each element, following the <xref target="packages">
+                FieldName is the string key of each member, following the <xref target="packages">
                 $FieldName</xref> naming convention and unique within the collection.
               </li>
               <li>
-                By default the information value is a <xref target="maps" format="title"/> of elements,
+                By default the value is a <xref target="maps" format="title"/> of members,
                 each with a position, key, and type.
               </li>
             </ul>
@@ -1173,16 +1172,16 @@ Coordinate = Record                             // GPS Coordinate
             </t>
             <ul>
               <li>
-                The <em>ordered</em> option specifies that the information value is an
-                <xref target="orderedMaps" format="title"/> of elements.
+                The <em>ordered</em> option specifies that the value is an
+                <xref target="orderedMaps" format="title"/> of members.
               </li>
             </ul>
           </section>
           <section anchor="arrayOf">
             <name>ArrayOf</name>
             <t>
-              The ArrayOf type defines a collection of elements of the same type.
-              The required <em>valueType</em> option specifies the type of all collection elements.
+              The ArrayOf type defines a collection of members of the same type.
+              The required <em>valueType</em> option specifies the type of all collection members.
               The semantic type depends on both collection options and the type specified by valueType.
             </t>
             <t>
@@ -1201,17 +1200,17 @@ Coordinate = Record                             // GPS Coordinate
               </li>
               <li>
                 If valueType is an Array, Map or Record type with a
-                <xref target="fieldOptions">key</xref> field, by default the information value
+                <xref target="fieldOptions">key</xref> field, by default the value
                 is a <xref target="maps" format="title"/> of table rows, with
                 columns defined by valueType fields and the rows indexed by both key and position.
-                The <em>ordered</em> option specifies that the information value is an
+                The <em>ordered</em> option specifies that the value is an
                 <xref target="orderedMaps" format="title"/> of of table rows where order is significant.
               </li>
               <li>
-                For all other valueTypes the information value is a
+                For all other valueTypes the value is a
                 <xref target="sequence" format="title"/> of values by default.
                 A <em>unique</em>, <em>set</em>, or <em>unordered</em> option
-                specifies that the information value is an
+                specifies that the value is an
                 <xref target="orderedSet" format="title"/>,
                 <xref target="set" format="title"/>, or
                 <xref target="bag" format="title"/> respectively.
@@ -1221,10 +1220,10 @@ Coordinate = Record                             // GPS Coordinate
           <section anchor="mapOf">
             <name>MapOf</name>
             <t>
-              The MapOf type defines a collection of <xref target="maps" format="title"/> elements
+              The MapOf type defines a collection of <xref target="maps" format="title"/> members
               with the same key and value types.
-              The required <em>keyType</em> option specifies the type of all element keys.
-              The required <em>valueType</em> option specifies the type of all element values.
+              The required <em>keyType</em> option specifies the type of all member keys.
+              The required <em>valueType</em> option specifies the type of all member values.
             </t>
             <t>
               Options: keyType (required), valueType (required),<br/>
@@ -1232,8 +1231,8 @@ Coordinate = Record                             // GPS Coordinate
             </t>
             <ul>
               <li>
-                The <em>ordered</em> option specifies that the information value is an
-                <xref target="orderedMaps" format="title"/> of elements. This requires that keyType has
+                The <em>ordered</em> option specifies that the value is an
+                <xref target="orderedMaps" format="title"/> of members. This requires that keyType has
                 a defined ordering, unlike the structured <xref target="map" format="title"/> type where
                 FieldId ensures that field order is always defined.
               </li>
@@ -1270,7 +1269,7 @@ Coordinate = Record                             // GPS Coordinate
           <t>Options: id.</t>
           <t>
             JADN tags include both numeric ID and equivalent string value, allowing either to be used.
-            The <em>id</em> option specifies that an Enumerated information value is an item_id, otherwise
+            The <em>id</em> option specifies that an Enumerated value is an item_id, otherwise
             it is an item_value that may be represented by the id depending on data format.
           </t>
         </section>
@@ -1309,33 +1308,6 @@ Coordinate = Record                             // GPS Coordinate
         <name>Type Requirements</name>
         <t>...</t>
       </section>
-    </section>
-
-    <section anchor="semanticKeywords">
-      <name>Semantic Validation Keywords</name>
-      <t>move abstraction to intro/objectives, details in xref semanticKeywords</t>
-
-      <t>
-        complex numbers, quaternions and tensors - struct and operations<br/>
-        time - Integer and Array (struct_tm) are different types with different semantics
-        Integer time has units (seconds), range (/i64) and scale (/s3), Integer geologic time /mya keyword specifies
-        units (single-ended million years ago), range (/u16) and scale (/s1 for 39.2 mya). /mya not defined
-        for Number because 39.28469 mya is precision without accuracy for even the smallest (/f16 - half-precision)
-        floating point representation. Precision effect of modeling discrete and continuous mathematical spaces as
-        Integer and Number as computationally distinct types.
-      </t>
-      <t>entailment: some formats may entail others - /mya entails unsigned but not range</t>
-      <t>JSON discussion of +/-0 and floating point NaNs, /f# specifies finite value space including specials,
-        complete or simple captured in data format, not schema. Number with no /f# has no specials</t>
-      <t>
-        format MUST have a Map value to support /mya and /u16 on same type - scale can be a format rather than
-        a separate option type, define taggedString table, xasd can use composite taggedString single format
-        attribute.
-      </t>
-      <t>JADN defined keywords - xref. Define and import other keyword namespaces (XSD, JSON Schema,
-        domain-specific (e.g., /mya). Must be unique to include with no prefix.<br/>
-        Human or AI skill to translate qudt into IM types/keywords.
-      </t>
     </section>
 
     <section anchor="packages">
@@ -1382,7 +1354,7 @@ Roots = ArrayOf(TypeName) set              // Unreferenced type definitions
 Config = Map{1..*}                              // Override JADN defaults
    1 $MaxBinary   Integer=[1,*]=(255) optional  // Max octets
    2 $MaxString   Integer=[1,*]=(255) optional  // Max characters
-   3 $MaxElements Integer=[1,*]=(255) optional  // Max members
+   3 $Maxmembers  Integer=[1,*]=(255) optional  // Max collection cardinality
    4 $Sys         String{1..1}=(".") optional   // TypeName system character
    5 $TypeName    String=("^[A-Z][-.A-Za-z0-9]{0,63}$") /regex optional
    6 $FieldName   String=("^[a-z][_A-Za-z0-9]{0,63}$") /regex optional
@@ -1578,7 +1550,7 @@ Coordinate.longitude = Number=(-180.0, 180.0]
           that the field is optional.
         </t>
         <t>
-          If an optional field instance with no elements should be represented by an empty list rather
+          If an optional field instance with no members should be represented by an empty list rather
           than omitted entirely, the IM collection type uses an explicitly-named ArrayOf type
           in a required field.
         </t>
@@ -1590,7 +1562,7 @@ Coordinate.longitude = Number=(-180.0, 180.0]
           of the type named in the option. When expanded, enum copies the field id and name directly
           from the named type, while path generates a recursive list of pathnames below the named type.
           The <em>dir</em> field option terminates recursion when expanding the <em>path</em> option
-          and when flattening data values from tree to list structures.
+          and when flattening values from tree to list structures.
           Expanding replaces the shortcut Enumerated type with the explicit item list.
           These options avoid duplicating long field lists, saving space and eliminating potential
           inconsistency.
@@ -1745,8 +1717,8 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
           in any data format. This enables a single IM to ... CBOR goals ...
         </t>
         <ul>
-          <li>Indexing Record elements by position or name</li>
-          <li>Enumerating data elements by numeric ID or string name / value</li>
+          <li>Indexing Record members by position or name</li>
+          <li>Enumerating collection members by numeric ID or string name / value</li>
           <li>Defining string formats for non-string types</li>
         </ul>
         <t>
@@ -1772,16 +1744,17 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
     </section>
 
     <section anchor="semanticValidation">
-      <name>JADN Semantic Validation Keywords</name>
+      <name>Semantic Validation Keywords</name>
       <t>
         The format option specifies a set of semantic validation keywords applicable to a type.
-        Each keyword is defined for one or more CoreTypes, and its semantics is that of the value type.
+        Each keyword is defined for one or more CoreTypes, and its semantics is that of the type's value.
         For example, the /timestamp keyword is defined for the String and Integer types, and comparing
         two String representations yields different results than comparing two Integer representations.
       </t>
       <t>
         Each keyword definition has a name and value type, like each JADN TypeOption definition.
       </t>
+      <t><em>Editor's note - turn notes into format list</em></t>
       <ul>
         <li>
           Note: convert to format /E:n<br/>
@@ -1793,6 +1766,28 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
           centi-dollars (cents), or with scale=5 it is the number of milli-cents.
         </li>
       </ul>
+
+      <t>
+        complex numbers, quaternions and tensors - struct and operations<br/>
+        time - Integer and Array (struct_tm) are different types with different semantics
+        Integer time has units (seconds), range (/i64) and scale (/s3), Integer geologic time /mya keyword specifies
+        units (single-ended million years ago), range (/u16) and scale (/s1 for 39.2 mya). /mya not defined
+        for Number because 39.28469 mya is precision without accuracy for even the smallest (/f16 - half-precision)
+        floating point representation. Precision effect of modeling discrete and continuous mathematical spaces as
+        Integer and Number as computationally distinct types.
+      </t>
+      <t>entailment: some formats may entail others - /mya entails unsigned but not range</t>
+      <t>JSON discussion of +/-0 and floating point NaNs, /f# specifies finite value space including specials,
+        complete or simple captured in data format, not schema. Number with no /f# has no specials</t>
+      <t>
+        format MUST have a Map value to support /mya and /u16 on same type - scale can be a format rather than
+        a separate option type, define taggedString table, xasd can use composite taggedString single format
+        attribute.
+      </t>
+      <t>JADN defined keywords - xref. Define and import other keyword namespaces (XSD, JSON Schema,
+        domain-specific (e.g., /mya). Must be unique to include with no prefix.<br/>
+        Human or AI skill to translate qudt into IM types/keywords.
+      </t>
     </section>
 
     <section anchor="ontologies">
