@@ -220,7 +220,10 @@
               <li>
                 Presenting a schema in a format familiar to the audience aids understanding.
                 Schema-specific formats (e.g., property tables, entity relationship diagrams)
-                may be more understandable to some audiences than general data formats.
+                may be more understandable to some audiences than general data formats. This
+                specification defines the normative <xref target="intro-jadn">JSON</xref> schema
+                format, but also uses equivalent textual <xref target="intro-jidl">IDL</xref>
+                examples for readability.
               </li>
               <li>
                 An IM schema can also be encoded in a general data format and can either accompany
@@ -333,11 +336,17 @@
               (XASD) language.
             </li>
             <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
-              Because a JADN schema is an Abstract Syntax Tree (AST), metaprogramming and projection editing
+              Because a JADN schema is an Abstract Syntax Graph (ASG), metaprogramming and projection editing
               DSL tooling is particularly applicable.
             </li>
             <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
               Tables can also be represented in HTML, XML and office document data formats.</li>
+            <li>Entity Relationship Diagrams: a diagram format widely used in database design, traditionally
+              categorized into three detail levels - Conceptual, Logical and Physical. Information modeling
+              defines a fourth Information level between Logical and Physical, expressing all the detail
+              of a Physical diagram relevant to Information values (e.g., data types, keys) without detail
+              related to Data transmission and storage.
+            </li>
           </ul>
           <figure anchor="intro-jadn">
             <name>JADN Native JSON Format</name>
@@ -401,10 +410,10 @@ Coordinate = Record                             // GPS Coordinate
           <name>Data</name>
           <t>
             A single information value of type Coordinate (for example 38.8895, -77.0352) is processed
-            using an object containing two floating point variables, but details of the object aside
-            from its value and equality with other values of the same type are immaterial.
+            using an object containing two floating point variables, but details of object behavior aside
+            from its value are immaterial.
             That value can be serialized using multiple dialects of XML, JSON, YAML, raw binary, CBOR,
-            and other data formats:
+            and others, and equivalence across formats can be seen by inspection:
           </t>
           <t>XML:</t>
           <sourcecode>
@@ -485,7 +494,7 @@ Coordinate = Record                             // GPS Coordinate
         by all types, including a namespace to support cross-package type references using qualified names.
       </t>
       <t>
-        The top-level structure of a JADN package is:
+        The top-level structure of a JADN <xref target="schemaPackage">Schema package</xref> is:
       </t>
       <sourcecode>
         <![CDATA[
@@ -668,17 +677,30 @@ Coordinate = Record                             // GPS Coordinate
         <section>
           <name>TypeOptions</name>
           <t>
-            Type options applicable to individual CoreTypes are defined in the section for that type.
-            Type options applicable to multiple CoreTypes are:
+            Type options applicable to an individual <xref target="type">CoreType</xref> are defined
+            in the section for that type. Type options applicable to multiple CoreTypes are:
           </t>
           <ul>
             <li>
-              extends, restricts, abstract, final: specifies a <xref target="s-inheritance">
-              Type Inheritance</xref> shortcut.
+              <strong>extends, restricts, abstract, final:</strong>
+              specifies a <xref target="s-inheritance">Type Inheritance</xref> shortcut.
             </li>
             <li>
-              format: specifies a <xref target="semanticFormats">semantic validation keyword</xref>
-              applicable to CoreType.
+              <t>
+                <strong>format:</strong>
+                specifies a set of <xref target="semanticValidation">semantic validation keywords</xref>
+                from among those defined for CoreType. A keyword defines the value space for TypeName instances
+                (validation) and the method for translating between values and literal representations
+                (semantics). The same keyword may be defined for more than one CoreType, for example the /time
+                keyword on a String type defines valid string values, and on the Integer type defines the
+                translation between POSIX time and its literal representations.
+              </t>
+              <t>
+                This specification defines a set of semantic validation keywords. Keywords may also be defined
+                in external namespaces (XSD, JSON Schema, or application-specific value spaces + translations)
+                and imported into a package. This enables an IM's types to remain minimal, abstract and
+                precise while linking them to an extensible set of precise representation details.
+              </t>
             </li>
           </ul>
         </section>
@@ -691,32 +713,38 @@ Coordinate = Record                             // GPS Coordinate
           </t>
           <ul>
             <li>
-              minOccurs, maxOccurs: specify the <xref target="s-multiplicity">Multiplicity</xref> shortcut.
+              <strong>minOccurs, maxOccurs:</strong>
+              specify the <xref target="s-multiplicity">Multiplicity</xref> shortcut.
             </li>
             <li>
-              nillable: specifies that the field's information value space includes the <em>null</em> value
+              <strong>nillable:</strong>
+              specifies that the field's information value space includes the <em>null</em> value
               in addition to the values specified by its type. Every <xref target="s-multiplicity" format="title">
               optional</xref> field without a default value is also nillable, but no required field without the
               nillable option may have a <em>null</em> value.
             </li>
             <li>
-              tagId: specifies a field within a structured type to use as the tag in a
+              <strong>tagId:</strong>
+              specifies a field within a structured type to use as the tag in a
               <xref target="taggedUnion">Tagged Choice</xref> field.
               The tagId option often references a <xref target="s-enumeration">Derived Enumeration</xref>
               field, allowing one or more tagged unions to select values based on the same tag.
             </li>
             <li>
-              dir: nested information values have a flattened equivalent, analogous to a recursive list of
+              <strong>dir:</strong>
+              nested information values have a flattened equivalent, analogous to a recursive list of
               file pathnames.
               The dir option stops the flattening recursion, allowing the field to contain nested values,
               analogous to directories.
             </li>
             <li>
-              key: identifies a field as being an id (index or primary key) for a value of the defined type.
+              <strong>key:</strong>
+              identifies a field as being an id (index or primary key) for a value of the defined type.
               Key values must be unique over the scope of an index.
             </li>
             <li>
-              link: identifies a field as being a cross-reference (link or foreign key) to instances of
+              <strong>link:</strong>
+              identifies a field as being a cross-reference (link or foreign key) to instances of
               FieldType. The FieldType of the referenced key field is the type of the link value.
             </li>
           </ul>
@@ -745,11 +773,15 @@ Coordinate = Record                             // GPS Coordinate
         </t>
         <ul>
           <li>
-            const: value is fixed, equivalent to minInclusive = maxInclusive. Value contains zero bits of information.
+            <strong>const:</strong>
+            value is fixed, equivalent to minInclusive = maxInclusive. Value contains zero bits of information.
           </li>
           <li>
-            <t>default: when this type is an <xref target="s-multiplicity">optional</xref> member of a
-              <xref target="collection">Collection</xref>:</t>
+            <t>
+              <strong>default:</strong>
+              when this type is an <xref target="s-multiplicity">optional</xref> member of a
+              <xref target="collection">Collection</xref>:
+            </t>
             <ul>
               <li>
                 encoding information elements that have the default value omits data elements where possible.
@@ -762,9 +794,12 @@ Coordinate = Record                             // GPS Coordinate
             </t>
           </li>
           <li>
-            <t>minInclusive, maxInclusive, minExclusive, maxExclusive: <em>value range</em> options.
-              Each option value must be a member of the value space of CoreType.
-              It is an error for:</t>
+            <t>
+              <strong>minInclusive, maxInclusive, minExclusive, maxExclusive:</strong>
+              <em>value range</em> options.
+                Each option value must be a member of the value space of CoreType.
+                It is an error for:
+            </t>
             <ul>
               <li>minInclusive and minExclusive to be specified in the same type.</li>
               <li>maxInclusive and maxExclusive to be specified in the same type.</li>
@@ -775,7 +810,8 @@ Coordinate = Record                             // GPS Coordinate
             </ul>
           </li>
           <li>
-            attr: specifies that a value should be encoded as an XML attribute when using an XML data format.
+            <strong>attr:</strong>
+            specifies that a value should be encoded as an XML attribute when using an XML data format.
             Ignored by non-XML formats, and may be ignored by specific XML data formats.
             Elements are required for non-primitive content and preferred for primitive content.
             Attributes are preferred for descriptive data about content, e.g., image metadata,
@@ -794,7 +830,7 @@ Coordinate = Record                             // GPS Coordinate
             a concise JSON data format could specify numeric literals 1 and 0 instead.
           </t>
           <t>
-            Options: const, default, format.
+            <strong>Options:</strong> const, default, format.
           </t>
         </section>
         <section anchor="integer">
@@ -813,33 +849,21 @@ Coordinate = Record                             // GPS Coordinate
             of real values with a fractional part. It is impossible for the Number type to uniquely represent
             an integer without consuming infinite resources.
           </t>
-          <t>These options apply to the Integer type:</t>
-          <ul>
-            <li>
-              scale: an option value n specifies a fixed point exponential scale factor of 10^-n,
-              as in <xref target="SI-UNITS">SI unit prefixes</xref>.
-              It supports exact integer-valued fractional quantities that eliminate floating-point
-              rounding errors.
-              For example, a dollar-denominated Integer currency value with scale=2 is the number of
-              centi-dollars (cents), or with scale=5 it is the number of milli-cents.
-            </li>
-          </ul>
           <t>
-            Options: const, default, format,<br/>
-            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
-            scale.
+            <strong>Options:</strong> const, default, format,<br/>
+            minInclusive, maxInclusive, minExclusive, maxExclusive.
           </t>
         </section>
         <section anchor="number">
           <name>Number</name>
           <t>
             A Number instance is a value from the ordered uncountably infinite space of real numbers.
-            This illustrates a fundamental difference between information and data modeling:
+            This illustrates a fundamental difference between information and data modeling: JADN
             Number's value space includes all real numbers, while <xref target="XSD-2">XSD</xref>'s
             <em>float</em> value space is a subset of rational numbers and excludes all irrationals.
           </t>
           <t>
-            Options: const, default, format,<br/>
+            <strong>Options:</strong> const, default, format,<br/>
             minInclusive, maxInclusive, minExclusive, maxExclusive.
           </t>
         </section>
@@ -851,17 +875,19 @@ Coordinate = Record                             // GPS Coordinate
           <t>These options apply to the String type:</t>
           <ul>
             <li>
-              pattern: specifies an unanchored regular expression.
+              <strong>pattern:</strong> specifies an unanchored regular expression.
               <xref target="XSD-2">XSD</xref> Appendix G discusses regular expression languages,
               but this specification does not constrain the language other than requiring
               expressions to include explicit anchors ("^" and "$") if needed.
             </li>
             <li>
-              minLength, maxLength: specifies the minimum and maximum number of characters.
+              <strong>minLength, maxLength:</strong>
+              specifies the minimum and maximum number of characters.
             </li>
           </ul>
           <t>
-            Options: const, default, format,<br/>
+            <strong>Options:</strong>
+            const, default, format,<br/>
             minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
             pattern, minLength, maxLength.
           </t>
@@ -877,11 +903,13 @@ Coordinate = Record                             // GPS Coordinate
           <t>These options apply to the Binary type:</t>
           <ul>
             <li>
-              minLength, maxLength: specifies the minimum and maximum number of octets.
+              <strong>minLength, maxLength:</strong>
+              specifies the minimum and maximum number of octets.
             </li>
           </ul>
           <t>
-            Options: const, default, format,<br/>
+            <strong>Options:</strong>
+            const, default, format,<br/>
             minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
             minLength, maxLength.
           </t>
@@ -907,14 +935,14 @@ Coordinate = Record                             // GPS Coordinate
           These components are equally important, and any IM must specify both
           <xref target="multiplicity">semantics</xref> and
           <xref target="compound">structure</xref>.
-          A JADN CoreType is one of five compound types that is combined with a TypeOption to specify
-          semantics. But it would also be possible for an IM to specify one of the six semantic types
-          combined with TypeOptions to specify data structure.
+          A JADN CoreType is one of five structural compound types and may include a TypeOption
+          to specify collection semantics.
         </t>
         <t>
-          Data modeling languages are often unable to define the significance of
-          <xref target="ORDER">collection order</xref>. Separating semantics from structure allows an
-          IM to express the full semantic range using a limited set of data types.
+          Data modeling languages are generally unable to define the significance of collection order
+          independently of structure, as discussed in <xref target="ORDER">Element order is always
+          important in XML, except when it isn't</xref>. An IM that defines both semantics and structure
+          avoids the limitations imposed by data modeling languages.
         </t>
         <section anchor="multiplicity">
           <name>Collection Semantic Types</name>
@@ -924,19 +952,19 @@ Coordinate = Record                             // GPS Coordinate
             Because UML does not support mapping types, JADN defines a third Boolean property to enable them:
           </t>
           <dl>
-            <dt>isOrdered</dt>
+            <dt><strong>isOrdered</strong></dt>
             <dd>
               if true then the collection is ordered. This implies that there is a mapping from positive integers
               to the values in the collection.
               If a collection is not multivalued, then the value for isOrdered has no semantic effect.
               If false then no assumptions can be made about the order of the values.
             </dd>
-            <dt>isUnique</dt>
+            <dt><strong>isUnique</strong></dt>
             <dd>
               if true then the collection must be unique. That is, no two values in the collection may be equal.
               If a collection is not multivalued, then the value for isUnique has no semantic effect.
             </dd>
-            <dt>isAssociative</dt>
+            <dt><strong>isAssociative</strong></dt>
             <dd>
               If true then the collection is associative. This means that there is a mapping from keys to the
               values of the collection, where each key is an immutable value of any type and keys must be unique
@@ -1080,7 +1108,7 @@ Coordinate = Record                             // GPS Coordinate
             <t>Options: minLength, maxLength, format.</t>
             <ul>
               <li>
-                The <xref target="semanticFormats">format</xref> option is a semantic validation
+                The <xref target="semanticValidation">format</xref> option is a semantic validation
                 keyword that defines the valid information values of the struct and its
                 representation as a data value.
               </li>
@@ -1286,13 +1314,7 @@ Coordinate = Record                             // GPS Coordinate
     <section anchor="semanticKeywords">
       <name>Semantic Validation Keywords</name>
       <t>move abstraction to intro/objectives, details in xref semanticKeywords</t>
-      <t>
-        IM's small set of core types independent of both processing and representation is key to abstraction<br/>
-        IM separates value space from literal space.<br/>
-        Literal to value mapping supplies rigorous detail applied to rigorous abstract types<br/>
-        Semantic Validation Keywords 1) apply to a specific core type, 2) define the value space for instances of
-        that type (validation), and 3) specify operations (semantics) applicable to instances of that type.
-      </t>
+
       <t>
         complex numbers, quaternions and tensors - struct and operations<br/>
         time - Integer and Array (struct_tm) are different types with different semantics
@@ -1377,11 +1399,12 @@ Config = Map{1..*}                              // Override JADN defaults
         <ul>
           <li>
             <t>
-              package: the namespace of this schema package, a URI that uniquely identifies the package
-              and qualifies the names of its types.  The URI does not identify documents that represent
-              the package and does not include a file extension. It is a query value used to resolve
-              package references independently of filename or location, not a locator even if its scheme
-              is a transfer protocol such as http:// or ftp://.
+              <strong>package:</strong>
+              the namespace of this schema package, a URI that uniquely identifies the package
+              and qualifies the names of its types.
+              In an IM namespace, URI schemes, paths, file extensions and data formats are irrelevant.
+              The URI does not identify documents, it is a query value used to resolve package references
+              to one or more documents that represent the package.
               Package namespaces should follow versioning best practices to ensure robustness and
               maintainability.
             </t>
@@ -1391,7 +1414,8 @@ Config = Map{1..*}                              // Override JADN defaults
           </li>
           <li>
             <t>
-              prefix: a short alias used to qualify a local TypeName with a namespace URI.
+              <strong>prefix:</strong>
+              a short alias used to qualify a local TypeName with a namespace URI.
               Prefixes are used in TypeRef values to reference types defined in other packages;
               JADN does not define a TypeRef syntax that uses the namespace URI directly.
             </t>
@@ -1401,13 +1425,14 @@ Config = Map{1..*}                              // Override JADN defaults
               may not be locators. A web server may return file not found or a document in any media
               type over a secure protocol when dereferencing any namespace URI.
             </t>
+            <t><em>Editors Note: Are non-JADN examples useful or distracting?</em></t>
             <t>Example prefix values. The first two are JADN package namespaces, the rest identify other
               external resources, illustrating various naming and versioning approaches:</t>
             <sourcecode>
             <![CDATA[
   "prefixes": [
     ["jadn", "http://jadn-im.cc/schema/v2.0/jadn"],
-    ["acme", "http://www.example.com/im-schemas/widget39443"],
+    ["acme", "http://www.example.com/im-schemas/widget39"],
     ["gj", "urn:ietf:rfc:7946"],
     ["x509", "urn:oid:2.5.1.7.9"],
     ["jss", "https://json-schema.org/draft/2020-12/meta/core"],
@@ -1417,43 +1442,58 @@ Config = Map{1..*}                              // Override JADN defaults
             ]]>
             </sourcecode>
             <ul>
-              <li>
-                jadn: the JADN version 2.0 metaschema URI. The namespace URI has no file extension.
+              <li><strong>jadn:</strong>
+                the JADN version 2.0 metaschema URI.
               </li>
-              <li>
-                acme: a user-defined JADN schema. The "example.com" organization is assumed to be
-                authoritative for the namespace.</li>
-              <li>
-                gj: the GeoJSON RFC specifies a JSON geospatial data interchange format in prose without
-                including a machine-readable schema. Although the RFC can be referenced its
+              <li><strong>acme:</strong>
+                a user-defined JADN schema. The "example.com" organization is assumed to be
+                authoritative for the namespace. "acme:Sprocket" references the Sprocket type defined
+                in the package, which might be found on the web at
+                https://www.example.com/im-schemas/widget39.jadn or on a local filesystem at
+                ~/ProjectFoo/schemas/widgets/w39.jidl.
+              </li>
+              <li><strong>gj:</strong>
+                the GeoJSON RFC specifies a JSON geospatial data interchange format in prose without
+                including a machine-readable schema. Although the RFC can be referenced, its
                 type definitions are not usable without translation to a supported IM or DM language.
               </li>
-              <li>
-                x509: the ITU-T ASN.1 module defining the identity and attribute certificate framework.
+              <li><strong>x509:</strong>
+                the ITU-T ASN.1 module defining an identity and attribute certificate framework.
                 ASN.1 is an abstract schema definition language, and types defined within an ASN.1 module
                 can be referenced using a prefix notation, e.g., "x509:TBSCertificate" or "x509:Validity".
               </li>
-              <li>
-                jss: the JSON Schema core metaschema. The namespace URI has no file extension and
+              <li><strong>jss:</strong>
+                the JSON Schema core metaschema. The namespace URI has no file extension and
                 dereferencing it returns the core metaschema JSON document.
               </li>
-              <li>
-                xs: XML Schema resources. Dereferencing the URI returns an HTML document that links to
+              <li><strong>xs:</strong>
+                XML Schema resources. Dereferencing the URI returns an HTML document that links to
                 multiple resources identified within the namespace.</li>
-              <li>
-                qudt: the QUDT (Quantities, Units, Dimensions and Data Types) ontology. Dereferencing returns
+              <li><strong>qudt:</strong>
+                the QUDT (Quantities, Units, Dimensions and Data Types) ontology. Dereferencing returns
                 the ontology document in RDF/OWL format.
               </li>
             </ul>
           </li>
           <li>
-            roots: list of unreferenced type names in the package. This is redundant, but is included as
-            a convenience so that applications do not need to build a dependency list and as a check to
-            flag types that may be undefined or unneeded.
+            <strong>roots:</strong>
+            list of unreferenced type names in the package. This is redundant, but is included so that
+            applications are not required to build a dependency list. It also serves to flag types that
+            may be undefined if listed in roots, or unneeded if not.
           </li>
-          <li>config:</li>
-          <li>jadn_version:</li>
-          <li>version:</li>
+          <li>
+            <strong>config:</strong>
+            </li>
+          <li>
+            <strong>jadn_version:</strong>
+            the JADN metaschema used to validate this package.
+          </li>
+          <li>
+            <strong>version:</strong>
+            a string used to recognize the most recent iteration among the documents found when resolving
+            the package namespace. It may be a serial number, timestamp or any format with an unambiguous
+            sort order.
+          </li>
         </ul>
         <t>Annotation metadata:</t>
         <ul>
@@ -1742,6 +1782,17 @@ AnonymousPerson = Record restricts(Person)  // Prohibit name
       <t>
         Each keyword definition has a name and value type, like each JADN TypeOption definition.
       </t>
+      <ul>
+        <li>
+          Note: convert to format /E:n<br/>
+          scale: an option value n specifies a fixed point exponential scale factor of 10^-n,
+          as in <xref target="SI-UNITS">SI unit prefixes</xref>.
+          It supports exact integer-valued fractional quantities that eliminate floating-point
+          rounding errors.
+          For example, a dollar-denominated Integer currency value with scale=2 is the number of
+          centi-dollars (cents), or with scale=5 it is the number of milli-cents.
+        </li>
+      </ul>
     </section>
 
     <section anchor="ontologies">
