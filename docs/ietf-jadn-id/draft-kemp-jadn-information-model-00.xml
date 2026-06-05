@@ -331,18 +331,26 @@
             The formats shown are:
           </t>
           <ul>
-            <li>JSON data: the normative storage format for JADN schemas.</li>
+            <li><xref target="intro-jadn">JSON data:</xref> the normative storage format for JADN schemas.</li>
             <li>
-              XML data: an XML format composed of JADN-defined elements, called XML Abstract Schema Definition
+              <xref target="intro-xasd">XML data:</xref>
+              an XML format composed of JADN-defined elements, called XML Abstract Schema Definition
               (XASD) language.
             </li>
-            <li>Text: JADN Information Definition Language (IDL), an example domain-specific language (DSL).
+            <li>
+              <xref target="intro-jidl">Text:</xref>
+              JADN Information Definition Language (IDL), an example domain-specific language (DSL).
               Because a JADN schema is an Abstract Syntax Graph (ASG), metaprogramming and projection editing
               DSL tooling is particularly applicable.
             </li>
-            <li>Property Tables: a widely-used data standards publication format, shown as Markdown source.
-              Tables can also be represented in HTML, XML and office document data formats.</li>
-            <li>Entity Relationship Diagrams: a diagram format widely used in database design, traditionally
+            <li>
+              <xref target="intro-table-md">Property Tables:</xref>
+              a widely-used data standards publication format, shown as Markdown source.
+              Tables can also be represented in HTML, XML and office document data formats.
+            </li>
+            <li>
+              <strong>Entity Relationship Diagram:</strong>
+              a diagram format widely used in database design, traditionally
               categorized into three detail levels - Conceptual, Logical and Physical. Information modeling
               defines a fourth Information level between Logical and Physical, expressing all the detail
               of a Physical diagram relevant to information values (e.g., data types, keys) without detail
@@ -501,7 +509,7 @@ Coordinate = Record                             // GPS Coordinate
         <![CDATA[
 ["Schema", "Record", [], "Definition of a JADN package", [
   [1, "meta", "Metadata", ["[0"], "Information about this package"],
-  [2, "types", "ArrayOf", ["*Type"], "Types defined in this package"]
+  [2, "types", "ArrayOf", ["*Type", "s"], "Types defined in this package"]
 ]]
         ]]>
       </sourcecode>
@@ -513,7 +521,7 @@ Coordinate = Record                             // GPS Coordinate
         <li>TypeName: the name of the type being defined.</li>
         <li>CoreType: The JADN built-in type of the type being defined.</li>
         <li>TypeOptions: a set of zero or more TypeOption values applicable to CoreType (conditional).</li>
-        <li>TypeDescription: a non-normative comment (optional).</li>
+        <li>TypeDescription: a non-normative annotation (optional).</li>
         <li>
           Fields: an array of zero or more <xref target="type-item">Item</xref> or
           <xref target="type-field">Field</xref> definitions as applicable to CoreType (conditional).
@@ -600,7 +608,7 @@ Coordinate = Record                             // GPS Coordinate
         <t>
           <xref target="options"/> lists all TypeOptions and FieldOptions defined in this specification.
           Their meaning and usage is described under specific types in the following sections.
-          Each option has a numeric ID, a name, and a value type. In JSON format options are serialized
+          Each option has a numeric ID, a name, and a value type. In the JSON data format options are serialized
           as a list of strings using <xref target="taggedString">Tagged String</xref> encoding for brevity.
           In tagged strings the Unicode codepoint of the first character is the option ID and the remaining
           characters are the string representation of its value.
@@ -813,7 +821,7 @@ Coordinate = Record                             // GPS Coordinate
           <li>
             <strong>attr:</strong>
             specifies that a value should be encoded as an XML attribute when using an XML data format.
-            Ignored by non-XML formats, and may be ignored by specific XML data formats.
+            Ignored by non-XML data formats, and may be ignored by specific XML formats.
             Elements are required for non-primitive content and preferred for primitive content.
             Attributes are preferred for descriptive data about content, e.g., image metadata,
             unique identifiers, units.
@@ -825,8 +833,8 @@ Coordinate = Record                             // GPS Coordinate
             A Boolean instance has one of two values, denoted true and false. Its value space is the set
             of those two values, representing a single bit of information. Its literal space typically
             includes many representations including {true, false}, {1, 0}, or {non-empty, empty} strings
-            or collections. Each data format should designate a single canonical information-to-literal
-            mapping, and as many literal-to-information mappings as make sense for the application.
+            or collections. Each data format should designate a single canonical value-to-literal
+            mapping, and as many literal-to-value mappings as make sense for the application.
             For example, JSON defines the 4-5-character literals <em>true</em> and <em>false</em> but
             a concise JSON data format could specify numeric literals 1 and 0 instead.
           </t>
@@ -859,8 +867,8 @@ Coordinate = Record                             // GPS Coordinate
           <name>Number</name>
           <t>
             A Number instance is a value from the ordered uncountably infinite space of real numbers.
-            This illustrates a fundamental difference between information and data modeling: JADN
-            Number's value space includes all real numbers, while <xref target="XSD-2">XSD</xref>'s
+            This illustrates a fundamental difference between information and data modeling: JADN's
+            Number value space includes all real numbers, while <xref target="XSD-2">XSD</xref>'s
             <em>float</em> value space is a subset of rational numbers and excludes all irrationals.
           </t>
           <t>
@@ -924,7 +932,7 @@ Coordinate = Record                             // GPS Coordinate
         </t>
         <ul>
           <li>
-            a <strong>semantic</strong> type that characterizes the properties of an information
+            a <strong>semantic</strong> type that characterizes the properties of a collection
             value within a processing environment, based on the <xref target="UML"/> MultiplicityElement.
           </li>
           <li>
@@ -1105,7 +1113,9 @@ Coordinate = Record                             // GPS Coordinate
               each field. Because field names do not exist in Array values, applications may use FieldName or
               choose arbitrary position mnemonics without affecting interoperability.
             </t>
-            <t>Options: minLength, maxLength, format.</t>
+            <t>
+              <strong>Options:</strong>
+              minLength, maxLength, format.</t>
             <ul>
               <li>
                 The <xref target="semanticValidation">format</xref> option is a semantic validation
@@ -1146,7 +1156,8 @@ Coordinate = Record                             // GPS Coordinate
               </li>
             </ul>
             <t>
-              Options: minLength, maxLength,<br/>
+              <strong>Options:</strong>
+              minLength, maxLength,<br/>
               id, ordered, tagString.
             </t>
           </section>
@@ -1168,7 +1179,8 @@ Coordinate = Record                             // GPS Coordinate
               </li>
             </ul>
             <t>
-              Options: minLength, maxLength, ordered.
+              <strong>Options:</strong>
+              minLength, maxLength, ordered.
             </t>
             <ul>
               <li>
@@ -1185,7 +1197,8 @@ Coordinate = Record                             // GPS Coordinate
               The semantic type depends on both collection options and the type specified by valueType.
             </t>
             <t>
-              Options: valueType (required),<br/>
+              <strong>Options:</strong>
+              valueType (required),<br/>
               minLength, maxLength,<br/>
               unique, set, unordered,<br/>
               ordered.
@@ -1226,7 +1239,8 @@ Coordinate = Record                             // GPS Coordinate
               The required <em>valueType</em> option specifies the type of all member values.
             </t>
             <t>
-              Options: keyType (required), valueType (required),<br/>
+              <strong>Options:</strong>
+              keyType (required), valueType (required),<br/>
               minLength, maxLength, ordered.
             </t>
             <ul>
@@ -1266,7 +1280,9 @@ Coordinate = Record                             // GPS Coordinate
             with no additional information. In a full tagged union, the tag identifies the type of the
             following data. In an enum, the tag is the data.
           </t>
-          <t>Options: id.</t>
+          <t>
+            <strong>Options:</strong>
+            id.</t>
           <t>
             JADN tags include both numeric ID and equivalent string value, allowing either to be used.
             The <em>id</em> option specifies that an Enumerated value is an item_id, otherwise
@@ -1279,7 +1295,9 @@ Coordinate = Record                             // GPS Coordinate
             The Choice type without a <em>combine</em> option is a tagged union. Its value is a tag
             that selects a type from the specified set of fields and an instance of the selected type.
           </t>
-          <t>Options: id.</t>
+          <t>
+            <strong>Options:</strong>
+            id.</t>
         </section>
         <section anchor="untaggedUnion">
           <name>Untagged Choice</name>
@@ -1301,7 +1319,9 @@ Coordinate = Record                             // GPS Coordinate
             A Choice(oneOf) type with the same fields will always classify the value "Home" as invalid
             regardless of field order.
           </t>
-          <t>Options: combine.</t>
+          <t>
+            <strong>Options:</strong>
+            combine.</t>
         </section>
       </section>
       <section anchor="typeRequirements">
@@ -1347,8 +1367,6 @@ PxNs = Array                               // Prefix for a namespace IRI
    1  Prefix                               // px:: Namespace prefix string
    2  key(Namespace)                       // ns:: Namespace IRI
 
-Prefix = String{pattern="$Prefix"}         // Namespace prefix
-
 Roots = ArrayOf(TypeName) set              // Unreferenced type definitions
 
 Config = Map{1..*}                              // Override JADN defaults
@@ -1359,6 +1377,11 @@ Config = Map{1..*}                              // Override JADN defaults
    5 $TypeName    String=("^[A-Z][-.A-Za-z0-9]{0,63}$") /regex optional
    6 $FieldName   String=("^[a-z][_A-Za-z0-9]{0,63}$") /regex optional
    7 $Prefix      String=("^([A-Za-z][A-Za-z0-9]{0,7})?$") /regex optional
+
+TypeName = String{pattern="$TypeName"}          // Name of a type
+FieldName = String{pattern="$FieldName"}        // Name of a field
+Prefix = String{pattern="$Prefix"}              // Namespace prefix
+TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
         ]]>
         </artwork>
       </figure>
@@ -1448,14 +1471,41 @@ Config = Map{1..*}                              // Override JADN defaults
             </ul>
           </li>
           <li>
-            <strong>roots:</strong>
-            list of unreferenced type names in the package. This is redundant, but is included so that
-            applications are not required to build a dependency list. It also serves to flag types that
-            may be undefined if listed in roots, or unneeded if not.
+            <t>
+              <strong>roots:</strong>
+              list of unreferenced type names in the package. This is redundant, but is included so that
+              applications are not required to build a dependency list. It also serves to flag types that
+              may be undefined if listed in roots, or unneeded if not.
+            </t>
           </li>
           <li>
-            <strong>config:</strong>
-            </li>
+            <t>
+              <strong>config:</strong>
+              This specification recommends the default naming conventions and size limits shown in
+              <xref target="schemaPackage"/> for schema-processing tools.
+              Consistent naming conventions improve readability and size limits reduce attack surface,
+              but tool defaults may not be appropriate for all applications.
+              Config values override them with package-level defaults, and type definitions may specify
+              individual size restrictions that override package and tool defaults.
+            </t>
+            <t>
+              By default a JSON Schema string type has no maximum size, based on the assumption that
+              applications are well-behaved. JADN assumes that malicious actors may attempt to compromise
+              receiving applications with unreasonably large data values, and recommends small limits (255
+              bytes / characters / collection members) to types that do not explicitly define a limit.
+              Package defaults reduce the typing burden of enforcing application-appropriate limits.
+            </t>
+            <ul>
+              <li>$MaxBinary: applies a default maxLength:n option to Binary types.</li>
+              <li>$MaxString: applies a default maxLength:n option to String types.</li>
+              <li>$MaxMembers: applies a default maxLength:n option to Compound types.</li>
+              <li>$Sys: sets the path separator character for TypeNames generated by
+                <xref target="shortcuts">shortcut</xref> processing.</li>
+              <li>$TypeName: sets the regex used to validate TypeName. The default allows Train-Case or PascalCase.</li>
+              <li>$FieldName: sets the regex used to validate FieldName. The default allows snake_case or camelCase.</li>
+              <li>$Prefix: sets the regex used to validate Prefix.</li>
+            </ul>
+          </li>
           <li>
             <strong>jadn_version:</strong>
             the JADN metaschema used to validate this package.
