@@ -1352,12 +1352,8 @@ Metadata = Map                             // Information about this package
    3 roots        Roots optional           // Root(s) of the type graph
    4 config       Config optional          // Configuration variables
    5 jadn_version Namespace optional       // JADN Metaschema namespace
-   6 version      String{1..*} optional    // Increment within pkg namespace
-   7 title        String{1..*} optional    // Title
-   8 description  String{1..*} optional    // Description
-   9 comment      String{1..*} optional    // Comment
-  10 copyright    String{1..*} optional    // Copyright notice
-  11 license      String{1..*} optional    // SPDX licenseId of this package
+   6 version      String{1..*} optional    // Increment within pkg package
+   7 info         Annotation optional      // Descriptive info about package
 
 Namespace = String /uri                    // Unique name of a package
 
@@ -1382,12 +1378,33 @@ TypeName = String{pattern="$TypeName"}          // Name of a type
 FieldName = String{pattern="$FieldName"}        // Name of a field
 Prefix = String{pattern="$Prefix"}              // Namespace prefix
 TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
+
+Annotation = Choice(3)
+   1  String                                    // str:: Description string
+   2  Descriptors                               // desc:: Named attributes
+
+Descriptors = Map{1..*}
+   1 title            String{1..*} optional     // A short identifier
+   2 description      String{1..*} optional     // A longer explanation
+   3 comment          String{1..*} optional     // A note
+   4 copyright        String{1..*} optional     // Copyright notice
+   5 license          String{1..*} optional     // SPDX licenseId of package
+   6 deprecated       BString optional          // Should not be used
+   7 default          String{1..*} optional     // Description of default
+   8 examples         String{1..*} optional     // Text examples
+   9 readOnly         BString optional          // JSON Schema API
+  10 writeOnly        BString optional          // JSON Schema API
+
+BString = Enumerated                            // Boolean value strings
+   1 true
+   0 false
         ]]>
         </artwork>
       </figure>
       <section anchor="Metadata">
         <name>Package Metadata</name>
-        <t>Metadata includes functional values that affect schema processing and annotation values
+        <t>
+          Metadata includes functional values that affect schema processing and annotation values
           that describe the package without affecting function.
         </t>
         <t>Functional metadata:</t>
@@ -1491,9 +1508,9 @@ TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
             <t>
               By default a JSON Schema string type has no maximum size, based on the assumption that
               applications are well-behaved. JADN assumes that malicious actors may attempt to compromise
-              receiving applications with unreasonably large data values, and recommends small limits (255
-              bytes / characters / collection members) to types that do not explicitly define a limit.
-              Package defaults reduce the typing burden of enforcing application-appropriate limits.
+              receiving applications with unreasonably large data values, and recommends applying small
+              limits (255 bytes / characters / collection members) to types that do not explicitly define
+              one. Package defaults reduce the typing burden of enforcing application-appropriate limits.
             </t>
             <ul>
               <li>$MaxBinary: applies a default maxLength:n option to Binary types.</li>
@@ -1518,12 +1535,19 @@ TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
           </li>
         </ul>
         <t>Annotation metadata:</t>
+        <t><em>
+          Editors Note: Refactor Description to Annotation usable in Metadata and Type, with name
+          ("copyright") and value string in Map format and just value. Unlike JSON Schema, all annotations,
+          not just $comment, can be stripped at any time and cannot affect validation. All annotation
+        </em></t>
         <ul>
           <li>title:</li>
           <li>description:</li>
           <li>comment:</li>
           <li>copyright:</li>
           <li>license:</li>
+          <li>deprecated, readOnly, writeOnly: (JSON boolean literal in String)</li>
+          <li>default, examples: (JSON literal in String)</li>
         </ul>
       </section>
       <section anchor="pkgRequirements">
@@ -1542,13 +1566,13 @@ TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
         and viewing the expanded/simplified schema may aid understanding of the IM.
       </t>
       <t>
-        The shortcuts and the options used to implement them are:
+        The shortcuts and the options used to invoke them are:
       </t>
       <ul>
-        <li><xref target="s-anonymous" format="title"/>: any TypeOption present in FieldOptions</li>
-        <li><xref target="s-multiplicity" format="title"/>: minOccurs, maxOccurs</li>
-        <li><xref target="s-enumeration" format="title"/>: enum, path</li>
-        <li><xref target="s-inheritance" format="title"/>: extends, restricts, abstract, final</li>
+        <li><xref target="s-anonymous">Anonymous Types</xref>: any TypeOption present in FieldOptions</li>
+        <li><xref target="s-multiplicity">Multiplicity</xref>: minOccurs, maxOccurs</li>
+        <li><xref target="s-enumeration">Derived Enumerations</xref>: enum, path</li>
+        <li><xref target="s-inheritance">Type Inheritance</xref>: extends, restricts, abstract, final</li>
       </ul>
       <section anchor="s-anonymous">
         <name>Anonymous Types</name>
