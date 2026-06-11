@@ -39,9 +39,9 @@ class JSCHEMA(JADNCore):
         meta.update({'$comment': jss['$comment']} if '$comment' in jss else {})
         meta.update({'roots': ['Root']})
         meta.update({'config': {
-            '$MaxString': 1000,
-            '$TypeName': '^[a-zA-Z][-._A-Za-z0-9]{0,63}$',
-            '$FieldName': '^[$a-z][-_$A-Za-z0-9]{0,63}$'}})
+            '_maxString': 1000,
+            '_typeNamePat': '^[a-zA-Z][-._A-Za-z0-9]{0,63}$',
+            '_fieldNamePat': '^[$a-z][-_$A-Za-z0-9]{0,63}$'}})
 
         nt = []  # Walk nested type definition tree to build type list
         scandef('Root', jss, nt, jss, jssx)
@@ -205,5 +205,5 @@ def maketypename(tn: str, name: str, jss) -> str:
     Convert a type and property name to type name
     """
     tn = typedefname(tn, jss)
-    name = f'{tn}.{name}' if tn else name.capitalize()      # $Sys = "."
+    name = f'{tn}.{name}' if tn else name.capitalize()      # _pathChar = "."
     return name + '1' if is_builtin(name) else name

@@ -506,7 +506,7 @@ def get_config(schema: dict) -> dict:
     config = dict(DEFAULT_CONFIG)
     config.update(schema.get('meta', {}).get('config', {}))
     ns = config.get('$NSID', '').lstrip('^').rstrip('$')    # Derived $TypeRef pattern
-    tn = config.get('$TypeName', '').lstrip('^').rstrip('$')
+    tn = config.get('_typeNamePat', '').lstrip('^').rstrip('$')
     config.update({'$TypeRef': fr'^({ns}(?<=.):)?{tn}$'})   # Non-empty prefix before ':'
     return config
 

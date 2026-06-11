@@ -3,7 +3,7 @@
  description: "Syntax of a JSON Abstract Data Notation (JADN) package."
      license: "CC-BY-4.0"
        roots: ["Schema"]
-      config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
+      config: {"_fieldNamePat": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 
 Schema = Record                                          // Definition of a JADN package
    1 meta             Metadata optional                  // Information about this package
@@ -27,23 +27,23 @@ PrefixNs = Array                                         // Prefix corresponding
    2  Namespace                                          // namespace:: Namespace IRI
 
 Config = Map{1..*}                                       // Config vars override JADN defaults
-   1 $MaxBinary       Integer=[1, *] optional            // Package max octets, default = 255
-   2 $MaxString       Integer=[1, *] optional            // Package max characters, default = 255
-   3 $MaxElements     Integer=[1, *] optional            // Package max items/properties, default = 255
-   4 $Sys             String{1..1} optional              // System character for TypeName, default = '.'
-   5 $TypeName        String /regex optional             // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
-   6 $FieldName       String /regex optional             // Default = ^[a-z][_A-Za-z0-9]{0,63}$
+   1 _maxBinary       Integer=[1, *] optional            // Package max octets, default = 255
+   2 _maxString       Integer=[1, *] optional            // Package max characters, default = 255
+   3 _maxElements     Integer=[1, *] optional            // Package max items/properties, default = 255
+   4 _pathChar             String{1..1} optional              // System character for TypeName, default = '.'
+   5 _typeNamePat        String /regex optional             // Default = ^[A-Z][-.A-Za-z0-9]{0,63}$
+   6 _fieldNamePat       String /regex optional             // Default = ^[a-z][_A-Za-z0-9]{0,63}$
    7 $NSID            String /regex optional             // Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$
 
 Namespace = String /uri                                  // Unique name of a package
 
 NSID = String{pattern="$NSID"}                           // Namespace prefix matching $NSID
 
-TypeName = String{pattern="$TypeName"}                   // Name of a logical type
+TypeName = String{pattern="_typeNamePat"}                   // Name of a logical type
 
-FieldName = String{pattern="$FieldName"}                 // Name of a field in a structured type
+FieldName = String{pattern="_fieldNamePat"}                 // Name of a field in a structured type
 
-TypeRef = String                                         // Reference to a type, matching ($NSID ':')? $TypeName
+TypeRef = String                                         // Reference to a type, matching ($NSID ':')? _typeNamePat
 
 Type = Array                                             // Fixed structure for all type definitions
    1  TypeName                                           // type_name:: Schema-defined type name

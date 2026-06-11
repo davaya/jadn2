@@ -32,9 +32,12 @@
         "package": {"$ref": "#/$defs/Uri"},
         "prefixes": {"$ref": "#/$defs/Prefixes"},
         "roots": {"$ref": "#/$defs/Roots"},
-        "config": {"$ref": "#/$defs/Config"}
+        "jadn_version": {"$ref": "#/$defs/JADN-Version"},
+        "version": {"$ref": "#/$defs/Version"},
+        "config": {"$ref": "#/$defs/Config"},
+        "desc": {"$ref": "#/$defs/Description"}
       },
-      "unevaluatedProperties": {"type": "string"}
+      "additionalProperties": false
     },
     "Prefixes": {
       "type": "array",
@@ -55,17 +58,19 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "$MaxBinary": {"type": "integer", "minimum": 1},
-        "$MaxString": {"type": "integer", "minimum": 1},
-        "$MaxElements": {"type": "integer", "minimum": 1},
-        "$Sys": {"type": "string", "minLength": 1, "maxLength": 1},
-        "$TypeName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$FieldName": {"type": "string", "minLength": 1, "maxLength": 127},
-        "$Prefix": {"type": "string", "minLength": 1, "maxLength": 127}
+        "_maxBinary": {"type": "integer", "minimum": 1},
+        "_maxString": {"type": "integer", "minimum": 1},
+        "_maxElements": {"type": "integer", "minimum": 1},
+        "_pathChar": {"type": "string", "minLength": 1, "maxLength": 1},
+        "_typeNamePat": {"type": "string", "minLength": 1, "maxLength": 127},
+        "_fieldNamePat": {"type": "string", "minLength": 1, "maxLength": 127},
+        "_prefixPat": {"type": "string", "minLength": 1, "maxLength": 127}
       }
     },
     "Prefix": {"type": "string", "minLength": 1},
     "Uri": {"type": "string", "minLength": 1},
+    "JADN-Version": {"type": "string", "minLength": 1},
+    "Version": {"type": "string", "minLength": 1},
     "Type": {
       "type": "array",
       "minItems": 2,

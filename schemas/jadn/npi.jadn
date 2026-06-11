@@ -1,7 +1,9 @@
 {
   "meta": {
     "package": "http://example.com/schema/npi",
-    "title": "ISO 24366 Natural Person Identifier schema"
+    "desc": {
+      "title": "ISO 24366 Natural Person Identifier schema"
+    }
   },
   "types": [
     ["NPI", "String", ["%^[A-Z0-9]{13,13}[0-9]{2,2}$"], "Opaque Person unique identifier"],

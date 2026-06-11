@@ -61,7 +61,7 @@ def maketypename(tn: str, name: str, jss) -> str:
     Convert a type and property name to type name
     """
     tn = typedefname(tn, jss)
-    name = f'{tn}.{name}' if tn else name.capitalize()      # $Sys = "."
+    name = f'{tn}.{name}' if tn else name.capitalize()      # _pathChar = "."
     return name + '1' if jadn.definitions.is_builtin(name) else name
 
 

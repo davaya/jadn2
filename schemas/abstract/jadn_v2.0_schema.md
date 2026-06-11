@@ -4,7 +4,7 @@
    description: "Syntax of a JSON Abstract Data Notation (JADN) package."
        license: "CC-BY-4.0"
          roots: ["Schema"]
-        config: {"$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
+        config: {"_fieldNamePat": "^[$A-Za-z][_A-Za-z0-9]{0,63}$"}
 ```
 
 Definition of a JADN package
@@ -55,12 +55,12 @@ Config vars override JADN defaults
 
 | ID | Name             | Type            | \#   | Description                                  |
 |----|------------------|-----------------|------|----------------------------------------------|
-| 1  | **$MaxBinary**   | Integer=[1, \*] | 0..1 | Package max octets, default = 255            |
-| 2  | **$MaxString**   | Integer=[1, \*] | 0..1 | Package max characters, default = 255        |
-| 3  | **$MaxElements** | Integer=[1, \*] | 0..1 | Package max items/properties, default = 255  |
-| 4  | **$Sys**         | String{1..1}    | 0..1 | System character for TypeName, default = '.' |
-| 5  | **$TypeName**    | String /regex   | 0..1 | Default = ^[A-Z][-.A-Za-z0-9]{0,63}$         |
-| 6  | **$FieldName**   | String /regex   | 0..1 | Default = ^[a-z][_A-Za-z0-9]{0,63}$          |
+| 1  | **_maxBinary**   | Integer=[1, \*] | 0..1 | Package max octets, default = 255            |
+| 2  | **_maxString**   | Integer=[1, \*] | 0..1 | Package max characters, default = 255        |
+| 3  | **_maxElements** | Integer=[1, \*] | 0..1 | Package max items/properties, default = 255  |
+| 4  | **_pathChar**         | String{1..1}    | 0..1 | System character for TypeName, default = '.' |
+| 5  | **_typeNamePat**    | String /regex   | 0..1 | Default = ^[A-Z][-.A-Za-z0-9]{0,63}$         |
+| 6  | **_fieldNamePat**   | String /regex   | 0..1 | Default = ^[a-z][_A-Za-z0-9]{0,63}$          |
 | 7  | **$NSID**        | String /regex   | 0..1 | Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$      |
 
 **********
@@ -79,19 +79,19 @@ Config vars override JADN defaults
 
 | Type Name    | Type Definition             | Description            |
 |--------------|-----------------------------|------------------------|
-| **TypeName** | String{pattern="$TypeName"} | Name of a logical type |
+| **TypeName** | String{pattern="_typeNamePat"} | Name of a logical type |
 
 **********
 
 | Type Name     | Type Definition              | Description                          |
 |---------------|------------------------------|--------------------------------------|
-| **FieldName** | String{pattern="$FieldName"} | Name of a field in a structured type |
+| **FieldName** | String{pattern="_fieldNamePat"} | Name of a field in a structured type |
 
 **********
 
 | Type Name   | Type Definition | Description                                          |
 |-------------|-----------------|------------------------------------------------------|
-| **TypeRef** | String          | Reference to a type, matching ($NSID ':')? $TypeName |
+| **TypeRef** | String          | Reference to a type, matching ($NSID ':')? _typeNamePat |
 
 **********
 

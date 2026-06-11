@@ -305,12 +305,12 @@
             </t>
             <ul>
               <li>
-                Encoding rules should define a canonical mapping from information to data, to facilitate
+                Encoding rules should define a canonical mapping from values to literals, to facilitate
                 equivalence verification and extend integrity and authentication mechanisms from data
                 to the information it represents.
               </li>
               <li>
-                Encoding rules should define many-to-one mappings, where helpful, from data to information
+                Encoding rules should define many-to-one mappings, where helpful, from literals to values
                 to support the <xref target="RFC1958">Robustness Principle</xref>. Using an IM to validate
                 incoming data against well-defined mappings to a schema is
                 <xref target="RFC9413">Virtuous Intolerance</xref>.
@@ -901,13 +901,16 @@ Coordinate = Record                             // GPS Coordinate
             pattern, minLength, maxLength.
           </t>
           <t>
-            Value range options are meaningful only if character set (encoding) or collation order are known.
+            Value range options are meaningful only if character set (encoding) or collation order are defined.
           </t>
         </section>
         <section anchor="binary">
           <name>Binary</name>
           <t>
-            A Binary instance is a sequence of octets.
+            A Binary instance is an unordered sequence of octets. It is used where value ordering is not
+            specified, such as collection literals, keyword enumerations (e.g., IANA registered numbers),
+            unencoded strings or noninteger cryptographic values (e.g., finite fields, hashes).
+            Signed or unsigned Integers are used where order is significant.
           </t>
           <t>These options apply to the Binary type:</t>
           <ul>
@@ -919,7 +922,6 @@ Coordinate = Record                             // GPS Coordinate
           <t>
             <strong>Options:</strong>
             const, default, format,<br/>
-            minInclusive, maxInclusive, minExclusive, maxExclusive,<br/>
             minLength, maxLength.
           </t>
         </section>
@@ -1132,7 +1134,7 @@ Coordinate = Record                             // GPS Coordinate
               <li>FieldId is the numeric key of each member, arbitrary but unique within the collection.</li>
               <li>
                 FieldName is the string key of each member, following the <xref target="packages" format="title">
-                $FieldName</xref> naming convention and unique within the collection.
+                _fieldNamePat</xref> naming convention and unique within the collection.
               </li>
               <li>
                 By default the value is a <xref target="maps" format="title"/> of members,
@@ -1171,7 +1173,7 @@ Coordinate = Record                             // GPS Coordinate
               <li>FieldId is the position of each member, numbered sequentially starting at 1.</li>
               <li>
                 FieldName is the string key of each member, following the <xref target="packages">
-                $FieldName</xref> naming convention and unique within the collection.
+                _fieldNamePat</xref> naming convention and unique within the collection.
               </li>
               <li>
                 By default the value is a <xref target="maps" format="title"/> of members,
@@ -1194,7 +1196,7 @@ Coordinate = Record                             // GPS Coordinate
             <t>
               The ArrayOf type defines a collection of members of the same type.
               The required <em>valueType</em> option specifies the type of all collection members.
-              The semantic type depends on both collection options and the type specified by valueType.
+              The semantic type depends on collection options including valueType.
             </t>
             <t>
               <strong>Options:</strong>
@@ -1267,7 +1269,7 @@ Coordinate = Record                             // GPS Coordinate
           <name>Union Types</name>
           <thead><tr><th>Type</th><th>Tag</th><th>Type</th><th>Definition</th></tr></thead>
           <tbody>
-            <tr><td>Enumerated</td><td>Yes</td><td>-</td><td>Vocabulary, a set of tags</td></tr>
+            <tr><td>Enumerated</td><td>Yes</td><td>-</td><td>Vocabulary, a set of tags with no values</td></tr>
             <tr><td>Tagged Choice</td><td>Yes</td><td>Yes</td><td>Tagged union, a set of tag:type pairs</td></tr>
             <tr><td>Untagged Choice</td><td>-</td><td>Yes</td><td>Untagged union, a logical combination of types</td></tr>
           </tbody>
@@ -1329,7 +1331,7 @@ Coordinate = Record                             // GPS Coordinate
         <t>...</t>
       </section>
     </section>
-
+    
     <section anchor="packages">
       <name>Packages</name>
       <t>
@@ -1342,62 +1344,59 @@ Coordinate = Record                             // GPS Coordinate
         <name>JADN Schema Package</name>
         <artwork>
         <![CDATA[
-Schema = Record                            // Definition of a JADN package
-   1 meta         Metadata optional        // Information about this package
-   2 types        ArrayOf(Type) set        // Types defined in this package
+Schema = Record                             // Definition of a JADN package
+   1 meta         Metadata optional         // Information about this package
+   2 types        ArrayOf(Type) set         // Types defined in this package
 
-Metadata = Map                             // Information about this package
-   1 package      Namespace                // Unique name/version of package
-   2 prefixes     Prefixes optional        // External reference qualifiers
-   3 roots        Roots optional           // Root(s) of the type graph
-   4 config       Config optional          // Configuration variables
-   5 jadn_version Namespace optional       // JADN Metaschema namespace
-   6 version      String{1..*} optional    // Increment within pkg package
-   7 info         Annotation optional      // Descriptive info about package
+Metadata = Map                              // Information about this package
+   1 package      Namespace                 // Unique name/version of package
+   2 prefixes     Prefixes optional         // External reference qualifiers
+   3 roots        Roots optional            // Root(s) of the type graph
+   4 jadn_version Namespace optional        // JADN Metaschema namespace
+   5 version      String{1..*} optional     // Increment within pkg package
+   6 config       Config optional           // Configuration variables
+   7 desc         Annotation optional       // Descriptive info about package
 
-Namespace = String /uri                    // Unique name of a package
+Prefixes = ArrayOf(PxNs){1..*} set          // Set of prefix,namespace pairs
+Roots = ArrayOf(TypeName) set               // Unreferenced type definitions
+PxNs = Array                                // Prefix for a namespace IRI
+   1  Prefix                                // px:: Namespace prefix string
+   2  key(Namespace)                        // ns:: Namespace IRI
 
-Prefixes = ArrayOf(PxNs){1..*} set         // Set of prefix,namespace pairs
+Config = Map{1..*}                               // Override JADN defaults
+   1 _maxBinary    Integer=[1,*]=(255) optional  // Max octets
+   2 _maxString    Integer=[1,*]=(255) optional  // Max characters
+   3 _maxMembers   Integer=[1,*]=(255) optional  // Max collection members
+   4 _pathChar     String{1..1}=(".") optional   // TypeName system character
+   5 _typeNamePat  String=("^[A-Z][-.A-Za-z0-9]{0,63}$") /regex optional
+   6 _fieldNamePat String=("^[a-z][_A-Za-z0-9]{0,63}$") /regex optional
+   7 _prefixPat    String=("^([A-Za-z][A-Za-z0-9]{0,7})?$") /regex optional
 
-PxNs = Array                               // Prefix for a namespace IRI
-   1  Prefix                               // px:: Namespace prefix string
-   2  key(Namespace)                       // ns:: Namespace IRI
-
-Roots = ArrayOf(TypeName) set              // Unreferenced type definitions
-
-Config = Map{1..*}                              // Override JADN defaults
-   1 $MaxBinary   Integer=[1,*]=(255) optional  // Max octets
-   2 $MaxString   Integer=[1,*]=(255) optional  // Max characters
-   3 $Maxmembers  Integer=[1,*]=(255) optional  // Max collection cardinality
-   4 $Sys         String{1..1}=(".") optional   // TypeName system character
-   5 $TypeName    String=("^[A-Z][-.A-Za-z0-9]{0,63}$") /regex optional
-   6 $FieldName   String=("^[a-z][_A-Za-z0-9]{0,63}$") /regex optional
-   7 $Prefix      String=("^([A-Za-z][A-Za-z0-9]{0,7})?$") /regex optional
-
-TypeName = String{pattern="$TypeName"}          // Name of a type
-FieldName = String{pattern="$FieldName"}        // Name of a field
-Prefix = String{pattern="$Prefix"}              // Namespace prefix
-TypeRef = String        // Type Reference matching ($Prefix ':')? $TypeName
-
-Annotation = Choice(3)
-   1  String                                    // str:: Description string
-   2  Descriptors                               // desc:: Named attributes
+Annotation = Choice(oneOf)
+   1  String                                // str:: Description string
+   2  Descriptors                           // desc:: Named strings
 
 Descriptors = Map{1..*}
-   1 title            String{1..*} optional     // A short identifier
-   2 description      String{1..*} optional     // A longer explanation
-   3 comment          String{1..*} optional     // A note
-   4 copyright        String{1..*} optional     // Copyright notice
-   5 license          String{1..*} optional     // SPDX licenseId of package
-   6 deprecated       BString optional          // Should not be used
-   7 default          String{1..*} optional     // Description of default
-   8 examples         String{1..*} optional     // Text examples
-   9 readOnly         BString optional          // JSON Schema API
-  10 writeOnly        BString optional          // JSON Schema API
+   1 title        String{1..*} optional     // Short identifier
+   2 description  String{1..*} optional     // Longer content explanation
+   3 comment      String{1..*} optional     // Note to schema maintainers
+   4 copyright    String{1..*} optional     // Copyright notice
+   5 license      String{1..*} optional     // SPDX licenseId
+   6 deprecated   BString optional          // Do not use, to be deleted
+   7 default      String{1..*} optional     // Description of default
+   8 examples     String{1..*} optional     // Text of examples
+   9 readOnly     BString optional          // JSON Schema API
+  10 writeOnly    BString optional          // JSON Schema API
 
-BString = Enumerated                            // Boolean value strings
+BString = Enumerated                        // Boolean value strings
    1 true
    0 false
+
+Namespace = String /uri                     // Unique name of a package
+Prefix = String{pattern="_prefixPat"}       // Namespace prefix
+TypeName = String{pattern="_typeNamePat"}   // Name of a type
+FieldName = String{pattern="_fieldNamePat"} // Name of a field
+TypeRef = String  // Type Reference matching (_prefixPat ':')? _typeNamePat
         ]]>
         </artwork>
       </figure>
@@ -1407,41 +1406,42 @@ BString = Enumerated                            // Boolean value strings
           Metadata includes functional values that affect schema processing and annotation values
           that describe the package without affecting function.
         </t>
-        <t>Functional metadata:</t>
-        <ul>
-          <li>
-            <t>
-              <strong>package:</strong>
-              the namespace of this schema package, a URI that uniquely identifies the package
-              and qualifies the names of its types.
-              In an IM namespace, URI schemes, paths, file extensions and data formats are irrelevant.
-              The URI does not identify documents, it is a query value used to resolve package references
-              to one or more documents that represent the package.
-              Package namespaces should follow versioning best practices to ensure robustness and
-              maintainability.
-            </t>
-            <t>
-              Metadata is optional in a schema package, and if present "package" is its only required value.
-            </t>
-          </li>
-          <li>
-            <t>
-              <strong>prefix:</strong>
-              a short alias used to qualify a local TypeName with a namespace URI.
-              Prefixes are used in TypeRef values to reference types defined in other packages;
-              JADN does not define a TypeRef syntax that uses the namespace URI directly.
-            </t>
-            <t>
-              Namespaces may also reference external resources of any kind, where user-defined types specify
-              the reference syntax with or without a prefix. All namespace URIs are unique IDs; they may or
-              may not be locators. A web server may return file not found or a document in any media
-              type over a secure protocol when dereferencing any namespace URI.
-            </t>
-            <t><em>Editors Note: Are non-JADN examples useful or distracting?</em></t>
-            <t>Example prefix values. The first two are JADN package namespaces, the rest identify other
-              external resources, illustrating various naming and versioning approaches:</t>
-            <sourcecode>
-            <![CDATA[
+        <section anchor="functionalMetadata">
+          <name>Functional Metadata</name>
+          <ul>
+            <li>
+              <t>
+                <strong>package:</strong>
+                the namespace of this schema package, a URI that uniquely identifies the package
+                and qualifies the names of its types.
+                In an IM namespace, URI schemes, paths, file extensions and data formats are irrelevant.
+                The URI does not identify documents, it is a query value used to resolve package references
+                to one or more documents that represent the package.
+                Package namespaces should follow versioning best practices to ensure robustness and
+                maintainability.
+              </t>
+              <t>
+                Metadata is optional in a schema package, and if present "package" is its only required value.
+              </t>
+            </li>
+            <li>
+              <t>
+                <strong>prefix:</strong>
+                a short alias used to qualify a local TypeName with a namespace URI.
+                Prefixes are used in TypeRef values to reference types defined in other packages;
+                JADN does not define a TypeRef syntax that uses the namespace URI directly.
+              </t>
+              <t>
+                Namespaces may also reference external resources of any kind, where user-defined types specify
+                the reference syntax with or without a prefix. All namespace URIs are unique IDs; they may or
+                may not be locators. A web server may return file not found or a document in any media
+                type over a secure protocol when dereferencing any namespace URI.
+              </t>
+              <t><em>Editors Note: Are non-JADN examples useful or distracting?</em></t>
+              <t>Example prefix values. The first two are JADN package namespaces, the rest identify other
+                external resources, illustrating various naming and versioning approaches:</t>
+              <sourcecode>
+              <![CDATA[
   "prefixes": [
     ["jadn", "http://jadn-im.cc/schema/v2.0/jadn"],
     ["acme", "http://www.example.com/im-schemas/widget39"],
@@ -1451,104 +1451,139 @@ BString = Enumerated                            // Boolean value strings
     ["xs", "http://www.w3.org/2001/XMLSchema#"],
     ["qudt", "https://qudt.org/schema/shacl/qudt/"]
   ]
-            ]]>
-            </sourcecode>
-            <ul>
-              <li><strong>jadn:</strong>
-                the JADN version 2.0 metaschema URI.
-              </li>
-              <li><strong>acme:</strong>
-                a user-defined JADN schema. The "example.com" organization is assumed to be
-                authoritative for the namespace. "acme:Sprocket" references the Sprocket type defined
-                in the package, which might be found on the web at
-                https://www.example.com/im-schemas/widget39.jadn or on a local filesystem at
-                ~/ProjectFoo/schemas/widgets/w39.jidl.
-              </li>
-              <li><strong>gj:</strong>
-                the GeoJSON RFC specifies a JSON geospatial data interchange format in prose without
-                including a machine-readable schema. Although the RFC can be referenced, its
-                type definitions are not usable without translation to a supported IM or DM language.
-              </li>
-              <li><strong>x509:</strong>
-                the ITU-T ASN.1 module defining an identity and attribute certificate framework.
-                ASN.1 is an abstract schema definition language, and types defined within an ASN.1 module
-                can be referenced using a prefix notation, e.g., "x509:TBSCertificate" or "x509:Validity".
-              </li>
-              <li><strong>jss:</strong>
-                the JSON Schema core metaschema. The namespace URI has no file extension and
-                dereferencing it returns the core metaschema JSON document.
-              </li>
-              <li><strong>xs:</strong>
-                XML Schema resources. Dereferencing the URI returns an HTML document that links to
-                multiple resources identified within the namespace.</li>
-              <li><strong>qudt:</strong>
-                the QUDT (Quantities, Units, Dimensions and Data Types) ontology. Dereferencing returns
-                the ontology document in RDF/OWL format.
-              </li>
-            </ul>
-          </li>
-          <li>
-            <t>
-              <strong>roots:</strong>
-              list of unreferenced type names in the package. This is redundant, but is included so that
-              applications are not required to build a dependency list. It also serves to flag types that
-              may be undefined if listed in roots, or unneeded if not.
-            </t>
-          </li>
-          <li>
-            <t>
-              <strong>config:</strong>
-              This specification recommends the default naming conventions and size limits shown in
-              <xref target="schemaPackage"/> for schema-processing tools.
-              Consistent naming conventions improve readability and size limits reduce attack surface,
-              but tool defaults may not be appropriate for all applications.
-              Config values override them with package-level defaults, and type definitions may specify
-              individual size restrictions that override package and tool defaults.
-            </t>
-            <t>
-              By default a JSON Schema string type has no maximum size, based on the assumption that
-              applications are well-behaved. JADN assumes that malicious actors may attempt to compromise
-              receiving applications with unreasonably large data values, and recommends applying small
-              limits (255 bytes / characters / collection members) to types that do not explicitly define
-              one. Package defaults reduce the typing burden of enforcing application-appropriate limits.
-            </t>
-            <ul>
-              <li>$MaxBinary: applies a default maxLength:n option to Binary types.</li>
-              <li>$MaxString: applies a default maxLength:n option to String types.</li>
-              <li>$MaxMembers: applies a default maxLength:n option to Compound types.</li>
-              <li>$Sys: sets the path separator character for TypeNames generated by
-                <xref target="shortcuts">shortcut</xref> processing.</li>
-              <li>$TypeName: sets the regex used to validate TypeName. The default allows Train-Case or PascalCase.</li>
-              <li>$FieldName: sets the regex used to validate FieldName. The default allows snake_case or camelCase.</li>
-              <li>$Prefix: sets the regex used to validate Prefix.</li>
-            </ul>
-          </li>
-          <li>
-            <strong>jadn_version:</strong>
-            the JADN metaschema used to validate this package.
-          </li>
-          <li>
-            <strong>version:</strong>
-            a string used to recognize the most recent iteration among the documents found when resolving
-            the package namespace. It may be a serial number, timestamp or any format with an unambiguous
-            sort order.
-          </li>
-        </ul>
-        <t>Annotation metadata:</t>
-        <t><em>
-          Editors Note: Refactor Description to Annotation usable in Metadata and Type, with name
-          ("copyright") and value string in Map format and just value. Unlike JSON Schema, all annotations,
-          not just $comment, can be stripped at any time and cannot affect validation. All annotation
-        </em></t>
-        <ul>
-          <li>title:</li>
-          <li>description:</li>
-          <li>comment:</li>
-          <li>copyright:</li>
-          <li>license:</li>
-          <li>deprecated, readOnly, writeOnly: (JSON boolean literal in String)</li>
-          <li>default, examples: (JSON literal in String)</li>
-        </ul>
+              ]]>
+              </sourcecode>
+              <ul>
+                <li><strong>jadn:</strong>
+                  the JADN version 2.0 metaschema URI.
+                </li>
+                <li><strong>acme:</strong>
+                  a user-defined JADN schema. The "example.com" organization is assumed to be
+                  authoritative for the namespace. "acme:Sprocket" references the Sprocket type defined
+                  in the package, which might be found on the web at
+                  https://www.example.com/im-schemas/widget39.jadn or on a local filesystem at
+                  ~/ProjectFoo/schemas/widgets/w39.jidl.
+                </li>
+                <li><strong>gj:</strong>
+                  the GeoJSON RFC specifies a JSON geospatial data interchange format in prose without
+                  including a machine-readable schema. Although the RFC can be referenced, its
+                  type definitions are not usable without translation to a supported IM or DM language.
+                </li>
+                <li><strong>x509:</strong>
+                  the ITU-T ASN.1 module defining an identity and attribute certificate framework.
+                  ASN.1 is an abstract schema definition language, and types defined within an ASN.1 module
+                  can be referenced using a prefix notation, e.g., "x509:TBSCertificate" or "x509:Validity".
+                </li>
+                <li><strong>jss:</strong>
+                  the JSON Schema core metaschema. The namespace URI has no file extension and
+                  dereferencing it returns the core metaschema JSON document.
+                </li>
+                <li><strong>xs:</strong>
+                  XML Schema resources. Dereferencing the URI returns an HTML document that links to
+                  multiple resources identified within the namespace.</li>
+                <li><strong>qudt:</strong>
+                  the QUDT (Quantities, Units, Dimensions and Data Types) ontology. Dereferencing returns
+                  the ontology document in RDF/OWL format.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <t>
+                <strong>roots:</strong>
+                list of unreferenced type names in the package. This is redundant, but is included so that
+                applications are not required to build a dependency list. It also serves to flag types that
+                may be undefined if listed in roots, or unneeded if not.
+              </t>
+            </li>
+            <li>
+              <t>
+                <strong>config:</strong>
+                This specification recommends the default naming conventions and size limits shown in
+                <xref target="schemaPackage"/> for schema-processing tools.
+                Consistent naming conventions improve readability and size limits reduce attack surface,
+                but tool defaults may not be appropriate for all applications.
+                Config values override them with package-level defaults, and type definitions may specify
+                individual size restrictions that override package and tool defaults.
+              </t>
+              <t>
+                By default a JSON Schema string type has no maximum size, based on the assumption that
+                applications are well-behaved. JADN assumes that malicious actors may attempt to compromise
+                receiving applications with unreasonably large data values, and recommends applying small
+                limits (255 bytes / characters / collection members) to types that do not explicitly define
+                one. Package defaults reduce the typing burden of enforcing application-appropriate limits.
+              </t>
+              <ul>
+                <li>_maxBinary: applies a default maxLength:n option to Binary types.</li>
+                <li>_maxString: applies a default maxLength:n option to String types.</li>
+                <li>_maxMembers: applies a default maxLength:n option to Compound types.</li>
+                <li>_pathChar: sets the path separator character for TypeNames generated by
+                  <xref target="shortcuts">shortcut</xref> processing.</li>
+                <li>_typeNamePat: sets the regex used to validate TypeName. The default allows Train-Case or PascalCase.</li>
+                <li>_fieldNamePat: sets the regex used to validate FieldName. The default allows snake_case or camelCase.</li>
+                <li>_prefixPat: sets the regex used to validate Prefix.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>jadn_version:</strong>
+              the JADN metaschema used to validate this package.
+            </li>
+            <li>
+              <strong>version:</strong>
+              a string used to recognize the most recent iteration among the documents found when resolving
+              the package namespace. It may be a serial number, timestamp or any format with an unambiguous
+              sort order.
+            </li>
+          </ul>
+        </section>
+        <section anchor="annotation">
+          <name>Annotations</name>
+          <t>
+            Annotation items are descriptions that document and accompany a schema but are logically separate
+            from it. They are included as fields in Metadata, Type and Field types but may be stripped,
+            truncated or modified at any time and must be ignored when performing instance validation and
+            comparison. Each annotation item is a String value, which requires data formats to treat each
+            one as a hole (a sealed envelope containing an immutable binary or text sequence) by either
+            escaping characters with special meaning or by representing it as a base64 literal.
+          </t>
+          <t>
+            As shown in <xref target="schemaPackage"/>, Annotation is an untagged Choice with instances of
+            either a single String or the Descriptors Map of name:String items:
+          </t>
+          <ul>
+            <li>title: a short identifier.</li>
+            <li>description: a longer description of the content and/or its purpose.</li>
+            <li>
+              comment: a note primarily intended for schema maintainers rather than users. Unlike JSON Schema,
+              comment items are processed identically to all annotation items.
+            </li>
+            <li>
+              copyright: intended to hold a three-element copyright notice: the copyright word
+              or symbol, the year of publication, and owner name. Content is not enforced.
+            </li>
+            <li>
+              license: a standardized short code used to uniquely identify open-source licenses, an Identifier
+              registered on the Software Package Data Exchange (SPDX) license list at https://spdx.org/licenses/.
+            </li>
+            <li>
+              deprecated: marks items that may be removed in future specifications and should not be used
+              in new development. Boolean literal in a String value serialized as a string: "true" or "false".
+            </li>
+            <li>
+              readOnly, writeOnly: flags intended for use in API specifications, included for JSON Schema
+              compatibility. Boolean literal in a String value.
+            </li>
+            <li>
+              default: string that describes default values but has no effect on schema processing.
+              The <xref target="options">default option</xref> specifies schema defaults.
+            </li>
+            <li>
+              examples: string containing example values. If the example is a JSON literal, serializing
+              it in an XML data format may not alter it, but serializing it as a JSON string requires
+              characters that conflict with JSON syntax rules, including double quote, backslash, and
+              control characters.
+            </li>
+          </ul>
+        </section>
       </section>
       <section anchor="pkgRequirements">
         <name>Package Requirements</name>
@@ -1560,8 +1595,9 @@ BString = Enumerated                            // Boolean value strings
       <name>Shortcuts</name>
       <t>
         JADN defines a set of core definitions plus several shortcuts that make IM schemas more
-        adaptable or less redundant. Shortcuts are syntactic sugar implemented using options that
-        can be replaced with additional types without affecting functionality.
+        adaptable to various development approaches or less redundant.
+        Shortcuts are syntactic sugar implemented using options that can be replaced with additional
+        types without affecting functionality.
         Expanding shortcuts into core definitions simplifies serialization and validation code,
         and viewing the expanded/simplified schema may aid understanding of the IM.
       </t>

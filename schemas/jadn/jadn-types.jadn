@@ -1,8 +1,10 @@
 {
   "meta": {
-    "title": "JADN Schema Types Test",
     "package": "http://example.org/tests/jadn-types",
-    "roots": ["Test"]
+    "roots": ["Test"],
+    "desc": {
+      "title": "JADN Schema Types Test"
+    }
   },
   "types": [
     ["Test", "Record", [], "Test schema format conversions for all options", [

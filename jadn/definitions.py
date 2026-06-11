@@ -167,14 +167,14 @@ FORMAT_SERIALIZE = {        # Data representation formats for one or more serial
 VALID_FORMATS = {**FORMAT_JS_VALIDATE, **FORMAT_VALIDATE, **FORMAT_SERIALIZE}
 
 DEFAULT_CONFIG = {          # Configuration values to use if not specified in schema
-    '$MaxBinary': 255,          # Maximum number of octets for Binary types
-    '$MaxString': 255,          # Maximum number of characters for String types
-    '$MaxElements': 255,        # Maximum number of items/properties for container types
-    '$Sys': '.',                # System reserved character for TypeName
-    '$TypeName': '^[A-Z][-.A-Za-z0-9]{0,63}$',     # Type Name regex, must include $Sys
-    '$FieldName': '^[a-z][_A-Za-z0-9]{0,63}$',     # Field Name regex, must exclude $Sys
+    '_maxBinary': 255,          # Maximum number of octets for Binary types
+    '_maxString': 255,          # Maximum number of characters for String types
+    '_maxElements': 255,        # Maximum number of items/properties for container types
+    '_pathChar': '.',                # System reserved character for TypeName
+    '_typeNamePat': '^[A-Z][-.A-Za-z0-9]{0,63}$',     # Type Name regex, must include _pathChar
+    '_fieldNamePat': '^[a-z][_A-Za-z0-9]{0,63}$',     # Field Name regex, must exclude _pathChar
     '$NSID': '^([A-Za-z][A-Za-z0-9]{0,7})?$',      # Namespace ID regex
-    '$TypeRef': '^$'            # Placeholder for derived pattern ($NSID ':')? $TypeName
+    '$TypeRef': '^$'            # Placeholder for derived pattern ($NSID ':')? _typeNamePat
 }
 
 EXTENSIONS = {

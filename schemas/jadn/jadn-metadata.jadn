@@ -1,13 +1,6 @@
 {
   "meta": {
-    "title": "JADN Schema Metadata Test",
     "package": "http://example.org/tests/jadn-metadata",
-    "jadn_version": "http://jadn-im.cc/schema/v2.0/jadn",
-    "description": "JADN Schema test vector - all metadata fields",
-    "license": "CC-BY-4.0",
-    "roots": [
-      "Data"
-    ],
     "prefixes": [
       ["jadn", "http://jadn-im.cc/schema/v2.0/jadn"],
       ["foo", "http://www.example.com/im-schemas/widget39443"],
@@ -17,20 +10,29 @@
       ["xs", "http://www.w3.org/2001/XMLSchema#"],
       ["qudt", "https://qudt.org/schema/shacl/qudt/"]
     ],
-    "version": "0.3.1-rc2",
-    "comment": "TODO: fix all the bugs",
-    "copyright": "©2020-2026 Example LLC.",
+    "roots": [
+      "Data"
+    ],
+    "jadn_version": "http://jadn-im.cc/schema/v2.0/jadn",
+    "version": "2026-04-30",
     "config": {
-      "$MaxString": 80,
-      "$FieldName": "^[$A-Za-z][_A-Za-z0-9]{0,63}$",
-      "$TypeName": "^[A-Z][-.A-Za-z0-9]{0,63}$",
-      "$MaxBinary": 42,
-      "$Prefix": "^([A-Za-z][A-Za-z0-9]{0,7})?$",
-      "$MaxElements": 16,
-      "$Sys": "%"
+      "_maxString": 80,
+      "_fieldNamePat": "^[$A-Za-z][_A-Za-z0-9]{0,63}$",
+      "_typeNamePat": "^[A-Z][-.A-Za-z0-9]{0,63}$",
+      "_maxBinary": 42,
+      "_prefixPat": "^([A-Za-z][A-Za-z0-9]{0,7})?$",
+      "_maxElements": 16,
+      "_pathChar": "%"
+    },
+    "desc": {
+      "title": "JADN Schema Metadata Test",
+      "description": "JADN Schema test vector - all metadata fields",
+      "license": "CC-BY-4.0",
+      "comment": "TODO: fix all the bugs, like trailing space mismatch   ",
+      "copyright": "©2020-2026 Example LLC."
     }
   },
   "types": [
-    ["Data", "String"]
+    ["Data", "String", [], {"title": "Dummy Type", "description": "Test multiple annotations in TypeDesc"}]
   ]
 }

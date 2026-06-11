@@ -36,20 +36,20 @@
       <Field fid="2" fname="namespace" type="Namespace">Namespace IRI</Field>
     </Type>
     <Type name="Config" type="Map" minLength="1">Config vars override JADN defaults
-      <Field fid="1" fname="$MaxBinary" type="Integer" minInclusive="1" default="255">Package max octets, default = 255</Field>
-      <Field fid="2" fname="$MaxString" type="Integer" minInclusive="1" default="255">Package max characters, default = 255</Field>
-      <Field fid="3" fname="$MaxElements" type="Integer" minInclusive="1" default="255">Package max items/properties, default = 255</Field>
-      <Field fid="4" fname="$Sys" type="String" minLength="1" maxLength="1" default=".">System character for TypeName, default = '.'</Field>
-      <Field fid="5" fname="$TypeName" type="String" format="regex" default="^[A-Z][-.A-Za-z0-9]{0,63}$">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
-      <Field fid="6" fname="$FieldName" type="String" format="regex" default="^[a-z][_A-Za-z0-9]{0,63}$">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
+      <Field fid="1" fname="_maxBinary" type="Integer" minInclusive="1" default="255">Package max octets, default = 255</Field>
+      <Field fid="2" fname="_maxString" type="Integer" minInclusive="1" default="255">Package max characters, default = 255</Field>
+      <Field fid="3" fname="_maxElements" type="Integer" minInclusive="1" default="255">Package max items/properties, default = 255</Field>
+      <Field fid="4" fname="_pathChar" type="String" minLength="1" maxLength="1" default=".">System character for TypeName, default = '.'</Field>
+      <Field fid="5" fname="_typeNamePat" type="String" format="regex" default="^[A-Z][-.A-Za-z0-9]{0,63}$">Default = ^[A-Z][-.A-Za-z0-9]{0,63}$</Field>
+      <Field fid="6" fname="_fieldNamePat" type="String" format="regex" default="^[a-z][_A-Za-z0-9]{0,63}$">Default = ^[a-z][_A-Za-z0-9]{0,63}$</Field>
       <Field fid="7" fname="$NSID" type="String" format="regex" default="^([A-Za-z][A-Za-z0-9]{0,7})?$">Default = ^([A-Za-z][A-Za-z0-9]{0,7})?$</Field>
     </Type>
     <Type name="Namespace" type="String" format="uri">Unique name of a package</Type>
     <Type name="SemVer" type="String" pattern="^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$">Semantic Version Number (x.y.z)</Type>
     <Type name="NSID" type="String" pattern="$NSID">Namespace prefix matching $NSID</Type>
-    <Type name="TypeName" type="String" pattern="$TypeName">Name of a logical type</Type>
-    <Type name="FieldName" type="String" pattern="$FieldName">Name of a field in a structured type</Type>
-    <Type name="TypeRef" type="String">Reference to a type, matching ($NSID ':')? $TypeName</Type>
+    <Type name="TypeName" type="String" pattern="_typeNamePat">Name of a logical type</Type>
+    <Type name="FieldName" type="String" pattern="_fieldNamePat">Name of a field in a structured type</Type>
+    <Type name="TypeRef" type="String">Reference to a type, matching ($NSID ':')? _typeNamePat</Type>
     <Type name="Type" type="Array">Fixed structure for all type definitions
       <Field fid="1" fname="type_name" type="TypeName">Schema-defined type name</Field>
       <Field fid="2" fname="core_type" type="Enumerated" enum="JADN-Type">Core (JADN-defined) type name</Field>

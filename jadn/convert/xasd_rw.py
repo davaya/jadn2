@@ -2,7 +2,6 @@
 Translate JADN to XML Abstract Schema Definition (XASD)
 """
 from io import BytesIO
-import re
 import lxml.etree as ET
 import xml.dom.minidom as minidom
 from jadn.core import JADNCore, dump_option_type
@@ -47,12 +46,14 @@ class XASD(JADNCore):
             return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
         root = ET.Element('Schema')
-        root.set('version', self.METASCHEMA['meta'].get('jadn_version', '2.0'))
+        root.set('version', '2.0')
 
+# TODO: Refactor to use actual types from schema instead of capitalizing FieldName
         if meta := self.schema.get('meta', {}):
             e_meta = ET.SubElement(root, 'Metadata')
             for k, v in meta.items():
-                kc = k.capitalize()
+                # kc = k.capitalize()
+                kc = k
                 if k == 'roots':
                     e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k]:
@@ -62,10 +63,14 @@ class XASD(JADNCore):
                     for v in meta[k]:
                         attrs = {'px': v[0], 'ns': v[1]}
                         ET.SubElement(e_k, 'Prefix', attrs)
-                elif k == 'config':
+                elif k in {'config', 'desc'}:
                     e_k = ET.SubElement(e_meta, kc)
                     for v in meta[k].items():
                         ET.SubElement(e_k, v[0].strip('$')).text = str(v[1])
+                elif k == 'desc':
+                    e_k = ET.SubElement(e_meta, kc)
+                    for v in meta[k].items():
+                        ET.SubElement(e_k, v[0]).text = str(v[1])
                 else:
                     e_k = ET.SubElement(e_meta, kc)
                     e_k.text = v
