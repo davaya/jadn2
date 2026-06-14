@@ -150,11 +150,10 @@
           a definition of the possible content of a value or literal.
           An IM type has three properties: a value space, a literal space
           for each data format, and a small set of functions and relations including ordering
-          of the value space and mappings from each literal space to the value space.
+          of the value space and a mapping between literals and values for each format.
           This definition extends the <xref target="XSD-2">XML Schema</xref> Datatype to
-          information modeling by including the literal spaces and mappings for multiple
-          data formats. Every value has a Type and every literal is an instance
-          of Type.
+          information modeling by including the literal spaces and mappings for multiple data formats.
+          Every value or literal in a type's value or literal space is an instance of that type.
         </dd>
         <dt>Object</dt>
         <dd>
@@ -1331,7 +1330,7 @@ Coordinate = Record                             // GPS Coordinate
         <t>...</t>
       </section>
     </section>
-    
+
     <section anchor="packages">
       <name>Packages</name>
       <t>
