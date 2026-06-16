@@ -258,8 +258,9 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
     if v := topts.pop('const', None):
         txt += f'=["{v}"]' if tname == 'String' else f'=[{v}]'
 
-    if v := topts.pop('format', None):
-        txt += (' /' + v)
+    if fm := topts.pop('format', None):
+        for k, v in fm.items():
+            txt += ' /' + (k if isinstance(v, bool) else k + str(v))
 
     for opt in ('unique', 'set', 'unordered', 'ordered', 'attr', 'abstract', 'final'):
         if o := topts.pop(opt, None):

@@ -1,5 +1,7 @@
 import os
 import json
+from selectors import SelectSelector
+
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
@@ -87,7 +89,7 @@ class JADNCore:
             # With option tables in place, load metaschema as normal JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
-            load_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
+            self.load_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
 
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
@@ -154,47 +156,62 @@ class JADNCore:
           * expand shortcuts to produce execution-optimized schema
           * validate schema against Metaschema
         """
-        load_meta_types(self)
-        load_option_types(self.schema['types'], self.OPT_TYPE)  # Convert option strings to typed values
+        # self.load_meta_types()
+        self.load_option_types(self.schema['types'], self.OPT_TYPE)  # Convert option strings to typed values
+
+    def load_meta_types(self) -> None:
+        if meta := self.schema.get('meta', {}):
+            for k, v in (c := meta.get('config', {})).items():
+                c[k] = self.str_to_val(self.META_TYPE[k], v)
+
+    # JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in tx['Config'][Fields]}
+
+    def get_map(self, vt: str, lit: str, t_table) -> Any:
+        if vt in self.TYPE_X:
+            assert (mt := self.TYPE_X[vt])[CoreType] == 'Map'
+            t = {i[FieldName]: i[FieldType] for i in mt[Fields]}
+        else:
+            t = self.OPT_TYPE
+        if lit not in t:
+            print(lit, t)
+        return {lit: self.str_to_val(t[lit], lit, t)}
+
+    def str_to_val(self, vtype: str, literal: str, t_table) -> Any:
+        vtypes = {
+            'Integer': int,
+            'Number': float,
+            'String': str,
+        }
+        return bytes.fromhex(literal[2:]) if vtype == 'Binary' \
+            else True if vtype == 'Boolean' \
+            else vtypes[vtype](literal) if vtype in vtypes \
+            else self.get_map(vtype, literal, t_table)
+
+    def load_option_types(self, type_defs: list, type_table: dict[str, str]) -> None:
+        """
+        Convert JADN option values in type definitions from strings to typed variables
+        """
+
+        def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
+            def typ(bt, k, tt):
+                if tt[k] == 'BType':    # Default is not defined for compound types, leave as string
+                    return bt if bt in {'Binary', 'Boolean', 'Integer', 'Number', 'String'} else 'String'
+                return tt[k]
+
+            op = {k: self.str_to_val(typ(base_type, k, t_table), v, t_table) for k, v in opts.items()}
+            opts.update(op)
+
+        for tdef in type_defs:
+            load_otype(tdef[TypeOptions], tdef[CoreType], self.OPT_TYPE)
+            if has_fields(tdef[CoreType]):
+                for fd in tdef[Fields]:
+                    load_otype(fd[FieldOptions], fd[FieldType], type_table)
 
     def schema_validate(self) -> None:
         """
         Validate a logical schema instance against JADN metaschema
         """
         pass
-
-
-def str_to_val(vtype: str, literal: str) -> Any:
-    vtypes = {
-        'Integer': int,
-        'Number': float,
-        'String': str,
-    }
-    return bytes.fromhex(literal[2:]) if vtype == 'Binary'\
-        else True if vtype == 'Boolean'\
-        else vtypes[vtype](literal)
-
-
-def load_meta_types(self) -> None:
-    if meta := self.schema.get('meta', {}):
-        for k, v in (c := meta.get('config', {})).items():
-            c[k] = str_to_val(self.META_TYPE[k], v)
-
-
-def load_option_types(type_defs: list, type_table: dict[str, str]) -> None:
-    """
-    Convert JADN option values in type definitions from strings to typed variables
-    """
-
-    def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
-        op = {k: str_to_val(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
-        opts.update(op)
-
-    for tdef in type_defs:
-        load_otype(tdef[TypeOptions], tdef[CoreType], type_table)
-        if has_fields(tdef[CoreType]):
-            for fd in tdef[Fields]:
-                load_otype(fd[FieldOptions], fd[FieldType], type_table)
 
 
 def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:

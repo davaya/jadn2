@@ -1009,9 +1009,9 @@ Coordinate = Record                             // GPS Coordinate
               <tr><td>false</td><td>false</td><td>false</td><td><xref target="bag" format="title"/></td>
                 <td>ArrayOf+unordered</td></tr>
               <tr><td>false</td><td>true</td><td>true</td><td><xref target="maps" format="title"/></td>
-                <td>ArrayOf+key<br/><strong>MapOf</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
+                <td>ArrayOf w/key<br/>Array w/key<br/><strong>MapOf</strong><br/><strong>Map</strong><br/><strong>Record</strong></td></tr>
               <tr><td>true</td><td>true</td><td>true</td><td><xref target="orderedMaps" format="title"/></td>
-                <td>ArrayOf+key+ordered<br/>MapOf+ktype+ordered<br/>Map+ordered<br/>Record+ordered</td></tr>
+                <td>ArrayOf+ordered w/key<br/>MapOf+ordered w/ktype<br/>Map+ordered<br/>Record+ordered</td></tr>
             </tbody>
           </table>
 
