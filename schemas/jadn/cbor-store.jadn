@@ -25,6 +25,6 @@
       [2, "green"],
       [3, "blue"]
     ]],
-    ["Price", "Integer", ["/E2"]]
+    ["Price", "Integer", ["/E:2,i:64"]]
   ]
 }

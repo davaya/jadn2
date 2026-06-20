@@ -8,19 +8,13 @@ import re
 
 from functools import reduce
 from typing import Any
-from jadn.core import dump_option_type
+from jadn.core import dump_option_type, raise_error
 from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
     DEFAULT_CONFIG, MAX_DEFAULT, MAX_UNSPECIFIED,
     is_builtin, has_fields
 )
-
-
-# Handle errors
-def raise_error(*s) -> None:
-    raise ValueError(*s)
-
 
 # Truncate a string to "n" characters, replacing end with ".." if truncated
 def etrunc(s: str, n: int) -> str:

@@ -1,10 +1,14 @@
 import os
 import json
-from selectors import SelectSelector
 
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
 from typing import TextIO, BinaryIO, Any
+
+
+# Handle errors
+def raise_error(*s) -> None:
+    raise ValueError(*s)
 
 
 def data_dir() -> str:
@@ -54,6 +58,7 @@ class JADNCore:
     METASCHEMA = None
 
     def __init__(self, pkg: 'JADNCore'=None) -> None:
+        # breakpoint()
         self.schema = None          # original schema
         self.source = None          # source of original schema
         self.run_schema = None      # schema with shortcuts expanded for data validation
@@ -77,6 +82,10 @@ class JADNCore:
             JADNCore.OPT_TYPE = {i[FieldName]: i[FieldType] for i in opts}  # Name to value type lookup
             assert len(self.OPT_NAME) == len(self.OPT_ID), f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
+            # Generate option translation tables (e.g., semantic validation keywords) referenced by JADNOpts
+            JADNCore.OTABS = {t[FieldName]: {f[FieldName]: f[FieldType] for f in tx[t[FieldType]][Fields]} \
+                for t in opts if t[FieldType] not in {'Binary', 'Boolean', 'Integer', 'Number', 'String', 'BType'}}
+
             # Generate separate type and field option lists
             JADNCore.OPT_ORDER = {i[FieldName]: n for n, i in enumerate(opts, start=1)}     # Canonical position
             to = self.OPT_ORDER['typeOpts']     # Sentinel value separating type options from field options
@@ -84,7 +93,7 @@ class JADNCore:
             JADNCore.FIELD_OPTS = {k for k, v in self.OPT_ORDER.items() if v > to}
 
             # Package configuration variables and types
-            JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in tx['Config'][Fields]}
+            # JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in tx['Config'][Fields]}
 
             # With option tables in place, load metaschema as normal JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
@@ -166,7 +175,12 @@ class JADNCore:
 
     # JADNCore.META_TYPE = {i[FieldName]: i[FieldType] for i in tx['Config'][Fields]}
 
-    def get_map(self, vt: str, lit: str, t_table) -> Any:
+    def get_map(self, vt: str, lit: str, btype, t_table) -> Any:
+        """
+        Convert string representations to typed values of JADN TypeOptions based on the JADNOpts
+        translation table, semantic validation keywords based on JADNFormats, and user-defined
+        keyword values based on user-supplied translation tables.
+        """
         if vt in self.TYPE_X:
             assert (mt := self.TYPE_X[vt])[CoreType] == 'Map'
             t = {i[FieldName]: i[FieldType] for i in mt[Fields]}
@@ -174,18 +188,45 @@ class JADNCore:
             t = self.OPT_TYPE
         if lit not in t:
             print(lit, t)
-        return {lit: self.str_to_val(t[lit], lit, t)}
+        # return {lit: self.str_to_val(t[lit], lit, t)}
+        rv = {lit: self.str_to_val(t[lit], lit, btype, t_table)}
+        return rv
 
-    def str_to_val(self, vtype: str, literal: str, t_table) -> Any:
+    def str_to_val(self, k: str, v: str, btype: str, t_table) -> Any:
         vtypes = {
+            'Boolean': bool,
             'Integer': int,
             'Number': float,
             'String': str,
         }
+
+        kt = t_table.get(k) or t_table.get(k.split(':')[0], None)   # Search no-value options first, then values
+        if kt:
+            # kp = kt if kt in vtypes else btype if btype in vtypes else k   # Allow distributed default in Compound types
+            # kp = kt if kt in vtypes else k   # No btype - disables formats map
+            kp = kt if kt in vtypes else btype if btype in vtypes else k if k in vtypes else None
+            if kp in vtypes:
+                return vtypes[kp](v)
+
+            # km = btype if kt == 'BType' else kt
+            if (mt := self.TYPE_X[kt])[CoreType] == 'Map':  # TODO: cache generated tables in self.T dict
+                m_tab = {i[FieldName]: i[FieldType] for i in mt[Fields]}
+                vl = [i.strip() for i in v.split(',')]
+                rv = {}
+                for i in vl:
+                    i1, _, i2 = i.partition(':')
+                    rv.update({i1: self.str_to_val(i1, i2 if i2 else '1', btype, m_tab)})
+                return rv
+
+        raise_error(f'Translation for {k} not found: table {kt}, value {v}, type {btype}')
+
+        """
         return bytes.fromhex(literal[2:]) if vtype == 'Binary' \
             else True if vtype == 'Boolean' \
             else vtypes[vtype](literal) if vtype in vtypes \
+            else t_table[literal] if vtype == 'BType' \
             else self.get_map(vtype, literal, t_table)
+        """
 
     def load_option_types(self, type_defs: list, type_table: dict[str, str]) -> None:
         """
@@ -193,15 +234,10 @@ class JADNCore:
         """
 
         def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
-            def typ(bt, k, tt):
-                if tt[k] == 'BType':    # Default is not defined for compound types, leave as string
-                    return bt if bt in {'Binary', 'Boolean', 'Integer', 'Number', 'String'} else 'String'
-                return tt[k]
-
-            op = {k: self.str_to_val(typ(base_type, k, t_table), v, t_table) for k, v in opts.items()}
-            opts.update(op)
+            opts.update({k: self.str_to_val(k, v, base_type, t_table) for k, v in opts.items()})
 
         for tdef in type_defs:
+            # base_type = tdef[TypeName] if (ct := tdef[CoreType]) == 'Map' else ct
             load_otype(tdef[TypeOptions], tdef[CoreType], self.OPT_TYPE)
             if has_fields(tdef[CoreType]):
                 for fd in tdef[Fields]:

@@ -1,8 +1,7 @@
 import json
 import os
-from jadn.core import JADNCore
+from jadn.core import JADNCore, raise_error
 from jadn.definitions import TypeName, is_builtin
-from jadn.utils import raise_error
 
 """
 Translate JADN abstract schema to/from JSON schema
