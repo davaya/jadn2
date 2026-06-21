@@ -79,12 +79,12 @@ class JADNCore:
             opts = tx['JADNOpts'][Fields]
             JADNCore.OPT_NAME = {i[FieldID]: i[FieldName] for i in opts}    # ID to Name lookup
             JADNCore.OPT_ID = {i[FieldName]: i[FieldID] for i in opts}      # Name to ID lookup
-            JADNCore.OPT_TYPE = {i[FieldName]: i[FieldType] for i in opts}  # Name to value type lookup
             assert len(self.OPT_NAME) == len(self.OPT_ID), f'{meta_file}: Bad JADNOpts (duplicate id or name)'
 
-            # Generate option translation tables (e.g., semantic validation keywords) referenced by JADNOpts
-            JADNCore.OTABS = {t[FieldName]: {f[FieldName]: f[FieldType] for f in tx[t[FieldType]][Fields]} \
-                for t in opts if t[FieldType] not in {'Binary', 'Boolean', 'Integer', 'Number', 'String', 'BType'}}
+            # Generate option name to type lookup tables
+            JADNCore.OPT_TYPE = {i[FieldName]: i[FieldType] for i in opts}  # Name to value type lookup
+            JADNCore.OPT_TAB = {i[FieldName]: {f[FieldName]: f[FieldType] for f in tx[i[FieldType]][Fields]} \
+                for i in opts if i[FieldType] not in {'Binary', 'Boolean', 'Integer', 'Number', 'String', 'BType'}}
 
             # Generate separate type and field option lists
             JADNCore.OPT_ORDER = {i[FieldName]: n for n, i in enumerate(opts, start=1)}     # Canonical position
@@ -98,7 +98,7 @@ class JADNCore:
             # With option tables in place, load metaschema as normal JADN schema
             JADNCore.METASCHEMA = jadn_schema_loads(jadn_str, self.OPT_NAME)
             JADNCore.TYPE_X = {td[TypeName]: td for td in self.METASCHEMA['types']}
-            self.load_option_types(self.METASCHEMA['types'], self.OPT_TYPE)
+            self.load_option_types(self.METASCHEMA['types'])
 
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
@@ -166,7 +166,7 @@ class JADNCore:
           * validate schema against Metaschema
         """
         # self.load_meta_types()
-        self.load_option_types(self.schema['types'], self.OPT_TYPE)  # Convert option strings to typed values
+        self.load_option_types(self.schema['types'])  # Convert option strings to typed values
 
     def load_meta_types(self) -> None:
         if meta := self.schema.get('meta', {}):
@@ -192,7 +192,7 @@ class JADNCore:
         rv = {lit: self.str_to_val(t[lit], lit, btype, t_table)}
         return rv
 
-    def str_to_val(self, k: str, v: str, btype: str, t_table) -> Any:
+    def str_to_val(self, k: str, v: str, btype: str) -> Any:
         vtypes = {
             'Boolean': bool,
             'Integer': int,
@@ -200,23 +200,23 @@ class JADNCore:
             'String': str,
         }
 
-        kt = t_table.get(k) or t_table.get(k.split(':')[0], None)   # Search no-value options first, then values
+        if tt := self.OPT_TAB.get(k):
+            vl = [i.strip() for i in v.split(',')]
+            rv = {}
+            for i in vl:
+                i1, _, i2 = i.partition(':')
+                try:
+                    rv.update({i1: vtypes[tt[i1]](i2 if i2 else '1')})
+                except (ValueError, KeyError):
+                    pass
+            return rv
+
+        kt = self.OPT_TYPE.get(k)
         if kt:
-            # kp = kt if kt in vtypes else btype if btype in vtypes else k   # Allow distributed default in Compound types
-            # kp = kt if kt in vtypes else k   # No btype - disables formats map
-            kp = kt if kt in vtypes else btype if btype in vtypes else k if k in vtypes else None
+            kp = btype if kt == 'BType' else kt
+            kp = kp if kp in vtypes else 'String'
             if kp in vtypes:
                 return vtypes[kp](v)
-
-            # km = btype if kt == 'BType' else kt
-            if (mt := self.TYPE_X[kt])[CoreType] == 'Map':  # TODO: cache generated tables in self.T dict
-                m_tab = {i[FieldName]: i[FieldType] for i in mt[Fields]}
-                vl = [i.strip() for i in v.split(',')]
-                rv = {}
-                for i in vl:
-                    i1, _, i2 = i.partition(':')
-                    rv.update({i1: self.str_to_val(i1, i2 if i2 else '1', btype, m_tab)})
-                return rv
 
         raise_error(f'Translation for {k} not found: table {kt}, value {v}, type {btype}')
 
@@ -228,20 +228,19 @@ class JADNCore:
             else self.get_map(vtype, literal, t_table)
         """
 
-    def load_option_types(self, type_defs: list, type_table: dict[str, str]) -> None:
+    def load_option_types(self, type_defs: list) -> None:
         """
         Convert JADN option values in type definitions from strings to typed variables
         """
 
-        def load_otype(opts: dict, base_type: str, t_table: dict) -> None:
-            opts.update({k: self.str_to_val(k, v, base_type, t_table) for k, v in opts.items()})
+        def load_otype(opts: dict, base_type: str) -> None:
+            opts.update({k: self.str_to_val(k, v, base_type) for k, v in opts.items()})
 
         for tdef in type_defs:
-            # base_type = tdef[TypeName] if (ct := tdef[CoreType]) == 'Map' else ct
-            load_otype(tdef[TypeOptions], tdef[CoreType], self.OPT_TYPE)
+            load_otype(tdef[TypeOptions], tdef[CoreType])
             if has_fields(tdef[CoreType]):
                 for fd in tdef[Fields]:
-                    load_otype(fd[FieldOptions], fd[FieldType], type_table)
+                    load_otype(fd[FieldOptions], fd[FieldType])
 
     def schema_validate(self) -> None:
         """
@@ -262,8 +261,8 @@ def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
     :return:
     :rtype:
     """
-    def val_to_str(vtype: str, val: Any) -> str:
-        return f'0x{val.hex()}' if vtype == 'Binary' else str(val)
+    def val_to_str(vtype: str, val: Any) -> str | dict:
+        return f'0x{val.hex()}' if vtype == 'Binary' else val if isinstance(val, dict) else str(val)
 
     op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
     opts.update(op)

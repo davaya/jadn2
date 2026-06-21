@@ -42,10 +42,14 @@ class JADN(JADNCore):
                 kv = v.popitem()
                 return chr(self.OPT_ID[kv[0]]) + kv[1]
 
+            def fmtopt(v: dict[str, Any]) -> str:
+                return ','.join([f'{k}:{j}'for k, j in v.items()])
+
             def strs(k: str, v: Any) -> str:    # TODO: fix boolean False encoding
-                v = '' if isinstance(v, bool) else\
-                    f'0x{v.hex()}' if isinstance(v, bytes) else\
-                    dictopt(v) if isinstance(v, dict) else\
+                v = fmtopt(v) if k == 'format' else \
+                    '' if isinstance(v, bool) else \
+                    f'0x{v.hex()}' if isinstance(v, bytes) else \
+                    dictopt(v) if isinstance(v, dict) else \
                     str(v)
                 return chr(self.OPT_ID[k]) + str(v)
 
