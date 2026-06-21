@@ -6,7 +6,7 @@ from jadn.style import style_args, style_fname
 from pathlib import Path
 
 OUT_DIR = 'test/Out'
-JADN_SCHEMA_DIR = 'schemas2/jadn'
+JADN_SCHEMA_DIR = 'schemas/jadn'
 CONFIG_FILE = 'apps/jadn_config.json'
 JADN_SCHEMA_CLASS = {
     'jadn': JADN,

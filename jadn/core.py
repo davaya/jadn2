@@ -207,8 +207,8 @@ class JADNCore:
                 i1, _, i2 = i.partition(':')
                 try:
                     rv.update({i1: vtypes[tt[i1]](i2 if i2 else '1')})
-                except (ValueError, KeyError):
-                    pass
+                except (ValueError, KeyError) as e:
+                    print(e)
             return rv
 
         kt = self.OPT_TYPE.get(k)

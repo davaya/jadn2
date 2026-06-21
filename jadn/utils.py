@@ -254,7 +254,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
 
     if fm := topts.pop('format', None):
         for k, v in fm.items():
-            txt += ' /' + (k if isinstance(v, bool) else k + str(v))
+            txt += ' /' + (k if (isinstance(v, bool) or not v) else k + ":" + str(v))
 
     for opt in ('unique', 'set', 'unordered', 'ordered', 'attr', 'abstract', 'final'):
         if o := topts.pop(opt, None):
@@ -336,7 +336,7 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
 
     topts = {}
     p_name = r'\s*(!?[-.:\w]+)'                     # 1 TypeRef TODO: Use $TypeRef from self
-    p_id = r'\s*(#?)'                                  # 2 'id'
+    p_id = r'\s*(#?)'                               # 2 'id'
     p_func = r'\s*(?:\(([^)]+)\))?'                 # 3 'keyType', 'valueType', 'enum', 'pointer', 'tagId'
     pattern = fr'^{p_name}{p_id}{p_func}(.*?)\s*$'
     m = re.match(pattern, typestring)
@@ -363,6 +363,7 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
             assert f'unexpected function options {tname} {op}'
 
     rest = m.group(4)
+    fmts = set()
     while rest.strip():
         # Process range and default constraints
         if m := re.match(r'^(.*?)(?:=([\(\[])([^=\n]*)([\)\]]))(.*)$', rest):
@@ -395,10 +396,6 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
 
-        elif m := re.match(r'^\s*(\/\w[-\w]*)(.*)$', rest):   # format option "/foo"
-            rest = m.group(2)
-            topts.update({'format': m.group(1)[1:]})
-
         elif m := re.match(r'^\s*(unique|set|unordered|ordered|attr|abstract|final)(.*)$', rest):
             rest = m.group(2)
             topts.update({m.group(1): True})    # Boolean options - True if present
@@ -407,13 +404,15 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
             rest = m.group(3)
             topts.update({m.group(1): m.group(2)})
 
-        elif m := re.match(r'^\s*\^E(-?\d+)(.*)$', rest):   # fixed-point scale factor: ^E<n>
+        elif m := re.match(r'^\s*\/([-_:a-zA-Z0-9]+)(.*)$', rest):   # one format option "/xyz" or "/xy:z"
             rest = m.group(2)
-            topts.update({'scale': m.group(1)})
+            fmts.add(m.group(1))
 
         else:
             raise_error(f'Unprocessed type options {rest} in {typestring}')
 
+    if f := ','.join((str(i) for i in fmts)):
+        topts.update({'format': f})
     return tname, topts, rest
 
 
