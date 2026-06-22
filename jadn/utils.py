@@ -253,8 +253,7 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
         txt += f'=["{v}"]' if tname == 'String' else f'=[{v}]'
 
     if fm := topts.pop('format', None):
-        for k, v in fm.items():
-            txt += ' /' + (k if (isinstance(v, bool) or not v) else k + ":" + str(v))
+        txt += ' /' + fm
 
     for opt in ('unique', 'set', 'unordered', 'ordered', 'attr', 'abstract', 'final'):
         if o := topts.pop(opt, None):
@@ -363,7 +362,6 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
             assert f'unexpected function options {tname} {op}'
 
     rest = m.group(4)
-    fmts = set()
     while rest.strip():
         # Process range and default constraints
         if m := re.match(r'^(.*?)(?:=([\(\[])([^=\n]*)([\)\]]))(.*)$', rest):
@@ -404,15 +402,13 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
             rest = m.group(3)
             topts.update({m.group(1): m.group(2)})
 
-        elif m := re.match(r'^\s*\/([-_:a-zA-Z0-9]+)(.*)$', rest):   # one format option "/xyz" or "/xy:z"
+        elif m := re.match(r'^\s*\/([-_,:a-zA-Z0-9]+)(.*)$', rest):   # one format option "/xyz" or "/xy:z"
             rest = m.group(2)
-            fmts.add(m.group(1))
+            topts.update({'format': m.group(1)})
 
         else:
             raise_error(f'Unprocessed type options {rest} in {typestring}')
 
-    if f := ','.join((str(i) for i in fmts)):
-        topts.update({'format': f})
     return tname, topts, rest
 
 

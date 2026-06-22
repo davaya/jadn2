@@ -261,8 +261,12 @@ def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
     :return:
     :rtype:
     """
+    def dict_to_str(val: dict) -> str:
+        vl = (k if (isinstance(v, bool) or not v) else k + ':' + str(v) for k, v in val.items())
+        return ','.join(vl)
+
     def val_to_str(vtype: str, val: Any) -> str | dict:
-        return f'0x{val.hex()}' if vtype == 'Binary' else val if isinstance(val, dict) else str(val)
+        return f'0x{val.hex()}' if vtype == 'Binary' else dict_to_str(val) if isinstance(val, dict) else str(val)
 
     op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
     opts.update(op)

@@ -77,7 +77,7 @@ class XASD(JADNCore):
 
         e_types = ET.SubElement(root, 'Types')
         for td in self.schema['types']:
-            to = {aname(k): str(v) for k, v in td[TypeOptions].items()}
+            to = {aname(k): dump_option_type(v, None, self.OPT_TYPE) for k, v in td[TypeOptions].items()}
             e_td = ET.SubElement(e_types, 'Type', name = td[TypeName], type = td[CoreType], **to)
             if td[TypeDesc]:
                 e_td.text = enc_entities(td[TypeDesc])
