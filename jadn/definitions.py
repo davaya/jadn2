@@ -59,12 +59,13 @@ UNION_TYPES = (
 CORE_TYPES = PRIMITIVE_TYPES + COMPOUND_TYPES + UNION_TYPES
 
 
-def is_builtin(t: str) -> bool:      # Is a core type
-    return t in CORE_TYPES
+def is_builtin(t: str) -> bool: return t in CORE_TYPES
 
 
-def has_fields(t: str) -> bool:      # Is a type with fields listed in definition
-    return t in {'Array', 'Map', 'Record', 'Choice'}
+def is_primitive(t: str) -> bool: return t in PRIMITIVE_TYPES   # Built-in (unqualified) primitive types
+
+
+def has_fields(t: str) -> bool: return t in {'Array', 'Map', 'Record', 'Choice'}    # Fields explicitly listed
 
 
 # Option "tagged-string" serialization:

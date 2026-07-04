@@ -9,7 +9,7 @@
       [2, "author", "String"],
       [3, "title", "String"],
       [4, "price", "Price"],
-      [5, "isbn", "String", ["[0"]]
+      [5, "isbn", "ISBN", ["[0"]]
     ]],
     ["Bicycle", "Record", [], "", [
       [1, "color", "Color"],

@@ -1,0 +1,1 @@
+Edge case schemas that should pass but are not generally useful

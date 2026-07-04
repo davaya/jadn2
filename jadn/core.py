@@ -3,7 +3,8 @@ import json
 
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
-from typing import TextIO, BinaryIO, Any
+from dataclasses import dataclass, field, fields
+from typing import TextIO, BinaryIO, Any, ClassVar, Optional
 
 
 # Handle errors
@@ -20,12 +21,12 @@ def data_dir() -> str:
 
 # =========================================================
 # Define JADN schema static load function because it's needed to load METASCHEMA,
-# Cannot use class method to initialize class.
+# Subclass cannot initialize parent class
 # =========================================================
 
 def jadn_schema_loads(jadn_str: str, opt_name: dict[int, str]) -> dict:
     """
-    Load a logical JADN schema from a JSON string.
+    Load a JADN schema from a JSON string.
 
     For each type definition, fill in column defaults and convert options from tagString list to dict.
 
@@ -53,21 +54,34 @@ def jadn_schema_loads(jadn_str: str, opt_name: dict[int, str]) -> dict:
 
 # ========================================================
 # JADN schema core class
+# 1: Class variables are computed once from the Metaschema, the first time any subclass is initialized
+# 2: Instance variables are
+# 2a: computed once when a subclass is initialized
+# 2b: computed when a schema is loaded using the subclass
+# 2c: copied when an input schema is linked to an output schema
+# 3: Cached when a document is validated against a schema
 # ========================================================
+@dataclass(slots=True, order=True)      # Automatically generate __init__() and data methods
 class JADNCore:
-    METASCHEMA = None
+    pkg: Optional['JADNCore'] = None    # Argument to copy schema instance from pkg to self
+    METASCHEMA: ClassVar[dict] = {}     # Class variables loaded and precomputed once
+    OPT_NAME: ClassVar[dict] = {}       # FieldID to FieldName
+    OPT_ID: ClassVar[dict] = {}         # FieldName to FieldID
+    OPT_TYPE: ClassVar[dict] = {}       # Option ID to Name
+    OPT_TAB: ClassVar[dict] = {}        # Option Name to ID
 
-    def __init__(self, pkg: 'JADNCore'=None) -> None:
-        # breakpoint()
-        self.schema = None          # original schema
-        self.source = None          # source of original schema
-        self.run_schema = None      # schema with shortcuts expanded for data validation
-        if pkg is not None:
-            assert pkg.__class__.__bases__ == self.__class__.__bases__      # pkg must be a subclass of JADNCore
-            self.__dict__.update(pkg.__dict__)      # Copy all instance variables from pkg (shallow)
+    # Reserve fixed memory slots for instance variables, but do not include them in auto-generated __init__
+    schema: dict = field(init=False)    # Original Schema Value
+    source: TextIO = field(init=False)  # Source of original schema Document
+    encoding: dict = field(init=False)  # schema-independent mechanisms for value representation
+    type_x: dict = field(init=False)    # schema name to type definition lookup
+    val_type: dict = field(init=False)  # list of values annotated with type
+    cache: dict = field(init=False)  # tables for input package
 
+
+    def __post_init__(self) -> None:            # Run immediately after __init__()
         # If this is the first instance, pre-compute class variables from metaschema definitions
-        if JADNCore.METASCHEMA is None:
+        if not JADNCore.METASCHEMA:
             meta_file = os.path.join(data_dir(), 'jadn_v2.0_schema.jadn')
             with open(meta_file, encoding='utf8') as fp:
                 jadn_str = fp.read()
@@ -103,6 +117,32 @@ class JADNCore:
             JADNCore.REF_OPTS = {fd[FieldName]  # Options that refer to other types
                 for td in self.METASCHEMA['types'] if 'tagString' in td[TypeOptions]
                     for fd in td[Fields] if fd[FieldType] == 'TypeRef'}
+
+            # Get TypeOptions for each CoreType from reserved type "TypeOptions"
+            def topt(tname: str) -> list:
+                return {k[FieldName]: k[FieldOptions].get('minOccurs', 1) for k in self.TYPE_X[tname][Fields]}
+            JADNCore.TYPE_OPTIONS = {k[FieldName]: topt(k[FieldType]) for k in self.TYPE_X['TypeOptions'][Fields]}
+
+        # Initialize schema instance
+        self.schema = None      # original schema
+        self.source = None      # source of original schema
+        self.encoding = None    # schema-independent mechanisms for value representation
+        self.type_x = None      # schema name to type definition lookup
+        self.val_type = []      # list of parsed values annotated with type
+        self.cache = None       # pre-computed and cached values used to speed validation
+
+        # pkg must be a subclass of JADNCore
+        if self.pkg is not None:
+            assert self.pkg.__class__.__bases__ == self.__class__.__bases__
+            # Copy specific instance variables from input pkg
+            for f in ('schema', 'source'):
+                setattr(self, f, getattr(self.pkg, f))
+            """
+            # Copy all instance variables from input pkg (shallow)
+            for f in fields(self):
+                if f.name != 'pkg':
+                    setattr(self, f.name, getattr(self.pkg, f.name))
+            """
 
     def style(self) -> dict:
         """
@@ -158,7 +198,7 @@ class JADNCore:
         fp.write(message)
         return message
 
-    def schema_load_finish(self) -> None:
+    def schema_load_finish(self, verbose_record: bool=True, verbose_string: bool=True) -> None:
         """
         Common schema-load post-processing
           * load Config options from meta instance
@@ -167,6 +207,9 @@ class JADNCore:
         """
         # self.load_meta_types()
         self.load_option_types(self.schema['types'])  # Convert option strings to typed values
+        self.type_x = {v[TypeName]: v for v in self.schema['types']}   # Generate type index for validation
+        self.encoding = {'verbose_record': verbose_record, 'verbose_string': verbose_string}
+        self.schema_validate()
 
     def load_meta_types(self) -> None:
         if meta := self.schema.get('meta', {}):
@@ -244,10 +287,81 @@ class JADNCore:
 
     def schema_validate(self) -> None:
         """
-        Validate a logical schema instance against JADN metaschema
+        Validate a schema instance against JADN metaschema
+        Precompute lookup tables to optimize data validation against schema
         """
+        def _val(tdef: list) -> dict:
+            if xo := set(tdef[TypeOptions]) - set(self.TYPE_OPTIONS[tdef[CoreType]]):
+                raise_error(f'Unsupported options {xo} for type {tdef[CoreType]} in {tdef[TypeName]}')
+            if xo := {k for k, v in self.TYPE_OPTIONS[tdef[CoreType]].items() if v == 1} - set(tdef[TypeOptions]):
+                raise_error(f'Missing required options {xo} for type {tdef[CoreType]} in {tdef[TypeName]}')
+
+            return {
+                'fx': {fd[FieldName]: fd[FieldID] for fd in tdef[Fields]},
+                'req': {fd[FieldName]: fd[FieldOptions].get('minOccurs', 1) for fd in tdef[Fields]}
+            }
+
+        self.cache = {td[TypeName]: _val(td) for td in self.schema['types']}
+        self.cache['run_schema'] = {}  # Original schema with shortcuts expanded
         pass
 
+
+    def validate_value(self, tname: str, fdef: list, val: Any, ctx: Any, type_callback) -> None:
+        # perform class-agnostic value validation
+        # classify type and validity of val according to type options
+
+        tdef = self.TYPE_X.get(tname, tname)
+        self.val_type.append((tdef[TypeName], val))
+        schema_opts = self.TYPE_OPTIONS[tdef[CoreType]]
+        type_callback(tdef, fdef, val, ctx)   # Perform class-specific processing on type
+
+        if (tn := tdef[CoreType]) == 'Boolean':
+            pass
+
+        elif tn == 'Integer':
+            pass
+
+        elif tn == 'Number':
+            pass
+
+        elif tn == "String":
+            pass    # done - no generic processing
+
+        elif tn == 'Binary':
+            pass
+
+        elif tn == 'Array':
+            pass
+
+        elif tn == 'Map':
+            pass
+
+        elif tn == 'Record':
+            fnames = set()
+            ftypes = {k[FieldName]: k[FieldType] for k in tdef[Fields]}
+            for k, v in val.items():
+                fnames.add(k)
+                pass
+        #     for fdef in tdef[Fields]:
+        #         type_callback(tdef, fdef, val, ctx)
+
+        elif tn == 'ArrayOf':
+            fdef = self.TYPE_X.get(tdef[TypeOptions]['valueType'])
+            for f in val:
+                type_callback(tdef, fdef, val, ctx)
+                # make_val_element(fname, f, fdef[TypeName], ctx)
+
+        elif tn == 'MapOf':
+            pass    # get column names/values as attributes
+
+        elif tn == 'Enumerated':
+            pass
+
+        elif tn == 'Choice':
+            pass
+
+        else:
+            raise_error(f'Unknown Core Type: {tdef} {fdef}')
 
 def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
     """
@@ -268,6 +382,8 @@ def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
     def val_to_str(vtype: str, val: Any) -> str | dict:
         return f'0x{val.hex()}' if vtype == 'Binary' else dict_to_str(val) if isinstance(val, dict) else str(val)
 
+    if not isinstance(opts, dict):
+        print
     op = {k: val_to_str(base_type if (t := t_table[k]) == 'BType' else t, v) for k, v in opts.items()}
     opts.update(op)
 

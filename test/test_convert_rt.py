@@ -6,7 +6,7 @@ from jadn.style import style_args, style_fname
 from pathlib import Path
 
 OUT_DIR = 'test/Out'
-JADN_SCHEMA_DIR = 'schemas/jadn'
+JADN_SCHEMA_DIRS = ['schemas2/jadn', 'schemas/jadn-test']
 CONFIG_FILE = 'apps/jadn_config.json'
 JADN_SCHEMA_CLASS = {
     'jadn': JADN,
@@ -55,7 +55,9 @@ def schema_convert(schema_classes: dict, in_path: Path, out_format: str) -> ((st
 
 @pytest.mark.parametrize('round_trip', ['', 'jadn'])
 @pytest.mark.parametrize('out_format', JADN_SCHEMA_CLASS)
-@pytest.mark.parametrize('in_path', Path(abs_dir(JADN_SCHEMA_DIR)).glob('*'), ids=lambda p: p.name)
+@pytest.mark.parametrize('in_path',
+    [p for d in JADN_SCHEMA_DIRS for p in Path(abs_dir(d)).glob('*.jadn')],
+    ids=lambda p: f'{p.parent.name}/{p.name}')
 def test_jadn_schema_convert(session_data: dict, in_path: str, out_format: str, round_trip: str):
     """
     Convert native JADN schema to equivalent alternate JADN format

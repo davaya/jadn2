@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+from dataclasses import dataclass
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
     ItemID, ItemValue, FieldType, FieldOptions
 from jadn.core import JADNCore, jadn_schema_loads, dump_option_types
@@ -11,6 +12,7 @@ from typing import Any
 # JADN-format methods
 # jadn_schema_loads static function is defined in jadn.core because Core class uses it to load METASCHEMA
 # =========================================================
+@dataclass(slots=True, order=True)
 class JADN(JADNCore):
 
     def style(self) -> dict:
