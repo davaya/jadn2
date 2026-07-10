@@ -56,32 +56,33 @@ class XASD(JADNCore):
                     d = etree.SubElement(anno, k)
                     d.text = enc_entities(v)
 
-        def make_type_element(tdef: list, eroot: etree.Element) -> None:
+        def make_field_element(tdef: list, fdef: list, el: etree.Element) -> None:
+            fld = {'id': str(fdef[FieldID]), 'value': fdef[FieldName]}
+            ftype = 'String'
+            desc = ItemDesc
+            if tdef[CoreType] != 'Enumerated':
+                fo = copy.copy(fdef[FieldOptions])
+                dump_option_type(fo, fdef[FieldType], self.OPT_TYPE)
+                fld = {'fid': str(fdef[FieldID]), 'fname': fdef[FieldName]} | fo
+                ftype = fdef[FieldType]
+                desc = FieldDesc
+            ef = etree.SubElement(el, ftype, **fld)
+            enc_dict_entities(ef, fdef[desc])
+
+        def make_type_element(tdef: list, ctx: dict) -> None:
             to = copy.copy(tdef[TypeOptions])
             dump_option_type(to, tdef[TypeName], self.OPT_TYPE)
-            el = etree.SubElement(eroot, tdef[TypeName], **({'type': tdef[CoreType]} | to))
+            el = etree.SubElement(ctx['element'], tdef[TypeName], **({'type': tdef[CoreType]} | to))
             enc_dict_entities(el, tdef[TypeDesc])
-            for fdef in tdef[Fields]:
-                fld = {'id': str(fdef[FieldID]), 'value': fdef[FieldName]}
-                ftype = 'String'
-                desc = ItemDesc
-                if tdef[CoreType] != 'Enumerated':
-                    fo = copy.copy(fdef[FieldOptions])
-                    dump_option_type(fo, fdef[FieldType], self.OPT_TYPE)
-                    fld = {'fid': str(fdef[FieldID]), 'fname': fdef[FieldName]} | fo
-                    ftype = fdef[FieldType]
-                    desc = FieldDesc
-                ef = etree.SubElement(el, ftype, **fld)
-                enc_dict_entities(ef, fdef[desc])
+            ctx['element'] = el
+            # for fdef in tdef[Fields]:
+            #     make_field_element(tdef, fdef, el)
 
-        def make_element(tdef: list, fdef: list, val: Any, ctx: dict) -> None:
+        def make_element(tdef: list, val: Any, ctx: dict) -> None:
             # Perform class-specific type validation
             if ctx.get('element') is None:  # Create schema root element
                 ctx.update({'element': etree.Element(tdef[TypeName])})
-            if fdef:
-                etree.SubElement(ctx['element'], tdef[TypeName], fdef[FieldOptions])
-            else:
-                pass
+            make_type_element(tdef, ctx)
 
 
         # tx = {k: v for k, v in self.schema.get('meta', {}).items()}
@@ -89,10 +90,10 @@ class XASD(JADNCore):
         # fx = {f[FieldName]: f[FieldType] for f in tdef[Fields]}
         # for field_name, val in self.schema.get('meta', {}).items():
 
-        root = self.METASCHEMA['types'][0][TypeName]    # Root name defined in JADN Metaschema
+        # tdef = self.METASCHEMA['types'][0]    # Root name defined in JADN Metaschema
         # eroot = etree.Element(root)
         context = {}
-        self.validate_value(root, [], self.schema, context, make_element)
+        self.validate_value(self.METASCHEMA['types'][0], self.schema, context, make_element)
 
         # for tdef in self.schema['types']:
         #    make_type_element(tdef, eroot)
