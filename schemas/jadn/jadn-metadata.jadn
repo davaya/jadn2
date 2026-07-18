@@ -11,7 +11,8 @@
       ["qudt", "https://qudt.org/schema/shacl/qudt/"]
     ],
     "roots": [
-      "Foo"
+      "Baz",
+      "Quux"
     ],
     "jadn_version": "http://jadn-im.cc/schema/v2.0/jadn",
     "version": "2026-04-30",
@@ -28,16 +29,17 @@
       "title": "JADN Schema Metadata Test",
       "description": "JADN Schema test vector - all metadata fields",
       "license": "CC-BY-4.0",
-      "comment": "TODO: fix all the bugs, like trailing space mismatch   ",
+      "comment": "TODO: fix all the bugs, like missing roots and trailing spaces   ",
       "copyright": "©2020-2026 Example LLC."
     }
   },
   "types": [
-    ["Foo", "String", [], {"title": "Dummy Type", "description": "Test multiple annotations in TypeDesc"}],
+    ["Foo", "String", [], "Test multiple annotations in TypeDesc"],
     ["Bar", "Integer", ["/E:2,i:64"], {"title": "Dummy Properties", "description": "Primitive w/options"}],
-    ["Baz", "Map", ["o"], {"title": "Compound type"}, [
+    ["Quux", "ArrayOf", ["*Bar", "{0", "}3"], "Unstructured Compound Type"],
+    ["Baz", "Map", ["o", "="], {"title": "Compound type", "description": "Structured"}, [
       [1, "a", "Number", ["/flt:32,date-time"], {"title": "field 1", "description": "float time"}],
-      [2, "b", "ArrayOf", ["s", "[0", "]4", "*Bar"], {"title": "field 2", "description": "a small list"}]
+      [2, "b", "ArrayOf", ["s", "{0", "}4", "*Bar"], {"title": "a longer field title", "description": "a small list", "comment": "not multi"}]
     ]]
   ]
 }

@@ -1,3 +1,4 @@
+import copy
 import json
 from copy import deepcopy
 from dataclasses import dataclass
@@ -21,13 +22,14 @@ class JADN(JADNCore):
             'strip': False          # If True, strip description column from JADN output
         }
 
-    def schema_loads(self, jadn_str: str, source: str=None) -> None:
-        schema = jadn_schema_loads(jadn_str, self.OPT_NAME)
-        self.schema = schema
-        self.source = source
-        self.schema_load_finish()
+    def schema_loads(self, jadn_str: str, source: str='', vr: bool=True, vs: bool=True) -> None:
+        self.schema = jadn_schema_loads(jadn_str, self.OPT_NAME)
+        JADNCore.schema_load_common_finish(self)
 
-    def schema_dumps(self, style: dict=None) -> str:
+
+    # def schema_dumps(self, style: dict=None) -> str:
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str | bytes:
+
         """
         Return a schema instance as a string containing JADN data in JSON format
 
@@ -44,12 +46,8 @@ class JADN(JADNCore):
                 kv = v.popitem()
                 return chr(self.OPT_ID[kv[0]]) + kv[1]
 
-            def fmtopt(v: dict[str, Any]) -> str:
-                return ','.join([f'{k}:{j}'for k, j in v.items()])
-
             def strs(k: str, v: Any) -> str:    # TODO: fix boolean False encoding
-                v = fmtopt(v) if k == 'format' else \
-                    '' if isinstance(v, bool) else \
+                v = '' if isinstance(v, bool) else \
                     f'0x{v.hex()}' if isinstance(v, bytes) else \
                     dictopt(v) if isinstance(v, dict) else \
                     str(v)
@@ -58,11 +56,10 @@ class JADN(JADNCore):
             return [strs(k, v) for k, v in sorted(opts.items(),  # Sort options to a canonical order to ease comparison
                                                   key=lambda k: self.OPT_ORDER[k[0]])]
 
-        schema_copy = {'meta': x} if (x := self.schema.get('meta')) else {}
-        schema_copy.update({'types': deepcopy(self.schema['types'])})
-        # dump_option_types(schema_copy['types'], self.OPT_TYPE)
+        # Format-independent setup
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
 
-        for td in schema_copy['types']:
+        for td in self.schema['types']:
             # Clean up field defs
             for fd in td[Fields]:       # TODO: delete default=1 minOccurs/maxOccurs (until instance validation)
                 if td[CoreType] == 'Enumerated':
@@ -78,7 +75,7 @@ class JADN(JADNCore):
             while td and td[-1] == tdef[len(td) - 1]:
                 td.pop()
 
-        return _pprint(schema_copy, strip=style.get('strip', True)) + '\n'
+        return _pprint(self.schema, strip=style.get('strip', True)) + '\n'
 
 
 # ========================================================

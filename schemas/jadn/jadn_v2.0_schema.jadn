@@ -56,9 +56,9 @@
       [9, "readOnly", "BString", ["[0"], "JSON Schema API"],
       [10, "writeOnly", "BString", ["[0"], "JSON Schema API"]
     ]],
-    ["BString", "Enumerated", [], "Boolean value strings", [
-      [1, "true"],
-      [0, "false"]
+    ["BString", "Enumerated", ["="], "Boolean value strings", [
+      [1, "true", "Suggested literal string for 'True'"],
+      [0, "false", "Suggested literal string for 'False'"]
     ]],
     ["Namespace", "String", ["/uri"], "Unique name of a package"],
     ["Prefix", "String", ["%_prefixPat"], "Namespace prefix matching _prefixPat"],
@@ -238,7 +238,7 @@
       [120, "maxExclusive",  "BType", ["[0"], "x - maximum numeric/string value, excluding bound"],
       [121, "minInclusive",  "BType", ["[0"], "y - minimum numeric/string value"],
       [122, "maxInclusive",  "BType", ["[0"], "z - maximum numeric/string value"],
-      [123, "minLength",   "Integer", ["[0"], "{ - minimum byte or text string length, collection item count"],
+      [123, "minLength",   "Integer", ["[0", "u0"], "{ - minimum byte or text string length, collection item count"],
       [125, "maxLength",   "Integer", ["[0"], "} - maximum byte or text string length, collection item count"],
       [113, "unique",      "Boolean", ["[0", "u0"], "q - ArrayOf instance is ordered and unique (orderedSet)"],
       [115, "set",         "Boolean", ["[0", "u0"], "s - ArrayOf instance is unordered and unique (set)"],
@@ -254,9 +254,9 @@
       [102, "final",       "Boolean", ["[0", "u0"], "f - Inheritance: final - cannot have subtype"],
       [65,  "attr",        "Boolean", ["[0", "u0"], "A - Value may be serialized as an XML attribute"],
       [84, "typeOpts",      "String", ["[0"], "T - *Sentinel*: preceding are Type Options, following are Field Options"],
-      [91, "minOccurs",    "Integer", ["[0"], "[ - min cardinality, default = 1, 0 = field is optional"],
-      [93, "maxOccurs",    "Integer", ["[0"], "] - max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
-      [48, "nillable",     "Boolean", ["[0"], "0 - Instance may have no value, represented by nil, null, None, etc"],
+      [91, "minOccurs",    "Integer", ["[0", "u1"], "[ - min cardinality, default = 1, 0 = field is optional"],
+      [93, "maxOccurs",    "Integer", ["[0", "u1"], "] - max cardinality, default = 1, <0 = inherited or none, not 1 = array"],
+      [48, "nillable",     "Boolean", ["[0", "u0"], "0 - Instance may have no value, represented by nil, null, None, etc"],
       [38, "tagId",        "Integer", ["[0"], "& - field that specifies the type of this field"],
       [60, "dir",          "Boolean", ["[0", "u0"], "< - pointer enumeration treats field as a collection"],
       [75, "key",          "Boolean", ["[0", "u0"], "K - field is the primary key for TypeName"],

@@ -46,10 +46,10 @@ def schema_convert(schema_classes: dict, in_path: Path, out_format: str) -> ((st
     with open(in_path, 'r', encoding='utf8') as fp:
         in_pkg.schema_load(fp)
     out_path = os.path.join(abs_dir(OUT_DIR), in_fn.replace('.', '_') + f'.{out_format}')
-    out_pkg = sclasses[out_format](in_pkg)
+    out_pkg = sclasses[out_format]()
     style = style_args(out_pkg,'', str(abs_dir(CONFIG_FILE)))
     with open(out_path, 'w', encoding='utf8') as fp:
-        schema_msg = out_pkg.schema_dump(fp, style)
+        schema_msg = out_pkg.schema_dump(fp, in_pkg, style)
     return schema_msg, in_pkg
 
 

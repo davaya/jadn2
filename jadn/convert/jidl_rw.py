@@ -1,10 +1,12 @@
 """
 Convert JADN to/from JADN Interface Definition Language (JIDL)
 """
+import copy
 import json
 import re
 from jadn.core import JADNCore
-from jadn.definitions import TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, FieldID, META_ORDER
+from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields,
+                              ItemID, FieldID, FieldDesc, META_ORDER)
 from jadn.utils import (jadn2typestr, jadn2fieldstr, typestr2jadn, fieldstr2jadn,
                      cleanup_tagid, raise_error, id_type, etrunc)
 
@@ -33,37 +35,44 @@ class JIDL(JADNCore):
             'page': None    # Truncate to specified page width if specified
         }
 
-    def schema_loads(self, doc: str, source: dict=None) -> None:
+    #def schema_loads(self, doc: str, source: dict=None) -> None:
+    def schema_loads(self, msg: str, src: str='', vr: bool=True, vs: bool=True) -> None:
         meta = {}
         types = []
-        fields = None
-        for line in doc.splitlines():
+        fields = []
+        for line in msg.splitlines():
             if line:
                 t, v = _line2jadn(self, line, types[-1] if types else None)    # Parse a JIDL line
                 if t == 'F':
                     fields.append(v)
                 elif fields:
                     cleanup_tagid(fields)
-                    fields = None
+                    fields = []
                 if t == 'I':
                     meta.update({v[0]: json.loads(v[1])})
                 elif t == 'T':
                     types.append(v)
                     fields = types[-1][Fields]
         self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
-        self.source = source
-        self.schema_load_finish()
-        pass
+        self.source = src
 
-    def schema_dumps(self, style: dict=None) -> str:
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str:
         """
         Convert JADN schema to JADN-IDL
-
-        :param JIDL pkg: JADN schema
-        :param dict style: Override default column widths if specified
-        :return: JADN-IDL text
-        :rtype: str
         """
+        def _make_annotation(anno: str | dict) -> str:
+            """
+            Get an annotation suitable for line-oriented JADN-IDL, discard others
+            """
+            if isinstance(anno, dict):
+                k, v = min(
+                    ((k, v) for k, v in anno.items() if v),
+                    key=lambda t: len(t[1]), default=(None, None))
+                anno = f'{k}:{v}' if k else ''
+            return anno
+
+        super().schema_dump_common_setup(pkg, style, vr, vs)   # Format-independent setup to serialize
+
         w = self.style()
         if style:
             w.update(style)   # Override any specified column widths
@@ -76,21 +85,22 @@ class JIDL(JADNCore):
 
         wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
         for td in self.schema['types']:
+            td[TypeDesc] = _make_annotation(td[TypeDesc])
             tdef = f'{td[TypeName]} = {jadn2typestr(self, td[CoreType], td[TypeOptions])}'
             tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
             idt = id_type(td)
             for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
+                fd[FieldDesc] = _make_annotation(fd[FieldDesc])
                 fname, fdef, fmult, fdesc = jadn2fieldstr(self, fd, td)
+                fdesc = ' // ' + fdesc if fdesc else ''
                 if td[CoreType] == 'Enumerated':
-                    fdesc = ' // ' + fdesc if fdesc else ''
                     fs = f'{fd[ItemID]:>{w["id"]}} {fname}'
                     wf = w['id'] + w['name'] + 2
                 else:
                     fdef += '' if fmult == '1' \
                         else ' optional' if fmult == '0..1' \
                         else ' [' + fmult + ']'
-                    fdesc = ' // ' + fdesc if fdesc else ''
                     wn = 0 if idt else w['name']
                     fs = f'{fd[FieldID]:>{w["id"]}} {fname:<{wn}} {fdef}'
                     wf = w['id'] + w['type'] if idt else wt
@@ -138,9 +148,3 @@ def _line2jadn(self, line: str, tdef: list) -> tuple[str, list]:
 
     return '', []
 
-
-# =========================================================
-# Diagnostics
-# =========================================================
-if __name__ == '__main__':
-    pass

@@ -19,8 +19,10 @@ class XASD(JADNCore):
             'data_format': 'xasd',  # Data format / schema file extension
         }
 
-    def schema_loads(self, xml_str: str, source: str=None) -> None:
-        tree = etree.parse(BytesIO(xml_str.encode('utf8')))
+    #def schema_loads(self, xml_str: str, source: str=None) -> None:
+    def schema_loads(self, msg: str, src: str = '', vr: bool = True, vs: bool = True) -> None:
+
+        tree = etree.parse(BytesIO(msg.encode('utf8')))
         root = tree.getroot()
         assert root.tag == 'Schema'
         meta = {}
@@ -32,16 +34,12 @@ class XASD(JADNCore):
                 for el in element:
                     types.append(_get_type(self, el))
         self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
-        self.source = source
+        self.source = src
         self.schema_load_finish()
 
-    def schema_dumps(self, style: dict=None) -> str:
-        """
 
-        :param style:
-        :type style:
-        :return:
-        :rtype:
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool = True, vs: bool = True) -> str:
+        """
         """
 
         def enc_entities(text: str) -> str:
@@ -84,6 +82,8 @@ class XASD(JADNCore):
                 ctx.update({'element': etree.Element(tdef[TypeName])})
             make_type_element(tdef, ctx)
 
+        # Format-independent setup
+        super().schema_dump_common_setup(pkg, style, vr, vs)
 
         # tx = {k: v for k, v in self.schema.get('meta', {}).items()}
         # tdef = self.TYPE_X['Metadata']

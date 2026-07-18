@@ -155,7 +155,7 @@ def canonicalize(schema: dict) -> dict:
     return cschema
 
 
-def cleanup_tagid(fields: dict) -> dict:
+def cleanup_tagid(fields: list) -> list:
     """
     If type definition contains a TagId option, replace field name with id
     """
@@ -275,7 +275,7 @@ def multiplicity_str(opts: dict) -> str:
 
 def id_type(td: list) -> bool:    # Return True if FieldName is a label in description
     return (td[CoreType] == 'Array'
-        or td[TypeOptions].get('id', False)
+        or td[TypeOptions].get('id', None) is not None
         or 'combine' in td[TypeOptions])
 
 
