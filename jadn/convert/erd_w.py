@@ -38,7 +38,7 @@ class ERD(JADNCore):
             }
         }
 
-    def schema_dumps(self, style: dict=None) -> str:
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool = True, vs: bool = True) -> str:
         """
         Convert JADN schema to Entity Relationship Diagram source file
         """
@@ -135,6 +135,8 @@ class ERD(JADNCore):
                     edge_label = f' [{", ".join(edge)}]' if edge else ''
                     return f'  n{nodes[td[TypeName]]} -> n{nodes[fieldtype]}{edge_label}\n'
             return ''
+
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
 
         s = self.style()
         s.update(style)

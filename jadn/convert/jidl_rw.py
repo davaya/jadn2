@@ -35,7 +35,6 @@ class JIDL(JADNCore):
             'page': None    # Truncate to specified page width if specified
         }
 
-    #def schema_loads(self, doc: str, source: dict=None) -> None:
     def schema_loads(self, msg: str, src: str='', vr: bool=True, vs: bool=True) -> None:
         meta = {}
         types = []

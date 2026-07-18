@@ -18,11 +18,12 @@ class MD(JADNCore):
             'links': True   # Retain Markdown links: [text](link)
         }
 
-    def schema_loads(self, doc: str, source: dict=None):
+    def schema_loads(self, msg: str, src: str = '', vr: bool = True, vs: bool = True) -> None:
+
         meta = {}       # TODO: parsing state machine for meta followed by types including TypeDesc
         types = []
         fields = None
-        for line in doc.splitlines():
+        for line in msg.splitlines():
             if line:
                 t, v = _line2jadn(self, line, types[-1] if types else None)    # Parse a MARKDOWN line
                 if t == 'F':
@@ -37,14 +38,16 @@ class MD(JADNCore):
                     fields = types[-1][Fields]
                 elif t:
                     assert t == 'D', f'Unexpected line {t}: "{v}"'
-        self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
-        self.source = source
-        self.schema_load_finish()
 
-    def schema_dumps(self, style: dict=None) -> str:
+        self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
+        self.source = src
+        JADNCore.schema_load_common_finish(self)
+
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool = True, vs: bool = True) -> str:
         """
         Convert JADN schema to Markdown Tables
         """
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
 
         text = '```\n'
         meta = self.schema.get('meta', {})

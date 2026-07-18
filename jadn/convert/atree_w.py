@@ -18,8 +18,7 @@ class ATREE(JADNCore):
             'detail': 'conceptual',     # conceptual (name), logical (name+type), information (name+type+options)
         }
 
-
-    def schema_dumps(self, style: dict=None) -> str:
+    def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool = True, vs: bool = True) -> str:
         """
         Translate JADN schema to ascii tree diagram
         """
@@ -33,6 +32,8 @@ class ATREE(JADNCore):
                          f'{name} = {jadn2typestr(self, tx[name][CoreType], tx[name][TypeOptions])}')
                 return ' '.join((tree_col, jtype))
             return ''
+
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
 
         tr = tree_style(style['draw'])
         tag_deps = build_deps(self)     # Get labeled type definitions and their dependencies

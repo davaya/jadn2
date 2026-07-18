@@ -126,11 +126,10 @@ class JADNCore(ABC):
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema style options not defined')
 
-    @abstractmethod
     def schema_loads(self, msg: str | bytes, src: str='', vr: bool=True, vs: bool=True) -> None:
         """
         Convert schema from external representation to internal value
-        Subclass must define this
+        Schema subclasses should define either loads or dumps
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema load not implemented')
 
@@ -141,11 +140,10 @@ class JADNCore(ABC):
         """
         self.schema_loads(fp.read(), fp.name, vr, vs)
 
-    @abstractmethod
     def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str | bytes:
         """
         Convert schema from internal value to external representation
-        Subclass must define this
+        Schema subclasses should define either loads or dumps
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema dump not implemented')
 
