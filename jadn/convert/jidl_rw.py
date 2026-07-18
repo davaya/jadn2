@@ -8,7 +8,7 @@ from jadn.core import JADNCore
 from jadn.definitions import (TypeName, CoreType, TypeOptions, TypeDesc, Fields,
                               ItemID, FieldID, FieldDesc, META_ORDER)
 from jadn.utils import (jadn2typestr, jadn2fieldstr, typestr2jadn, fieldstr2jadn,
-                     cleanup_tagid, raise_error, id_type, etrunc)
+                        cleanup_tagid, annotation_string, raise_error, id_type, etrunc)
 
 
 # JIDL -> JADN Type regexes
@@ -61,16 +61,6 @@ class JIDL(JADNCore):
         """
         Convert JADN schema to JADN-IDL
         """
-        def _make_annotation(anno: str | dict) -> str:
-            """
-            Get an annotation suitable for line-oriented JADN-IDL, discard others
-            """
-            if isinstance(anno, dict):
-                k, v = min(
-                    ((k, v) for k, v in anno.items() if v),
-                    key=lambda t: len(t[1]), default=(None, None))
-                anno = f'{k}:{v}' if k else ''
-            return anno
 
         JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)   # Format-independent setup to serialize
 
@@ -86,13 +76,13 @@ class JIDL(JADNCore):
 
         wt = w['desc'] if w['desc'] else w['id'] + w['name'] + w['type']
         for td in self.schema['types']:
-            td[TypeDesc] = _make_annotation(td[TypeDesc])
+            td[TypeDesc] = annotation_string(td[TypeDesc])
             tdef = f'{td[TypeName]} = {jadn2typestr(self, td[CoreType], td[TypeOptions])}'
             tdesc = ' // ' + td[TypeDesc] if td[TypeDesc] else ''
             text += f'\n{tdef:<{wt}}{tdesc}'[:w['page']].rstrip() + '\n'
             idt = id_type(td)
             for fd in td[Fields] if len(td) > Fields else []:       # TODO: constant-length types
-                fd[FieldDesc] = _make_annotation(fd[FieldDesc])
+                fd[FieldDesc] = annotation_string(fd[FieldDesc])
                 fname, fdef, fmult, fdesc = jadn2fieldstr(self, fd, td)
                 fdesc = ' // ' + fdesc if fdesc else ''
                 if td[CoreType] == 'Enumerated':

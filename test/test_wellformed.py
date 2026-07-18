@@ -6,7 +6,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
-JADN_SCHEMA_DIR = 'schemas/jadn'
+JADN_SCHEMA_DIRS = ['schemas2/jadn', 'schemas/jadn-test']
 JADN_BAD_SCHEMA_DIR = 'schemas/jadn-not-wellformed'
 
 
@@ -25,9 +25,11 @@ def json_schema():
     # Teardown
 
 
-@pytest.mark.parametrize('in_path', Path(abs_dir(JADN_SCHEMA_DIR)).glob('*'), ids=lambda p: p.name)
-def test_jadn_wellformed(in_path: str, json_schema) -> None:
-    with open(os.path.join(JADN_SCHEMA_DIR, in_path)) as f:
+# @pytest.mark.parametrize('in_path', Path(abs_dir(JADN_SCHEMA_DIR)).glob('*'), ids=lambda p: p.name)
+@pytest.mark.parametrize('in_path', [p for d in JADN_SCHEMA_DIRS for p in Path(abs_dir(d)).glob('*.jadn')],
+                         ids=lambda p: f'{p.parent.name}/{p.name}')
+def test_jadn_schema_convert(in_path: str, json_schema) -> None:
+    with open(in_path) as f:
         jadn_schema = json.load(f)
     validate(instance=jadn_schema, schema=json_schema)
 

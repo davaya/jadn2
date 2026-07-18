@@ -38,7 +38,7 @@
     ["Bar", "Integer", ["/E:2,i:64"], {"title": "Dummy Properties", "description": "Primitive w/options"}],
     ["Quux", "ArrayOf", ["*Bar", "{0", "}3"], "Unstructured Compound Type"],
     ["Baz", "Map", ["o", "="], {"title": "Compound type", "description": "Structured"}, [
-      [1, "a", "Number", ["/flt:32,date-time"], {"title": "field 1", "description": "float time"}],
+      [1, "a", "Number", ["/f:32,date-time"], {"title": "field 1", "description": "float time"}],
       [2, "b", "ArrayOf", ["s", "{0", "}4", "*Bar"], {"title": "a longer field title", "description": "a small list", "comment": "not multi"}]
     ]]
   ]

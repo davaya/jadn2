@@ -278,6 +278,18 @@ def id_type(td: list) -> bool:    # Return True if FieldName is a label in descr
         or 'combine' in td[TypeOptions])
 
 
+def annotation_string(anno: str | dict) -> str:
+    """
+    Get an annotation from a  dict suitable for line-oriented JADN-IDL, discard others
+    """
+    if isinstance(anno, dict):
+        k, v = min(
+            ((k, v) for k, v in anno.items() if v),
+            key=lambda t: len(t[1]), default=(None, None))
+        anno = f'{k}:{v}' if k else ''
+    return anno
+
+
 def jadn2fieldstr(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     """
 
@@ -294,12 +306,12 @@ def jadn2fieldstr(self, fdef: dict, tdef: dict) -> tuple[str, str, str, str]:
     idtype = id_type(tdef)
     fname = '' if idtype else fdef[FieldName]
     fdesc = f'{fdef[FieldName]}:: ' if idtype else ''
-    is_enum = tdef[CoreType] == 'Enumerated'
-    fdesc += fdef[ItemDesc if is_enum else FieldDesc]
+    fdx = ItemDesc if tdef[CoreType] == 'Enumerated' else FieldDesc
+    fdesc += annotation_string(fdef[fdx])
     ftypestr = ''
     fmult = ''
 
-    if not is_enum:
+    if tdef[CoreType] != 'Enumerated':
         fopts = fdef[FieldOptions]       # ?
         fname += '/' if 'dir' in fopts else ''
         tf = ''
