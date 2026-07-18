@@ -83,7 +83,7 @@ class XASD(JADNCore):
             make_type_element(tdef, ctx)
 
         # Format-independent setup
-        super().schema_dump_common_setup(pkg, style, vr, vs)
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
 
         # tx = {k: v for k, v in self.schema.get('meta', {}).items()}
         # tdef = self.TYPE_X['Metadata']

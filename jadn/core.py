@@ -309,7 +309,7 @@ class JADNCore(ABC):
             if kt := self.OPT_TYPE.get(k):
                 if tab := self.OPT_TAB.get(k):
                     return _dict_to_str(v, tab)
-                return '' if kt == 'Boolean' else str(v)
+                return k if kt == 'Boolean' else str(v)
             raise_error(f'Translation for {k} not found: table {kt}, value {v}, type {btype}')
             return ''   # Unreachable, but stop type hints from whining
 

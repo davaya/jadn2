@@ -8,7 +8,7 @@ import re
 
 from functools import reduce
 from typing import Any
-from jadn.core import dump_option_type, raise_error
+from jadn.core import raise_error
 from jadn.definitions import (
     TypeName, CoreType, TypeOptions, TypeDesc, Fields, ItemID, ItemDesc,
     FieldID, FieldName, FieldType, FieldOptions, FieldDesc,
@@ -219,7 +219,6 @@ def jadn2typestr(self, tname: str, to: dict) -> str:
         return f'={lc}{ls}, {hs}{hc}' if lo or hi else ''
 
     topts = copy.copy(to)   # Don't delete caller's options
-    dump_option_type(topts, tname, self.OPT_TYPE)
     txt = '#' if topts.pop('id', None) else ''   # Remove known options from topts as processed.
     if tname in ('ArrayOf', 'MapOf'):
         txt += f"({_kvstr(topts.pop('keyType'))}, " if tname == 'MapOf' else '('
@@ -388,9 +387,9 @@ def typestr2jadn(self, typestring: str) -> tuple[str, dict[str, str], str]:
                     topts.update({'pattern': t.group(1)})
                 elif len(x := opt.split('..', maxsplit=1)) == 2:
                     a, b = x
-                    a = '*' if a != '*' and int(a) == 0 else a  # Default min size = 0
-                    topts.update({} if a == '*' else {'minLength': int(a)})
-                    topts.update({} if b == '*' else {'maxLength': int(b)})
+                    # a = '*' if a != '*' and int(a) == 0 else a  # Default min size = 0, don't normalize here
+                    topts.update({} if a == '*' else {'minLength': a})
+                    topts.update({} if b == '*' else {'maxLength': b})
                 else:
                     raise_error(f'unrecognized arg "{opt}", expected pattern or range')
 
@@ -453,7 +452,7 @@ def fieldstr2jadn(self, tdef: list, fid: int, fstr: str, fdesc: str) -> list:
         ftype = m.group(2)
         fstr = ftype + m.group(3)
 
-    m = re.match(f'^\s*([-:\w]+)(.*)$', fstr)
+    m = re.match(r'^\s*([-:\w]+)(.*)$', fstr)
     ftype = m.group(1)
     fstr = m.group(2)
     if m := re.match(r'^\s*\[(\d+)(?:\.\.(\d+|\*|\.))?\](.*)$', fstr):

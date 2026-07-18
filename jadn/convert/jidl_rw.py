@@ -53,8 +53,10 @@ class JIDL(JADNCore):
                 elif t == 'T':
                     types.append(v)
                     fields = types[-1][Fields]
+
         self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = src
+        JADNCore.schema_load_common_finish(self)   # Format-independent setup to serialize
 
     def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str:
         """
@@ -71,7 +73,7 @@ class JIDL(JADNCore):
                 anno = f'{k}:{v}' if k else ''
             return anno
 
-        super().schema_dump_common_setup(pkg, style, vr, vs)   # Format-independent setup to serialize
+        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)   # Format-independent setup to serialize
 
         w = self.style()
         if style:
