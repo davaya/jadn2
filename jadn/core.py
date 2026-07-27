@@ -8,7 +8,7 @@ from dataclasses import dataclass, field, fields
 from typing import TextIO, BinaryIO, Union, Any, ClassVar, final
 
 from jadn.definitions import TypeName, CoreType, TypeOptions, Fields, \
-    FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin
+    FieldID, FieldName, FieldType, FieldOptions, has_fields, is_builtin, has_fields, get_fieldname
 
 
 # Handle errors
@@ -70,6 +70,7 @@ class JADNCore(ABC):
     source: TextIO = field(init=False, default=None)        # Source of original schema Document
     type_x: dict = field(init=False, default_factory=dict)  # schema name to type definition lookup
     val_type: list[tuple] = field(init=False, default_factory=list)  # list of values annotated with type
+    state: Any = field(init=False, default=None)            # Format-specific opaque state variables
     cache: dict = field(init=False, default_factory=dict)   # validation optimization info
 
     def __post_init__(self) -> None:            # Run immediately after __init__()
@@ -143,7 +144,7 @@ class JADNCore(ABC):
     def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str | bytes:
         """
         Convert schema from internal value to external representation
-        Schema subclasses should define either loads or dumps
+        Schema subclasses should define either loads() or dumps()
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema dump not implemented')
 
@@ -176,14 +177,123 @@ class JADNCore(ABC):
         self.cache['run_schema'] = {}  # Original schema with shortcuts expanded
         pass
 
+    def schema_generate(self, pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str | bytes:
+        """
+        Format-agnostic alternative to schema_dumps()
+        Walk a schema internal value and generate external representation using subclass callbacks.
+        DO NOT override this
+
+        Subclasses that call this MUST define translation callback methods:
+          _do_init()        # initialize subclass state variables
+          _make_type()      # translate type to subclass format
+          _make_field()     # translate field of a type to subclass format
+          _do_finish()      # return external representation of the schema
+        """
+
+        # Junction node that binds format-specific state and type tree structure
+        class _TreeNode:
+            __slots__ = ['state', 'type', 'parent', 'children']
+            def __init__(self, format_state: dict, type_def: list, field_def: list | None):
+                self.state = format_state
+                self.type = type_def
+                self.parent = field_def
+                self.children = []
+
+            def display(self, level=0):
+                parent = self.parent if self.parent is not None else ['', '']
+                print(f'{level*"  "} {self.type[TypeName]} ({parent[FieldID]} {parent[FieldName]})')
+                for child in self.children:
+                    child.display(level + 1)
+
+        self.schema_dump_common_setup(pkg, style, vr, vs)
+
+        # ================
+        # Walk linearly through Metaschema, copying duplicate type references to tree
+        # XASD Metadata is a tree, JADN and XASD Types are DAGs
+        # ================
+
+        # Walk type definition DAG to convert to tree
+        def _walk(state: dict, tdef: list, parent: list=None) -> _TreeNode:
+            self._make_type(state, tdef)
+            tree = _TreeNode(state, tdef, parent)
+            for fdef in tdef[Fields]:
+                #=== Make child type ===
+                if new_type := self.TYPE_X.get(fdef[FieldType], None):
+                    tree.children.append(_walk(state, new_type, fdef))
+                elif tdef[CoreType] != 'Enumerated':
+                    if is_builtin(fdef[FieldType]):
+                        # Make new_type and append for primitives
+                        # Make new_type and walk for compound and choice (including unstructured)
+                        new_type = []   # Make child type logic
+                    else:
+                        raise_error(f'Undefined: {tdef[TypeName]}/{fdef[FieldID]}-{fdef[FieldName]}')
+                #=======================
+                self._make_field(state, new_type, fdef)
+                # tree.children.append(_TreeNode(state, new_type, fdef))
+
+            self._end_type(state, tdef)
+            return tree
+
+        # Initialize callback
+        root = self.METASCHEMA['types'][0]
+        state = {'root': self._do_init(root)}
+        full_tree = _walk(state, root)
+        full_tree.display()
+        state.update({'tree': full_tree})
+
+        return self._do_finish(state)
+
+    @abstractmethod
+    def _do_init(self, tdef: list) -> Any: pass     # Return opaque state variables
+
+    @abstractmethod
+    def _make_type(self, state: dict, tdef: list) -> None: pass
+
+    @abstractmethod
+    def _make_field(self, state: dict, tdef: list, fdef: list) -> None: pass
+
+    @abstractmethod
+    def _end_type(self, state: dict, tdef: list) -> None: pass
+
+    @abstractmethod
+    def _do_finish(self, state: dict) -> str | bytes: pass  # Return serialized external value
+
+    # Define dummy concrete implementations so that subclasses are not forced to override
+    # Ignore redeclaration lint warnings
+    def _do_init(self): pass
+    def _make_type(self): pass
+    def _make_field(self): pass
+    def _end_type(self): pass
+    def _do_finish(self): pass
+
+    """
+    def schema_walk(state) -> None:
+
+        # Translate type definitions for type and any nested content
+        def _make_nested_type(state: dict, tdef: list) ->None:
+            if (tn := tdef[TypeName]) not in state['seen_types']:
+                state['seen_types'].add(tn)
+                stack.append(tn)
+                print(stack)
+                self._make_type(state, tdef)
+                if tdef[CoreType] != 'Enumerated':
+                    for fdef in tdef[Fields]:
+                        if not is_builtin(fdef[FieldType]):
+                            if ftype := self.TYPE_X.get(fdef[FieldType], None):
+                                _make_nested_type(state, ftype)
+                            else:
+                                raise_error(f'{tdef[TypeName]}: {ftype} is not defined')
+
+                        self._make_field(state, tdef, fdef)
+                        print(f'{stack}/ {fdef[FieldID]} {fdef[FieldName]}')
+            stack.pop()
+            print(stack)
+            self._end_type(state)
+            """
+
     def validate_value(self, tdef: list, val: Any, ctx: Any, type_callback) -> None:
         # perform class-agnostic value validation
         # classify type and validity of val according to type options
-
-        # Resolve external references
-        pass
-        # Expand shortcuts
-        pass
 
         # tdef = self.TYPE_X.get(tname, tname)
         self.val_type.append((tdef[TypeName], val))
@@ -292,6 +402,29 @@ class JADNCore(ABC):
         self.source = pkg.source
         self.cache |= {'style': style, 'verbose_record': vr, 'verbose_string': vs}
         self._option_val_to_str()
+        # self._field_index(vr, self.schema['types'])
+
+    """
+    def _field_index(self, vr: bool, types: list[list]):
+        field_x = {}
+        for tdef in types:
+            # generate field index based on name/id or position
+            if (ct := tdef[CoreType]) in ('Array', 'Map', 'Record', 'Choice'):
+                if ct == 'Map' or (ct == 'Record' and vr):  # Fields indexed by name
+                    fx = {k[FieldName]: n for n, k in enumerate(tdef[Fields])}
+                    for k, v in val.items():
+                        if (ft := tdef[Fields][fx[k]][FieldType]) in self.TYPE_X:
+                            fdef = self.TYPE_X[ft]
+                            self.validate_value(fdef, v, ctx, type_callback)
+
+                else:  # Fields indexed by position
+                    for k, v in enumerate(val):
+                        if (ft := tdef[Fields][k][FieldType]) in self.TYPE_X:
+                            fdef = self.TYPE_X[ft]
+                            self.validate_value(fdef, v, ctx, type_callback)
+
+        self.state['field_x'] = field_x
+    """
 
     @final
     def _option_val_to_str(self) -> None:
@@ -322,6 +455,12 @@ class JADNCore(ABC):
 
         """
         Parking lot
+
+        # -- prep for validation --
+        # Resolve external references
+        pass
+        # Expand shortcuts
+        pass
 
         def get_map(self, vt: str, lit: str, btype, t_table) -> Any:
             ""
@@ -418,14 +557,6 @@ class JADNCore(ABC):
 def dump_option_type(opts: dict, base_type: str, t_table: dict) -> None:
     """
 
-    :param opts:
-    :type opts:
-    :param base_type:
-    :type base_type:
-    :param t_table:
-    :type t_table:
-    :return:
-    :rtype:
     """
     def dict_to_str(val: dict) -> str:
         vl = (k if (isinstance(v, bool) or not v) else k + ':' + str(v) for k, v in val.items())

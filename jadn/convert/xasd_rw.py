@@ -21,12 +21,14 @@ class XASD(JADNCore):
 
     #def schema_loads(self, xml_str: str, source: str=None) -> None:
     def schema_loads(self, msg: str, src: str = '', vr: bool = True, vs: bool = True) -> None:
-
+        """
+        Parse schema from msg into element tree, generate JADN internal value
+        """
+        meta = {}
+        types = []
         tree = etree.parse(BytesIO(msg.encode('utf8')))
         root = tree.getroot()
         assert root.tag == 'Schema'
-        meta = {}
-        types = []
         for element in root:
             if element.tag == 'Metadata':
                 meta = _get_meta(element)
@@ -35,79 +37,42 @@ class XASD(JADNCore):
                     types.append(_get_type(self, el))
         self.schema = {'meta': meta, 'types': types} if meta else {'types': types}
         self.source = src
-        self.schema_load_finish()
+        JADNCore.schema_load_common_finish(self)
 
 
     def schema_dumps(self, pkg: JADNCore, style: dict, vr: bool = True, vs: bool = True) -> str:
         """
+        Use XASD callback-based creation of Metaschema-based optimizations
         """
+        self.state = {}   # Clear any previous state
+        return self.schema_generate(pkg, style, vr, vs)
 
-        def enc_entities(text: str) -> str:
-            return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    def _do_init(self, tdef) -> etree.Element:
+        print()
+        return etree.Element(tdef[TypeName])
 
-        def enc_dict_entities(el: etree.Element, desc: str | dict) -> None:
-            if isinstance(desc, str):
-                el.text = enc_entities(desc)
-            else:
-                anno = etree.SubElement(el, 'Annotation')   # TODO: Annotation tag from Metaschema, hardcoded here
-                for k, v in desc.items():
-                    d = etree.SubElement(anno, k)
-                    d.text = enc_entities(v)
+    def _make_type(self, state: dict, tdef: list) -> None:
+        # print(f'make_type: {state['stack']}')
+        pass
 
-        def make_field_element(tdef: list, fdef: list, el: etree.Element) -> None:
-            fld = {'id': str(fdef[FieldID]), 'value': fdef[FieldName]}
-            ftype = 'String'
-            desc = ItemDesc
-            if tdef[CoreType] != 'Enumerated':
-                fo = copy.copy(fdef[FieldOptions])
-                dump_option_type(fo, fdef[FieldType], self.OPT_TYPE)
-                fld = {'fid': str(fdef[FieldID]), 'fname': fdef[FieldName]} | fo
-                ftype = fdef[FieldType]
-                desc = FieldDesc
-            ef = etree.SubElement(el, ftype, **fld)
-            enc_dict_entities(ef, fdef[desc])
+    def _make_field(self, state: dict, tdef: list, fdef: list) ->None:
+        # print(f'    make_field: {tdef[TypeName]}({tdef[CoreType]})/{fdef[FieldID]} {fdef[FieldName]}')
+        pass
 
-        def make_type_element(tdef: list, ctx: dict) -> None:
-            to = copy.copy(tdef[TypeOptions])
-            dump_option_type(to, tdef[TypeName], self.OPT_TYPE)
-            el = etree.SubElement(ctx['element'], tdef[TypeName], **({'type': tdef[CoreType]} | to))
-            enc_dict_entities(el, tdef[TypeDesc])
-            ctx['element'] = el
-            # for fdef in tdef[Fields]:
-            #     make_field_element(tdef, fdef, el)
+    def _end_type(self, state: dict, tdef: list) -> None:
+        # print(f' end_type: {state['stack']}')
+        pass
 
-        def make_element(tdef: list, val: Any, ctx: dict) -> None:
-            # Perform class-specific type validation
-            if ctx.get('element') is None:  # Create schema root element
-                ctx.update({'element': etree.Element(tdef[TypeName])})
-            make_type_element(tdef, ctx)
-
-        # Format-independent setup
-        JADNCore.schema_dump_common_setup(self, pkg, style, vr, vs)
-
-        # tx = {k: v for k, v in self.schema.get('meta', {}).items()}
-        # tdef = self.TYPE_X['Metadata']
-        # fx = {f[FieldName]: f[FieldType] for f in tdef[Fields]}
-        # for field_name, val in self.schema.get('meta', {}).items():
-
-        # tdef = self.METASCHEMA['types'][0]    # Root name defined in JADN Metaschema
-        # eroot = etree.Element(root)
-        context = {}
-        self.validate_value(self.METASCHEMA['types'][0], self.schema, context, make_element)
-
-        # for tdef in self.schema['types']:
-        #    make_type_element(tdef, eroot)
-
+    def _do_finish(self, state: dict) -> str:
         # lxml pretty_print=True doesn't work for display text.  Use DOM pretty printer instead.
-        xasd = etree.tostring(context['eroot'], xml_declaration=True, encoding='UTF-8').decode()
+        # print(f'do_finish: {state}')
+        xasd = etree.tostring(state['root'], xml_declaration=True, encoding='UTF-8').decode()
         doc = minidom.parseString(xasd).toprettyxml(indent='  ')
 
         def merge_txt(s0: str, s1: str) -> tuple[str, str]:     # Merge element text to same line as element
             return (s1, s0) if (c := s0.strip()).startswith('<') else (s1 + c, '')
-
         s = '', ''  # Lookahead state: (line(n), line(n+1)
         return '\n'.join([s[0] for ln in doc.split('\n') if (s := merge_txt(ln, s[1]))[0]]) + '\n'
-
 
 # ========================================================
 # Support functions
@@ -146,3 +111,45 @@ def _get_type(self, e: etree.Element) -> list:
 
     type = [at.pop('name'), at.pop('type'), at, gettext(e), fields]
     return type
+
+
+def enc_entities(text: str) -> str:
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def enc_dict_entities(el: etree.Element, desc: str | dict) -> None:
+    if isinstance(desc, str):
+        el.text = enc_entities(desc)
+    else:
+        anno = etree.SubElement(el, 'Annotation')   # TODO: Annotation tag from Metaschema, hardcoded here
+        for k, v in desc.items():
+            d = etree.SubElement(anno, k)
+            d.text = enc_entities(v)
+
+
+def make_field_element(tdef: list, fdef: list, el: etree.Element) -> None:
+    fld = {'id': str(fdef[FieldID]), 'value': fdef[FieldName]}
+    ftype = 'String'
+    desc = ItemDesc
+    if tdef[CoreType] != 'Enumerated':
+        fo = copy.copy(fdef[FieldOptions])
+        dump_option_type(fo, fdef[FieldType], self.OPT_TYPE)
+        fld = {'fid': str(fdef[FieldID]), 'fname': fdef[FieldName]} | fo
+        ftype = fdef[FieldType]
+        desc = FieldDesc
+    ef = etree.SubElement(el, ftype, **fld)
+    enc_dict_entities(ef, fdef[desc])
+
+
+def make_type_element(tdef: list) -> etree.Element:
+    el = etree.Element(tdef[TypeName])
+    el.text = enc_entities(tdef[TypeDesc])
+    return el
+
+"""
+def make_element(tdef: list, val: Any, ctx: dict) -> None:
+    # Perform class-specific type validation
+    if ctx.get('element') is None:  # Create schema root element
+        ctx.update({'element': etree.Element(tdef[TypeName])})
+    make_type_element(tdef, ctx)
+"""

@@ -14,7 +14,7 @@ For other structure types (array, choice, map, record) each field definition is 
 # Datatype Definition columns
 TypeName = 0            # Name of the type being defined
 CoreType = 1            # Core type of the type being defined
-TypeOptions = 2         # An array of zero or more TYPE_OPTIONS
+TypeOptions = 2         # A map of zero or more TYPE_OPTIONS
 TypeDesc = 3            # A non-normative description of the type
 Fields = 4              # List of one or more items or fields
 
@@ -27,7 +27,7 @@ ItemDesc = 2            # A non-normative description of the Enumerated item
 FieldID = 0             # Integer field identifier
 FieldName = 1           # Name or label of the field
 FieldType = 2           # Type of the field
-FieldOptions = 3        # An array of zero or more FIELD_OPTIONS (and TYPE_OPTIONS if extended)
+FieldOptions = 3        # A map of zero or more FIELD_OPTIONS (and TYPE_OPTIONS if extended)
 FieldDesc = 4           # A non-normative description of the field
 
 # Max cardinality limit ("maxOccurs" FieldOption) special values
@@ -45,9 +45,9 @@ PRIMITIVE_TYPES = (
 
 COMPOUND_TYPES = (
     'Array',
-    'ArrayOf',          # (value_type): instance is a container but definition has no fields
+    'ArrayOf',          # (value_type): instance is a collection with uniform value type
     'Map',
-    'MapOf',            # (key_type, value_type): instance is a container but definition has no fields
+    'MapOf',            # (key_type, value_type): instance is a collection with uniform key/value types
     'Record',
 )
 
@@ -58,22 +58,44 @@ UNION_TYPES = (
 
 CORE_TYPES = PRIMITIVE_TYPES + COMPOUND_TYPES + UNION_TYPES
 
+# Convenience functions
 
-def is_builtin(t: str) -> bool: return t in CORE_TYPES
+def is_builtin(t: str) -> bool:
+    return t in CORE_TYPES
+
+def is_primitive(t: str) -> bool:
+    return t in PRIMITIVE_TYPES   # Built-in (unqualified) primitive types
+
+def has_fields(t: str) -> bool:
+    return t in {'Array', 'Map', 'Record', 'Choice'}    # Not a leaf type
+
+def get_fieldname(tdef: list, fdef: list) -> str:
+    return fdef[ItemValue] if tdef[CoreType] == 'Enumerated' else fdef[FieldName]
+
+def get_fielddesc(tdef: list, fdef: list) -> str | dict:
+    return fdef[ItemDesc] if tdef[CoreType] == 'Enumerated' else fdef[ItemDesc]
+
+# Operations that pre-compute validation optimizations from a human-focused schema
+SHORTCUTS = {
+    'AnonymousType',            # type options included in FieldOptions
+    'Multiplicity',             # maxOccurs other than 1, or minLength other than 0 (optional) or 1 (required)
+    'DerivedEnum',              # enum and pointer/dir options, create Enumerated type of fields or paths
+    'MapOfEnum',                # keyType option specifies an Enumerated type
+    'Link',                     # key and link options
+    'Inherit',                  # inheritance static expansions
+    'Resolve',                  # Resolve external type references to either namespaced or imported definitions
+}
 
 
-def is_primitive(t: str) -> bool: return t in PRIMITIVE_TYPES   # Built-in (unqualified) primitive types
-
-
-def has_fields(t: str) -> bool: return t in {'Array', 'Map', 'Record', 'Choice'}    # Fields explicitly listed
-
+# =================================
+# Deprecated - Metaschema defines everything below this line
+# =================================
 
 # Option "tagged-string" serialization:
 #   JADN type definitions have TypeOptions and FieldOptions, each of which is a Map of key:value pairs
 #   In JSON serialization, options are represented as a List of ID-value strings where the first character
 #   of the string is the Unicode codepoint (ID) of its key; the remaining characters are its value.
-#   Option tables list the ID: (key name, value type, canonical sort order) of each option:
-
+#   Option tables list the ID: (key name, value type, canonical sort order) of each option.
 
 REQUIRED_TYPE_OPTIONS = {
     'Binary': [],
@@ -176,14 +198,6 @@ DEFAULT_CONFIG = {          # Configuration values to use if not specified in sc
     '_fieldNamePat': '^[a-z][_A-Za-z0-9]{0,63}$',     # Field Name regex, must exclude _pathChar
     '$NSID': '^([A-Za-z][A-Za-z0-9]{0,7})?$',      # Namespace ID regex
     '$TypeRef': '^$'            # Placeholder for derived pattern ($NSID ':')? _typeNamePat
-}
-
-EXTENSIONS = {
-    'AnonymousType',            # TYPE_OPTIONS included in FieldOptions
-    'Multiplicity',             # maxOccurs other than 1, or minLength other than 0 (optional) or 1 (required)
-    'DerivedEnum',              # enum and pointer/dir options, create Enumerated type of fields or JSON Pointers
-    'MapOfEnum',                # keyType option specifies an Enumerated type
-    'Link',                     # key and link options
 }
 
 META_ORDER = ('title', 'package', 'version', 'jadn_version', 'description', 'comments',

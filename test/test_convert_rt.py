@@ -20,6 +20,10 @@ JADN_SCHEMA_CLASS = {
     'atree': ATREE,
 }
 
+# Note that because JIDL is a line-oriented schema format, not a data format,
+# expect round-trip comparison diffs if an annotation contains more than one value.
+# All but one are intentionally stripped from type and field descriptions.
+
 def abs_dir(relative_path: str) -> Path:
     p = Path(__file__).parts
     parts = p[:p.index('test')] + Path(relative_path).parts
