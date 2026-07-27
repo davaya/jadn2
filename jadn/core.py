@@ -3,7 +3,8 @@ from __future__ import annotations  # Allow type hints without quotes - MUST be 
 import copy
 import os
 import json
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from jadn.abc_extensions import PartialABC, optional_abstract
 from dataclasses import dataclass, field, fields
 from typing import TextIO, BinaryIO, Union, Any, ClassVar, final
 
@@ -62,7 +63,7 @@ def jadn_schema_loads(jadn_str: str, opt_name: dict[int, str]) -> dict:
 
 
 @dataclass(slots=True, order=True)      # Automatically generate __init__() and data methods
-class JADNCore(ABC):
+class JADNCore(PartialABC):
     METASCHEMA: ClassVar[dict] = {}
 
     # Reserve fixed memory slots for instance variables, but do not include them in auto-generated __init__
@@ -134,6 +135,7 @@ class JADNCore(ABC):
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema load not implemented')
 
+    @optional_abstract
     def schema_load(self, fp: Union[TextIO, BinaryIO], vr: bool=True, vs: bool=True) -> None:
         """
         Load external representation from file/stream, then convert to internal value
@@ -148,6 +150,7 @@ class JADNCore(ABC):
         """
         raise NotImplementedError(f'{self.__class__.__name__} schema dump not implemented')
 
+    @optional_abstract
     def schema_dump(self, fp: Union[TextIO, BinaryIO], pkg: JADNCore, style: dict, vr: bool=True, vs: bool=True) -> str | bytes:
         """
         Convert schema from internal value to external representation, then save to file/stream
@@ -182,11 +185,14 @@ class JADNCore(ABC):
         Format-agnostic alternative to schema_dumps()
         Walk a schema internal value and generate external representation using subclass callbacks.
         DO NOT override this
+        (It should be decorated @abstractmethod like style(), but cannot because jadn_schema_loads()
+         is needed in this module but called from JADN subclass.)
 
         Subclasses that call this MUST define translation callback methods:
           _do_init()        # initialize subclass state variables
           _make_type()      # translate type to subclass format
           _make_field()     # translate field of a type to subclass format
+          _end_type()       # last field of type has been processed
           _do_finish()      # return external representation of the schema
         """
 
@@ -243,28 +249,20 @@ class JADNCore(ABC):
 
         return self._do_finish(state)
 
-    @abstractmethod
+    @optional_abstract
     def _do_init(self, tdef: list) -> Any: pass     # Return opaque state variables
 
-    @abstractmethod
+    @optional_abstract
     def _make_type(self, state: dict, tdef: list) -> None: pass
 
-    @abstractmethod
+    @optional_abstract
     def _make_field(self, state: dict, tdef: list, fdef: list) -> None: pass
 
-    @abstractmethod
+    @optional_abstract
     def _end_type(self, state: dict, tdef: list) -> None: pass
 
-    @abstractmethod
+    @optional_abstract
     def _do_finish(self, state: dict) -> str | bytes: pass  # Return serialized external value
-
-    # Define dummy concrete implementations so that subclasses are not forced to override
-    # Ignore redeclaration lint warnings
-    def _do_init(self): pass
-    def _make_type(self): pass
-    def _make_field(self): pass
-    def _end_type(self): pass
-    def _do_finish(self): pass
 
     """
     def schema_walk(state) -> None:
